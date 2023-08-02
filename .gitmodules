@@ -1,3 +1,0 @@
-[submodule "MPAS-Model"]
-	path = src/MPAS-Model
-	url = https://github.com/monanadmin/MPAS-Model
