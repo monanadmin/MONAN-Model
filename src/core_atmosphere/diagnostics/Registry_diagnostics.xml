@@ -1,0 +1,24 @@
+<!-- ******************************* -->
+<!-- Begin includes from diagnostics -->
+<!-- ******************************* -->
+
+#include "Registry_template.xml"
+
+<!-- isobaric diagnostics -->
+#include "Registry_isobaric.xml"
+
+<!-- cloud diagnostics -->
+#include "Registry_cloud.xml"
+
+<!-- convective diagnostics -->
+#include "Registry_convective.xml"
+
+<!-- PV diagnostics -->
+#include "Registry_pv.xml"
+
+<!-- soundings -->
+#include "Registry_soundings.xml"
+
+<!-- ******************************* -->
+<!-- End includes from diagnostics -->
+<!-- ******************************* -->
