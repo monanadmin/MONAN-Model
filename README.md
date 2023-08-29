@@ -1,3 +1,5 @@
+![Logo MONAN](https://github.com/monanadmin/monan_cc_docs/blob/master/docs/assets/logo_monan_vert_300x384.png)
+
 # MONAN-v0.1.0
 
 ## Model for Ocean-laNd-Atmosphere predictioN
