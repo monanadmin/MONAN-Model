@@ -877,7 +877,7 @@
 		<stream name="output" 
                         type="output" 
                         filename_template="history.$Y-$M-$D_$h.$m.$s.nc" 
-                        output_interval="6:00:00"
+                        output_interval="none"
                         runtime_format="separate_file">
 
 			<var name="latCell"/>
@@ -1001,7 +1001,7 @@
 		<stream name="diagnostics" 
                         type="output" 
                         filename_template="diag.$Y-$M-$D_$h.$m.$s.nc" 
-                        output_interval="3:00:00"
+                        output_interval="1:00:00"
                         runtime_format="separate_file">
 
 			<var name="initial_time"/>
@@ -1011,12 +1011,21 @@
 			<var name="mslp"/>
 			<var name="relhum_50hPa"/>
 			<var name="relhum_100hPa"/>
-			<var name="relhum_200hPa"/>
+			<var name="relhum_150hPa"/>
 			<var name="relhum_250hPa"/>
+			<var name="relhum_300hPa"/>
+			<var name="relhum_400hPa"/>
 			<var name="relhum_500hPa"/>
+			<var name="relhum_600hPa"/>
 			<var name="relhum_700hPa"/>
+			<var name="relhum_825hPa"/>
 			<var name="relhum_850hPa"/>
+			<var name="relhum_875hPa"/>
+			<var name="relhum_900hPa"/>
 			<var name="relhum_925hPa"/>
+			<var name="relhum_950hPa"/>
+			<var name="relhum_975hPa"/>
+			<var name="relhum_1000hPa"/>
 			<var name="dewpoint_50hPa"/>
 			<var name="dewpoint_100hPa"/>
 			<var name="dewpoint_200hPa"/>

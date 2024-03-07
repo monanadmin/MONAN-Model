@@ -26,7 +26,7 @@ module mpas_isobaric_diagnostics
     private
 
     logical :: need_mslp, &
-               need_relhum_50, need_relhum_100, need_relhum_200, need_relhum_250, need_relhum_500, need_relhum_700, need_relhum_850, need_relhum_925, &
+               need_relhum_50, need_relhum_100, need_relhum_150, need_relhum_250, need_relhum_300, need_relhum_400, need_relhum_500, need_relhum_600, need_relhum_700, need_relhum_825, need_relhum_850, need_relhum_875, need_relhum_900, need_relhum_925, need_relhum_950, need_relhum_975, need_relhum_1000, &
                need_dewpoint_50, need_dewpoint_100, need_dewpoint_200, need_dewpoint_250, need_dewpoint_500, need_dewpoint_700, need_dewpoint_850, need_dewpoint_925, &
                need_temp_50, need_temp_100, need_temp_200, need_temp_250, need_temp_500, need_temp_700, need_temp_850, need_temp_925, &
                need_height_50, need_height_100, need_height_200, need_height_250, need_height_500, need_height_700, need_height_850, need_height_925, &
@@ -109,24 +109,51 @@ module mpas_isobaric_diagnostics
         need_relhum_100 = MPAS_field_will_be_written('relhum_100hPa')
         need_relhum = need_relhum .or. need_relhum_100
         need_any_diags = need_any_diags .or. need_relhum_100
-        need_relhum_200 = MPAS_field_will_be_written('relhum_200hPa')
-        need_relhum = need_relhum .or. need_relhum_200
-        need_any_diags = need_any_diags .or. need_relhum_200
+        need_relhum_150 = MPAS_field_will_be_written('relhum_150hPa')
+        need_relhum = need_relhum .or. need_relhum_150
+        need_any_diags = need_any_diags .or. need_relhum_150
         need_relhum_250 = MPAS_field_will_be_written('relhum_250hPa')
         need_relhum = need_relhum .or. need_relhum_250
         need_any_diags = need_any_diags .or. need_relhum_250
+        need_relhum_300 = MPAS_field_will_be_written('relhum_300hPa')
+        need_relhum = need_relhum .or. need_relhum_300
+        need_any_diags = need_any_diags .or. need_relhum_300
+        need_relhum_400 = MPAS_field_will_be_written('relhum_400hPa')
+        need_relhum = need_relhum .or. need_relhum_400
+        need_any_diags = need_any_diags .or. need_relhum_400
         need_relhum_500 = MPAS_field_will_be_written('relhum_500hPa')
         need_relhum = need_relhum .or. need_relhum_500
         need_any_diags = need_any_diags .or. need_relhum_500
+        need_relhum_600 = MPAS_field_will_be_written('relhum_600hPa')
+        need_relhum = need_relhum .or. need_relhum_600
+        need_any_diags = need_any_diags .or. need_relhum_600
         need_relhum_700 = MPAS_field_will_be_written('relhum_700hPa')
         need_relhum = need_relhum .or. need_relhum_700
         need_any_diags = need_any_diags .or. need_relhum_700
+        need_relhum_825 = MPAS_field_will_be_written('relhum_825hPa')
+        need_relhum = need_relhum .or. need_relhum_825
+        need_any_diags = need_any_diags .or. need_relhum_825
         need_relhum_850 = MPAS_field_will_be_written('relhum_850hPa')
         need_relhum = need_relhum .or. need_relhum_850
         need_any_diags = need_any_diags .or. need_relhum_850
+        need_relhum_875 = MPAS_field_will_be_written('relhum_875hPa')
+        need_relhum = need_relhum .or. need_relhum_875
+        need_any_diags = need_any_diags .or. need_relhum_875
+        need_relhum_900 = MPAS_field_will_be_written('relhum_900hPa')
+        need_relhum = need_relhum .or. need_relhum_900
+        need_any_diags = need_any_diags .or. need_relhum_900
         need_relhum_925 = MPAS_field_will_be_written('relhum_925hPa')
         need_relhum = need_relhum .or. need_relhum_925
         need_any_diags = need_any_diags .or. need_relhum_925
+        need_relhum_950 = MPAS_field_will_be_written('relhum_950hPa')
+        need_relhum = need_relhum .or. need_relhum_950
+        need_any_diags = need_any_diags .or. need_relhum_950
+        need_relhum_975 = MPAS_field_will_be_written('relhum_975hPa')
+        need_relhum = need_relhum .or. need_relhum_975
+        need_any_diags = need_any_diags .or. need_relhum_975
+        need_relhum_1000 = MPAS_field_will_be_written('relhum_1000hPa')
+        need_relhum = need_relhum .or. need_relhum_1000
+        need_any_diags = need_any_diags .or. need_relhum_1000
         need_dewpoint_50 = MPAS_field_will_be_written('dewpoint_50hPa')
         need_dewpoint = need_dewpoint .or. need_dewpoint_50
         need_any_diags = need_any_diags .or. need_dewpoint_50
@@ -401,12 +428,21 @@ module mpas_isobaric_diagnostics
        
         real (kind=RKIND), dimension(:), pointer :: relhum_50hPa
         real (kind=RKIND), dimension(:), pointer :: relhum_100hPa
-        real (kind=RKIND), dimension(:), pointer :: relhum_200hPa
+        real (kind=RKIND), dimension(:), pointer :: relhum_150hPa
         real (kind=RKIND), dimension(:), pointer :: relhum_250hPa
+        real (kind=RKIND), dimension(:), pointer :: relhum_300hPa
+        real (kind=RKIND), dimension(:), pointer :: relhum_400hPa
         real (kind=RKIND), dimension(:), pointer :: relhum_500hPa
+        real (kind=RKIND), dimension(:), pointer :: relhum_600hPa
         real (kind=RKIND), dimension(:), pointer :: relhum_700hPa
+        real (kind=RKIND), dimension(:), pointer :: relhum_825hPa
         real (kind=RKIND), dimension(:), pointer :: relhum_850hPa
+        real (kind=RKIND), dimension(:), pointer :: relhum_875hPa
+        real (kind=RKIND), dimension(:), pointer :: relhum_900hPa
         real (kind=RKIND), dimension(:), pointer :: relhum_925hPa
+        real (kind=RKIND), dimension(:), pointer :: relhum_950hPa
+        real (kind=RKIND), dimension(:), pointer :: relhum_975hPa
+        real (kind=RKIND), dimension(:), pointer :: relhum_1000hPa        
        
         real (kind=RKIND), dimension(:), pointer :: dewpoint_50hPa
         real (kind=RKIND), dimension(:), pointer :: dewpoint_100hPa
@@ -540,12 +576,21 @@ module mpas_isobaric_diagnostics
        
         call mpas_pool_get_array(diag, 'relhum_50hPa', relhum_50hPa)
         call mpas_pool_get_array(diag, 'relhum_100hPa', relhum_100hPa)
-        call mpas_pool_get_array(diag, 'relhum_200hPa', relhum_200hPa)
+        call mpas_pool_get_array(diag, 'relhum_150hPa', relhum_150hPa)
         call mpas_pool_get_array(diag, 'relhum_250hPa', relhum_250hPa)
+        call mpas_pool_get_array(diag, 'relhum_300hPa', relhum_300hPa)
+        call mpas_pool_get_array(diag, 'relhum_400hPa', relhum_400hPa)
         call mpas_pool_get_array(diag, 'relhum_500hPa', relhum_500hPa)
+        call mpas_pool_get_array(diag, 'relhum_600hPa', relhum_600hPa)
         call mpas_pool_get_array(diag, 'relhum_700hPa', relhum_700hPa)
+        call mpas_pool_get_array(diag, 'relhum_825hPa', relhum_825hPa)
         call mpas_pool_get_array(diag, 'relhum_850hPa', relhum_850hPa)
+        call mpas_pool_get_array(diag, 'relhum_875hPa', relhum_875hPa)
+        call mpas_pool_get_array(diag, 'relhum_900hPa', relhum_900hPa)
         call mpas_pool_get_array(diag, 'relhum_925hPa', relhum_925hPa)
+        call mpas_pool_get_array(diag, 'relhum_950hPa', relhum_950hPa)
+        call mpas_pool_get_array(diag, 'relhum_975hPa', relhum_975hPa)
+        call mpas_pool_get_array(diag, 'relhum_1000hPa', relhum_1000hPa)        
        
         call mpas_pool_get_array(diag, 'dewpoint_50hPa', dewpoint_50hPa)
         call mpas_pool_get_array(diag, 'dewpoint_100hPa', dewpoint_100hPa)
@@ -786,12 +831,21 @@ module mpas_isobaric_diagnostics
             call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
             relhum_50hPa(1:nCells) = field_interp(1:nCells,1)
             relhum_100hPa(1:nCells) = field_interp(1:nCells,2)
-            relhum_200hPa(1:nCells) = field_interp(1:nCells,3)
+            relhum_150hPa(1:nCells) = field_interp(1:nCells,3)
             relhum_250hPa(1:nCells) = field_interp(1:nCells,4)
-            relhum_500hPa(1:nCells) = field_interp(1:nCells,5)
-            relhum_700hPa(1:nCells) = field_interp(1:nCells,6)
-            relhum_850hPa(1:nCells) = field_interp(1:nCells,7)
-            relhum_925hPa(1:nCells) = field_interp(1:nCells,8)
+            relhum_300hPa(1:nCells) = field_interp(1:nCells,5)
+            relhum_400hPa(1:nCells) = field_interp(1:nCells,6)
+            relhum_500hPa(1:nCells) = field_interp(1:nCells,7)
+            relhum_600hPa(1:nCells) = field_interp(1:nCells,8)
+            relhum_700hPa(1:nCells) = field_interp(1:nCells,9)
+            relhum_825hPa(1:nCells) = field_interp(1:nCells,10)
+            relhum_850hPa(1:nCells) = field_interp(1:nCells,11)
+            relhum_875hPa(1:nCells) = field_interp(1:nCells,12)
+            relhum_900hPa(1:nCells) = field_interp(1:nCells,13)
+            relhum_925hPa(1:nCells) = field_interp(1:nCells,14)
+            relhum_950hPa(1:nCells) = field_interp(1:nCells,15)
+            relhum_975hPa(1:nCells) = field_interp(1:nCells,16)
+            relhum_1000hPa(1:nCells) = field_interp(1:nCells,17)            
            ! call mpas_log_write('--- end interpolate relative humidity:')
         end if
        

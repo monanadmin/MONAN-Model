@@ -46,23 +46,50 @@
         <var name="relhum_100hPa" type="real" dimensions="nCells Time" units="percent"
              description="Relative humidity vertically interpolated to 100 hPa"/>
 
-        <var name="relhum_200hPa" type="real" dimensions="nCells Time" units="percent"
-             description="Relative humidity vertically interpolated to 200 hPa"/>
+        <var name="relhum_150hPa" type="real" dimensions="nCells Time" units="percent"
+             description="Relative humidity vertically interpolated to 150 hPa"/>
 
         <var name="relhum_250hPa" type="real" dimensions="nCells Time" units="percent"
              description="Relative humidity vertically interpolated to 250 hPa"/>
 
+        <var name="relhum_300hPa" type="real" dimensions="nCells Time" units="percent"
+             description="Relative humidity vertically interpolated to 300 hPa"/>
+
+        <var name="relhum_400hPa" type="real" dimensions="nCells Time" units="percent"
+             description="Relative humidity vertically interpolated to 400 hPa"/>
+
         <var name="relhum_500hPa" type="real" dimensions="nCells Time" units="percent"
              description="Relative humidity vertically interpolated to 500 hPa"/>
+
+        <var name="relhum_600hPa" type="real" dimensions="nCells Time" units="percent"
+             description="Relative humidity vertically interpolated to 600 hPa"/>
 
         <var name="relhum_700hPa" type="real" dimensions="nCells Time" units="percent"
              description="Relative humidity vertically interpolated to 700 hPa"/>
 
+        <var name="relhum_825hPa" type="real" dimensions="nCells Time" units="percent"
+             description="Relative humidity vertically interpolated to 825 hPa"/>
+
         <var name="relhum_850hPa" type="real" dimensions="nCells Time" units="percent"
              description="Relative humidity vertically interpolated to 850 hPa"/>
 
+        <var name="relhum_875hPa" type="real" dimensions="nCells Time" units="percent"
+             description="Relative humidity vertically interpolated to 875 hPa"/>
+
+        <var name="relhum_900hPa" type="real" dimensions="nCells Time" units="percent"
+             description="Relative humidity vertically interpolated to 900 hPa"/>
+
         <var name="relhum_925hPa" type="real" dimensions="nCells Time" units="percent"
              description="Relative humidity vertically interpolated to 925 hPa"/>
+
+        <var name="relhum_950hPa" type="real" dimensions="nCells Time" units="percent"
+             description="Relative humidity vertically interpolated to 950 hPa"/>
+
+        <var name="relhum_975hPa" type="real" dimensions="nCells Time" units="percent"
+             description="Relative humidity vertically interpolated to 975 hPa"/>
+
+        <var name="relhum_1000hPa" type="real" dimensions="nCells Time" units="percent"
+             description="Relative humidity vertically interpolated to 1000s hPa"/>
 
         <var name="dewpoint_50hPa" type="real" dimensions="nCells Time" units="K"
              description="Dewpoint temperature vertically interpolated to 50 hPa"/>
