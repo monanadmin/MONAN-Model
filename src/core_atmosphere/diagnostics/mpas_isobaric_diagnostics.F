@@ -29,7 +29,7 @@ module mpas_isobaric_diagnostics
                need_relhum_50, need_relhum_100, need_relhum_150, need_relhum_250, need_relhum_300, need_relhum_400, need_relhum_500, need_relhum_600, need_relhum_700, need_relhum_825, need_relhum_850, need_relhum_875, need_relhum_900, need_relhum_925, need_relhum_950, need_relhum_975, need_relhum_1000, &
                need_dewpoint_50, need_dewpoint_100, need_dewpoint_200, need_dewpoint_250, need_dewpoint_500, need_dewpoint_700, need_dewpoint_850, need_dewpoint_925, &
                need_temp_50, need_temp_100, need_temp_200, need_temp_250, need_temp_500, need_temp_700, need_temp_850, need_temp_925, &
-               need_height_50, need_height_100, need_height_200, need_height_250, need_height_500, need_height_700, need_height_850, need_height_925, &
+               need_height_50, need_height_100, need_height_150, need_height_250, need_height_300, need_height_400, need_height_500, need_height_600, need_height_700, need_height_825, need_height_850, need_height_875, need_height_900, need_height_925, need_height_950, need_height_975, need_height_1000, &
                need_uzonal_50, need_uzonal_100, need_uzonal_150, need_uzonal_250, need_uzonal_300, need_uzonal_400, need_uzonal_500, need_uzonal_600, need_uzonal_700, need_uzonal_825, need_uzonal_850, need_uzonal_875, need_uzonal_900, need_uzonal_925, need_uzonal_950, need_uzonal_975, need_uzonal_1000, &
                need_umeridional_50, need_umeridional_100, need_umeridional_200, need_umeridional_250, need_umeridional_500, need_umeridional_700, need_umeridional_850, need_umeridional_925, &
                need_w_50, need_w_100, need_w_200, need_w_250, need_w_500, need_w_700, need_w_850, need_w_925, &
@@ -208,24 +208,51 @@ module mpas_isobaric_diagnostics
         need_height_100 = MPAS_field_will_be_written('height_100hPa')
         need_height = need_height .or. need_height_100
         need_any_diags = need_any_diags .or. need_height_100
-        need_height_200 = MPAS_field_will_be_written('height_200hPa')
-        need_height = need_height .or. need_height_200
-        need_any_diags = need_any_diags .or. need_height_200
+        need_height_150 = MPAS_field_will_be_written('height_150hPa')
+        need_height = need_height .or. need_height_150
+        need_any_diags = need_any_diags .or. need_height_150
         need_height_250 = MPAS_field_will_be_written('height_250hPa')
         need_height = need_height .or. need_height_250
         need_any_diags = need_any_diags .or. need_height_250
+        need_height_300 = MPAS_field_will_be_written('height_300hPa')
+        need_height = need_height .or. need_height_300
+        need_any_diags = need_any_diags .or. need_height_300
+        need_height_400 = MPAS_field_will_be_written('height_400hPa')
+        need_height = need_height .or. need_height_400
+        need_any_diags = need_any_diags .or. need_height_400
         need_height_500 = MPAS_field_will_be_written('height_500hPa')
         need_height = need_height .or. need_height_500
         need_any_diags = need_any_diags .or. need_height_500
+        need_height_600 = MPAS_field_will_be_written('height_600hPa')
+        need_height = need_height .or. need_height_600
+        need_any_diags = need_any_diags .or. need_height_600
         need_height_700 = MPAS_field_will_be_written('height_700hPa')
         need_height = need_height .or. need_height_700
         need_any_diags = need_any_diags .or. need_height_700
+        need_height_825 = MPAS_field_will_be_written('height_825hPa')
+        need_height = need_height .or. need_height_825
+        need_any_diags = need_any_diags .or. need_height_825
         need_height_850 = MPAS_field_will_be_written('height_850hPa')
         need_height = need_height .or. need_height_850
         need_any_diags = need_any_diags .or. need_height_850
+        need_height_875 = MPAS_field_will_be_written('height_875hPa')
+        need_height = need_height .or. need_height_875
+        need_any_diags = need_any_diags .or. need_height_875
+        need_height_900 = MPAS_field_will_be_written('height_900hPa')
+        need_height = need_height .or. need_height_900
+        need_any_diags = need_any_diags .or. need_height_900
         need_height_925 = MPAS_field_will_be_written('height_925hPa')
         need_height = need_height .or. need_height_925
         need_any_diags = need_any_diags .or. need_height_925
+        need_height_950 = MPAS_field_will_be_written('height_950hPa')
+        need_height = need_height .or. need_height_950
+        need_any_diags = need_any_diags .or. need_height_950
+        need_height_975 = MPAS_field_will_be_written('height_975hPa')
+        need_height = need_height .or. need_height_975
+        need_any_diags = need_any_diags .or. need_height_975
+        need_height_1000 = MPAS_field_will_be_written('height_1000hPa')
+        need_height = need_height .or. need_height_1000
+        need_any_diags = need_any_diags .or. need_height_1000
 
         need_uzonal_50 = MPAS_field_will_be_written('uzonal_50hPa')
         need_uzonal = need_uzonal .or. need_uzonal_50
@@ -482,12 +509,21 @@ module mpas_isobaric_diagnostics
        
         real (kind=RKIND), dimension(:), pointer :: height_50hPa
         real (kind=RKIND), dimension(:), pointer :: height_100hPa
-        real (kind=RKIND), dimension(:), pointer :: height_200hPa
+        real (kind=RKIND), dimension(:), pointer :: height_150hPa
         real (kind=RKIND), dimension(:), pointer :: height_250hPa
+        real (kind=RKIND), dimension(:), pointer :: height_300hPa
+        real (kind=RKIND), dimension(:), pointer :: height_400hPa
         real (kind=RKIND), dimension(:), pointer :: height_500hPa
+        real (kind=RKIND), dimension(:), pointer :: height_600hPa
         real (kind=RKIND), dimension(:), pointer :: height_700hPa
+        real (kind=RKIND), dimension(:), pointer :: height_825hPa
         real (kind=RKIND), dimension(:), pointer :: height_850hPa
+        real (kind=RKIND), dimension(:), pointer :: height_875hPa
+        real (kind=RKIND), dimension(:), pointer :: height_900hPa
         real (kind=RKIND), dimension(:), pointer :: height_925hPa
+        real (kind=RKIND), dimension(:), pointer :: height_950hPa
+        real (kind=RKIND), dimension(:), pointer :: height_975hPa
+        real (kind=RKIND), dimension(:), pointer :: height_1000hPa
        
         real (kind=RKIND), dimension(:), pointer :: w_50hPa
         real (kind=RKIND), dimension(:), pointer :: w_100hPa
@@ -630,12 +666,21 @@ module mpas_isobaric_diagnostics
        
         call mpas_pool_get_array(diag, 'height_50hPa', height_50hPa)
         call mpas_pool_get_array(diag, 'height_100hPa', height_100hPa)
-        call mpas_pool_get_array(diag, 'height_200hPa', height_200hPa)
+        call mpas_pool_get_array(diag, 'height_150hPa', height_150hPa)
         call mpas_pool_get_array(diag, 'height_250hPa', height_250hPa)
+        call mpas_pool_get_array(diag, 'height_300hPa', height_300hPa)
+        call mpas_pool_get_array(diag, 'height_400hPa', height_400hPa)
         call mpas_pool_get_array(diag, 'height_500hPa', height_500hPa)
+        call mpas_pool_get_array(diag, 'height_600hPa', height_600hPa)
         call mpas_pool_get_array(diag, 'height_700hPa', height_700hPa)
+        call mpas_pool_get_array(diag, 'height_825hPa', height_825hPa)
         call mpas_pool_get_array(diag, 'height_850hPa', height_850hPa)
+        call mpas_pool_get_array(diag, 'height_875hPa', height_875hPa)
+        call mpas_pool_get_array(diag, 'height_900hPa', height_900hPa)
         call mpas_pool_get_array(diag, 'height_925hPa', height_925hPa)
+        call mpas_pool_get_array(diag, 'height_950hPa', height_950hPa)
+        call mpas_pool_get_array(diag, 'height_975hPa', height_975hPa)
+        call mpas_pool_get_array(diag, 'height_1000hPa', height_1000hPa)
        
         call mpas_pool_get_array(diag, 'w_50hPa', w_50hPa)
         call mpas_pool_get_array(diag, 'w_100hPa', w_100hPa)
@@ -943,12 +988,21 @@ module mpas_isobaric_diagnostics
             call interp_tofixed_pressure(nCells,nVertLevelsP1,nIntP,press_in,field_in,press_interp,field_interp)
             height_50hPa(1:nCells) = field_interp(1:nCells,1)
             height_100hPa(1:nCells) = field_interp(1:nCells,2)
-            height_200hPa(1:nCells) = field_interp(1:nCells,3)
+            height_150hPa(1:nCells) = field_interp(1:nCells,3)
             height_250hPa(1:nCells) = field_interp(1:nCells,4)
-            height_500hPa(1:nCells) = field_interp(1:nCells,5)
-            height_700hPa(1:nCells) = field_interp(1:nCells,6)
-            height_850hPa(1:nCells) = field_interp(1:nCells,7)
-            height_925hPa(1:nCells) = field_interp(1:nCells,8)
+            height_300hPa(1:nCells) = field_interp(1:nCells,5)
+            height_400hPa(1:nCells) = field_interp(1:nCells,6)
+            height_500hPa(1:nCells) = field_interp(1:nCells,7)
+            height_600hPa(1:nCells) = field_interp(1:nCells,8)
+            height_700hPa(1:nCells) = field_interp(1:nCells,9)
+            height_825hPa(1:nCells) = field_interp(1:nCells,10)
+            height_850hPa(1:nCells) = field_interp(1:nCells,11)
+            height_875hPa(1:nCells) = field_interp(1:nCells,12)
+            height_900hPa(1:nCells) = field_interp(1:nCells,13)
+            height_925hPa(1:nCells) = field_interp(1:nCells,14)
+            height_950hPa(1:nCells) = field_interp(1:nCells,15)
+            height_975hPa(1:nCells) = field_interp(1:nCells,16)
+            height_1000hPa(1:nCells) = field_interp(1:nCells,17)
            ! call mpas_log_write('--- end interpolate height:')
         
            !... vertical velocity
