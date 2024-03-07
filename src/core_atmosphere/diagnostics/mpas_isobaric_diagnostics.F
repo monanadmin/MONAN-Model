@@ -31,7 +31,7 @@ module mpas_isobaric_diagnostics
                need_temp_50, need_temp_100, need_temp_200, need_temp_250, need_temp_500, need_temp_700, need_temp_850, need_temp_925, &
                need_height_50, need_height_100, need_height_200, need_height_250, need_height_500, need_height_700, need_height_850, need_height_925, &
                need_uzonal_50, need_uzonal_100, need_uzonal_150, need_uzonal_250, need_uzonal_300, need_uzonal_400, need_uzonal_500, need_uzonal_600, need_uzonal_700, need_uzonal_825, need_uzonal_850, need_uzonal_875, need_uzonal_900, need_uzonal_925, need_uzonal_950, need_uzonal_975, need_uzonal_1000, &
-               need_umeridional_50, need_umeridional_100, need_umeridional_150, need_umeridional_250, need_umeridional_300, need_umeridional_400, need_umeridional_500, need_umeridional_600, need_umeridional_700, need_umeridional_825, need_umeridional_850, need_umeridional_875, need_umeridional_900, need_umeridional_925, need_umeridional_950, need_umeridional_975, need_umeridional_1000, &
+               need_umeridional_50, need_umeridional_100, need_umeridional_200, need_umeridional_250, need_umeridional_500, need_umeridional_700, need_umeridional_850, need_umeridional_925, &
                need_w_50, need_w_100, need_w_200, need_w_250, need_w_500, need_w_700, need_w_850, need_w_925, &
                need_vorticity_50, need_vorticity_100, need_vorticity_200, need_vorticity_250, need_vorticity_500, need_vorticity_700, need_vorticity_850, need_vorticity_925, &
                need_t_isobaric, need_z_isobaric, need_meanT_500_300
@@ -558,7 +558,7 @@ module mpas_isobaric_diagnostics
        
         call mpas_pool_get_array(diag, 'uzonal_50hPa'  , uzonal_50hPa)
         call mpas_pool_get_array(diag, 'uzonal_100hPa' , uzonal_100hPa)
-        call mpas_pool_get_array(diag, 'uzonal_100hPa' , uzonal_150hPa)
+        call mpas_pool_get_array(diag, 'uzonal_150hPa' , uzonal_150hPa)
         call mpas_pool_get_array(diag, 'uzonal_250hPa' , uzonal_250hPa)
         call mpas_pool_get_array(diag, 'uzonal_300hPa' , uzonal_300hPa)
         call mpas_pool_get_array(diag, 'uzonal_400hPa' , uzonal_400hPa)
@@ -721,7 +721,7 @@ module mpas_isobaric_diagnostics
         end if
        
        !interpolation to fixed pressure levels for fields located at cells centers and at mass points:
-        nIntP = 8
+        nIntP = 17
         if(.not.allocated(field_interp)) allocate(field_interp(nCells,nIntP) )
         if(.not.allocated(press_interp)) allocate(press_interp(nCells,nIntP) )
         do iCell = 1, nCells

@@ -164,56 +164,28 @@
              description="Reconstructed zonal wind at cell centers, vertically interpolated to 1000s hPa"/>
 
         <var name="umeridional_50hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
-             description="Reconstructed zonal wind at cell centers, vertically interpolated to 50 hPa"/>
+             description="Reconstructed meridional wind at cell centers, vertically interpolated to 50 hPa"/>
 
         <var name="umeridional_100hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
-             description="Reconstructed zonal wind at cell centers, vertically interpolated to 100 hPa"/>
+             description="Reconstructed meridional wind at cell centers, vertically interpolated to 100 hPa"/>
 
-        <var name="umeridional_150hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
-             description="Reconstructed zonal wind at cell centers, vertically interpolated to 150 hPa"/>
+        <var name="umeridional_200hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
+             description="Reconstructed meridional wind at cell centers, vertically interpolated to 200 hPa"/>
 
         <var name="umeridional_250hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
-             description="Reconstructed zonal wind at cell centers, vertically interpolated to 250 hPa"/>
-
-        <var name="umeridional_300hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
-             description="Reconstructed zonal wind at cell centers, vertically interpolated to 300 hPa"/>
-
-        <var name="umeridional_400hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
-             description="Reconstructed zonal wind at cell centers, vertically interpolated to 400 hPa"/>
+             description="Reconstructed meridional wind at cell centers, vertically interpolated to 250 hPa"/>
 
         <var name="umeridional_500hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
-             description="Reconstructed zonal wind at cell centers, vertically interpolated to 500 hPa"/>
-
-        <var name="umeridional_600hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
-             description="Reconstructed zonal wind at cell centers, vertically interpolated to 600 hPa"/>
+             description="Reconstructed meridional wind at cell centers, vertically interpolated to 500 hPa"/>
 
         <var name="umeridional_700hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
-             description="Reconstructed zonal wind at cell centers, vertically interpolated to 700 hPa"/>
-
-        <var name="umeridional_825hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
-             description="Reconstructed zonal wind at cell centers, vertically interpolated to 825 hPa"/>
+             description="Reconstructed meridional wind at cell centers, vertically interpolated to 700 hPa"/>
 
         <var name="umeridional_850hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
-             description="Reconstructed zonal wind at cell centers, vertically interpolated to 850 hPa"/>
-
-        <var name="umeridional_875hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
-             description="Reconstructed zonal wind at cell centers, vertically interpolated to 875 hPa"/>
-
-        <var name="umeridional_900hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
-             description="Reconstructed zonal wind at cell centers, vertically interpolated to 900 hPa"/>
+             description="Reconstructed meridional wind at cell centers, vertically interpolated to 850 hPa"/>
 
         <var name="umeridional_925hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
-             description="Reconstructed zonal wind at cell centers, vertically interpolated to 925 hPa"/>
-
-        <var name="umeridional_950hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
-             description="Reconstructed zonal wind at cell centers, vertically interpolated to 950 hPa"/>
-
-        <var name="umeridional_975hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
-             description="Reconstructed zonal wind at cell centers, vertically interpolated to 975 hPa"/>
-
-        <var name="umeridional_1000hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
-             description="Reconstructed zonal wind at cell centers, vertically interpolated to 1000s hPa"/>
-
+             description="Reconstructed meridional wind at cell centers, vertically interpolated to 925 hPa"/>
 
         <var name="w_50hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
              description="Vertical velocity vertically interpolated to 50 hPa"/>
