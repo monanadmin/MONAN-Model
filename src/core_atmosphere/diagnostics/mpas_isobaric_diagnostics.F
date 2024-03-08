@@ -28,7 +28,7 @@ module mpas_isobaric_diagnostics
     logical :: need_mslp, &
                need_relhum_50, need_relhum_100, need_relhum_150, need_relhum_250, need_relhum_300, need_relhum_400, need_relhum_500, need_relhum_600, need_relhum_700, need_relhum_825, need_relhum_850, need_relhum_875, need_relhum_900, need_relhum_925, need_relhum_950, need_relhum_975, need_relhum_1000, &
                need_dewpoint_50, need_dewpoint_100, need_dewpoint_200, need_dewpoint_250, need_dewpoint_500, need_dewpoint_700, need_dewpoint_850, need_dewpoint_925, &
-               need_temp_50, need_temp_100, need_temp_200, need_temp_250, need_temp_500, need_temp_700, need_temp_850, need_temp_925, &
+               need_temp_50, need_temp_100, need_temp_150, need_temp_250, need_temp_300, need_temp_400, need_temp_500, need_temp_600, need_temp_700, need_temp_825, need_temp_850, need_temp_875, need_temp_900, need_temp_925, need_temp_950, need_temp_975, need_temp_1000, &
                need_height_50, need_height_100, need_height_150, need_height_250, need_height_300, need_height_400, need_height_500, need_height_600, need_height_700, need_height_825, need_height_850, need_height_875, need_height_900, need_height_925, need_height_950, need_height_975, need_height_1000, &
                need_uzonal_50, need_uzonal_100, need_uzonal_150, need_uzonal_250, need_uzonal_300, need_uzonal_400, need_uzonal_500, need_uzonal_600, need_uzonal_700, need_uzonal_825, need_uzonal_850, need_uzonal_875, need_uzonal_900, need_uzonal_925, need_uzonal_950, need_uzonal_975, need_uzonal_1000, &
                need_umeridional_50, need_umeridional_100, need_umeridional_150, need_umeridional_250, need_umeridional_300, need_umeridional_400, need_umeridional_500, need_umeridional_600, need_umeridional_700, need_umeridional_825, need_umeridional_850, need_umeridional_875, need_umeridional_900, need_umeridional_925, need_umeridional_950, need_umeridional_975, need_umeridional_1000, &
@@ -178,30 +178,59 @@ module mpas_isobaric_diagnostics
         need_dewpoint_925 = MPAS_field_will_be_written('dewpoint_925hPa')
         need_dewpoint = need_dewpoint .or. need_dewpoint_925
         need_any_diags = need_any_diags .or. need_dewpoint_925
+
         need_temp_50 = MPAS_field_will_be_written('temperature_50hPa')
         need_temp = need_temp .or. need_temp_50
         need_any_diags = need_any_diags .or. need_temp_50
         need_temp_100 = MPAS_field_will_be_written('temperature_100hPa')
         need_temp = need_temp .or. need_temp_100
         need_any_diags = need_any_diags .or. need_temp_100
-        need_temp_200 = MPAS_field_will_be_written('temperature_200hPa')
-        need_temp = need_temp .or. need_temp_200
-        need_any_diags = need_any_diags .or. need_temp_200
+        need_temp_150 = MPAS_field_will_be_written('temperature_150hPa')
+        need_temp = need_temp .or. need_temp_150
+        need_any_diags = need_any_diags .or. need_temp_150
         need_temp_250 = MPAS_field_will_be_written('temperature_250hPa')
         need_temp = need_temp .or. need_temp_250
         need_any_diags = need_any_diags .or. need_temp_250
+        need_temp_300 = MPAS_field_will_be_written('temperature_300hPa')
+        need_temp = need_temp .or. need_temp_300
+        need_any_diags = need_any_diags .or. need_temp_300
+        need_temp_400 = MPAS_field_will_be_written('temperature_400hPa')
+        need_temp = need_temp .or. need_temp_400
+        need_any_diags = need_any_diags .or. need_temp_400
         need_temp_500 = MPAS_field_will_be_written('temperature_500hPa')
         need_temp = need_temp .or. need_temp_500
         need_any_diags = need_any_diags .or. need_temp_500
+        need_temp_600 = MPAS_field_will_be_written('temperature_600hPa')
+        need_temp = need_temp .or. need_temp_600
+        need_any_diags = need_any_diags .or. need_temp_600
         need_temp_700 = MPAS_field_will_be_written('temperature_700hPa')
         need_temp = need_temp .or. need_temp_700
         need_any_diags = need_any_diags .or. need_temp_700
+        need_temp_825 = MPAS_field_will_be_written('temperature_825hPa')
+        need_temp = need_temp .or. need_temp_825
+        need_any_diags = need_any_diags .or. need_temp_825
         need_temp_850 = MPAS_field_will_be_written('temperature_850hPa')
         need_temp = need_temp .or. need_temp_850
         need_any_diags = need_any_diags .or. need_temp_850
+        need_temp_875 = MPAS_field_will_be_written('temperature_875hPa')
+        need_temp = need_temp .or. need_temp_875
+        need_any_diags = need_any_diags .or. need_temp_875
+        need_temp_900 = MPAS_field_will_be_written('temperature_900hPa')
+        need_temp = need_temp .or. need_temp_900
+        need_any_diags = need_any_diags .or. need_temp_900
         need_temp_925 = MPAS_field_will_be_written('temperature_925hPa')
         need_temp = need_temp .or. need_temp_925
         need_any_diags = need_any_diags .or. need_temp_925
+        need_temp_950 = MPAS_field_will_be_written('temperature_950hPa')
+        need_temp = need_temp .or. need_temp_950
+        need_any_diags = need_any_diags .or. need_temp_950
+        need_temp_975 = MPAS_field_will_be_written('temperature_975hPa')
+        need_temp = need_temp .or. need_temp_975
+        need_any_diags = need_any_diags .or. need_temp_975
+        need_temp_1000 = MPAS_field_will_be_written('temperature_1000hPa')
+        need_temp = need_temp .or. need_temp_1000
+        need_any_diags = need_any_diags .or. need_temp_1000
+
         need_height_50 = MPAS_field_will_be_written('height_50hPa')
         need_height = need_height .or. need_height_50
         need_any_diags = need_any_diags .or. need_height_50
@@ -257,67 +286,51 @@ module mpas_isobaric_diagnostics
         need_uzonal_50 = MPAS_field_will_be_written('uzonal_50hPa')
         need_uzonal = need_uzonal .or. need_uzonal_50
         need_any_diags = need_any_diags .or. need_uzonal_50
-
         need_uzonal_100 = MPAS_field_will_be_written('uzonal_100hPa')
         need_uzonal = need_uzonal .or. need_uzonal_100
         need_any_diags = need_any_diags .or. need_uzonal_100
-
         need_uzonal_150 = MPAS_field_will_be_written('uzonal_150hPa')
         need_uzonal = need_uzonal .or. need_uzonal_150
         need_any_diags = need_any_diags .or. need_uzonal_150
-
         need_uzonal_250 = MPAS_field_will_be_written('uzonal_250hPa')
         need_uzonal = need_uzonal .or. need_uzonal_250
         need_any_diags = need_any_diags .or. need_uzonal_250
-
         need_uzonal_300 = MPAS_field_will_be_written('uzonal_300hPa')
         need_uzonal = need_uzonal .or. need_uzonal_300
         need_any_diags = need_any_diags .or. need_uzonal_300
-
         need_uzonal_400 = MPAS_field_will_be_written('uzonal_400hPa')
         need_uzonal = need_uzonal .or. need_uzonal_400
         need_any_diags = need_any_diags .or. need_uzonal_400
-
         need_uzonal_500 = MPAS_field_will_be_written('uzonal_500hPa')
         need_uzonal = need_uzonal .or. need_uzonal_500
         need_any_diags = need_any_diags .or. need_uzonal_500
-
         need_uzonal_600 = MPAS_field_will_be_written('uzonal_600hPa')
         need_uzonal = need_uzonal .or. need_uzonal_600
         need_any_diags = need_any_diags .or. need_uzonal_600
-
         need_uzonal_700 = MPAS_field_will_be_written('uzonal_700hPa')
         need_uzonal = need_uzonal .or. need_uzonal_700
         need_any_diags = need_any_diags .or. need_uzonal_700
-
         need_uzonal_825 = MPAS_field_will_be_written('uzonal_825hPa')
         need_uzonal = need_uzonal .or. need_uzonal_825
         need_any_diags = need_any_diags .or. need_uzonal_825
-
         need_uzonal_850 = MPAS_field_will_be_written('uzonal_850hPa')
         need_uzonal = need_uzonal .or. need_uzonal_850
         need_any_diags = need_any_diags .or. need_uzonal_850
-
         need_uzonal_875 = MPAS_field_will_be_written('uzonal_875hPa')
         need_uzonal = need_uzonal .or. need_uzonal_875
         need_any_diags = need_any_diags .or. need_uzonal_875
-
         need_uzonal_900 = MPAS_field_will_be_written('uzonal_900hPa')
         need_uzonal = need_uzonal .or. need_uzonal_900
         need_any_diags = need_any_diags .or. need_uzonal_900
-
         need_uzonal_925 = MPAS_field_will_be_written('uzonal_925hPa')
         need_uzonal = need_uzonal .or. need_uzonal_925
         need_any_diags = need_any_diags .or. need_uzonal_925
-
         need_uzonal_950 = MPAS_field_will_be_written('uzonal_950hPa')
         need_uzonal = need_uzonal .or. need_uzonal_950
         need_any_diags = need_any_diags .or. need_uzonal_950
-
         need_uzonal_975 = MPAS_field_will_be_written('uzonal_975hPa')
         need_uzonal = need_uzonal .or. need_uzonal_975
         need_any_diags = need_any_diags .or. need_uzonal_975
-
         need_uzonal_1000 = MPAS_field_will_be_written('uzonal_1000hPa')
         need_uzonal = need_uzonal .or. need_uzonal_1000
         need_any_diags = need_any_diags .or. need_uzonal_1000
@@ -500,13 +513,22 @@ module mpas_isobaric_diagnostics
        
         real (kind=RKIND), dimension(:), pointer :: temperature_50hPa
         real (kind=RKIND), dimension(:), pointer :: temperature_100hPa
-        real (kind=RKIND), dimension(:), pointer :: temperature_200hPa
+        real (kind=RKIND), dimension(:), pointer :: temperature_150hPa
         real (kind=RKIND), dimension(:), pointer :: temperature_250hPa
+        real (kind=RKIND), dimension(:), pointer :: temperature_300hPa
+        real (kind=RKIND), dimension(:), pointer :: temperature_400hPa
         real (kind=RKIND), dimension(:), pointer :: temperature_500hPa
+        real (kind=RKIND), dimension(:), pointer :: temperature_600hPa
         real (kind=RKIND), dimension(:), pointer :: temperature_700hPa
+        real (kind=RKIND), dimension(:), pointer :: temperature_825hPa
         real (kind=RKIND), dimension(:), pointer :: temperature_850hPa
+        real (kind=RKIND), dimension(:), pointer :: temperature_875hPa
+        real (kind=RKIND), dimension(:), pointer :: temperature_900hPa
         real (kind=RKIND), dimension(:), pointer :: temperature_925hPa
-       
+        real (kind=RKIND), dimension(:), pointer :: temperature_950hPa
+        real (kind=RKIND), dimension(:), pointer :: temperature_975hPa
+        real (kind=RKIND), dimension(:), pointer :: temperature_1000hPa
+
         real (kind=RKIND), dimension(:), pointer :: relhum_50hPa
         real (kind=RKIND), dimension(:), pointer :: relhum_100hPa
         real (kind=RKIND), dimension(:), pointer :: relhum_150hPa
@@ -672,16 +694,25 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_array(diag, 't_isobaric', t_isobaric)
         call mpas_pool_get_array(diag, 'z_isobaric', z_isobaric)
         call mpas_pool_get_array(diag, 'meanT_500_300', meanT_500_300)
-       
-        call mpas_pool_get_array(diag, 'temperature_50hPa', temperature_50hPa)
-        call mpas_pool_get_array(diag, 'temperature_100hPa', temperature_100hPa)
-        call mpas_pool_get_array(diag, 'temperature_200hPa', temperature_200hPa)
-        call mpas_pool_get_array(diag, 'temperature_250hPa', temperature_250hPa)
-        call mpas_pool_get_array(diag, 'temperature_500hPa', temperature_500hPa)
-        call mpas_pool_get_array(diag, 'temperature_700hPa', temperature_700hPa)
-        call mpas_pool_get_array(diag, 'temperature_850hPa', temperature_850hPa)
-        call mpas_pool_get_array(diag, 'temperature_925hPa', temperature_925hPa)
-       
+      
+        call mpas_pool_get_array(diag, 'temperature_50hPa'  , temperature_50hPa)
+        call mpas_pool_get_array(diag, 'temperature_100hPa' , temperature_100hPa)
+        call mpas_pool_get_array(diag, 'temperature_150hPa' , temperature_150hPa)
+        call mpas_pool_get_array(diag, 'temperature_250hPa' , temperature_250hPa)
+        call mpas_pool_get_array(diag, 'temperature_300hPa' , temperature_300hPa)
+        call mpas_pool_get_array(diag, 'temperature_400hPa' , temperature_400hPa)
+        call mpas_pool_get_array(diag, 'temperature_500hPa' , temperature_500hPa)
+        call mpas_pool_get_array(diag, 'temperature_600hPa' , temperature_600hPa)
+        call mpas_pool_get_array(diag, 'temperature_700hPa' , temperature_700hPa)
+        call mpas_pool_get_array(diag, 'temperature_825hPa' , temperature_825hPa)
+        call mpas_pool_get_array(diag, 'temperature_850hPa' , temperature_850hPa)
+        call mpas_pool_get_array(diag, 'temperature_875hPa' , temperature_875hPa)
+        call mpas_pool_get_array(diag, 'temperature_900hPa' , temperature_900hPa)
+        call mpas_pool_get_array(diag, 'temperature_925hPa' , temperature_925hPa)
+        call mpas_pool_get_array(diag, 'temperature_950hPa' , temperature_950hPa)
+        call mpas_pool_get_array(diag, 'temperature_975hPa' , temperature_975hPa)
+        call mpas_pool_get_array(diag, 'temperature_1000hPa', temperature_1000hPa)        
+
         call mpas_pool_get_array(diag, 'relhum_50hPa', relhum_50hPa)
         call mpas_pool_get_array(diag, 'relhum_100hPa', relhum_100hPa)
         call mpas_pool_get_array(diag, 'relhum_150hPa', relhum_150hPa)
@@ -943,15 +974,25 @@ module mpas_isobaric_diagnostics
             enddo
             enddo
             call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
-            temperature_50hPa(1:nCells) = field_interp(1:nCells,1)
-            temperature_100hPa(1:nCells) = field_interp(1:nCells,2)
-            temperature_200hPa(1:nCells) = field_interp(1:nCells,3)
-            temperature_250hPa(1:nCells) = field_interp(1:nCells,4)
-            temperature_500hPa(1:nCells) = field_interp(1:nCells,5)
-            temperature_700hPa(1:nCells) = field_interp(1:nCells,6)
-            temperature_850hPa(1:nCells) = field_interp(1:nCells,7)
-            temperature_925hPa(1:nCells) = field_interp(1:nCells,8)
-           ! call mpas_log_write('--- end interpolate temperature:')
+
+            temperature_50hPa(1:nCells)   = field_interp(1:nCells,1)
+            temperature_100hPa(1:nCells)  = field_interp(1:nCells,2)
+            temperature_150hPa(1:nCells)  = field_interp(1:nCells,3)
+            temperature_250hPa(1:nCells)  = field_interp(1:nCells,4)
+            temperature_300hPa(1:nCells)  = field_interp(1:nCells,5)
+            temperature_400hPa(1:nCells)  = field_interp(1:nCells,6)
+            temperature_500hPa(1:nCells)  = field_interp(1:nCells,7)
+            temperature_600hPa(1:nCells)  = field_interp(1:nCells,8)
+            temperature_700hPa(1:nCells)  = field_interp(1:nCells,9)
+            temperature_825hPa(1:nCells)  = field_interp(1:nCells,10)
+            temperature_850hPa(1:nCells)  = field_interp(1:nCells,11)
+            temperature_875hPa(1:nCells)  = field_interp(1:nCells,12)
+            temperature_900hPa(1:nCells)  = field_interp(1:nCells,13)
+            temperature_925hPa(1:nCells)  = field_interp(1:nCells,14)
+            temperature_950hPa(1:nCells)  = field_interp(1:nCells,15)
+            temperature_975hPa(1:nCells)  = field_interp(1:nCells,16)
+            temperature_1000hPa(1:nCells) = field_interp(1:nCells,17)
+            ! call mpas_log_write('--- end interpolate temperature:')
         end if
        
        
