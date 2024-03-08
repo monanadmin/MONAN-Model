@@ -32,10 +32,11 @@ module mpas_isobaric_diagnostics
                need_height_50, need_height_100, need_height_150, need_height_250, need_height_300, need_height_400, need_height_500, need_height_600, need_height_700, need_height_825, need_height_850, need_height_875, need_height_900, need_height_925, need_height_950, need_height_975, need_height_1000, &
                need_uzonal_50, need_uzonal_100, need_uzonal_150, need_uzonal_250, need_uzonal_300, need_uzonal_400, need_uzonal_500, need_uzonal_600, need_uzonal_700, need_uzonal_825, need_uzonal_850, need_uzonal_875, need_uzonal_900, need_uzonal_925, need_uzonal_950, need_uzonal_975, need_uzonal_1000, &
                need_umeridional_50, need_umeridional_100, need_umeridional_150, need_umeridional_250, need_umeridional_300, need_umeridional_400, need_umeridional_500, need_umeridional_600, need_umeridional_700, need_umeridional_825, need_umeridional_850, need_umeridional_875, need_umeridional_900, need_umeridional_925, need_umeridional_950, need_umeridional_975, need_umeridional_1000, &
+               need_spechum_50, need_spechum_100, need_spechum_150, need_spechum_250, need_spechum_300, need_spechum_400, need_spechum_500, need_spechum_600, need_spechum_700, need_spechum_825, need_spechum_850, need_spechum_875, need_spechum_900, need_spechum_925, need_spechum_950, need_spechum_975, need_spechum_1000, &
                need_w_50, need_w_100, need_w_150, need_w_250, need_w_300, need_w_400, need_w_500, need_w_600, need_w_700, need_w_825, need_w_850, need_w_875, need_w_900, need_w_925, need_w_950, need_w_975, need_w_1000, &
                need_vorticity_50, need_vorticity_100, need_vorticity_200, need_vorticity_250, need_vorticity_500, need_vorticity_700, need_vorticity_850, need_vorticity_925, &
                need_t_isobaric, need_z_isobaric, need_meanT_500_300
-    logical :: need_temp, need_relhum, need_dewpoint, need_w, need_uzonal, need_umeridional, need_vorticity, need_height
+    logical :: need_temp, need_relhum, need_dewpoint, need_w, need_uzonal, need_umeridional, need_vorticity, need_height, need_spechum
 
 
     contains
@@ -100,6 +101,7 @@ module mpas_isobaric_diagnostics
         need_umeridional = .false.
         need_vorticity = .false.
         need_height = .false.
+        need_spechum = .false.
 
         need_mslp = MPAS_field_will_be_written('mslp')
         need_any_diags = need_any_diags .or. need_mslp
@@ -253,75 +255,57 @@ module mpas_isobaric_diagnostics
         need_height_1000 = MPAS_field_will_be_written('height_1000hPa')
         need_height = need_height .or. need_height_1000
         need_any_diags = need_any_diags .or. need_height_1000
-
         need_uzonal_50 = MPAS_field_will_be_written('uzonal_50hPa')
         need_uzonal = need_uzonal .or. need_uzonal_50
         need_any_diags = need_any_diags .or. need_uzonal_50
-
         need_uzonal_100 = MPAS_field_will_be_written('uzonal_100hPa')
         need_uzonal = need_uzonal .or. need_uzonal_100
         need_any_diags = need_any_diags .or. need_uzonal_100
-
         need_uzonal_150 = MPAS_field_will_be_written('uzonal_150hPa')
         need_uzonal = need_uzonal .or. need_uzonal_150
         need_any_diags = need_any_diags .or. need_uzonal_150
-
         need_uzonal_250 = MPAS_field_will_be_written('uzonal_250hPa')
         need_uzonal = need_uzonal .or. need_uzonal_250
         need_any_diags = need_any_diags .or. need_uzonal_250
-
         need_uzonal_300 = MPAS_field_will_be_written('uzonal_300hPa')
         need_uzonal = need_uzonal .or. need_uzonal_300
         need_any_diags = need_any_diags .or. need_uzonal_300
-
         need_uzonal_400 = MPAS_field_will_be_written('uzonal_400hPa')
         need_uzonal = need_uzonal .or. need_uzonal_400
         need_any_diags = need_any_diags .or. need_uzonal_400
-
         need_uzonal_500 = MPAS_field_will_be_written('uzonal_500hPa')
         need_uzonal = need_uzonal .or. need_uzonal_500
         need_any_diags = need_any_diags .or. need_uzonal_500
-
         need_uzonal_600 = MPAS_field_will_be_written('uzonal_600hPa')
         need_uzonal = need_uzonal .or. need_uzonal_600
         need_any_diags = need_any_diags .or. need_uzonal_600
-
         need_uzonal_700 = MPAS_field_will_be_written('uzonal_700hPa')
         need_uzonal = need_uzonal .or. need_uzonal_700
         need_any_diags = need_any_diags .or. need_uzonal_700
-
         need_uzonal_825 = MPAS_field_will_be_written('uzonal_825hPa')
         need_uzonal = need_uzonal .or. need_uzonal_825
         need_any_diags = need_any_diags .or. need_uzonal_825
-
         need_uzonal_850 = MPAS_field_will_be_written('uzonal_850hPa')
         need_uzonal = need_uzonal .or. need_uzonal_850
         need_any_diags = need_any_diags .or. need_uzonal_850
-
         need_uzonal_875 = MPAS_field_will_be_written('uzonal_875hPa')
         need_uzonal = need_uzonal .or. need_uzonal_875
         need_any_diags = need_any_diags .or. need_uzonal_875
-
         need_uzonal_900 = MPAS_field_will_be_written('uzonal_900hPa')
         need_uzonal = need_uzonal .or. need_uzonal_900
         need_any_diags = need_any_diags .or. need_uzonal_900
-
         need_uzonal_925 = MPAS_field_will_be_written('uzonal_925hPa')
         need_uzonal = need_uzonal .or. need_uzonal_925
         need_any_diags = need_any_diags .or. need_uzonal_925
-
         need_uzonal_950 = MPAS_field_will_be_written('uzonal_950hPa')
         need_uzonal = need_uzonal .or. need_uzonal_950
         need_any_diags = need_any_diags .or. need_uzonal_950
-
         need_uzonal_975 = MPAS_field_will_be_written('uzonal_975hPa')
         need_uzonal = need_uzonal .or. need_uzonal_975
         need_any_diags = need_any_diags .or. need_uzonal_975
-
         need_uzonal_1000 = MPAS_field_will_be_written('uzonal_1000hPa')
         need_uzonal = need_uzonal .or. need_uzonal_1000
         need_any_diags = need_any_diags .or. need_uzonal_1000
-
         need_umeridional_50 = MPAS_field_will_be_written('umeridional_50hPa')
         need_umeridional = need_umeridional .or. need_umeridional_50
         need_any_diags = need_any_diags .or. need_umeridional_50
@@ -373,6 +357,57 @@ module mpas_isobaric_diagnostics
         need_umeridional_1000 = MPAS_field_will_be_written('umeridional_1000hPa')
         need_umeridional = need_umeridional .or. need_umeridional_1000
         need_any_diags = need_any_diags .or. need_umeridional_1000
+        need_spechum_50 = MPAS_field_will_be_written('spechum_50hPa')
+        need_spechum = need_spechum .or. need_spechum_50
+        need_any_diags = need_any_diags .or. need_spechum_50
+        need_spechum_100 = MPAS_field_will_be_written('spechum_100hPa')
+        need_spechum = need_spechum .or. need_spechum_100
+        need_any_diags = need_any_diags .or. need_spechum_100
+        need_spechum_150 = MPAS_field_will_be_written('spechum_150hPa')
+        need_spechum = need_spechum .or. need_spechum_150
+        need_any_diags = need_any_diags .or. need_spechum_150
+        need_spechum_250 = MPAS_field_will_be_written('spechum_250hPa')
+        need_spechum = need_spechum .or. need_spechum_250
+        need_any_diags = need_any_diags .or. need_spechum_250
+        need_spechum_300 = MPAS_field_will_be_written('spechum_300hPa')
+        need_spechum = need_spechum .or. need_spechum_300
+        need_any_diags = need_any_diags .or. need_spechum_300
+        need_spechum_400 = MPAS_field_will_be_written('spechum_400hPa')
+        need_spechum = need_spechum .or. need_spechum_400
+        need_any_diags = need_any_diags .or. need_spechum_400
+        need_spechum_500 = MPAS_field_will_be_written('spechum_500hPa')
+        need_spechum = need_spechum .or. need_spechum_500
+        need_any_diags = need_any_diags .or. need_spechum_500
+        need_spechum_600 = MPAS_field_will_be_written('spechum_600hPa')
+        need_spechum = need_spechum .or. need_spechum_600
+        need_any_diags = need_any_diags .or. need_spechum_600
+        need_spechum_700 = MPAS_field_will_be_written('spechum_700hPa')
+        need_spechum = need_spechum .or. need_spechum_700
+        need_any_diags = need_any_diags .or. need_spechum_700
+        need_spechum_825 = MPAS_field_will_be_written('spechum_825hPa')
+        need_spechum = need_spechum .or. need_spechum_825
+        need_any_diags = need_any_diags .or. need_spechum_825
+        need_spechum_850 = MPAS_field_will_be_written('spechum_850hPa')
+        need_spechum = need_spechum .or. need_spechum_850
+        need_any_diags = need_any_diags .or. need_spechum_850
+        need_spechum_875 = MPAS_field_will_be_written('spechum_875hPa')
+        need_spechum = need_spechum .or. need_spechum_875
+        need_any_diags = need_any_diags .or. need_spechum_875
+        need_spechum_900 = MPAS_field_will_be_written('spechum_900hPa')
+        need_spechum = need_spechum .or. need_spechum_900
+        need_any_diags = need_any_diags .or. need_spechum_900
+        need_spechum_925 = MPAS_field_will_be_written('spechum_925hPa')
+        need_spechum = need_spechum .or. need_spechum_925
+        need_any_diags = need_any_diags .or. need_spechum_925
+        need_spechum_950 = MPAS_field_will_be_written('spechum_950hPa')
+        need_spechum = need_spechum .or. need_spechum_950
+        need_any_diags = need_any_diags .or. need_spechum_950
+        need_spechum_975 = MPAS_field_will_be_written('spechum_975hPa')
+        need_spechum = need_spechum .or. need_spechum_975
+        need_any_diags = need_any_diags .or. need_spechum_975
+        need_spechum_1000 = MPAS_field_will_be_written('spechum_1000hPa')
+        need_spechum = need_spechum .or. need_spechum_1000
+        need_any_diags = need_any_diags .or. need_spechum_1000
         need_w_50 = MPAS_field_will_be_written('w_50hPa')
         need_w = need_w .or. need_w_50
         need_any_diags = need_any_diags .or. need_w_50
@@ -570,6 +605,24 @@ module mpas_isobaric_diagnostics
         real (kind=RKIND), dimension(:), pointer :: umeridional_975hPa
         real (kind=RKIND), dimension(:), pointer :: umeridional_1000hPa
        
+        real (kind=RKIND), dimension(:), pointer :: spechum_50hPa
+        real (kind=RKIND), dimension(:), pointer :: spechum_100hPa
+        real (kind=RKIND), dimension(:), pointer :: spechum_150hPa
+        real (kind=RKIND), dimension(:), pointer :: spechum_250hPa
+        real (kind=RKIND), dimension(:), pointer :: spechum_300hPa
+        real (kind=RKIND), dimension(:), pointer :: spechum_400hPa
+        real (kind=RKIND), dimension(:), pointer :: spechum_500hPa
+        real (kind=RKIND), dimension(:), pointer :: spechum_600hPa
+        real (kind=RKIND), dimension(:), pointer :: spechum_700hPa
+        real (kind=RKIND), dimension(:), pointer :: spechum_825hPa
+        real (kind=RKIND), dimension(:), pointer :: spechum_850hPa
+        real (kind=RKIND), dimension(:), pointer :: spechum_875hPa
+        real (kind=RKIND), dimension(:), pointer :: spechum_900hPa
+        real (kind=RKIND), dimension(:), pointer :: spechum_925hPa
+        real (kind=RKIND), dimension(:), pointer :: spechum_950hPa
+        real (kind=RKIND), dimension(:), pointer :: spechum_975hPa
+        real (kind=RKIND), dimension(:), pointer :: spechum_1000hPa
+
         real (kind=RKIND), dimension(:), pointer :: height_50hPa
         real (kind=RKIND), dimension(:), pointer :: height_100hPa
         real (kind=RKIND), dimension(:), pointer :: height_150hPa
@@ -622,7 +675,7 @@ module mpas_isobaric_diagnostics
         real (kind=RKIND), dimension(:), pointer :: mslp
        
         real (kind=RKIND), dimension(:,:), allocatable :: pressure, pressureCp1, pressure2, pressure_v, temperature
-        real (kind=RKIND), dimension(:,:), allocatable :: dewpoint
+        real (kind=RKIND), dimension(:,:), allocatable :: dewpoint, spechum
        
        !local interpolated fields:
         integer :: nIntP
@@ -745,6 +798,24 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_array(diag, 'umeridional_975hPa', umeridional_975hPa)
         call mpas_pool_get_array(diag, 'umeridional_1000hPa', umeridional_1000hPa)
        
+        call mpas_pool_get_array(diag, 'spechum_50hPa'  , spechum_50hPa)
+        call mpas_pool_get_array(diag, 'spechum_100hPa' , spechum_100hPa)
+        call mpas_pool_get_array(diag, 'spechum_150hPa' , spechum_150hPa)
+        call mpas_pool_get_array(diag, 'spechum_250hPa' , spechum_250hPa)
+        call mpas_pool_get_array(diag, 'spechum_300hPa' , spechum_300hPa)
+        call mpas_pool_get_array(diag, 'spechum_400hPa' , spechum_400hPa)
+        call mpas_pool_get_array(diag, 'spechum_500hPa' , spechum_500hPa)
+        call mpas_pool_get_array(diag, 'spechum_600hPa' , spechum_600hPa)
+        call mpas_pool_get_array(diag, 'spechum_700hPa' , spechum_700hPa)
+        call mpas_pool_get_array(diag, 'spechum_825hPa' , spechum_825hPa)
+        call mpas_pool_get_array(diag, 'spechum_850hPa' , spechum_850hPa)
+        call mpas_pool_get_array(diag, 'spechum_875hPa' , spechum_875hPa)
+        call mpas_pool_get_array(diag, 'spechum_900hPa' , spechum_900hPa)
+        call mpas_pool_get_array(diag, 'spechum_925hPa' , spechum_925hPa)
+        call mpas_pool_get_array(diag, 'spechum_950hPa' , spechum_950hPa)
+        call mpas_pool_get_array(diag, 'spechum_975hPa' , spechum_975hPa)
+        call mpas_pool_get_array(diag, 'spechum_1000hPa', spechum_1000hPa)
+
         call mpas_pool_get_array(diag, 'height_50hPa', height_50hPa)
         call mpas_pool_get_array(diag, 'height_100hPa', height_100hPa)
         call mpas_pool_get_array(diag, 'height_150hPa', height_150hPa)
@@ -797,6 +868,7 @@ module mpas_isobaric_diagnostics
         if(.not.allocated(pressure2)   ) allocate(pressure2(nVertLevelsP1,nCells)   )
         if(.not.allocated(pressure_v)  ) allocate(pressure_v(nVertLevels,nVertices) )
         if(.not.allocated(temperature) ) allocate(temperature(nVertLevels,nCells)   )
+        if(.not.allocated(spechum)  ) allocate(spechum(nVertLevels,nCells)    ) !LFR
         if(.not.allocated(dewpoint) ) allocate(dewpoint(nVertLevels,nCells)   )
        
         if (need_t_isobaric) then
@@ -883,7 +955,7 @@ module mpas_isobaric_diagnostics
            enddo
         enddo
        
-        if (NEED_TEMP .or. NEED_RELHUM .or. NEED_DEWPOINT .or. need_mslp) then
+        if (NEED_TEMP .or. NEED_RELHUM .or. NEED_SPECHUM .or. NEED_DEWPOINT .or. need_mslp) then
            !calculation of temperature at cell centers:
             do iCell = 1,nCells
             do k = 1,nVertLevels
@@ -892,6 +964,8 @@ module mpas_isobaric_diagnostics
                 ! Vapor pressure (NB: pressure here is already in hPa)
                 evp = pressure(k,iCell) * scalars(index_qv,k,iCell) / (scalars(index_qv,k,iCell) + 0.622_RKIND)
                 evp = max(evp, 1.0e-8_RKIND)
+
+                spechum(k,iCell) = 0.622*evp/(pressure2(k,iCell)-0.378*evp) !LFR
 
                 ! Dewpoint temperature following Bolton (1980)
                 dewpoint(k,iCell) = (243.5_RKIND * log(evp/6.112_RKIND)) / (17.67_RKIND - log(evp/6.112_RKIND))
@@ -1062,6 +1136,36 @@ module mpas_isobaric_diagnostics
            ! call mpas_log_write('--- end interpolate meridional wind:')
         end if
        
+        if (NEED_SPECHUM) then
+           !... spechum:
+            do iCell = 1, nCells
+            do k = 1, nVertLevels
+               kk = nVertLevels+1-k
+               field_in(iCell,kk) = spechum(k,iCell)
+            enddo
+            enddo
+            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+            spechum_50hPa(1:nCells)   = field_interp(1:nCells,1)
+            spechum_100hPa(1:nCells)  = field_interp(1:nCells,2)
+            spechum_150hPa(1:nCells)  = field_interp(1:nCells,3)
+            spechum_250hPa(1:nCells)  = field_interp(1:nCells,4)
+            spechum_300hPa(1:nCells)  = field_interp(1:nCells,5)
+            spechum_400hPa(1:nCells)  = field_interp(1:nCells,6)
+            spechum_500hPa(1:nCells)  = field_interp(1:nCells,7)
+            spechum_600hPa(1:nCells)  = field_interp(1:nCells,8)
+            spechum_700hPa(1:nCells)  = field_interp(1:nCells,9)
+            spechum_825hPa(1:nCells)  = field_interp(1:nCells,10)
+            spechum_850hPa(1:nCells)  = field_interp(1:nCells,11)
+            spechum_875hPa(1:nCells)  = field_interp(1:nCells,12)
+            spechum_900hPa(1:nCells)  = field_interp(1:nCells,13)
+            spechum_925hPa(1:nCells)  = field_interp(1:nCells,14)
+            spechum_950hPa(1:nCells)  = field_interp(1:nCells,15)
+            spechum_975hPa(1:nCells)  = field_interp(1:nCells,16)
+            spechum_1000hPa(1:nCells) = field_interp(1:nCells,17)
+           ! call mpas_log_write('--- end interpolate spechum:')
+        end if
+
+
         if(allocated(field_in)) deallocate(field_in)
         if(allocated(press_in)) deallocate(press_in)
        
@@ -1294,6 +1398,7 @@ module mpas_isobaric_diagnostics
         if(allocated(pressure2)   ) deallocate(pressure2   )
         if(allocated(pressure)    ) deallocate(pressure    )
         if(allocated(dewpoint)    ) deallocate(dewpoint )
+        if(allocated(spechum)     ) deallocate(spechum  )
        
     end subroutine interp_diagnostics
 
