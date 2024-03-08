@@ -31,7 +31,7 @@ module mpas_isobaric_diagnostics
                need_temp_50, need_temp_100, need_temp_200, need_temp_250, need_temp_500, need_temp_700, need_temp_850, need_temp_925, &
                need_height_50, need_height_100, need_height_150, need_height_250, need_height_300, need_height_400, need_height_500, need_height_600, need_height_700, need_height_825, need_height_850, need_height_875, need_height_900, need_height_925, need_height_950, need_height_975, need_height_1000, &
                need_uzonal_50, need_uzonal_100, need_uzonal_150, need_uzonal_250, need_uzonal_300, need_uzonal_400, need_uzonal_500, need_uzonal_600, need_uzonal_700, need_uzonal_825, need_uzonal_850, need_uzonal_875, need_uzonal_900, need_uzonal_925, need_uzonal_950, need_uzonal_975, need_uzonal_1000, &
-               need_umeridional_50, need_umeridional_100, need_umeridional_200, need_umeridional_250, need_umeridional_500, need_umeridional_700, need_umeridional_850, need_umeridional_925, &
+               need_umeridional_50, need_umeridional_100, need_umeridional_150, need_umeridional_250, need_umeridional_300, need_umeridional_400, need_umeridional_500, need_umeridional_600, need_umeridional_700, need_umeridional_825, need_umeridional_850, need_umeridional_875, need_umeridional_900, need_umeridional_925, need_umeridional_950, need_umeridional_975, need_umeridional_1000, &
                need_w_50, need_w_100, need_w_150, need_w_250, need_w_300, need_w_400, need_w_500, need_w_600, need_w_700, need_w_825, need_w_850, need_w_875, need_w_900, need_w_925, need_w_950, need_w_975, need_w_1000, &
                need_vorticity_50, need_vorticity_100, need_vorticity_200, need_vorticity_250, need_vorticity_500, need_vorticity_700, need_vorticity_850, need_vorticity_925, &
                need_t_isobaric, need_z_isobaric, need_meanT_500_300
@@ -328,24 +328,51 @@ module mpas_isobaric_diagnostics
         need_umeridional_100 = MPAS_field_will_be_written('umeridional_100hPa')
         need_umeridional = need_umeridional .or. need_umeridional_100
         need_any_diags = need_any_diags .or. need_umeridional_100
-        need_umeridional_200 = MPAS_field_will_be_written('umeridional_200hPa')
-        need_umeridional = need_umeridional .or. need_umeridional_200
-        need_any_diags = need_any_diags .or. need_umeridional_200
+        need_umeridional_150 = MPAS_field_will_be_written('umeridional_150hPa')
+        need_umeridional = need_umeridional .or. need_umeridional_150
+        need_any_diags = need_any_diags .or. need_umeridional_150
         need_umeridional_250 = MPAS_field_will_be_written('umeridional_250hPa')
         need_umeridional = need_umeridional .or. need_umeridional_250
         need_any_diags = need_any_diags .or. need_umeridional_250
+        need_umeridional_300 = MPAS_field_will_be_written('umeridional_300hPa')
+        need_umeridional = need_umeridional .or. need_umeridional_300
+        need_any_diags = need_any_diags .or. need_umeridional_300
+        need_umeridional_400 = MPAS_field_will_be_written('umeridional_400hPa')
+        need_umeridional = need_umeridional .or. need_umeridional_400
+        need_any_diags = need_any_diags .or. need_umeridional_400
         need_umeridional_500 = MPAS_field_will_be_written('umeridional_500hPa')
         need_umeridional = need_umeridional .or. need_umeridional_500
         need_any_diags = need_any_diags .or. need_umeridional_500
+        need_umeridional_600 = MPAS_field_will_be_written('umeridional_600hPa')
+        need_umeridional = need_umeridional .or. need_umeridional_600
+        need_any_diags = need_any_diags .or. need_umeridional_600
         need_umeridional_700 = MPAS_field_will_be_written('umeridional_700hPa')
         need_umeridional = need_umeridional .or. need_umeridional_700
         need_any_diags = need_any_diags .or. need_umeridional_700
+        need_umeridional_825 = MPAS_field_will_be_written('umeridional_825hPa')
+        need_umeridional = need_umeridional .or. need_umeridional_825
+        need_any_diags = need_any_diags .or. need_umeridional_825
         need_umeridional_850 = MPAS_field_will_be_written('umeridional_850hPa')
         need_umeridional = need_umeridional .or. need_umeridional_850
         need_any_diags = need_any_diags .or. need_umeridional_850
+        need_umeridional_875 = MPAS_field_will_be_written('umeridional_875hPa')
+        need_umeridional = need_umeridional .or. need_umeridional_875
+        need_any_diags = need_any_diags .or. need_umeridional_875
+        need_umeridional_900 = MPAS_field_will_be_written('umeridional_900hPa')
+        need_umeridional = need_umeridional .or. need_umeridional_900
+        need_any_diags = need_any_diags .or. need_umeridional_900
         need_umeridional_925 = MPAS_field_will_be_written('umeridional_925hPa')
         need_umeridional = need_umeridional .or. need_umeridional_925
         need_any_diags = need_any_diags .or. need_umeridional_925
+        need_umeridional_950 = MPAS_field_will_be_written('umeridional_950hPa')
+        need_umeridional = need_umeridional .or. need_umeridional_950
+        need_any_diags = need_any_diags .or. need_umeridional_950
+        need_umeridional_975 = MPAS_field_will_be_written('umeridional_975hPa')
+        need_umeridional = need_umeridional .or. need_umeridional_975
+        need_any_diags = need_any_diags .or. need_umeridional_975
+        need_umeridional_1000 = MPAS_field_will_be_written('umeridional_1000hPa')
+        need_umeridional = need_umeridional .or. need_umeridional_1000
+        need_any_diags = need_any_diags .or. need_umeridional_1000
         need_w_50 = MPAS_field_will_be_written('w_50hPa')
         need_w = need_w .or. need_w_50
         need_any_diags = need_any_diags .or. need_w_50
@@ -527,12 +554,21 @@ module mpas_isobaric_diagnostics
        
         real (kind=RKIND), dimension(:), pointer :: umeridional_50hPa
         real (kind=RKIND), dimension(:), pointer :: umeridional_100hPa
-        real (kind=RKIND), dimension(:), pointer :: umeridional_200hPa
+        real (kind=RKIND), dimension(:), pointer :: umeridional_150hPa
         real (kind=RKIND), dimension(:), pointer :: umeridional_250hPa
+        real (kind=RKIND), dimension(:), pointer :: umeridional_300hPa
+        real (kind=RKIND), dimension(:), pointer :: umeridional_400hPa
         real (kind=RKIND), dimension(:), pointer :: umeridional_500hPa
+        real (kind=RKIND), dimension(:), pointer :: umeridional_600hPa
         real (kind=RKIND), dimension(:), pointer :: umeridional_700hPa
+        real (kind=RKIND), dimension(:), pointer :: umeridional_825hPa
         real (kind=RKIND), dimension(:), pointer :: umeridional_850hPa
+        real (kind=RKIND), dimension(:), pointer :: umeridional_875hPa
+        real (kind=RKIND), dimension(:), pointer :: umeridional_900hPa
         real (kind=RKIND), dimension(:), pointer :: umeridional_925hPa
+        real (kind=RKIND), dimension(:), pointer :: umeridional_950hPa
+        real (kind=RKIND), dimension(:), pointer :: umeridional_975hPa
+        real (kind=RKIND), dimension(:), pointer :: umeridional_1000hPa
        
         real (kind=RKIND), dimension(:), pointer :: height_50hPa
         real (kind=RKIND), dimension(:), pointer :: height_100hPa
@@ -690,15 +726,24 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_array(diag, 'uzonal_950hPa' , uzonal_950hPa)
         call mpas_pool_get_array(diag, 'uzonal_975hPa' , uzonal_975hPa)
         call mpas_pool_get_array(diag, 'uzonal_1000hPa', uzonal_1000hPa)
-
+       
         call mpas_pool_get_array(diag, 'umeridional_50hPa', umeridional_50hPa)
         call mpas_pool_get_array(diag, 'umeridional_100hPa', umeridional_100hPa)
-        call mpas_pool_get_array(diag, 'umeridional_200hPa', umeridional_200hPa)
+        call mpas_pool_get_array(diag, 'umeridional_150hPa', umeridional_150hPa)
         call mpas_pool_get_array(diag, 'umeridional_250hPa', umeridional_250hPa)
+        call mpas_pool_get_array(diag, 'umeridional_300hPa', umeridional_300hPa)
+        call mpas_pool_get_array(diag, 'umeridional_400hPa', umeridional_400hPa)
         call mpas_pool_get_array(diag, 'umeridional_500hPa', umeridional_500hPa)
+        call mpas_pool_get_array(diag, 'umeridional_600hPa', umeridional_600hPa)
         call mpas_pool_get_array(diag, 'umeridional_700hPa', umeridional_700hPa)
+        call mpas_pool_get_array(diag, 'umeridional_825hPa', umeridional_825hPa)
         call mpas_pool_get_array(diag, 'umeridional_850hPa', umeridional_850hPa)
+        call mpas_pool_get_array(diag, 'umeridional_875hPa', umeridional_875hPa)
+        call mpas_pool_get_array(diag, 'umeridional_900hPa', umeridional_900hPa)
         call mpas_pool_get_array(diag, 'umeridional_925hPa', umeridional_925hPa)
+        call mpas_pool_get_array(diag, 'umeridional_950hPa', umeridional_950hPa)
+        call mpas_pool_get_array(diag, 'umeridional_975hPa', umeridional_975hPa)
+        call mpas_pool_get_array(diag, 'umeridional_1000hPa', umeridional_1000hPa)
        
         call mpas_pool_get_array(diag, 'height_50hPa', height_50hPa)
         call mpas_pool_get_array(diag, 'height_100hPa', height_100hPa)
@@ -999,12 +1044,21 @@ module mpas_isobaric_diagnostics
             call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
             umeridional_50hPa(1:nCells) = field_interp(1:nCells,1)
             umeridional_100hPa(1:nCells) = field_interp(1:nCells,2)
-            umeridional_200hPa(1:nCells) = field_interp(1:nCells,3)
+            umeridional_150hPa(1:nCells) = field_interp(1:nCells,3)
             umeridional_250hPa(1:nCells) = field_interp(1:nCells,4)
-            umeridional_500hPa(1:nCells) = field_interp(1:nCells,5)
-            umeridional_700hPa(1:nCells) = field_interp(1:nCells,6)
-            umeridional_850hPa(1:nCells) = field_interp(1:nCells,7)
-            umeridional_925hPa(1:nCells) = field_interp(1:nCells,8)
+            umeridional_300hPa(1:nCells) = field_interp(1:nCells,5)
+            umeridional_400hPa(1:nCells) = field_interp(1:nCells,6)
+            umeridional_500hPa(1:nCells) = field_interp(1:nCells,7)
+            umeridional_600hPa(1:nCells) = field_interp(1:nCells,8)
+            umeridional_700hPa(1:nCells) = field_interp(1:nCells,9)
+            umeridional_825hPa(1:nCells) = field_interp(1:nCells,10)
+            umeridional_850hPa(1:nCells) = field_interp(1:nCells,11)
+            umeridional_875hPa(1:nCells) = field_interp(1:nCells,12)
+            umeridional_900hPa(1:nCells) = field_interp(1:nCells,13)
+            umeridional_925hPa(1:nCells) = field_interp(1:nCells,14)
+            umeridional_950hPa(1:nCells) = field_interp(1:nCells,15)
+            umeridional_975hPa(1:nCells) = field_interp(1:nCells,16)
+            umeridional_1000hPa(1:nCells) = field_interp(1:nCells,17)
            ! call mpas_log_write('--- end interpolate meridional wind:')
         end if
        
