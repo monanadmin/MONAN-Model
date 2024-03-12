@@ -34,10 +34,9 @@ module mpas_isobaric_diagnostics
                need_umeridional_50, need_umeridional_100, need_umeridional_150, need_umeridional_250, need_umeridional_300, need_umeridional_400, need_umeridional_500, need_umeridional_600, need_umeridional_700, need_umeridional_825, need_umeridional_850, need_umeridional_875, need_umeridional_900, need_umeridional_925, need_umeridional_950, need_umeridional_975, need_umeridional_1000, &
                need_spechum_50, need_spechum_100, need_spechum_150, need_spechum_250, need_spechum_300, need_spechum_400, need_spechum_500, need_spechum_600, need_spechum_700, need_spechum_825, need_spechum_850, need_spechum_875, need_spechum_900, need_spechum_925, need_spechum_950, need_spechum_975, need_spechum_1000, &
                need_w_50, need_w_100, need_w_150, need_w_250, need_w_300, need_w_400, need_w_500, need_w_600, need_w_700, need_w_825, need_w_850, need_w_875, need_w_900, need_w_925, need_w_950, need_w_975, need_w_1000, &
-               need_geoph_50, need_geoph_100, need_geoph_150, need_geoph_250, need_geoph_300, need_geoph_400, need_geoph_500, need_geoph_600, need_geoph_700, need_geoph_825, need_geoph_850, need_geoph_875, need_geoph_900, need_geoph_925, need_geoph_950, need_geoph_975, need_geoph_1000, &
                need_vorticity_50, need_vorticity_100, need_vorticity_200, need_vorticity_250, need_vorticity_500, need_vorticity_700, need_vorticity_850, need_vorticity_925, &
                need_t_isobaric, need_z_isobaric, need_meanT_500_300
-    logical :: need_temp, need_relhum, need_dewpoint, need_w, need_uzonal, need_umeridional, need_vorticity, need_height, need_spechum, need_geoph
+    logical :: need_temp, need_relhum, need_dewpoint, need_w, need_uzonal, need_umeridional, need_vorticity, need_height, need_spechum
 
 
     contains
@@ -103,7 +102,6 @@ module mpas_isobaric_diagnostics
         need_vorticity = .false.
         need_height = .false.
         need_spechum = .false.
-        need_geoph = .false.
 
         need_mslp = MPAS_field_will_be_written('mslp')
         need_any_diags = need_any_diags .or. need_mslp
@@ -490,59 +488,6 @@ module mpas_isobaric_diagnostics
         need_w_1000 = MPAS_field_will_be_written('w_1000hPa')
         need_w = need_w .or. need_w_1000
         need_any_diags = need_any_diags .or. need_w_1000
-
-        need_geoph_50 = MPAS_field_will_be_written('geoph_50hPa')
-        need_geoph = need_geoph .or. need_geoph_50
-        need_any_diags = need_any_diags .or. need_geoph_50
-        need_geoph_100 = MPAS_field_will_be_written('geoph_100hPa')
-        need_geoph = need_geoph .or. need_geoph_100
-        need_any_diags = need_any_diags .or. need_geoph_100
-        need_geoph_150 = MPAS_field_will_be_written('geoph_150hPa')
-        need_geoph = need_geoph .or. need_geoph_150
-        need_any_diags = need_any_diags .or. need_geoph_150
-        need_geoph_250 = MPAS_field_will_be_written('geoph_250hPa')
-        need_geoph = need_geoph .or. need_geoph_250
-        need_any_diags = need_any_diags .or. need_geoph_250
-        need_geoph_300 = MPAS_field_will_be_written('geoph_300hPa')
-        need_geoph = need_geoph .or. need_geoph_300
-        need_any_diags = need_any_diags .or. need_geoph_300
-        need_geoph_400 = MPAS_field_will_be_written('geoph_400hPa')
-        need_geoph = need_geoph .or. need_geoph_400
-        need_any_diags = need_any_diags .or. need_geoph_400
-        need_geoph_500 = MPAS_field_will_be_written('geoph_500hPa')
-        need_geoph = need_geoph .or. need_geoph_500
-        need_any_diags = need_any_diags .or. need_geoph_500
-        need_geoph_600 = MPAS_field_will_be_written('geoph_600hPa')
-        need_geoph = need_geoph .or. need_geoph_600
-        need_any_diags = need_any_diags .or. need_geoph_600
-        need_geoph_700 = MPAS_field_will_be_written('geoph_700hPa')
-        need_geoph = need_geoph .or. need_geoph_700
-        need_any_diags = need_any_diags .or. need_geoph_700
-        need_geoph_825 = MPAS_field_will_be_written('geoph_825hPa')
-        need_geoph = need_geoph .or. need_geoph_825
-        need_any_diags = need_any_diags .or. need_geoph_825
-        need_geoph_850 = MPAS_field_will_be_written('geoph_850hPa')
-        need_geoph = need_geoph .or. need_geoph_850
-        need_any_diags = need_any_diags .or. need_geoph_850
-        need_geoph_875 = MPAS_field_will_be_written('geoph_875hPa')
-        need_geoph = need_geoph .or. need_geoph_875
-        need_any_diags = need_any_diags .or. need_geoph_875
-        need_geoph_900 = MPAS_field_will_be_written('geoph_900hPa')
-        need_geoph = need_geoph .or. need_geoph_900
-        need_any_diags = need_any_diags .or. need_geoph_900
-        need_geoph_925 = MPAS_field_will_be_written('geoph_925hPa')
-        need_geoph = need_geoph .or. need_geoph_925
-        need_any_diags = need_any_diags .or. need_geoph_925
-        need_geoph_950 = MPAS_field_will_be_written('geoph_950hPa')
-        need_geoph = need_geoph .or. need_geoph_950
-        need_any_diags = need_any_diags .or. need_geoph_950
-        need_geoph_975 = MPAS_field_will_be_written('geoph_975hPa')
-        need_geoph = need_geoph .or. need_geoph_975
-        need_any_diags = need_any_diags .or. need_geoph_975
-        need_geoph_1000 = MPAS_field_will_be_written('geoph_1000hPa')
-        need_geoph = need_geoph .or. need_geoph_1000
-        need_any_diags = need_any_diags .or. need_geoph_1000
-
         need_vorticity_50 = MPAS_field_will_be_written('vorticity_50hPa')
         need_vorticity = need_vorticity .or. need_vorticity_50
         need_any_diags = need_any_diags .or. need_vorticity_50
@@ -602,7 +547,7 @@ module mpas_isobaric_diagnostics
        
         type (field2DReal), pointer:: pressure_p_field
        
-        real (kind=RKIND), dimension(:), pointer :: areaTriangle, latCell
+        real (kind=RKIND), dimension(:), pointer :: areaTriangle
         real (kind=RKIND), dimension(:,:), pointer :: kiteAreasOnVertex
         
         real (kind=RKIND), dimension(:,:), pointer :: exner, height
@@ -751,24 +696,6 @@ module mpas_isobaric_diagnostics
         real (kind=RKIND), dimension(:), pointer :: w_950hPa
         real (kind=RKIND), dimension(:), pointer :: w_975hPa
         real (kind=RKIND), dimension(:), pointer :: w_1000hPa
-
-        real (kind=RKIND), dimension(:), pointer :: geoph_50hPa
-        real (kind=RKIND), dimension(:), pointer :: geoph_100hPa
-        real (kind=RKIND), dimension(:), pointer :: geoph_150hPa
-        real (kind=RKIND), dimension(:), pointer :: geoph_250hPa
-        real (kind=RKIND), dimension(:), pointer :: geoph_300hPa
-        real (kind=RKIND), dimension(:), pointer :: geoph_400hPa
-        real (kind=RKIND), dimension(:), pointer :: geoph_500hPa
-        real (kind=RKIND), dimension(:), pointer :: geoph_600hPa
-        real (kind=RKIND), dimension(:), pointer :: geoph_700hPa
-        real (kind=RKIND), dimension(:), pointer :: geoph_825hPa
-        real (kind=RKIND), dimension(:), pointer :: geoph_850hPa
-        real (kind=RKIND), dimension(:), pointer :: geoph_875hPa
-        real (kind=RKIND), dimension(:), pointer :: geoph_900hPa
-        real (kind=RKIND), dimension(:), pointer :: geoph_925hPa
-        real (kind=RKIND), dimension(:), pointer :: geoph_950hPa
-        real (kind=RKIND), dimension(:), pointer :: geoph_975hPa
-        real (kind=RKIND), dimension(:), pointer :: geoph_1000hPa
        
         real (kind=RKIND), dimension(:), pointer :: vorticity_50hPa
         real (kind=RKIND), dimension(:), pointer :: vorticity_100hPa
@@ -786,7 +713,7 @@ module mpas_isobaric_diagnostics
         real (kind=RKIND), dimension(:), pointer :: mslp
        
         real (kind=RKIND), dimension(:,:), allocatable :: pressure, pressureCp1, pressure2, pressure_v, temperature
-        real (kind=RKIND), dimension(:,:), allocatable :: dewpoint, spechum, geoph
+        real (kind=RKIND), dimension(:,:), allocatable :: dewpoint, spechum
        
        !local interpolated fields:
         integer :: nIntP
@@ -815,7 +742,6 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_array(mesh, 'areaTriangle', areaTriangle)
         call mpas_pool_get_array(mesh, 'kiteAreasOnVertex', kiteAreasOnVertex)
        
-        call mpas_pool_get_array(mesh, 'latCell', latCell)
         call mpas_pool_get_array(mesh, 'zgrid', height)
         call mpas_pool_get_array(state, 'w', vvel, time_lev)
         call mpas_pool_get_array(state, 'theta_m', theta_m, time_lev)
@@ -973,24 +899,6 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_array(diag, 'w_975hPa', w_975hPa)
         call mpas_pool_get_array(diag, 'w_1000hPa', w_1000hPa)
        
-        call mpas_pool_get_array(diag, 'geoph_50hPa', geoph_50hPa)
-        call mpas_pool_get_array(diag, 'geoph_100hPa', geoph_100hPa)
-        call mpas_pool_get_array(diag, 'geoph_150hPa', geoph_150hPa)
-        call mpas_pool_get_array(diag, 'geoph_250hPa', geoph_250hPa)
-        call mpas_pool_get_array(diag, 'geoph_300hPa', geoph_300hPa)
-        call mpas_pool_get_array(diag, 'geoph_400hPa', geoph_400hPa)
-        call mpas_pool_get_array(diag, 'geoph_500hPa', geoph_500hPa)
-        call mpas_pool_get_array(diag, 'geoph_600hPa', geoph_600hPa)
-        call mpas_pool_get_array(diag, 'geoph_700hPa', geoph_700hPa)
-        call mpas_pool_get_array(diag, 'geoph_825hPa', geoph_825hPa)
-        call mpas_pool_get_array(diag, 'geoph_850hPa', geoph_850hPa)
-        call mpas_pool_get_array(diag, 'geoph_875hPa', geoph_875hPa)
-        call mpas_pool_get_array(diag, 'geoph_900hPa', geoph_900hPa)
-        call mpas_pool_get_array(diag, 'geoph_925hPa', geoph_925hPa)
-        call mpas_pool_get_array(diag, 'geoph_950hPa', geoph_950hPa)
-        call mpas_pool_get_array(diag, 'geoph_975hPa', geoph_975hPa)
-        call mpas_pool_get_array(diag, 'geoph_1000hPa', geoph_1000hPa)
-
         call mpas_pool_get_array(diag, 'vorticity_50hPa', vorticity_50hPa)
         call mpas_pool_get_array(diag, 'vorticity_100hPa', vorticity_100hPa)
         call mpas_pool_get_array(diag, 'vorticity_200hPa', vorticity_200hPa)
@@ -1008,7 +916,6 @@ module mpas_isobaric_diagnostics
         if(.not.allocated(pressure_v)  ) allocate(pressure_v(nVertLevels,nVertices) )
         if(.not.allocated(temperature) ) allocate(temperature(nVertLevels,nCells)   )
         if(.not.allocated(spechum)  ) allocate(spechum(nVertLevels,nCells)    ) !LFR
-        if(.not.allocated(geoph)    ) allocate(geoph(nVertLevelsP1,nCells)    ) !EGK
         if(.not.allocated(dewpoint) ) allocate(dewpoint(nVertLevels,nCells)   )
        
         if (need_t_isobaric) then
@@ -1316,11 +1223,10 @@ module mpas_isobaric_diagnostics
         end if
 
 
-
         if(allocated(field_in)) deallocate(field_in)
         if(allocated(press_in)) deallocate(press_in)
        
-        if (NEED_W .or. NEED_HEIGHT .or. NEED_GEOPH) then
+        if (NEED_W .or. NEED_HEIGHT) then
            !interpolation to fixed pressure levels for fields located at cells centers and at vertical
            !velocity points:
             if(.not.allocated(press_in)) allocate(press_in(nCells,nVertLevelsP1))
@@ -1384,43 +1290,10 @@ module mpas_isobaric_diagnostics
             w_950hPa(1:nCells) = field_interp(1:nCells,15)
             w_975hPa(1:nCells) = field_interp(1:nCells,16)
             w_1000hPa(1:nCells) = field_interp(1:nCells,17)
-           ! call mpas_log_write('--- end interpolate vertical velocity:')
-
-           !... geoph:
-
-            if(allocated(field_in)) deallocate(field_in)
-            if(.not.allocated(field_in)) allocate(field_in(nCells,nVertLevelsP1))
-
-            call compute_geopotential_height(nCells,nVertLevelsP1,latCell,height,geoph) !EGK
-
-            do iCell = 1, nCells
-            do k = 1, nVertLevelsP1
-               kk = nVertLevelsP1+1-k
-               field_in(iCell,kk) = geoph(k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevelsP1,nIntP,press_in,field_in,press_interp,field_interp)
-            geoph_50hPa(1:nCells) = field_interp(1:nCells,1)
-            geoph_100hPa(1:nCells) = field_interp(1:nCells,2)
-            geoph_150hPa(1:nCells) = field_interp(1:nCells,3)
-            geoph_250hPa(1:nCells) = field_interp(1:nCells,4)
-            geoph_300hPa(1:nCells) = field_interp(1:nCells,5)
-            geoph_400hPa(1:nCells) = field_interp(1:nCells,6)
-            geoph_500hPa(1:nCells) = field_interp(1:nCells,7)
-            geoph_600hPa(1:nCells) = field_interp(1:nCells,8)
-            geoph_700hPa(1:nCells) = field_interp(1:nCells,9)
-            geoph_825hPa(1:nCells) = field_interp(1:nCells,10)
-            geoph_850hPa(1:nCells) = field_interp(1:nCells,11)
-            geoph_875hPa(1:nCells) = field_interp(1:nCells,12)
-            geoph_900hPa(1:nCells) = field_interp(1:nCells,13)
-            geoph_925hPa(1:nCells) = field_interp(1:nCells,14)
-            geoph_950hPa(1:nCells) = field_interp(1:nCells,15)
-            geoph_975hPa(1:nCells) = field_interp(1:nCells,16)
-            geoph_1000hPa(1:nCells) = field_interp(1:nCells,17)
-           ! call mpas_log_write('--- end interpolate geoph:')
 
             if(allocated(field_in)) deallocate(field_in)
             if(allocated(press_in)) deallocate(press_in)
+           ! call mpas_log_write('--- end interpolate vertical velocity:')
         end if
 
         if(allocated(field_interp)) deallocate(field_interp)
@@ -1583,146 +1456,8 @@ module mpas_isobaric_diagnostics
         if(allocated(pressure)    ) deallocate(pressure    )
         if(allocated(dewpoint)    ) deallocate(dewpoint )
         if(allocated(spechum)     ) deallocate(spechum  )
-        if(allocated(geoph)       ) deallocate(geoph    )
        
     end subroutine interp_diagnostics
-
-
-!***********************************************************************
-   !
-   !  routine compute_geopotential_height
-   !
-   !> \brief   Convert geometric height to geopotential height
-   !>          Adopted from convert_gpsro_bufr.f90 in DART/observations/gps/. 
-   !> \author  Soyoung Ha
-   !> \date    17 Feb 2017
-   !
-   !> \details
-   !>  Given latitude (in degree), convert geometric height (in meter)
-   !>  into geopotential height (in meter).
-   !>  
-   !>  Input:   
-   !>  ncol -- nCells
-   !>  nlev -- nIsobaricLevels
-   !>  lat  -- latitude [radian]   
-   !>  H    -- geometric height [m]
-   !>  
-   !>  Output:   
-   !>  GPH  -- geopotential height [m]
-   !>  
-   !----------------------------------------------------------------------- 
-    subroutine compute_geopotential_height(ncol, nlev, lat, H, GPH)
-
-       implicit none
-
-    !  Input and Output arguments:
-       integer,          intent(in):: ncol, nlev
-       real(kind=RKIND), intent(in),  dimension(ncol)       :: lat
-       real(kind=RKIND), intent(in),  dimension(nlev,ncol)  :: H
-       real(kind=RKIND), intent(in out), dimension(nlev,ncol)  :: GPH
-
-    !  Local variables
-       integer :: k, iCell
-       real(kind=RKIND), dimension(ncol) :: sin2, termr, termg
-       real(kind=RKIND) :: semi_major_axis, semi_minor_axis, grav_polar, grav_equator
-       real(kind=RKIND) :: earth_omega, grav_constant, flattening, somigliana
-       real(kind=RKIND) :: grav_ratio, grav, eccentricity
-
-    !  Parameters below from WGS-84 model software inside GPS receivers.
-       parameter(semi_major_axis = 6378.1370e3_RKIND)    ! (m)
-       parameter(semi_minor_axis = 6356.7523142e3_RKIND) ! (m)
-       parameter(grav_polar = 9.8321849378_RKIND)        ! (m/s2)
-       parameter(grav_equator = 9.7803253359_RKIND)      ! (m/s2)
-
-       parameter(earth_omega = 7.292115e-5_RKIND)        ! (rad/s)  
-       parameter(grav = 9.80665_RKIND)                 ! (m/s2) WMO std g at 45 deg lat
-
-       parameter(grav_constant = 3.986004418e14_RKIND)   ! (m3/s2)
-       parameter(eccentricity = 0.081819_RKIND)        ! unitless
-
-    !  Derived geophysical constants
-       parameter(flattening = (semi_major_axis-semi_minor_axis) / semi_major_axis)
-
-       parameter(somigliana = (semi_minor_axis/semi_major_axis)*(grav_polar/grav_equator)-1.0_RKIND)
-
-       parameter(grav_ratio = (earth_omega*earth_omega * &
-                               semi_major_axis*semi_major_axis * semi_minor_axis)/grav_constant)
-
-       print *, "latCell=", lat(:)
-
-       sin2(:)  = sin(lat(:))**2
-       termg(:) = grav_equator * ( (1.0_RKIND+somigliana*sin2(:)) / &
-                      sqrt(1.0_RKIND - eccentricity**2 * sin2(:)) )
-       termr(:) = semi_major_axis / (1.0_RKIND + flattening + grav_ratio - 2.0_RKIND*flattening*sin2(:))
-
-       do iCell = 1, ncol
-          do k = 1, nlev
-             GPH(k,iCell) = (termg(iCell)/grav)*((termr(iCell)*H(k,iCell))/(termr(iCell)+H(k,iCell)))
-          end do
-       end do
-
-    end subroutine compute_geopotential_height
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!
-!!    compute_geopotential_height 
-!!    subroutine converts geometric height to geopotential height
-!!
-!!    Input:
-!!    H   -- input real value geometric height [m]
-!!    lat -- latitude in degree 
-!!
-!!    Output:
-!!    Z -- output real value geopotential height [m]
-!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!function compute_geopotential_height(H, lat)
-! real(r8), intent(in)  :: H 
-! real(r8), intent(in)  :: lat
-! real(r8)              :: compute_geopotential_height
-!
-!! -----------------------------------------------------------------------*/
-!   real(r8) :: pi2, latr
-!   real(r8) :: semi_major_axis, semi_minor_axis, grav_polar, grav_equator
-!   real(r8) :: earth_omega, grav_constant, flattening, somigliana
-!   real(r8) :: grav_ratio, sin2, termg, termr, grav, eccentricity
-!
-!!  Parameters below from WGS-84 model software inside GPS receivers.
-!   parameter(semi_major_axis = 6378.1370d3)    ! (m)
-!   parameter(semi_minor_axis = 6356.7523142d3) ! (m)
-!   parameter(grav_polar = 9.8321849378)        ! (m/s2)
-!   parameter(grav_equator = 9.7803253359)      ! (m/s2)
-!   parameter(earth_omega = 7.292115d-5)        ! (rad/s)
-!   parameter(grav_constant = 3.986004418d14)   ! (m3/s2)
-!   parameter(grav = 9.80665d0)                 ! (m/s2) WMO std g at 45 deg lat
-!   parameter(eccentricity = 0.081819d0)        ! unitless
-!   parameter(pi2 = 3.14159265358979d0/180.d0)
-!
-!!  Derived geophysical constants
-!   parameter(flattening = (semi_major_axis-semi_minor_axis) / semi_major_axis)
-!
-!   parameter(somigliana = (semi_minor_axis/semi_major_axis)*(grav_polar/grav_equator)-1.d0)
-!
-!   parameter(grav_ratio = (earth_omega*earth_omega * &
-!                semi_major_axis*semi_major_axis * semi_minor_axis)/grav_constant)
-!
-!!  Sanity Check
-!   if(lat.gt.90 .or. lat.lt.-90) then
-!      print*, 'compute_geopotential_height: Latitude is not between -90 and 90 degrees: ',lat
-!      return
-!   endif
-!
-!   latr = lat * (pi2)        ! in radians
-!   sin2  = sin(latr) * sin(latr)
-!   termg = grav_equator * ( (1.d0+somigliana*sin2) / &
-!           sqrt(1.d0-eccentricity*eccentricity*sin2) )
-!   termr = semi_major_axis / (1.d0 + flattening + grav_ratio - 2.d0*flattening*sin2)
-!
-!   compute_geopotential_height = (termg/grav)*((termr*H)/(termr+H))
-!   !print '(A,3f15.5)','compute_geopotential_height:',&
-!   !                   H,compute_geopotential_height,H-compute_geopotential_height
-!
-!end function compute_geopotential_height
 
 
    !==================================================================================================
