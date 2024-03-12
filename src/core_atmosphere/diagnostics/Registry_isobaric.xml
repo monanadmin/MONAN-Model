@@ -397,6 +397,57 @@
         <var name="w_1000hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
              description="Vertical velocity vertically interpolated to 1000s hPa"/>
 
+        <var name="geoph_50hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 50 hPa"/>
+
+        <var name="geoph_100hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 100 hPa"/>
+
+        <var name="geoph_150hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 150 hPa"/>
+
+        <var name="geoph_250hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 250 hPa"/>
+
+        <var name="geoph_300hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 300 hPa"/>
+
+        <var name="geoph_400hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 400 hPa"/>
+
+        <var name="geoph_500hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 500 hPa"/>
+
+        <var name="geoph_600hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 600 hPa"/>
+
+        <var name="geoph_700hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 700 hPa"/>
+
+        <var name="geoph_825hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 825 hPa"/>
+
+        <var name="geoph_850hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 850 hPa"/>
+
+        <var name="geoph_875hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 875 hPa"/>
+
+        <var name="geoph_900hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 900 hPa"/>
+
+        <var name="geoph_925hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 925 hPa"/>
+
+        <var name="geoph_950hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 950 hPa"/>
+
+        <var name="geoph_975hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 975 hPa"/>
+
+        <var name="geoph_1000hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 1000s hPa"/>
+
         <var name="vorticity_50hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
              description="Relative vorticity vertically interpolated to 50 hPa"/>
 
