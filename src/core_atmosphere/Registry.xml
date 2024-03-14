@@ -1136,23 +1136,23 @@
             <var name="w_950hPa"/>
             <var name="w_975hPa"/>
             <var name="w_1000hPa"/>
-                        <var name="geoph_50hPa"/>
-                        <var name="geoph_100hPa"/>
-                        <var name="geoph_150hPa"/>
-                        <var name="geoph_250hPa"/>
-                        <var name="geoph_300hPa"/>
-                        <var name="geoph_400hPa"/>
-                        <var name="geoph_500hPa"/>
-                        <var name="geoph_600hPa"/>
-                        <var name="geoph_700hPa"/>
-                        <var name="geoph_825hPa"/>
-                        <var name="geoph_850hPa"/>
-                        <var name="geoph_875hPa"/>
-                        <var name="geoph_900hPa"/>
-                        <var name="geoph_925hPa"/>
-                        <var name="geoph_950hPa"/>
-                        <var name="geoph_975hPa"/>
-                        <var name="geoph_1000hPa"/>
+            <var name="geoph_50hPa"/>
+            <var name="geoph_100hPa"/>
+            <var name="geoph_150hPa"/>
+            <var name="geoph_250hPa"/>
+            <var name="geoph_300hPa"/>
+            <var name="geoph_400hPa"/>
+            <var name="geoph_500hPa"/>
+            <var name="geoph_600hPa"/>
+            <var name="geoph_700hPa"/>
+            <var name="geoph_825hPa"/>
+            <var name="geoph_850hPa"/>
+            <var name="geoph_875hPa"/>
+            <var name="geoph_900hPa"/>
+            <var name="geoph_925hPa"/>
+            <var name="geoph_950hPa"/>
+            <var name="geoph_975hPa"/>
+            <var name="geoph_1000hPa"/>
             <var name="vorticity_50hPa"/>
             <var name="vorticity_100hPa"/>
             <var name="vorticity_200hPa"/>
@@ -1166,6 +1166,7 @@
             <var name="z_isobaric"/>
             <var name="z_iso_levels"/>
             <var name="meanT_500_300"/>
+            <var name="surface_pressure"/>
                         <!-- End isobaric diagnostics defined in diagnostics/Registry_isobaric.xml -->
 
 #ifdef DO_PHYSICS
