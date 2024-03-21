@@ -1034,6 +1034,7 @@
             <var name="dewpoint_700hPa"/>
             <var name="dewpoint_850hPa"/>
             <var name="dewpoint_925hPa"/>
+            <var name="temperature_15hPa"/>
             <var name="temperature_50hPa"/>
             <var name="temperature_100hPa"/>
             <var name="temperature_150hPa"/>

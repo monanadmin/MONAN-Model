@@ -16,6 +16,9 @@
         <var name="mslp" type="real" dimensions="nCells Time" units="Pa"
              description="Mean sea-level pressure"/>
 
+        <var name="temperature_15hPa" type="real" dimensions="nCells Time" units="K"
+             description="Temperature vertically interpolated to 15 hPa"/>
+
         <var name="temperature_50hPa" type="real" dimensions="nCells Time" units="K"
              description="Temperature vertically interpolated to 50 hPa"/>
 
