@@ -72,6 +72,7 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_subpool(all_pools, 'mesh', mesh)
         call mpas_pool_get_subpool(all_pools, 'state', state)
         call mpas_pool_get_subpool(all_pools, 'diag', diag)
+        call mpas_pool_get_subpool(all_pools, 'tend_physics', tend_physics)
    
     end subroutine isobaric_diagnostics_setup
 
@@ -879,6 +880,7 @@ module mpas_isobaric_diagnostics
         real (kind=RKIND), dimension(:,:), pointer :: pressure_b, pressure_p 
         real (kind=RKIND), dimension(:,:), pointer :: relhum, theta_m, vorticity
         real (kind=RKIND), dimension(:,:), pointer :: umeridional, uzonal, vvel
+        real (kind=RKIND), dimension(:,:), pointer :: rqvblten, rqvcuten, rthratenlw
         real (kind=RKIND), dimension(:,:,:), pointer :: scalars
        
         real (kind=RKIND), dimension(:), pointer :: t_iso_levels
@@ -1144,7 +1146,7 @@ module mpas_isobaric_diagnostics
         real (kind=RKIND), dimension(:), pointer :: mslp
        
         real (kind=RKIND), dimension(:,:), allocatable :: pressure, pressureCp1, pressure2, pressure_v, temperature
-        real (kind=RKIND), dimension(:,:), allocatable :: dewpoint, spechum, geoph, rqvblten, rqvcuten, rthratenlw
+        real (kind=RKIND), dimension(:,:), allocatable :: dewpoint, spechum, geoph
        
        !local interpolated fields:
         integer :: nIntP
@@ -1178,7 +1180,11 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_array(state, 'w', vvel, time_lev)
         call mpas_pool_get_array(state, 'theta_m', theta_m, time_lev)
         call mpas_pool_get_array(state, 'scalars', scalars, time_lev)
-       
+
+        call mpas_pool_get_array(tend_physics, 'rqvcuten', rqvcuten)
+        call mpas_pool_get_array(tend_physics, 'rqvblten', rqvblten)
+        call mpas_pool_get_array(tend_physics, 'rthratenlw', rthratenlw)
+
         call mpas_pool_get_field(diag, 'pressure_p', pressure_p_field)
         call mpas_dmpar_exch_halo_field(pressure_p_field)
        
@@ -2161,9 +2167,6 @@ module mpas_isobaric_diagnostics
         if(allocated(dewpoint)    ) deallocate(dewpoint )
         if(allocated(spechum)     ) deallocate(spechum  )
         if(allocated(geoph)       ) deallocate(geoph    )
-        if(allocated(rqvnlten)    ) deallocate(rqvblten ) 
-        if(allocated(rqvcuten)    ) deallocate(rqvcuten )
-        if(allocated(rthratenlw)  ) deallocate(rthratenlw  ) 
 
     end subroutine interp_diagnostics
 
