@@ -1069,9 +1069,13 @@
             <var name="height_950hPa"/>
             <var name="height_975hPa"/>
             <var name="height_1000hPa"/>
-            <var name="uzonal_50hPa"/>
+            <var name="uzonal_15hPa"/>
+            <var name="uzonal_20hPa"/>
+            <var name="uzonal_30hPa"/>
+            <var name="uzonal_70hPa"/>
             <var name="uzonal_100hPa"/>
             <var name="uzonal_150hPa"/>
+            <var name="uzonal_200hPa"/>
             <var name="uzonal_250hPa"/>
             <var name="uzonal_300hPa"/>
             <var name="uzonal_400hPa"/>
