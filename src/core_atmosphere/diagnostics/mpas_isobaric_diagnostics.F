@@ -72,7 +72,7 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_subpool(all_pools, 'mesh', mesh)
         call mpas_pool_get_subpool(all_pools, 'state', state)
         call mpas_pool_get_subpool(all_pools, 'diag', diag)
-        call mpas_pool_get_subpool(all_pools, 'tend_physics', tend_physics)
+!        call mpas_pool_get_subpool(all_pools, 'tend_physics', tend_physics)
    
     end subroutine isobaric_diagnostics_setup
 
@@ -893,6 +893,7 @@ module mpas_isobaric_diagnostics
         real (kind=RKIND), dimension(:), pointer :: temperature_20hPa
         real (kind=RKIND), dimension(:), pointer :: temperature_30hPa  
         real (kind=RKIND), dimension(:), pointer :: temperature_50hPa
+        real (kind=RKIND), dimension(:), pointer :: temperature_70hPa
         real (kind=RKIND), dimension(:), pointer :: temperature_100hPa
         real (kind=RKIND), dimension(:), pointer :: temperature_150hPa
         real (kind=RKIND), dimension(:), pointer :: temperature_200hPa
@@ -1181,9 +1182,12 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_array(state, 'theta_m', theta_m, time_lev)
         call mpas_pool_get_array(state, 'scalars', scalars, time_lev)
 
-        call mpas_pool_get_array(tend_physics, 'rqvcuten', rqvcuten)
-        call mpas_pool_get_array(tend_physics, 'rqvblten', rqvblten)
-        call mpas_pool_get_array(tend_physics, 'rthratenlw', rthratenlw)
+!        call mpas_pool_get_array(tend_physics, 'rqvcuten', rqvcuten)
+!        call mpas_pool_get_array(tend_physics, 'rqvblten', rqvblten)
+!        call mpas_pool_get_array(tend_physics, 'rthratenlw', rthratenlw)
+        call mpas_pool_get_array(diag, 'rqvcuten', rqvcuten)
+        call mpas_pool_get_array(diag, 'rqvblten', rqvblten)
+        call mpas_pool_get_array(diag, 'rthratenlw', rthratenlw)
 
         call mpas_pool_get_field(diag, 'pressure_p', pressure_p_field)
         call mpas_dmpar_exch_halo_field(pressure_p_field)
