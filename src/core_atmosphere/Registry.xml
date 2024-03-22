@@ -1009,6 +1009,8 @@
 
                         <!-- Begin isobaric diagnostics defined in diagnostics/Registry_isobaric.xml -->
             <var name="mslp"/>
+	    <var name="lonCell"/>
+            <var name="latCell"/>
             <var name="relhum_50hPa"/>
             <var name="relhum_100hPa"/>
             <var name="relhum_150hPa"/>
