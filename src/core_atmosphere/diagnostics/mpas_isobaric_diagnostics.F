@@ -39,9 +39,10 @@ module mpas_isobaric_diagnostics
                need_rqvblten_15, need_rqvblten_20, need_rqvblten_30, need_rqvblten_50, need_rqvblten_70, need_rqvblten_100, need_rqvblten_150, need_rqvblten_200, need_rqvblten_250, need_rqvblten_300, need_rqvblten_400, need_rqvblten_500, need_rqvblten_600, need_rqvblten_700, need_rqvblten_825, need_rqvblten_850, need_rqvblten_875, need_rqvblten_900, need_rqvblten_925, need_rqvblten_950, need_rqvblten_975, need_rqvblten_1000, &
                need_rqvcuten_15, need_rqvcuten_20, need_rqvcuten_30, need_rqvcuten_50, need_rqvcuten_70, need_rqvcuten_100, need_rqvcuten_150, need_rqvcuten_200, need_rqvcuten_250, need_rqvcuten_300, need_rqvcuten_400, need_rqvcuten_500, need_rqvcuten_600, need_rqvcuten_700, need_rqvcuten_825, need_rqvcuten_850, need_rqvcuten_875, need_rqvcuten_900, need_rqvcuten_925, need_rqvcuten_950, need_rqvcuten_975, need_rqvcuten_1000, &
                need_rthratenlw_15, need_rthratenlw_20, need_rthratenlw_30, need_rthratenlw_50, need_rthratenlw_70, need_rthratenlw_100, need_rthratenlw_150, need_rthratenlw_200, need_rthratenlw_250, need_rthratenlw_300, need_rthratenlw_400, need_rthratenlw_500, need_rthratenlw_600, need_rthratenlw_700, need_rthratenlw_825, need_rthratenlw_850, need_rthratenlw_875, need_rthratenlw_900, need_rthratenlw_925, need_rthratenlw_950, need_rthratenlw_975, need_rthratenlw_1000, &
+               need_kzq_15, need_kzq_20, need_kzq_30, need_kzq_50, need_kzq_70, need_kzq_100, need_kzq_150, need_kzq_200, need_kzq_250, need_kzq_300, need_kzq_400, need_kzq_500, need_kzq_600, need_kzq_700, need_kzq_825, need_kzq_850, need_kzq_875, need_kzq_900, need_kzq_925, need_kzq_950, need_kzq_975, need_kzq_1000, &
                need_vorticity_50, need_vorticity_100, need_vorticity_200, need_vorticity_250, need_vorticity_500, need_vorticity_700, need_vorticity_850, need_vorticity_925, &
                need_t_isobaric, need_z_isobaric, need_meanT_500_300
-    logical :: need_temp, need_relhum, need_dewpoint, need_w, need_uzonal, need_umeridional, need_vorticity, need_height, need_spechum, need_geoph, need_rqvblten, need_rqvcuten, need_rthratenlw
+    logical :: need_temp, need_relhum, need_dewpoint, need_w, need_uzonal, need_umeridional, need_vorticity, need_height, need_spechum, need_geoph, need_rqvblten, need_rqvcuten, need_rthratenlw, need_kzq
 
 
     contains
@@ -112,6 +113,7 @@ module mpas_isobaric_diagnostics
         need_rqvblten = .false.
         need_rqvcuten = .false.
         need_rthratenlw = .false.
+        need_kzq = .false.
 
         need_mslp = MPAS_field_will_be_written('mslp')
         need_any_diags = need_any_diags .or. need_mslp
@@ -815,6 +817,73 @@ module mpas_isobaric_diagnostics
         need_rthratenlw = need_rthratenlw .or. need_rthratenlw_1000
         need_any_diags = need_any_diags .or. need_rthratenlw_1000
 
+        need_kzq_15 = MPAS_field_will_be_written('kzq_15hPa')
+        need_kzq = need_kzq .or. need_kzq_15
+        need_any_diags = need_any_diags .or. need_kzq_15
+        need_kzq_20 = MPAS_field_will_be_written('kzq_20hPa')
+        need_kzq = need_kzq .or. need_kzq_20
+        need_any_diags = need_any_diags .or. need_kzq_20
+        need_kzq_30 = MPAS_field_will_be_written('kzq_30hPa')
+        need_kzq = need_kzq .or. need_kzq_30
+        need_any_diags = need_any_diags .or. need_kzq_30
+        need_kzq_50 = MPAS_field_will_be_written('kzq_50hPa')
+        need_kzq = need_kzq .or. need_kzq_50
+        need_any_diags = need_any_diags .or. need_kzq_50
+        need_kzq_70 = MPAS_field_will_be_written('kzq_70hPa')
+        need_kzq = need_kzq .or. need_kzq_70
+        need_any_diags = need_any_diags .or. need_kzq_70
+        need_kzq_100 = MPAS_field_will_be_written('kzq_100hPa')
+        need_kzq = need_kzq .or. need_kzq_100
+        need_any_diags = need_any_diags .or. need_kzq_100
+        need_kzq_150 = MPAS_field_will_be_written('kzq_150hPa')
+        need_kzq = need_kzq .or. need_kzq_150
+        need_any_diags = need_any_diags .or. need_kzq_150
+        need_kzq_200 = MPAS_field_will_be_written('kzq_200hPa')
+        need_kzq = need_kzq .or. need_kzq_200
+        need_any_diags = need_any_diags .or. need_kzq_200
+        need_kzq_250 = MPAS_field_will_be_written('kzq_250hPa')
+        need_kzq = need_kzq .or. need_kzq_250
+        need_any_diags = need_any_diags .or. need_kzq_250
+        need_kzq_300 = MPAS_field_will_be_written('kzq_300hPa')
+        need_kzq = need_kzq .or. need_kzq_300
+        need_any_diags = need_any_diags .or. need_kzq_300
+        need_kzq_400 = MPAS_field_will_be_written('kzq_400hPa')
+        need_kzq = need_kzq .or. need_kzq_400
+        need_any_diags = need_any_diags .or. need_kzq_400
+        need_kzq_500 = MPAS_field_will_be_written('kzq_500hPa')
+        need_kzq = need_kzq .or. need_kzq_500
+        need_any_diags = need_any_diags .or. need_kzq_500
+        need_kzq_600 = MPAS_field_will_be_written('kzq_600hPa')
+        need_kzq = need_kzq .or. need_kzq_600
+        need_any_diags = need_any_diags .or. need_kzq_600
+        need_kzq_700 = MPAS_field_will_be_written('kzq_700hPa')
+        need_kzq = need_kzq .or. need_kzq_700
+        need_any_diags = need_any_diags .or. need_kzq_700
+        need_kzq_825 = MPAS_field_will_be_written('kzq_825hPa')
+        need_kzq = need_kzq .or. need_kzq_825
+        need_any_diags = need_any_diags .or. need_kzq_825
+        need_kzq_850 = MPAS_field_will_be_written('kzq_850hPa')
+        need_kzq = need_kzq .or. need_kzq_850
+        need_any_diags = need_any_diags .or. need_kzq_850
+        need_kzq_875 = MPAS_field_will_be_written('kzq_875hPa')
+        need_kzq = need_kzq .or. need_kzq_875
+        need_any_diags = need_any_diags .or. need_kzq_875
+        need_kzq_900 = MPAS_field_will_be_written('kzq_900hPa')
+        need_kzq = need_kzq .or. need_kzq_900
+        need_any_diags = need_any_diags .or. need_kzq_900
+        need_kzq_925 = MPAS_field_will_be_written('kzq_925hPa')
+        need_kzq = need_kzq .or. need_kzq_925
+        need_any_diags = need_any_diags .or. need_kzq_925
+        need_kzq_950 = MPAS_field_will_be_written('kzq_950hPa')
+        need_kzq = need_kzq .or. need_kzq_950
+        need_any_diags = need_any_diags .or. need_kzq_950
+        need_kzq_975 = MPAS_field_will_be_written('kzq_975hPa')
+        need_kzq = need_kzq .or. need_kzq_975
+        need_any_diags = need_any_diags .or. need_kzq_975
+        need_kzq_1000 = MPAS_field_will_be_written('kzq_1000hPa')
+        need_kzq = need_kzq .or. need_kzq_1000
+        need_any_diags = need_any_diags .or. need_kzq_1000
+
         need_vorticity_50 = MPAS_field_will_be_written('vorticity_50hPa')
         need_vorticity = need_vorticity .or. need_vorticity_50
         need_any_diags = need_any_diags .or. need_vorticity_50
@@ -864,7 +933,7 @@ module mpas_isobaric_diagnostics
        
        !inout arguments:
         type (mpas_pool_type), intent(inout) :: diag
-        type (mpas_pool_type), intent(inout) :: tend_physics
+!        type (mpas_pool_type), intent(inout) :: tend_physics
        
        !local variables:
         integer :: iCell,iVert,iVertD,k,kk
@@ -1133,6 +1202,29 @@ module mpas_isobaric_diagnostics
         real (kind=RKIND), dimension(:), pointer :: rthratenlw_975hPa
         real (kind=RKIND), dimension(:), pointer :: rthratenlw_1000hPa
 
+        real (kind=RKIND), dimension(:), pointer :: kzq_15hPa
+        real (kind=RKIND), dimension(:), pointer :: kzq_20hPa
+        real (kind=RKIND), dimension(:), pointer :: kzq_30hPa
+        real (kind=RKIND), dimension(:), pointer :: kzq_50hPa
+        real (kind=RKIND), dimension(:), pointer :: kzq_70hPa
+        real (kind=RKIND), dimension(:), pointer :: kzq_100hPa
+        real (kind=RKIND), dimension(:), pointer :: kzq_150hPa
+        real (kind=RKIND), dimension(:), pointer :: kzq_200hPa
+        real (kind=RKIND), dimension(:), pointer :: kzq_250hPa
+        real (kind=RKIND), dimension(:), pointer :: kzq_300hPa
+        real (kind=RKIND), dimension(:), pointer :: kzq_400hPa
+        real (kind=RKIND), dimension(:), pointer :: kzq_500hPa
+        real (kind=RKIND), dimension(:), pointer :: kzq_600hPa
+        real (kind=RKIND), dimension(:), pointer :: kzq_700hPa
+        real (kind=RKIND), dimension(:), pointer :: kzq_825hPa
+        real (kind=RKIND), dimension(:), pointer :: kzq_850hPa
+        real (kind=RKIND), dimension(:), pointer :: kzq_875hPa
+        real (kind=RKIND), dimension(:), pointer :: kzq_900hPa
+        real (kind=RKIND), dimension(:), pointer :: kzq_925hPa
+        real (kind=RKIND), dimension(:), pointer :: kzq_950hPa
+        real (kind=RKIND), dimension(:), pointer :: kzq_975hPa
+        real (kind=RKIND), dimension(:), pointer :: kzq_1000hPa
+
         real (kind=RKIND), dimension(:), pointer :: vorticity_50hPa
         real (kind=RKIND), dimension(:), pointer :: vorticity_100hPa
         real (kind=RKIND), dimension(:), pointer :: vorticity_200hPa
@@ -1149,7 +1241,7 @@ module mpas_isobaric_diagnostics
         real (kind=RKIND), dimension(:), pointer :: mslp
        
         real (kind=RKIND), dimension(:,:), allocatable :: pressure, pressureCp1, pressure2, pressure_v, temperature
-        real (kind=RKIND), dimension(:,:), allocatable :: dewpoint, spechum, geoph
+        real (kind=RKIND), dimension(:,:), allocatable :: dewpoint, spechum, geoph, kzq
        
        !local interpolated fields:
         integer :: nIntP
@@ -1446,6 +1538,29 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_array(tend_physics, 'rthratenlw_950hPa', rthratenlw_950hPa)
         call mpas_pool_get_array(tend_physics, 'rthratenlw_975hPa', rthratenlw_975hPa)
         call mpas_pool_get_array(tend_physics, 'rthratenlw_1000hPa', rthratenlw_1000hPa)
+
+        call mpas_pool_get_array(diag, 'kzq_15hPa', kzq_15hPa)
+        call mpas_pool_get_array(diag, 'kzq_20hPa', kzq_20hPa)
+        call mpas_pool_get_array(diag, 'kzq_30hPa', kzq_30hPa)
+        call mpas_pool_get_array(diag, 'kzq_50hPa', kzq_50hPa)
+        call mpas_pool_get_array(diag, 'kzq_70hPa', kzq_70hPa)
+        call mpas_pool_get_array(diag, 'kzq_100hPa', kzq_100hPa)
+        call mpas_pool_get_array(diag, 'kzq_150hPa', kzq_150hPa)
+        call mpas_pool_get_array(diag, 'kzq_200hPa', kzq_200hPa)
+        call mpas_pool_get_array(diag, 'kzq_250hPa', kzq_250hPa)
+        call mpas_pool_get_array(diag, 'kzq_300hPa', kzq_300hPa)
+        call mpas_pool_get_array(diag, 'kzq_400hPa', kzq_400hPa)
+        call mpas_pool_get_array(diag, 'kzq_500hPa', kzq_500hPa)
+        call mpas_pool_get_array(diag, 'kzq_600hPa', kzq_600hPa)
+        call mpas_pool_get_array(diag, 'kzq_700hPa', kzq_700hPa)
+        call mpas_pool_get_array(diag, 'kzq_825hPa', kzq_825hPa)
+        call mpas_pool_get_array(diag, 'kzq_850hPa', kzq_850hPa)
+        call mpas_pool_get_array(diag, 'kzq_875hPa', kzq_875hPa)
+        call mpas_pool_get_array(diag, 'kzq_900hPa', kzq_900hPa)
+        call mpas_pool_get_array(diag, 'kzq_925hPa', kzq_925hPa)
+        call mpas_pool_get_array(diag, 'kzq_950hPa', kzq_950hPa)
+        call mpas_pool_get_array(diag, 'kzq_975hPa', kzq_975hPa)
+        call mpas_pool_get_array(diag, 'kzq_1000hPa', kzq_1000hPa)
 
         call mpas_pool_get_array(diag, 'vorticity_50hPa', vorticity_50hPa)
         call mpas_pool_get_array(diag, 'vorticity_100hPa', vorticity_100hPa)
@@ -1778,6 +1893,41 @@ module mpas_isobaric_diagnostics
            ! call mpas_log_write('--- end interpolate relative humidity:')
         end if
        
+        if (NEED_KZQ) then
+           !... kzq:
+            do iCell = 1, nCells
+            do k = 1, nVertLevels
+               kk = nVertLevels+1-k
+               field_in(iCell,kk) = kzq(k,iCell)
+            enddo
+            enddo
+            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+
+            kzq_15hPa(1:nCells) = field_interp(1:nCells,1)
+            kzq_20hPa(1:nCells) = field_interp(1:nCells,2)
+            kzq_30hPa(1:nCells) = field_interp(1:nCells,3)
+            kzq_50hPa(1:nCells) = field_interp(1:nCells,4)
+            kzq_70hPa(1:nCells) = field_interp(1:nCells,5)
+            kzq_100hPa(1:nCells) = field_interp(1:nCells,6)
+            kzq_150hPa(1:nCells) = field_interp(1:nCells,7)
+            kzq_200hPa(1:nCells) = field_interp(1:nCells,8)
+            kzq_250hPa(1:nCells) = field_interp(1:nCells,9)
+            kzq_300hPa(1:nCells) = field_interp(1:nCells,10)
+            kzq_400hPa(1:nCells) = field_interp(1:nCells,11)
+            kzq_500hPa(1:nCells) = field_interp(1:nCells,12)
+            kzq_600hPa(1:nCells) = field_interp(1:nCells,13)
+            kzq_700hPa(1:nCells) = field_interp(1:nCells,14)
+            kzq_825hPa(1:nCells) = field_interp(1:nCells,15)
+            kzq_850hPa(1:nCells) = field_interp(1:nCells,16)
+            kzq_875hPa(1:nCells) = field_interp(1:nCells,17)
+            kzq_900hPa(1:nCells) = field_interp(1:nCells,18)
+            kzq_925hPa(1:nCells) = field_interp(1:nCells,19)
+            kzq_950hPa(1:nCells) = field_interp(1:nCells,20)
+            kzq_975hPa(1:nCells) = field_interp(1:nCells,21)
+            kzq_1000hPa(1:nCells) = field_interp(1:nCells,22)
+            ! call mpas_log_write('--- end interpolate kzq:')
+        end if
+
         if (NEED_DEWPOINT) then
            !... dewpoint
             do iCell = 1, nCells
@@ -2170,6 +2320,7 @@ module mpas_isobaric_diagnostics
         if(allocated(dewpoint)    ) deallocate(dewpoint )
         if(allocated(spechum)     ) deallocate(spechum  )
         if(allocated(geoph)       ) deallocate(geoph    )
+        if(allocated(kzq)         ) deallocate(kzq      ) 
 
     end subroutine interp_diagnostics
 
