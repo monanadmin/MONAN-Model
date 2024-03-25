@@ -17,6 +17,7 @@ module mpas_isobaric_diagnostics
     type (MPAS_pool_type), pointer :: mesh
     type (MPAS_pool_type), pointer :: state
     type (MPAS_pool_type), pointer :: diag
+    type (MPAS_pool_type), pointer :: diag_physics
     type (MPAS_pool_type), pointer :: tend_physics
 
     type (MPAS_clock_type), pointer :: clock
@@ -75,6 +76,7 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_subpool(all_pools, 'mesh', mesh)
         call mpas_pool_get_subpool(all_pools, 'state', state)
         call mpas_pool_get_subpool(all_pools, 'diag', diag)
+        call mpas_pool_get_subpool(all_pools, 'diag_physics', diag_physics)
         call mpas_pool_get_subpool(all_pools, 'tend_physics', tend_physics)
    
     end subroutine isobaric_diagnostics_setup
@@ -1018,14 +1020,14 @@ module mpas_isobaric_diagnostics
         need_any_diags = need_any_diags .or. need_meanT_500_300
 
         if (need_any_diags) then
-            call interp_diagnostics(mesh, state, 1, diag)
+            call interp_diagnostics(mesh, state, 1, diag, diag_physics, tend_physics)
         end if
    
     end subroutine isobaric_diagnostics_compute
 
 
    !==================================================================================================
-    subroutine interp_diagnostics(mesh, state, time_lev, diag)
+    subroutine interp_diagnostics(mesh, state, time_lev, diag, diag_physics, tend_physics)
    !==================================================================================================
 
        !input arguments:
@@ -1035,7 +1037,8 @@ module mpas_isobaric_diagnostics
        
        !inout arguments:
         type (mpas_pool_type), intent(inout) :: diag
-!        type (mpas_pool_type), intent(inout) :: tend_physics
+        type (mpas_pool_type), intent(inout) :: diag_physics
+        type (mpas_pool_type), intent(inout) :: tend_physics
        
        !local variables:
         integer :: iCell,iVert,iVertD,k,kk
@@ -1054,6 +1057,7 @@ module mpas_isobaric_diagnostics
         real (kind=RKIND), dimension(:,:), pointer :: relhum, theta_m, vorticity
         real (kind=RKIND), dimension(:,:), pointer :: umeridional, uzonal, vvel
         real (kind=RKIND), dimension(:,:), pointer :: rqvblten, rqvcuten, rthratenlw
+        real (kind=RKIND), dimension(:,:), pointer :: kzq, kzh
         real (kind=RKIND), dimension(:,:,:), pointer :: scalars
        
         real (kind=RKIND), dimension(:), pointer :: t_iso_levels
@@ -1376,7 +1380,8 @@ module mpas_isobaric_diagnostics
         real (kind=RKIND), dimension(:), pointer :: mslp
        
         real (kind=RKIND), dimension(:,:), allocatable :: pressure, pressureCp1, pressure2, pressure_v, temperature
-        real (kind=RKIND), dimension(:,:), allocatable :: dewpoint, spechum, geoph, kzq, kzh
+        real (kind=RKIND), dimension(:,:), allocatable :: dewpoint, spechum, geoph
+!        real (kind=RKIND), dimension(:,:), allocatable :: kzq, kzh
        
        !local interpolated fields:
         integer :: nIntP
@@ -1414,6 +1419,9 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_array(tend_physics, 'rqvcuten', rqvcuten)
         call mpas_pool_get_array(tend_physics, 'rqvblten', rqvblten)
         call mpas_pool_get_array(tend_physics, 'rthratenlw', rthratenlw)
+
+        call mpas_pool_get_array(diag_physics, 'kzq', kzq)
+        call mpas_pool_get_array(diag_physics, 'kzh', kzh)
 
         call mpas_pool_get_field(diag, 'pressure_p', pressure_p_field)
         call mpas_dmpar_exch_halo_field(pressure_p_field)
@@ -1684,51 +1692,51 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_array(tend_physics, 'rthratenlw_975hPa', rthratenlw_975hPa)
         call mpas_pool_get_array(tend_physics, 'rthratenlw_1000hPa', rthratenlw_1000hPa)
 
-        call mpas_pool_get_array(diag, 'kzq_15hPa', kzq_15hPa)
-        call mpas_pool_get_array(diag, 'kzq_20hPa', kzq_20hPa)
-        call mpas_pool_get_array(diag, 'kzq_30hPa', kzq_30hPa)
-        call mpas_pool_get_array(diag, 'kzq_50hPa', kzq_50hPa)
-        call mpas_pool_get_array(diag, 'kzq_70hPa', kzq_70hPa)
-        call mpas_pool_get_array(diag, 'kzq_100hPa', kzq_100hPa)
-        call mpas_pool_get_array(diag, 'kzq_150hPa', kzq_150hPa)
-        call mpas_pool_get_array(diag, 'kzq_200hPa', kzq_200hPa)
-        call mpas_pool_get_array(diag, 'kzq_250hPa', kzq_250hPa)
-        call mpas_pool_get_array(diag, 'kzq_300hPa', kzq_300hPa)
-        call mpas_pool_get_array(diag, 'kzq_400hPa', kzq_400hPa)
-        call mpas_pool_get_array(diag, 'kzq_500hPa', kzq_500hPa)
-        call mpas_pool_get_array(diag, 'kzq_600hPa', kzq_600hPa)
-        call mpas_pool_get_array(diag, 'kzq_700hPa', kzq_700hPa)
-        call mpas_pool_get_array(diag, 'kzq_825hPa', kzq_825hPa)
-        call mpas_pool_get_array(diag, 'kzq_850hPa', kzq_850hPa)
-        call mpas_pool_get_array(diag, 'kzq_875hPa', kzq_875hPa)
-        call mpas_pool_get_array(diag, 'kzq_900hPa', kzq_900hPa)
-        call mpas_pool_get_array(diag, 'kzq_925hPa', kzq_925hPa)
-        call mpas_pool_get_array(diag, 'kzq_950hPa', kzq_950hPa)
-        call mpas_pool_get_array(diag, 'kzq_975hPa', kzq_975hPa)
-        call mpas_pool_get_array(diag, 'kzq_1000hPa', kzq_1000hPa)
+        call mpas_pool_get_array(diag_physics, 'kzq_15hPa', kzq_15hPa)
+        call mpas_pool_get_array(diag_physics, 'kzq_20hPa', kzq_20hPa)
+        call mpas_pool_get_array(diag_physics, 'kzq_30hPa', kzq_30hPa)
+        call mpas_pool_get_array(diag_physics, 'kzq_50hPa', kzq_50hPa)
+        call mpas_pool_get_array(diag_physics, 'kzq_70hPa', kzq_70hPa)
+        call mpas_pool_get_array(diag_physics, 'kzq_100hPa', kzq_100hPa)
+        call mpas_pool_get_array(diag_physics, 'kzq_150hPa', kzq_150hPa)
+        call mpas_pool_get_array(diag_physics, 'kzq_200hPa', kzq_200hPa)
+        call mpas_pool_get_array(diag_physics, 'kzq_250hPa', kzq_250hPa)
+        call mpas_pool_get_array(diag_physics, 'kzq_300hPa', kzq_300hPa)
+        call mpas_pool_get_array(diag_physics, 'kzq_400hPa', kzq_400hPa)
+        call mpas_pool_get_array(diag_physics, 'kzq_500hPa', kzq_500hPa)
+        call mpas_pool_get_array(diag_physics, 'kzq_600hPa', kzq_600hPa)
+        call mpas_pool_get_array(diag_physics, 'kzq_700hPa', kzq_700hPa)
+        call mpas_pool_get_array(diag_physics, 'kzq_825hPa', kzq_825hPa)
+        call mpas_pool_get_array(diag_physics, 'kzq_850hPa', kzq_850hPa)
+        call mpas_pool_get_array(diag_physics, 'kzq_875hPa', kzq_875hPa)
+        call mpas_pool_get_array(diag_physics, 'kzq_900hPa', kzq_900hPa)
+        call mpas_pool_get_array(diag_physics, 'kzq_925hPa', kzq_925hPa)
+        call mpas_pool_get_array(diag_physics, 'kzq_950hPa', kzq_950hPa)
+        call mpas_pool_get_array(diag_physics, 'kzq_975hPa', kzq_975hPa)
+        call mpas_pool_get_array(diag_physics, 'kzq_1000hPa', kzq_1000hPa)
 
-        call mpas_pool_get_array(diag, 'kzh_15hPa', kzh_15hPa)
-        call mpas_pool_get_array(diag, 'kzh_20hPa', kzh_20hPa)
-        call mpas_pool_get_array(diag, 'kzh_30hPa', kzh_30hPa)
-        call mpas_pool_get_array(diag, 'kzh_50hPa', kzh_50hPa)
-        call mpas_pool_get_array(diag, 'kzh_70hPa', kzh_70hPa)
-        call mpas_pool_get_array(diag, 'kzh_100hPa', kzh_100hPa)
-        call mpas_pool_get_array(diag, 'kzh_150hPa', kzh_150hPa)
-        call mpas_pool_get_array(diag, 'kzh_200hPa', kzh_200hPa)
-        call mpas_pool_get_array(diag, 'kzh_250hPa', kzh_250hPa)
-        call mpas_pool_get_array(diag, 'kzh_300hPa', kzh_300hPa)
-        call mpas_pool_get_array(diag, 'kzh_400hPa', kzh_400hPa)
-        call mpas_pool_get_array(diag, 'kzh_500hPa', kzh_500hPa)
-        call mpas_pool_get_array(diag, 'kzh_600hPa', kzh_600hPa)
-        call mpas_pool_get_array(diag, 'kzh_700hPa', kzh_700hPa)
-        call mpas_pool_get_array(diag, 'kzh_825hPa', kzh_825hPa)
-        call mpas_pool_get_array(diag, 'kzh_850hPa', kzh_850hPa)
-        call mpas_pool_get_array(diag, 'kzh_875hPa', kzh_875hPa)
-        call mpas_pool_get_array(diag, 'kzh_900hPa', kzh_900hPa)
-        call mpas_pool_get_array(diag, 'kzh_925hPa', kzh_925hPa)
-        call mpas_pool_get_array(diag, 'kzh_950hPa', kzh_950hPa)
-        call mpas_pool_get_array(diag, 'kzh_975hPa', kzh_975hPa)
-        call mpas_pool_get_array(diag, 'kzh_1000hPa', kzh_1000hPa)
+        call mpas_pool_get_array(diag_physics, 'kzh_15hPa', kzh_15hPa)
+        call mpas_pool_get_array(diag_physics, 'kzh_20hPa', kzh_20hPa)
+        call mpas_pool_get_array(diag_physics, 'kzh_30hPa', kzh_30hPa)
+        call mpas_pool_get_array(diag_physics, 'kzh_50hPa', kzh_50hPa)
+        call mpas_pool_get_array(diag_physics, 'kzh_70hPa', kzh_70hPa)
+        call mpas_pool_get_array(diag_physics, 'kzh_100hPa', kzh_100hPa)
+        call mpas_pool_get_array(diag_physics, 'kzh_150hPa', kzh_150hPa)
+        call mpas_pool_get_array(diag_physics, 'kzh_200hPa', kzh_200hPa)
+        call mpas_pool_get_array(diag_physics, 'kzh_250hPa', kzh_250hPa)
+        call mpas_pool_get_array(diag_physics, 'kzh_300hPa', kzh_300hPa)
+        call mpas_pool_get_array(diag_physics, 'kzh_400hPa', kzh_400hPa)
+        call mpas_pool_get_array(diag_physics, 'kzh_500hPa', kzh_500hPa)
+        call mpas_pool_get_array(diag_physics, 'kzh_600hPa', kzh_600hPa)
+        call mpas_pool_get_array(diag_physics, 'kzh_700hPa', kzh_700hPa)
+        call mpas_pool_get_array(diag_physics, 'kzh_825hPa', kzh_825hPa)
+        call mpas_pool_get_array(diag_physics, 'kzh_850hPa', kzh_850hPa)
+        call mpas_pool_get_array(diag_physics, 'kzh_875hPa', kzh_875hPa)
+        call mpas_pool_get_array(diag_physics, 'kzh_900hPa', kzh_900hPa)
+        call mpas_pool_get_array(diag_physics, 'kzh_925hPa', kzh_925hPa)
+        call mpas_pool_get_array(diag_physics, 'kzh_950hPa', kzh_950hPa)
+        call mpas_pool_get_array(diag_physics, 'kzh_975hPa', kzh_975hPa)
+        call mpas_pool_get_array(diag_physics, 'kzh_1000hPa', kzh_1000hPa)
 
         call mpas_pool_get_array(diag, 'vorticity_50hPa', vorticity_50hPa)
         call mpas_pool_get_array(diag, 'vorticity_100hPa', vorticity_100hPa)
@@ -1749,8 +1757,8 @@ module mpas_isobaric_diagnostics
         if(.not.allocated(spechum)  ) allocate(spechum(nVertLevels,nCells)    ) !LFR
         if(.not.allocated(geoph)    ) allocate(geoph(nVertLevelsP1,nCells)    ) !EGK
         if(.not.allocated(dewpoint) ) allocate(dewpoint(nVertLevels,nCells)   )
-        if(.not.allocated(kzq)  ) allocate(kzq(nVertLevels,nCells)   ) !EGK
-        if(.not.allocated(kzh)  ) allocate(kzh(nVertLevels,nCells)   ) 
+!        if(.not.allocated(kzq)  ) allocate(kzq(nVertLevels,nCells)   ) !EGK
+!        if(.not.allocated(kzh)  ) allocate(kzh(nVertLevels,nCells)   ) 
        
         if (need_t_isobaric) then
             t_iso_levels(1) = 30000.0
@@ -2536,8 +2544,8 @@ module mpas_isobaric_diagnostics
         if(allocated(dewpoint)    ) deallocate(dewpoint )
         if(allocated(spechum)     ) deallocate(spechum  )
         if(allocated(geoph)       ) deallocate(geoph    )
-        if(allocated(kzq)         ) deallocate(kzq      ) 
-        if(allocated(kzh)         ) deallocate(kzh      )
+!        if(allocated(kzq)         ) deallocate(kzq      ) 
+!        if(allocated(kzh)         ) deallocate(kzh      )
 
     end subroutine interp_diagnostics
 
