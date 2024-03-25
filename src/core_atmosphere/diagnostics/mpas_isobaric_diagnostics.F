@@ -27,10 +27,10 @@ module mpas_isobaric_diagnostics
     private
 
     logical :: need_mslp, &
-               need_relhum_50, need_relhum_100, need_relhum_150, need_relhum_250, need_relhum_300, need_relhum_400, need_relhum_500, need_relhum_600, need_relhum_700, need_relhum_825, need_relhum_850, need_relhum_875, need_relhum_900, need_relhum_925, need_relhum_950, need_relhum_975, need_relhum_1000, &
+               need_relhum_15, need_relhum_20, need_relhum_30, need_relhum_50, need_relhum_70, need_relhum_100, need_relhum_150, need_relhum_200, need_relhum_250, need_relhum_300, need_relhum_400, need_relhum_500, need_relhum_600, need_relhum_700, need_relhum_825, need_relhum_850, need_relhum_875, need_relhum_900, need_relhum_925, need_relhum_950, need_relhum_975, need_relhum_1000, &
                need_dewpoint_50, need_dewpoint_100, need_dewpoint_200, need_dewpoint_250, need_dewpoint_500, need_dewpoint_700, need_dewpoint_850, need_dewpoint_925, &
                need_temp_15, need_temp_20, need_temp_30, need_temp_50, need_temp_70, need_temp_100, need_temp_150, need_temp_200, need_temp_250, need_temp_300, need_temp_400, need_temp_500, need_temp_600, need_temp_700, need_temp_825, need_temp_850, need_temp_875, need_temp_900, need_temp_925, need_temp_950, need_temp_975, need_temp_1000, &
-               need_height_50, need_height_100, need_height_150, need_height_250, need_height_300, need_height_400, need_height_500, need_height_600, need_height_700, need_height_825, need_height_850, need_height_875, need_height_900, need_height_925, need_height_950, need_height_975, need_height_1000, &
+               need_height_15, need_height_20, need_height_30, need_height_50, need_height_70, need_height_100, need_height_150, need_height_200, need_height_250, need_height_300, need_height_400, need_height_500, need_height_600, need_height_700, need_height_825, need_height_850, need_height_875, need_height_900, need_height_925, need_height_950, need_height_975, need_height_1000, &
                need_uzonal_15, need_uzonal_20, need_uzonal_30, need_uzonal_50, need_uzonal_70, need_uzonal_100, need_uzonal_150, need_uzonal_200, need_uzonal_250, need_uzonal_300, need_uzonal_400, need_uzonal_500, need_uzonal_600, need_uzonal_700, need_uzonal_825, need_uzonal_850, need_uzonal_875, need_uzonal_900, need_uzonal_925, need_uzonal_950, need_uzonal_975, need_uzonal_1000, &
                need_umeridional_15, need_umeridional_20, need_umeridional_30, need_umeridional_50, need_umeridional_70, need_umeridional_100, need_umeridional_150,need_umeridional_200,need_umeridional_250, need_umeridional_300, need_umeridional_400, need_umeridional_500, need_umeridional_600, need_umeridional_700, need_umeridional_825, need_umeridional_850, need_umeridional_875, need_umeridional_900, need_umeridional_925, need_umeridional_950, need_umeridional_975, need_umeridional_1000, &
                need_spechum_15, need_spechum_20, need_spechum_30, need_spechum_50, need_spechum_70, need_spechum_100, need_spechum_150, need_spechum_200, need_spechum_250, need_spechum_300, need_spechum_400, need_spechum_500, need_spechum_600, need_spechum_700, need_spechum_825, need_spechum_850, need_spechum_875, need_spechum_900, need_spechum_925, need_spechum_950, need_spechum_975, need_spechum_1000, &               
@@ -117,15 +117,31 @@ module mpas_isobaric_diagnostics
 
         need_mslp = MPAS_field_will_be_written('mslp')
         need_any_diags = need_any_diags .or. need_mslp
+        
+        need_relhum_15 = MPAS_field_will_be_written('relhum_15hPa')
+        need_relhum = need_relhum .or. need_relhum_15
+        need_any_diags = need_any_diags .or. need_relhum_15
+        need_relhum_20 = MPAS_field_will_be_written('relhum_20hPa')
+        need_relhum = need_relhum .or. need_relhum_20
+        need_any_diags = need_any_diags .or. need_relhum_20
+        need_relhum_30 = MPAS_field_will_be_written('relhum_30hPa')
+        need_relhum = need_relhum .or. need_relhum_30
+        need_any_diags = need_any_diags .or. need_relhum_30
         need_relhum_50 = MPAS_field_will_be_written('relhum_50hPa')
         need_relhum = need_relhum .or. need_relhum_50
         need_any_diags = need_any_diags .or. need_relhum_50
+        need_relhum_70 = MPAS_field_will_be_written('relhum_70hPa')
+        need_relhum = need_relhum .or. need_relhum_70
+        need_any_diags = need_any_diags .or. need_relhum_70
         need_relhum_100 = MPAS_field_will_be_written('relhum_100hPa')
         need_relhum = need_relhum .or. need_relhum_100
         need_any_diags = need_any_diags .or. need_relhum_100
         need_relhum_150 = MPAS_field_will_be_written('relhum_150hPa')
         need_relhum = need_relhum .or. need_relhum_150
         need_any_diags = need_any_diags .or. need_relhum_150
+        need_relhum_200 = MPAS_field_will_be_written('relhum_200hPa')
+        need_relhum = need_relhum .or. need_relhum_200
+        need_any_diags = need_any_diags .or. need_relhum_200
         need_relhum_250 = MPAS_field_will_be_written('relhum_250hPa')
         need_relhum = need_relhum .or. need_relhum_250
         need_any_diags = need_any_diags .or. need_relhum_250
@@ -260,15 +276,32 @@ module mpas_isobaric_diagnostics
         need_temp = need_temp .or. need_temp_1000
         need_any_diags = need_any_diags .or. need_temp_1000
 
+        need_height_15 = MPAS_field_will_be_written('height_15hPa')
+        need_height = need_height .or. need_height_15
+        need_any_diags = need_any_diags .or. need_height_15
+
+        need_height_20 = MPAS_field_will_be_written('height_20hPa')
+        need_height = need_height .or. need_height_20
+        need_any_diags = need_any_diags .or. need_height_20
+
+        need_height_30 = MPAS_field_will_be_written('height_30hPa')
+        need_height = need_height .or. need_height_30
+        need_any_diags = need_any_diags .or. need_height_30
         need_height_50 = MPAS_field_will_be_written('height_50hPa')
         need_height = need_height .or. need_height_50
         need_any_diags = need_any_diags .or. need_height_50
+        need_height_70 = MPAS_field_will_be_written('height_70hPa')
+        need_height = need_height .or. need_height_70
+        need_any_diags = need_any_diags .or. need_height_70
         need_height_100 = MPAS_field_will_be_written('height_100hPa')
         need_height = need_height .or. need_height_100
         need_any_diags = need_any_diags .or. need_height_100
         need_height_150 = MPAS_field_will_be_written('height_150hPa')
         need_height = need_height .or. need_height_150
         need_any_diags = need_any_diags .or. need_height_150
+        need_height_200 = MPAS_field_will_be_written('height_200hPa')
+        need_height = need_height .or. need_height_200
+        need_any_diags = need_any_diags .or. need_height_200
         need_height_250 = MPAS_field_will_be_written('height_250hPa')
         need_height = need_height .or. need_height_250
         need_any_diags = need_any_diags .or. need_height_250
@@ -983,9 +1016,14 @@ module mpas_isobaric_diagnostics
         real (kind=RKIND), dimension(:), pointer :: temperature_975hPa
         real (kind=RKIND), dimension(:), pointer :: temperature_1000hPa
 
+        real (kind=RKIND), dimension(:), pointer :: relhum_15hPa
+        real (kind=RKIND), dimension(:), pointer :: relhum_20hPa
+        real (kind=RKIND), dimension(:), pointer :: relhum_30hPa
         real (kind=RKIND), dimension(:), pointer :: relhum_50hPa
+        real (kind=RKIND), dimension(:), pointer :: relhum_70hPa
         real (kind=RKIND), dimension(:), pointer :: relhum_100hPa
         real (kind=RKIND), dimension(:), pointer :: relhum_150hPa
+        real (kind=RKIND), dimension(:), pointer :: relhum_200hPa
         real (kind=RKIND), dimension(:), pointer :: relhum_250hPa
         real (kind=RKIND), dimension(:), pointer :: relhum_300hPa
         real (kind=RKIND), dimension(:), pointer :: relhum_400hPa
@@ -1079,9 +1117,14 @@ module mpas_isobaric_diagnostics
         real (kind=RKIND), dimension(:), pointer :: spechum_975hPa
         real (kind=RKIND), dimension(:), pointer :: spechum_1000hPa
 
+        real (kind=RKIND), dimension(:), pointer :: height_15hPa
+        real (kind=RKIND), dimension(:), pointer :: height_20hPa
+        real (kind=RKIND), dimension(:), pointer :: height_30hPa
         real (kind=RKIND), dimension(:), pointer :: height_50hPa
+        real (kind=RKIND), dimension(:), pointer :: height_70hPa
         real (kind=RKIND), dimension(:), pointer :: height_100hPa
         real (kind=RKIND), dimension(:), pointer :: height_150hPa
+        real (kind=RKIND), dimension(:), pointer :: height_200hPa
         real (kind=RKIND), dimension(:), pointer :: height_250hPa
         real (kind=RKIND), dimension(:), pointer :: height_300hPa
         real (kind=RKIND), dimension(:), pointer :: height_400hPa
@@ -1320,9 +1363,14 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_array(diag, 'temperature_975hPa' , temperature_975hPa)
         call mpas_pool_get_array(diag, 'temperature_1000hPa', temperature_1000hPa)        
 
+        call mpas_pool_get_array(diag, 'relhum_15hPa', relhum_15hPa)
+        call mpas_pool_get_array(diag, 'relhum_20hPa', relhum_20hPa)
+        call mpas_pool_get_array(diag, 'relhum_30hPa', relhum_30hPa)
         call mpas_pool_get_array(diag, 'relhum_50hPa', relhum_50hPa)
+        call mpas_pool_get_array(diag, 'relhum_70hPa', relhum_70hPa)
         call mpas_pool_get_array(diag, 'relhum_100hPa', relhum_100hPa)
         call mpas_pool_get_array(diag, 'relhum_150hPa', relhum_150hPa)
+        call mpas_pool_get_array(diag, 'relhum_200hPa', relhum_200hPa)
         call mpas_pool_get_array(diag, 'relhum_250hPa', relhum_250hPa)
         call mpas_pool_get_array(diag, 'relhum_300hPa', relhum_300hPa)
         call mpas_pool_get_array(diag, 'relhum_400hPa', relhum_400hPa)
@@ -1416,9 +1464,14 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_array(diag, 'spechum_975hPa', spechum_975hPa)
         call mpas_pool_get_array(diag, 'spechum_1000hPa', spechum_1000hPa)
 
+        call mpas_pool_get_array(diag, 'height_15hPa', height_15hPa)
+        call mpas_pool_get_array(diag, 'height_20hPa', height_20hPa)
+        call mpas_pool_get_array(diag, 'height_30hPa', height_30hPa)
         call mpas_pool_get_array(diag, 'height_50hPa', height_50hPa)
+        call mpas_pool_get_array(diag, 'height_70hPa', height_70hPa)
         call mpas_pool_get_array(diag, 'height_100hPa', height_100hPa)
         call mpas_pool_get_array(diag, 'height_150hPa', height_150hPa)
+        call mpas_pool_get_array(diag, 'height_200hPa', height_200hPa)
         call mpas_pool_get_array(diag, 'height_250hPa', height_250hPa)
         call mpas_pool_get_array(diag, 'height_300hPa', height_300hPa)
         call mpas_pool_get_array(diag, 'height_400hPa', height_400hPa)
@@ -1873,9 +1926,14 @@ module mpas_isobaric_diagnostics
             enddo
             enddo
             call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+            relhum_15hPa(1:nCells) = field_interp(1:nCells,1)
+            relhum_20hPa(1:nCells) = field_interp(1:nCells,1)
+            relhum_30hPa(1:nCells) = field_interp(1:nCells,1)
             relhum_50hPa(1:nCells) = field_interp(1:nCells,1)
+            relhum_70hPa(1:nCells) = field_interp(1:nCells,1)
             relhum_100hPa(1:nCells) = field_interp(1:nCells,2)
             relhum_150hPa(1:nCells) = field_interp(1:nCells,3)
+            relhum_200hPa(1:nCells) = field_interp(1:nCells,1)
             relhum_250hPa(1:nCells) = field_interp(1:nCells,4)
             relhum_300hPa(1:nCells) = field_interp(1:nCells,5)
             relhum_400hPa(1:nCells) = field_interp(1:nCells,6)
@@ -2076,9 +2134,14 @@ module mpas_isobaric_diagnostics
             enddo
             enddo
             call interp_tofixed_pressure(nCells,nVertLevelsP1,nIntP,press_in,field_in,press_interp,field_interp)
+            height_15hPa(1:nCells) = field_interp(1:nCells,1)
+            height_20hPa(1:nCells) = field_interp(1:nCells,1)
+            height_30hPa(1:nCells) = field_interp(1:nCells,1)
             height_50hPa(1:nCells) = field_interp(1:nCells,1)
+            height_70hPa(1:nCells) = field_interp(1:nCells,1)
             height_100hPa(1:nCells) = field_interp(1:nCells,2)
             height_150hPa(1:nCells) = field_interp(1:nCells,3)
+            height_200hPa(1:nCells) = field_interp(1:nCells,1)
             height_250hPa(1:nCells) = field_interp(1:nCells,4)
             height_300hPa(1:nCells) = field_interp(1:nCells,5)
             height_400hPa(1:nCells) = field_interp(1:nCells,6)
