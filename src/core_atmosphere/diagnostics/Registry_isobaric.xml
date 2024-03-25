@@ -394,14 +394,29 @@
         <var name="spechum_1000hPa" type="real" dimensions="nCells Time" units="kg kg^{-1}"
              description="Specific humidity vertically interpolated to 1000s hPa"/>
 
+        <var name="w_15hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
+             description="Vertical velocity vertically interpolated to 15 hPa"/>
+
+        <var name="w_20hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
+             description="Vertical velocity vertically interpolated to 20 hPa"/>
+
+        <var name="w_30hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
+             description="Vertical velocity vertically interpolated to 30 hPa"/>
+
         <var name="w_50hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
              description="Vertical velocity vertically interpolated to 50 hPa"/>
+
+        <var name="w_70hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
+             description="Vertical velocity vertically interpolated to 70 hPa"/>
 
         <var name="w_100hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
              description="Vertical velocity vertically interpolated to 100 hPa"/>
 
         <var name="w_150hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
              description="Vertical velocity vertically interpolated to 150 hPa"/>
+
+        <var name="w_200hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
+             description="Vertical velocity vertically interpolated to 200 hPa"/>
 
         <var name="w_250hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
              description="Vertical velocity vertically interpolated to 250 hPa"/>
@@ -444,6 +459,7 @@
 
         <var name="w_1000hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
              description="Vertical velocity vertically interpolated to 1000s hPa"/>
+       
 
         <var name="geoph_50hPa" type="real" dimensions="nCells Time" units="m"
              description="Geopotential height vertically interpolated to 50 hPa"/>
