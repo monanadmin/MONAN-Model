@@ -35,7 +35,7 @@ module mpas_isobaric_diagnostics
                need_uzonal_15, need_uzonal_20, need_uzonal_30, need_uzonal_50, need_uzonal_70, need_uzonal_100, need_uzonal_150, need_uzonal_200, need_uzonal_250, need_uzonal_300, need_uzonal_400, need_uzonal_500, need_uzonal_600, need_uzonal_700, need_uzonal_825, need_uzonal_850, need_uzonal_875, need_uzonal_900, need_uzonal_925, need_uzonal_950, need_uzonal_975, need_uzonal_1000, &
                need_umeridional_15, need_umeridional_20, need_umeridional_30, need_umeridional_50, need_umeridional_70, need_umeridional_100, need_umeridional_150,need_umeridional_200,need_umeridional_250, need_umeridional_300, need_umeridional_400, need_umeridional_500, need_umeridional_600, need_umeridional_700, need_umeridional_825, need_umeridional_850, need_umeridional_875, need_umeridional_900, need_umeridional_925, need_umeridional_950, need_umeridional_975, need_umeridional_1000, &
                need_spechum_15, need_spechum_20, need_spechum_30, need_spechum_50, need_spechum_70, need_spechum_100, need_spechum_150, need_spechum_200, need_spechum_250, need_spechum_300, need_spechum_400, need_spechum_500, need_spechum_600, need_spechum_700, need_spechum_825, need_spechum_850, need_spechum_875, need_spechum_900, need_spechum_925, need_spechum_950, need_spechum_975, need_spechum_1000, &               
-               need_w_15, need_w_20, need_w_30, need_w_50, need_w_70, need_w_100, need_w_150, need_w_200, need_w_250, need_w_300, need_w_400, need_w_500, need_w_600, need_w_700, need_w_825, need_w_850, need_w_875, need_w_900, need_w_925, need_w_950, need_w_975, need_w_1000
+               need_w_15, need_w_20, need_w_30, need_w_50, need_w_70, need_w_100, need_w_150, need_w_200, need_w_250, need_w_300, need_w_400, need_w_500, need_w_600, need_w_700, need_w_825, need_w_850, need_w_875, need_w_900, need_w_925, need_w_950, need_w_975, need_w_1000, &
                need_geoph_50, need_geoph_100, need_geoph_150, need_geoph_250, need_geoph_300, need_geoph_400, need_geoph_500, need_geoph_600, need_geoph_700, need_geoph_825, need_geoph_850, need_geoph_875, need_geoph_900, need_geoph_925, need_geoph_950, need_geoph_975, need_geoph_1000, &
                need_rqvblten_15, need_rqvblten_20, need_rqvblten_30, need_rqvblten_50, need_rqvblten_70, need_rqvblten_100, need_rqvblten_150, need_rqvblten_200, need_rqvblten_250, need_rqvblten_300, need_rqvblten_400, need_rqvblten_500, need_rqvblten_600, need_rqvblten_700, need_rqvblten_825, need_rqvblten_850, need_rqvblten_875, need_rqvblten_900, need_rqvblten_925, need_rqvblten_950, need_rqvblten_975, need_rqvblten_1000, &
                need_rqvcuten_15, need_rqvcuten_20, need_rqvcuten_30, need_rqvcuten_50, need_rqvcuten_70, need_rqvcuten_100, need_rqvcuten_150, need_rqvcuten_200, need_rqvcuten_250, need_rqvcuten_300, need_rqvcuten_400, need_rqvcuten_500, need_rqvcuten_600, need_rqvcuten_700, need_rqvcuten_825, need_rqvcuten_850, need_rqvcuten_875, need_rqvcuten_900, need_rqvcuten_925, need_rqvcuten_950, need_rqvcuten_975, need_rqvcuten_1000, &
@@ -46,7 +46,9 @@ module mpas_isobaric_diagnostics
                need_nr_15, need_nr_20, need_nr_30, need_nr_50, need_nr_70, need_nr_100, need_nr_150, need_nr_200, need_nr_250, need_nr_300, need_nr_400, need_nr_500, need_nr_600, need_nr_700, need_nr_825, need_nr_850, need_nr_875, need_nr_900, need_nr_925, need_nr_950, need_nr_975, need_nr_1000, &
                need_vorticity_50, need_vorticity_100, need_vorticity_200, need_vorticity_250, need_vorticity_500, need_vorticity_700, need_vorticity_850, need_vorticity_925, &
                need_t_isobaric, need_z_isobaric, need_meanT_500_300
-    logical :: need_temp, need_relhum, need_dewpoint, need_w, need_uzonal, need_umeridional, need_vorticity, need_height, need_spechum, need_geoph, need_rqvblten, need_rqvcuten, need_rthratenlw, need_kzq, need_kzh
+    logical :: need_temp, need_relhum, need_dewpoint, need_w, need_uzonal, need_umeridional, need_vorticity, & 
+               need_height, need_spechum, need_geoph, need_rqvblten, need_rqvcuten, need_rthratenlw, &
+               need_kzq, need_kzh, need_ni, need_nr
 
 
     contains
@@ -1373,6 +1375,7 @@ module mpas_isobaric_diagnostics
         real (kind=RKIND), dimension(:), pointer :: w_20hPa
         real (kind=RKIND), dimension(:), pointer :: w_30hPa        
         real (kind=RKIND), dimension(:), pointer :: w_50hPa
+        real (kind=RKIND), dimension(:), pointer :: w_70hPa
         real (kind=RKIND), dimension(:), pointer :: w_100hPa
         real (kind=RKIND), dimension(:), pointer :: w_150hPa
         real (kind=RKIND), dimension(:), pointer :: w_200hPa        
@@ -1802,6 +1805,7 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_array(diag, 'w_20hPa', w_20hPa)
         call mpas_pool_get_array(diag, 'w_30hPa', w_30hPa)                
         call mpas_pool_get_array(diag, 'w_50hPa', w_50hPa)
+        call mpas_pool_get_array(diag, 'w_70hPa', w_70hPa)
         call mpas_pool_get_array(diag, 'w_100hPa', w_100hPa)
         call mpas_pool_get_array(diag, 'w_150hPa', w_150hPa)
         call mpas_pool_get_array(diag, 'w_200hPa', w_200hPa)        
