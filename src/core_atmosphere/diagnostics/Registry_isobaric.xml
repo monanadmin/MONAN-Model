@@ -776,6 +776,138 @@
         <var name="kzq_1000hPa" type="real" dimensions="nVertLevels nCells Time" units="m^{2} s^{-1}"
              description="Vertical diffusion coefficient of water vapor and cloud condensates vertically interpolated to 1000s hPa"/>
 
+         <var name="ni_15hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Cloud ice number concentration vertically interpolated to 15 hPa"/>
+
+        <var name="ni_20hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Cloud ice number concentration vertically interpolated to 20 hPa"/>
+
+        <var name="ni_30hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Cloud ice number concentration vertically interpolated to 30 hPa"/>
+
+        <var name="ni_50hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Cloud ice number concentration vertically interpolated to 50 hPa"/>
+
+        <var name="ni_70hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Cloud ice number concentration vertically interpolated to 70 hPa"/>
+
+        <var name="ni_100hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Cloud ice number concentration vertically interpolated to 100 hPa"/>
+
+        <var name="ni_150hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Cloud ice number concentration vertically interpolated to 150 hPa"/>
+
+        <var name="ni_200hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Cloud ice number concentration vertically interpolated to 200 hPa"/>
+
+        <var name="ni_250hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Cloud ice number concentration vertically interpolated to 250 hPa"/>
+
+        <var name="ni_300hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Cloud ice number concentration vertically interpolated to 300 hPa"/>
+
+        <var name="ni_400hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Cloud ice number concentration vertically interpolated to 400 hPa"/>
+
+        <var name="ni_500hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Cloud ice number concentration vertically interpolated to 500 hPa"/>
+
+        <var name="ni_600hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Cloud ice number concentration vertically interpolated to 600 hPa"/>
+
+        <var name="ni_700hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Cloud ice number concentration vertically interpolated to 700 hPa"/>
+
+        <var name="ni_825hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Cloud ice number concentration vertically interpolated to 825 hPa"/>
+
+        <var name="ni_850hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Cloud ice number concentration vertically interpolated to 850 hPa"/>
+
+        <var name="ni_875hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Cloud ice number concentration vertically interpolated to 875 hPa"/>
+
+        <var name="ni_900hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Cloud ice number concentration vertically interpolated to 900 hPa"/>
+
+        <var name="ni_925hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Cloud ice number concentration vertically interpolated to 925 hPa"/>
+
+        <var name="ni_950hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Cloud ice number concentration vertically interpolated to 950 hPa"/>
+
+        <var name="ni_975hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Cloud ice number concentration vertically interpolated to 975 hPa"/>
+
+        <var name="ni_1000hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Cloud ice number concentration vertically interpolated to 1000s hPa"/>
+
+         <var name="nr_15hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Rain number concentration vertically interpolated to 15 hPa"/>
+
+        <var name="nr_20hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Rain number concentration vertically interpolated to 20 hPa"/>
+
+        <var name="nr_30hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Rain number concentration vertically interpolated to 30 hPa"/>
+
+        <var name="nr_50hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Rain number concentration vertically interpolated to 50 hPa"/>
+
+        <var name="nr_70hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Rain number concentration vertically interpolated to 70 hPa"/>
+
+        <var name="nr_100hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Rain number concentration vertically interpolated to 100 hPa"/>
+
+        <var name="nr_150hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Rain number concentration vertically interpolated to 150 hPa"/>
+
+        <var name="nr_200hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Rain number concentration vertically interpolated to 200 hPa"/>
+
+        <var name="nr_250hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Rain number concentration vertically interpolated to 250 hPa"/>
+
+        <var name="nr_300hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Rain number concentration vertically interpolated to 300 hPa"/>
+
+        <var name="nr_400hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Rain number concentration vertically interpolated to 400 hPa"/>
+
+        <var name="nr_500hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Rain number concentration vertically interpolated to 500 hPa"/>
+
+        <var name="nr_600hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Rain number concentration vertically interpolated to 600 hPa"/>
+
+        <var name="nr_700hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Rain number concentration vertically interpolated to 700 hPa"/>
+
+        <var name="nr_825hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Rain number concentration vertically interpolated to 825 hPa"/>
+
+        <var name="nr_850hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Rain number concentration vertically interpolated to 850 hPa"/>
+
+        <var name="nr_875hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Rain number concentration vertically interpolated to 875 hPa"/>
+
+        <var name="nr_900hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Rain number concentration vertically interpolated to 900 hPa"/>
+
+        <var name="nr_925hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Rain number concentration vertically interpolated to 925 hPa"/>
+
+        <var name="nr_950hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Rain number concentration vertically interpolated to 950 hPa"/>
+
+        <var name="nr_975hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Rain number concentration vertically interpolated to 975 hPa"/>
+
+        <var name="nr_1000hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+             description="Rain number concentration vertically interpolated to 1000s hPa"/>
+
         <var name="vorticity_50hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
              description="Relative vorticity vertically interpolated to 50 hPa"/>
 
