@@ -36,7 +36,7 @@ module mpas_isobaric_diagnostics
                need_umeridional_15, need_umeridional_20, need_umeridional_30, need_umeridional_50, need_umeridional_70, need_umeridional_100, need_umeridional_150,need_umeridional_200,need_umeridional_250, need_umeridional_300, need_umeridional_400, need_umeridional_500, need_umeridional_600, need_umeridional_700, need_umeridional_825, need_umeridional_850, need_umeridional_875, need_umeridional_900, need_umeridional_925, need_umeridional_950, need_umeridional_975, need_umeridional_1000, &
                need_spechum_15, need_spechum_20, need_spechum_30, need_spechum_50, need_spechum_70, need_spechum_100, need_spechum_150, need_spechum_200, need_spechum_250, need_spechum_300, need_spechum_400, need_spechum_500, need_spechum_600, need_spechum_700, need_spechum_825, need_spechum_850, need_spechum_875, need_spechum_900, need_spechum_925, need_spechum_950, need_spechum_975, need_spechum_1000, &               
                need_w_15, need_w_20, need_w_30, need_w_50, need_w_70, need_w_100, need_w_150, need_w_200, need_w_250, need_w_300, need_w_400, need_w_500, need_w_600, need_w_700, need_w_825, need_w_850, need_w_875, need_w_900, need_w_925, need_w_950, need_w_975, need_w_1000, &
-               need_geoph_50, need_geoph_100, need_geoph_150, need_geoph_250, need_geoph_300, need_geoph_400, need_geoph_500, need_geoph_600, need_geoph_700, need_geoph_825, need_geoph_850, need_geoph_875, need_geoph_900, need_geoph_925, need_geoph_950, need_geoph_975, need_geoph_1000, &
+               need_geoph_15, need_geoph_20, need_geoph_30, need_geoph_50, need_geoph_70, need_geoph_100, need_geoph_150, need_geoph_200, need_geoph_250, need_geoph_300, need_geoph_400, need_geoph_500, need_geoph_600, need_geoph_700, need_geoph_825, need_geoph_850, need_geoph_875, need_geoph_900, need_geoph_925, need_geoph_950, need_geoph_975, need_geoph_1000, &
                need_rqvblten_15, need_rqvblten_20, need_rqvblten_30, need_rqvblten_50, need_rqvblten_70, need_rqvblten_100, need_rqvblten_150, need_rqvblten_200, need_rqvblten_250, need_rqvblten_300, need_rqvblten_400, need_rqvblten_500, need_rqvblten_600, need_rqvblten_700, need_rqvblten_825, need_rqvblten_850, need_rqvblten_875, need_rqvblten_900, need_rqvblten_925, need_rqvblten_950, need_rqvblten_975, need_rqvblten_1000, &
                need_rqvcuten_15, need_rqvcuten_20, need_rqvcuten_30, need_rqvcuten_50, need_rqvcuten_70, need_rqvcuten_100, need_rqvcuten_150, need_rqvcuten_200, need_rqvcuten_250, need_rqvcuten_300, need_rqvcuten_400, need_rqvcuten_500, need_rqvcuten_600, need_rqvcuten_700, need_rqvcuten_825, need_rqvcuten_850, need_rqvcuten_875, need_rqvcuten_900, need_rqvcuten_925, need_rqvcuten_950, need_rqvcuten_975, need_rqvcuten_1000, &
                need_rthratenlw_15, need_rthratenlw_20, need_rthratenlw_30, need_rthratenlw_50, need_rthratenlw_70, need_rthratenlw_100, need_rthratenlw_150, need_rthratenlw_200, need_rthratenlw_250, need_rthratenlw_300, need_rthratenlw_400, need_rthratenlw_500, need_rthratenlw_600, need_rthratenlw_700, need_rthratenlw_825, need_rthratenlw_850, need_rthratenlw_875, need_rthratenlw_900, need_rthratenlw_925, need_rthratenlw_950, need_rthratenlw_975, need_rthratenlw_1000, &
@@ -625,15 +625,30 @@ module mpas_isobaric_diagnostics
         need_w = need_w .or. need_w_1000
         need_any_diags = need_any_diags .or. need_w_1000
 
+        need_geoph_15 = MPAS_field_will_be_written('geoph_15hPa')
+        need_geoph = need_geoph .or. need_geoph_15
+        need_any_diags = need_any_diags .or. need_geoph_15
+        need_geoph_20 = MPAS_field_will_be_written('geoph_20hPa')
+        need_geoph = need_geoph .or. need_geoph_20
+        need_any_diags = need_any_diags .or. need_geoph_20
+        need_geoph_30 = MPAS_field_will_be_written('geoph_30hPa')
+        need_geoph = need_geoph .or. need_geoph_30
+        need_any_diags = need_any_diags .or. need_geoph_30
         need_geoph_50 = MPAS_field_will_be_written('geoph_50hPa')
         need_geoph = need_geoph .or. need_geoph_50
         need_any_diags = need_any_diags .or. need_geoph_50
+        need_geoph_70 = MPAS_field_will_be_written('geoph_70hPa')
+        need_geoph = need_geoph .or. need_geoph_70
+        need_any_diags = need_any_diags .or. need_geoph_70
         need_geoph_100 = MPAS_field_will_be_written('geoph_100hPa')
         need_geoph = need_geoph .or. need_geoph_100
         need_any_diags = need_any_diags .or. need_geoph_100
         need_geoph_150 = MPAS_field_will_be_written('geoph_150hPa')
         need_geoph = need_geoph .or. need_geoph_150
         need_any_diags = need_any_diags .or. need_geoph_150
+        need_geoph_200 = MPAS_field_will_be_written('geoph_200hPa')
+        need_geoph = need_geoph .or. need_geoph_200
+        need_any_diags = need_any_diags .or. need_geoph_200
         need_geoph_250 = MPAS_field_will_be_written('geoph_250hPa')
         need_geoph = need_geoph .or. need_geoph_250
         need_any_diags = need_any_diags .or. need_geoph_250
@@ -1463,9 +1478,14 @@ module mpas_isobaric_diagnostics
         real (kind=RKIND), dimension(:), pointer :: w_975hPa
         real (kind=RKIND), dimension(:), pointer :: w_1000hPa
 
+        real (kind=RKIND), dimension(:), pointer :: geoph_15hPa
+        real (kind=RKIND), dimension(:), pointer :: geoph_20hPa
+        real (kind=RKIND), dimension(:), pointer :: geoph_30hPa
         real (kind=RKIND), dimension(:), pointer :: geoph_50hPa
+        real (kind=RKIND), dimension(:), pointer :: geoph_70hPa
         real (kind=RKIND), dimension(:), pointer :: geoph_100hPa
         real (kind=RKIND), dimension(:), pointer :: geoph_150hPa
+        real (kind=RKIND), dimension(:), pointer :: geoph_200hPa
         real (kind=RKIND), dimension(:), pointer :: geoph_250hPa
         real (kind=RKIND), dimension(:), pointer :: geoph_300hPa
         real (kind=RKIND), dimension(:), pointer :: geoph_400hPa
@@ -1917,9 +1937,14 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_array(diag, 'w_975hPa', w_975hPa)
         call mpas_pool_get_array(diag, 'w_1000hPa', w_1000hPa)
        
+        call mpas_pool_get_array(diag, 'geoph_15hPa', geoph_15hPa)
+        call mpas_pool_get_array(diag, 'geoph_20hPa', geoph_20hPa)
+        call mpas_pool_get_array(diag, 'geoph_30hPa', geoph_30hPa)
         call mpas_pool_get_array(diag, 'geoph_50hPa', geoph_50hPa)
+        call mpas_pool_get_array(diag, 'geoph_70hPa', geoph_70hPa)
         call mpas_pool_get_array(diag, 'geoph_100hPa', geoph_100hPa)
         call mpas_pool_get_array(diag, 'geoph_150hPa', geoph_150hPa)
+        call mpas_pool_get_array(diag, 'geoph_200hPa', geoph_200hPa)
         call mpas_pool_get_array(diag, 'geoph_250hPa', geoph_250hPa)
         call mpas_pool_get_array(diag, 'geoph_300hPa', geoph_300hPa)
         call mpas_pool_get_array(diag, 'geoph_400hPa', geoph_400hPa)
@@ -1934,6 +1959,7 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_array(diag, 'geoph_950hPa', geoph_950hPa)
         call mpas_pool_get_array(diag, 'geoph_975hPa', geoph_975hPa)
         call mpas_pool_get_array(diag, 'geoph_1000hPa', geoph_1000hPa)
+
 
         call mpas_pool_get_array(tend_physics, 'rqvblten_15hPa', rqvblten_15hPa)
         call mpas_pool_get_array(tend_physics, 'rqvblten_20hPa', rqvblten_20hPa)
@@ -2854,23 +2880,29 @@ module mpas_isobaric_diagnostics
             enddo
             enddo
             call interp_tofixed_pressure(nCells,nVertLevelsP1,nIntP,press_in,field_in,press_interp,field_interp)
-            geoph_50hPa(1:nCells) = field_interp(1:nCells,1)
-            geoph_100hPa(1:nCells) = field_interp(1:nCells,2)
-            geoph_150hPa(1:nCells) = field_interp(1:nCells,3)
-            geoph_250hPa(1:nCells) = field_interp(1:nCells,4)
-            geoph_300hPa(1:nCells) = field_interp(1:nCells,5)
-            geoph_400hPa(1:nCells) = field_interp(1:nCells,6)
-            geoph_500hPa(1:nCells) = field_interp(1:nCells,7)
-            geoph_600hPa(1:nCells) = field_interp(1:nCells,8)
-            geoph_700hPa(1:nCells) = field_interp(1:nCells,9)
-            geoph_825hPa(1:nCells) = field_interp(1:nCells,10)
-            geoph_850hPa(1:nCells) = field_interp(1:nCells,11)
-            geoph_875hPa(1:nCells) = field_interp(1:nCells,12)
-            geoph_900hPa(1:nCells) = field_interp(1:nCells,13)
-            geoph_925hPa(1:nCells) = field_interp(1:nCells,14)
-            geoph_950hPa(1:nCells) = field_interp(1:nCells,15)
-            geoph_975hPa(1:nCells) = field_interp(1:nCells,16)
-            geoph_1000hPa(1:nCells) = field_interp(1:nCells,17)
+            geoph_15hPa(1:nCells) = field_interp(1:nCells,1)
+            geoph_20hPa(1:nCells) = field_interp(1:nCells,2)
+            geoph_30hPa(1:nCells) = field_interp(1:nCells,3)
+            geoph_50hPa(1:nCells) = field_interp(1:nCells,4)
+            geoph_70hPa(1:nCells) = field_interp(1:nCells,5)
+            geoph_100hPa(1:nCells) = field_interp(1:nCells,6)
+            geoph_150hPa(1:nCells) = field_interp(1:nCells,7)
+            geoph_200hPa(1:nCells) = field_interp(1:nCells,8)
+            geoph_250hPa(1:nCells) = field_interp(1:nCells,9)
+            geoph_300hPa(1:nCells) = field_interp(1:nCells,10)
+            geoph_400hPa(1:nCells) = field_interp(1:nCells,11)
+            geoph_500hPa(1:nCells) = field_interp(1:nCells,12)
+            geoph_600hPa(1:nCells) = field_interp(1:nCells,13)
+            geoph_700hPa(1:nCells) = field_interp(1:nCells,14)
+            geoph_825hPa(1:nCells) = field_interp(1:nCells,15)
+            geoph_850hPa(1:nCells) = field_interp(1:nCells,16)
+            geoph_875hPa(1:nCells) = field_interp(1:nCells,17)
+            geoph_900hPa(1:nCells) = field_interp(1:nCells,18)
+            geoph_925hPa(1:nCells) = field_interp(1:nCells,19)
+            geoph_950hPa(1:nCells) = field_interp(1:nCells,20)
+            geoph_975hPa(1:nCells) = field_interp(1:nCells,21)
+            geoph_1000hPa(1:nCells) = field_interp(1:nCells,22)
+
            ! call mpas_log_write('--- end interpolate geoph:')
 
             if(allocated(field_in)) deallocate(field_in)
