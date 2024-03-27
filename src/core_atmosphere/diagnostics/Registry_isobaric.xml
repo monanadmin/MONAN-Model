@@ -19,14 +19,26 @@
         <var name="temperature_15hPa" type="real" dimensions="nCells Time" units="K"
              description="Temperature vertically interpolated to 15 hPa"/>
 
+        <var name="temperature_20hPa" type="real" dimensions="nCells Time" units="K"
+             description="Temperature vertically interpolated to 20 hPa"/>
+
+        <var name="temperature_30hPa" type="real" dimensions="nCells Time" units="K"
+             description="Temperature vertically interpolated to 30 hPa"/>
+
         <var name="temperature_50hPa" type="real" dimensions="nCells Time" units="K"
              description="Temperature vertically interpolated to 50 hPa"/>
+
+        <var name="temperature_70hPa" type="real" dimensions="nCells Time" units="K"
+             description="Temperature vertically interpolated to 70 hPa"/>
 
         <var name="temperature_100hPa" type="real" dimensions="nCells Time" units="K"
              description="Temperature vertically interpolated to 100 hPa"/>
 
         <var name="temperature_150hPa" type="real" dimensions="nCells Time" units="K"
              description="Temperature vertically interpolated to 150 hPa"/>
+
+        <var name="temperature_200hPa" type="real" dimensions="nCells Time" units="K"
+             description="Temperature vertically interpolated to 200 hPa"/>
 
         <var name="temperature_250hPa" type="real" dimensions="nCells Time" units="K"
              description="Temperature vertically interpolated to 250 hPa"/>
@@ -61,7 +73,7 @@
         <var name="temperature_925hPa" type="real" dimensions="nCells Time" units="K"
              description="Temperature vertically interpolated to 925 hPa"/>
         
-         <var name="temperature_950hPa" type="real" dimensions="nCells Time" units="K"
+        <var name="temperature_950hPa" type="real" dimensions="nCells Time" units="K"
              description="Temperature vertically interpolated to 950 hPa"/>
 
         <var name="temperature_975hPa" type="real" dimensions="nCells Time" units="K"
@@ -70,14 +82,29 @@
         <var name="temperature_1000hPa" type="real" dimensions="nCells Time" units="K"
 		description="Temperature vertically interpolated to 1000s hPa"/>
 
+        <var name="relhum_15hPa" type="real" dimensions="nCells Time" units="percent"
+             description="Relative humidity vertically interpolated to 15 hPa"/>
+
+        <var name="relhum_20hPa" type="real" dimensions="nCells Time" units="percent"
+             description="Relative humidity vertically interpolated to 20 hPa"/>
+
+        <var name="relhum_30hPa" type="real" dimensions="nCells Time" units="percent"
+             description="Relative humidity vertically interpolated to 30 hPa"/>
+
         <var name="relhum_50hPa" type="real" dimensions="nCells Time" units="percent"
              description="Relative humidity vertically interpolated to 50 hPa"/>
+
+        <var name="relhum_70hPa" type="real" dimensions="nCells Time" units="percent"
+             description="Relative humidity vertically interpolated to 70 hPa"/>
 
         <var name="relhum_100hPa" type="real" dimensions="nCells Time" units="percent"
              description="Relative humidity vertically interpolated to 100 hPa"/>
 
         <var name="relhum_150hPa" type="real" dimensions="nCells Time" units="percent"
              description="Relative humidity vertically interpolated to 150 hPa"/>
+
+        <var name="relhum_200hPa" type="real" dimensions="nCells Time" units="percent"
+             description="Relative humidity vertically interpolated to 200 hPa"/>
 
         <var name="relhum_250hPa" type="real" dimensions="nCells Time" units="percent"
              description="Relative humidity vertically interpolated to 250 hPa"/>
@@ -145,14 +172,29 @@
         <var name="dewpoint_925hPa" type="real" dimensions="nCells Time" units="K"
              description="Dewpoint temperature vertically interpolated to 925 hPa"/>
 
+        <var name="height_15hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geometric height interpolated to 15 hPa"/>
+
+        <var name="height_20hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geometric height interpolated to 20 hPa"/>
+
+        <var name="height_30hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geometric height interpolated to 30 hPa"/>
+
         <var name="height_50hPa" type="real" dimensions="nCells Time" units="m"
              description="Geometric height interpolated to 50 hPa"/>
+
+        <var name="height_70hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geometric height interpolated to 70 hPa"/>
 
         <var name="height_100hPa" type="real" dimensions="nCells Time" units="m"
              description="Geometric height interpolated to 100 hPa"/>
 
         <var name="height_150hPa" type="real" dimensions="nCells Time" units="m"
              description="Geometric height interpolated to 150 hPa"/>
+
+        <var name="height_200hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geometric height interpolated to 200 hPa"/>
 
         <var name="height_250hPa" type="real" dimensions="nCells Time" units="m"
              description="Geometric height interpolated to 250 hPa"/>
@@ -592,7 +634,7 @@
         <var name="rqvblten_1000hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
              description="Tendency of meridional wind due to pbl processes vertically interpolated to 1000s hPa"/>
 
-         <var name="rqvcuten_15hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+        <var name="rqvcuten_15hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
              description="Tendency of meridional wind due to cumulus convection vertically interpolated to 15 hPa"/>
 
         <var name="rqvcuten_20hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
@@ -658,7 +700,7 @@
         <var name="rqvcuten_1000hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
 		description="Tendency of meridional wind due to cumulus convection vertically interpolated to 1000s hPa"/>
 
-         <var name="rthratenlw_15hPa" type="real" dimensions="nCells Time" units="K s^{-1}"
+        <var name="rthratenlw_15hPa" type="real" dimensions="nCells Time" units="K s^{-1}"
              description="Tendency of potential temperature due to long wave radiation vertically interpolated to 15 hPa"/>
 
         <var name="rthratenlw_20hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
@@ -724,7 +766,7 @@
         <var name="rthratenlw_1000hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
              description="Tendency of potential temperature due to long wave radiation vertically interpolated to 1000s hPa"/>
 
-         <var name="kzq_15hPa" type="real" dimensions="nCells Time"  units="m^{2} s^{-1}"
+        <var name="kzq_15hPa" type="real" dimensions="nCells Time"  units="m^{2} s^{-1}"
              description="Vertical diffusion coefficient of water vapor and cloud condensates vertically interpolated to 15 hPa"/>
 
         <var name="kzq_20hPa" type="real" dimensions="nCells Time"  units="m^{2} s^{-1}"
