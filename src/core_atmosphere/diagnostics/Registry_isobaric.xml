@@ -6,7 +6,7 @@
         <dim name="nIsoLevelsT"         definition="5"
              description="Number of isobaric levels to which temperature will be vertically interpolated"/>
 
-        <dim name="nIsoLevelsZ"         definition="13"
+        <dim name="nIsoLevelsZ"         definition="22"
              description="Number of isobaric levels to which height will be vertically interpolated"/>
 </dims>
 

@@ -1,0 +1,6 @@
+       core % modelName = 'mpas'
+       core % coreName = 'init_atmosphere'
+       core % modelVersion = '8.0.1'
+       core % executableName = 'init_atmosphere_model'
+       core % git_version = 'unknown'
+       core % build_target = 'gfortran'

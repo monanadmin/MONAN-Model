@@ -1326,7 +1326,7 @@
             <var name="kzm_950hPa"/>
             <var name="kzm_975hPa"/>
             <var name="kzm_1000hPa"/>			
-	    <var name="ni_15hPa"/>
+	         <var name="ni_15hPa"/>
             <var name="ni_20hPa"/>
             <var name="ni_30hPa"/>
             <var name="ni_50hPa"/>
