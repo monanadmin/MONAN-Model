@@ -14248,6 +14248,1593 @@ mp_wsm6_inActive) then
       call mpas_pool_add_field(newSubPool, 'nr_1000hPa', r1Ptr)
       call mpas_pool_add_field(block % allFields, 'nr_1000hPa', r1Ptr)
 
+! Define variable qr_15hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qr_15hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 15 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qr_15hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qr_15hPa', r1Ptr)
+
+! Define variable qr_20hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qr_20hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 20 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qr_20hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qr_20hPa', r1Ptr)
+
+! Define variable qr_30hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qr_30hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 30 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qr_30hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qr_30hPa', r1Ptr)
+
+! Define variable qr_50hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qr_50hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 50 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qr_50hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qr_50hPa', r1Ptr)
+
+! Define variable qr_70hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qr_70hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 70 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qr_70hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qr_70hPa', r1Ptr)
+
+! Define variable qr_100hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qr_100hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 100 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qr_100hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qr_100hPa', r1Ptr)
+
+! Define variable qr_150hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qr_150hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 150 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qr_150hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qr_150hPa', r1Ptr)
+
+! Define variable qr_200hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qr_200hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 200 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qr_200hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qr_200hPa', r1Ptr)
+
+! Define variable qr_250hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qr_250hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 250 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qr_250hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qr_250hPa', r1Ptr)
+
+! Define variable qr_300hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qr_300hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 300 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qr_300hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qr_300hPa', r1Ptr)
+
+! Define variable qr_400hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qr_400hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 400 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qr_400hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qr_400hPa', r1Ptr)
+
+! Define variable qr_500hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qr_500hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 500 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qr_500hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qr_500hPa', r1Ptr)
+
+! Define variable qr_600hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qr_600hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 600 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qr_600hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qr_600hPa', r1Ptr)
+
+! Define variable qr_700hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qr_700hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 700 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qr_700hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qr_700hPa', r1Ptr)
+
+! Define variable qr_825hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qr_825hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 825 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qr_825hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qr_825hPa', r1Ptr)
+
+! Define variable qr_850hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qr_850hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 850 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qr_850hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qr_850hPa', r1Ptr)
+
+! Define variable qr_875hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qr_875hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 875 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qr_875hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qr_875hPa', r1Ptr)
+
+! Define variable qr_900hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qr_900hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 900 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qr_900hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qr_900hPa', r1Ptr)
+
+! Define variable qr_925hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qr_925hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 925 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qr_925hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qr_925hPa', r1Ptr)
+
+! Define variable qr_950hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qr_950hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 950 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qr_950hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qr_950hPa', r1Ptr)
+
+! Define variable qr_975hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qr_975hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 975 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qr_975hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qr_975hPa', r1Ptr)
+
+! Define variable qr_1000hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qr_1000hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 1000s '&
+//'hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qr_1000hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qr_1000hPa', r1Ptr)
+
+! Define variable qs_15hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qs_15hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 15 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qs_15hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qs_15hPa', r1Ptr)
+
+! Define variable qs_20hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qs_20hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 20 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qs_20hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qs_20hPa', r1Ptr)
+
+! Define variable qs_30hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qs_30hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 30 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qs_30hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qs_30hPa', r1Ptr)
+
+! Define variable qs_50hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qs_50hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 50 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qs_50hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qs_50hPa', r1Ptr)
+
+! Define variable qs_70hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qs_70hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 70 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qs_70hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qs_70hPa', r1Ptr)
+
+! Define variable qs_100hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qs_100hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 100 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qs_100hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qs_100hPa', r1Ptr)
+
+! Define variable qs_150hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qs_150hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 150 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qs_150hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qs_150hPa', r1Ptr)
+
+! Define variable qs_200hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qs_200hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 200 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qs_200hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qs_200hPa', r1Ptr)
+
+! Define variable qs_250hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qs_250hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 250 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qs_250hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qs_250hPa', r1Ptr)
+
+! Define variable qs_300hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qs_300hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 300 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qs_300hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qs_300hPa', r1Ptr)
+
+! Define variable qs_400hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qs_400hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 400 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qs_400hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qs_400hPa', r1Ptr)
+
+! Define variable qs_500hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qs_500hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 500 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qs_500hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qs_500hPa', r1Ptr)
+
+! Define variable qs_600hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qs_600hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 600 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qs_600hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qs_600hPa', r1Ptr)
+
+! Define variable qs_700hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qs_700hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 700 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qs_700hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qs_700hPa', r1Ptr)
+
+! Define variable qs_825hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qs_825hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 825 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qs_825hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qs_825hPa', r1Ptr)
+
+! Define variable qs_850hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qs_850hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 850 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qs_850hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qs_850hPa', r1Ptr)
+
+! Define variable qs_875hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qs_875hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 875 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qs_875hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qs_875hPa', r1Ptr)
+
+! Define variable qs_900hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qs_900hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 900 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qs_900hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qs_900hPa', r1Ptr)
+
+! Define variable qs_925hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qs_925hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 925 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qs_925hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qs_925hPa', r1Ptr)
+
+! Define variable qs_950hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qs_950hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 950 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qs_950hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qs_950hPa', r1Ptr)
+
+! Define variable qs_975hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qs_975hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 975 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qs_975hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qs_975hPa', r1Ptr)
+
+! Define variable qs_1000hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qs_1000hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 1000s '&
+//'hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qs_1000hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qs_1000hPa', r1Ptr)
+
+! Define variable qv_15hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qv_15hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 15 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qv_15hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qv_15hPa', r1Ptr)
+
+! Define variable qv_20hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qv_20hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 20 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qv_20hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qv_20hPa', r1Ptr)
+
+! Define variable qv_30hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qv_30hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 30 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qv_30hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qv_30hPa', r1Ptr)
+
+! Define variable qv_50hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qv_50hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 50 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qv_50hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qv_50hPa', r1Ptr)
+
+! Define variable qv_70hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qv_70hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 70 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qv_70hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qv_70hPa', r1Ptr)
+
+! Define variable qv_100hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qv_100hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 100 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qv_100hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qv_100hPa', r1Ptr)
+
+! Define variable qv_150hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qv_150hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 150 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qv_150hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qv_150hPa', r1Ptr)
+
+! Define variable qv_200hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qv_200hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 200 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qv_200hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qv_200hPa', r1Ptr)
+
+! Define variable qv_250hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qv_250hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 250 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qv_250hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qv_250hPa', r1Ptr)
+
+! Define variable qv_300hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qv_300hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 300 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qv_300hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qv_300hPa', r1Ptr)
+
+! Define variable qv_400hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qv_400hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 400 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qv_400hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qv_400hPa', r1Ptr)
+
+! Define variable qv_500hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qv_500hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 500 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qv_500hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qv_500hPa', r1Ptr)
+
+! Define variable qv_600hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qv_600hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 600 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qv_600hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qv_600hPa', r1Ptr)
+
+! Define variable qv_700hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qv_700hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 700 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qv_700hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qv_700hPa', r1Ptr)
+
+! Define variable qv_825hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qv_825hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 825 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qv_825hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qv_825hPa', r1Ptr)
+
+! Define variable qv_850hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qv_850hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 850 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qv_850hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qv_850hPa', r1Ptr)
+
+! Define variable qv_875hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qv_875hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 875 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qv_875hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qv_875hPa', r1Ptr)
+
+! Define variable qv_900hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qv_900hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 900 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qv_900hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qv_900hPa', r1Ptr)
+
+! Define variable qv_925hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qv_925hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 925 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qv_925hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qv_925hPa', r1Ptr)
+
+! Define variable qv_950hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qv_950hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 950 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qv_950hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qv_950hPa', r1Ptr)
+
+! Define variable qv_975hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qv_975hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 975 hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qv_975hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qv_975hPa', r1Ptr)
+
+! Define variable qv_1000hPa
+      allocate(r1Ptr)
+
+! Setting up time level 1
+      r1Ptr % fieldName = 'qv_1000hPa'
+      r1Ptr % isVarArray = .false.
+      r1Ptr % isDecomposed = .true.
+      r1Ptr % hasTimeDimension = .true.
+      r1Ptr % isPersistent = .true.
+      r1Ptr % isActive = .false.
+! Setting up dimensions
+      r1Ptr % dimNames(1) = 'nCells'
+      r1Ptr % defaultValue = 0.0
+      allocate(r1Ptr % attLists(1))
+      allocate(r1Ptr % attLists(1) % attList)
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'units', 'nb kg^{-1}')
+      call mpas_add_att(r1Ptr % attLists(1) % attList, 'long_name', 'Rain number concentration vertically interpolated to 1000s '&
+//'hPa')
+      r1Ptr % missingValue = MPAS_REAL_FILLVAL
+      r1Ptr % block => block
+
+      r1Ptr % isActive = .true.
+      call mpas_pool_add_field(newSubPool, 'qv_1000hPa', r1Ptr)
+      call mpas_pool_add_field(block % allFields, 'qv_1000hPa', r1Ptr)
+
 ! Define variable vorticity_50hPa
       allocate(r1Ptr)
 

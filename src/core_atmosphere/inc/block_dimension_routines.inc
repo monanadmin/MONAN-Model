@@ -290,11 +290,11 @@ call mpas_log_write('       nIsoLevelsT = $i', intArgs=(/5/))
       call mpas_pool_get_dimension(dimensionPool, 'nIsoLevelsZ', nIsoLevelsZ)
       if ( .not. associated(nIsoLevelsZ) ) then
          allocate(nIsoLevelsZ)
-         nIsoLevelsZ = 13
-call mpas_log_write('       nIsoLevelsZ = $i', intArgs=(/13/))
+         nIsoLevelsZ = 22
+call mpas_log_write('       nIsoLevelsZ = $i', intArgs=(/22/))
          call mpas_pool_add_dimension(dimensionPool, 'nIsoLevelsZ', nIsoLevelsZ)
           else if ( nIsoLevelsZ == MPAS_MISSING_DIM ) then
-         nIsoLevelsZ = 13
+         nIsoLevelsZ = 22
           end if
 
       call mpas_log_write(' ')
