@@ -18,7 +18,9 @@ module mpas_isobaric_diagnostics
     type (MPAS_pool_type), pointer :: state
     type (MPAS_pool_type), pointer :: diag
     type (MPAS_pool_type), pointer :: diag_physics
+#ifdef DO_PHYSICS
     type (MPAS_pool_type), pointer :: tend_physics
+#endif
 
     type (MPAS_clock_type), pointer :: clock
 
@@ -85,8 +87,10 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_subpool(all_pools, 'state', state)
         call mpas_pool_get_subpool(all_pools, 'diag', diag)
         call mpas_pool_get_subpool(all_pools, 'diag_physics', diag_physics)
+#ifdef DO_PHYSICS
         call mpas_pool_get_subpool(all_pools, 'tend_physics', tend_physics)
-   
+#endif
+
     end subroutine isobaric_diagnostics_setup
 
 
@@ -2243,143 +2247,143 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_array(diag, 'geoph_1000hPa', geoph_1000hPa)
 
 
-        call mpas_pool_get_array(tend_physics, 'rqvblten_15hPa', rqvblten_15hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvblten_20hPa', rqvblten_20hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvblten_30hPa', rqvblten_30hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvblten_50hPa', rqvblten_50hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvblten_70hPa', rqvblten_70hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvblten_100hPa', rqvblten_100hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvblten_150hPa', rqvblten_150hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvblten_200hPa', rqvblten_200hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvblten_250hPa', rqvblten_250hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvblten_300hPa', rqvblten_300hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvblten_400hPa', rqvblten_400hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvblten_500hPa', rqvblten_500hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvblten_600hPa', rqvblten_600hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvblten_700hPa', rqvblten_700hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvblten_825hPa', rqvblten_825hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvblten_850hPa', rqvblten_850hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvblten_875hPa', rqvblten_875hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvblten_900hPa', rqvblten_900hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvblten_925hPa', rqvblten_925hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvblten_950hPa', rqvblten_950hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvblten_975hPa', rqvblten_975hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvblten_1000hPa', rqvblten_1000hPa)
+        call mpas_pool_get_array(diag, 'rqvblten_15hPa', rqvblten_15hPa)
+        call mpas_pool_get_array(diag, 'rqvblten_20hPa', rqvblten_20hPa)
+        call mpas_pool_get_array(diag, 'rqvblten_30hPa', rqvblten_30hPa)
+        call mpas_pool_get_array(diag, 'rqvblten_50hPa', rqvblten_50hPa)
+        call mpas_pool_get_array(diag, 'rqvblten_70hPa', rqvblten_70hPa)
+        call mpas_pool_get_array(diag, 'rqvblten_100hPa', rqvblten_100hPa)
+        call mpas_pool_get_array(diag, 'rqvblten_150hPa', rqvblten_150hPa)
+        call mpas_pool_get_array(diag, 'rqvblten_200hPa', rqvblten_200hPa)
+        call mpas_pool_get_array(diag, 'rqvblten_250hPa', rqvblten_250hPa)
+        call mpas_pool_get_array(diag, 'rqvblten_300hPa', rqvblten_300hPa)
+        call mpas_pool_get_array(diag, 'rqvblten_400hPa', rqvblten_400hPa)
+        call mpas_pool_get_array(diag, 'rqvblten_500hPa', rqvblten_500hPa)
+        call mpas_pool_get_array(diag, 'rqvblten_600hPa', rqvblten_600hPa)
+        call mpas_pool_get_array(diag, 'rqvblten_700hPa', rqvblten_700hPa)
+        call mpas_pool_get_array(diag, 'rqvblten_825hPa', rqvblten_825hPa)
+        call mpas_pool_get_array(diag, 'rqvblten_850hPa', rqvblten_850hPa)
+        call mpas_pool_get_array(diag, 'rqvblten_875hPa', rqvblten_875hPa)
+        call mpas_pool_get_array(diag, 'rqvblten_900hPa', rqvblten_900hPa)
+        call mpas_pool_get_array(diag, 'rqvblten_925hPa', rqvblten_925hPa)
+        call mpas_pool_get_array(diag, 'rqvblten_950hPa', rqvblten_950hPa)
+        call mpas_pool_get_array(diag, 'rqvblten_975hPa', rqvblten_975hPa)
+        call mpas_pool_get_array(diag, 'rqvblten_1000hPa', rqvblten_1000hPa)
 
-        call mpas_pool_get_array(tend_physics, 'rqvcuten_15hPa', rqvcuten_15hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvcuten_20hPa', rqvcuten_20hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvcuten_30hPa', rqvcuten_30hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvcuten_50hPa', rqvcuten_50hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvcuten_70hPa', rqvcuten_70hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvcuten_100hPa', rqvcuten_100hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvcuten_150hPa', rqvcuten_150hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvcuten_200hPa', rqvcuten_200hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvcuten_250hPa', rqvcuten_250hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvcuten_300hPa', rqvcuten_300hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvcuten_400hPa', rqvcuten_400hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvcuten_500hPa', rqvcuten_500hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvcuten_600hPa', rqvcuten_600hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvcuten_700hPa', rqvcuten_700hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvcuten_825hPa', rqvcuten_825hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvcuten_850hPa', rqvcuten_850hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvcuten_875hPa', rqvcuten_875hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvcuten_900hPa', rqvcuten_900hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvcuten_925hPa', rqvcuten_925hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvcuten_950hPa', rqvcuten_950hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvcuten_975hPa', rqvcuten_975hPa)
-        call mpas_pool_get_array(tend_physics, 'rqvcuten_1000hPa', rqvcuten_1000hPa)
+        call mpas_pool_get_array(diag, 'rqvcuten_15hPa', rqvcuten_15hPa)
+        call mpas_pool_get_array(diag, 'rqvcuten_20hPa', rqvcuten_20hPa)
+        call mpas_pool_get_array(diag, 'rqvcuten_30hPa', rqvcuten_30hPa)
+        call mpas_pool_get_array(diag, 'rqvcuten_50hPa', rqvcuten_50hPa)
+        call mpas_pool_get_array(diag, 'rqvcuten_70hPa', rqvcuten_70hPa)
+        call mpas_pool_get_array(diag, 'rqvcuten_100hPa', rqvcuten_100hPa)
+        call mpas_pool_get_array(diag, 'rqvcuten_150hPa', rqvcuten_150hPa)
+        call mpas_pool_get_array(diag, 'rqvcuten_200hPa', rqvcuten_200hPa)
+        call mpas_pool_get_array(diag, 'rqvcuten_250hPa', rqvcuten_250hPa)
+        call mpas_pool_get_array(diag, 'rqvcuten_300hPa', rqvcuten_300hPa)
+        call mpas_pool_get_array(diag, 'rqvcuten_400hPa', rqvcuten_400hPa)
+        call mpas_pool_get_array(diag, 'rqvcuten_500hPa', rqvcuten_500hPa)
+        call mpas_pool_get_array(diag, 'rqvcuten_600hPa', rqvcuten_600hPa)
+        call mpas_pool_get_array(diag, 'rqvcuten_700hPa', rqvcuten_700hPa)
+        call mpas_pool_get_array(diag, 'rqvcuten_825hPa', rqvcuten_825hPa)
+        call mpas_pool_get_array(diag, 'rqvcuten_850hPa', rqvcuten_850hPa)
+        call mpas_pool_get_array(diag, 'rqvcuten_875hPa', rqvcuten_875hPa)
+        call mpas_pool_get_array(diag, 'rqvcuten_900hPa', rqvcuten_900hPa)
+        call mpas_pool_get_array(diag, 'rqvcuten_925hPa', rqvcuten_925hPa)
+        call mpas_pool_get_array(diag, 'rqvcuten_950hPa', rqvcuten_950hPa)
+        call mpas_pool_get_array(diag, 'rqvcuten_975hPa', rqvcuten_975hPa)
+        call mpas_pool_get_array(diag, 'rqvcuten_1000hPa', rqvcuten_1000hPa)
 
-        call mpas_pool_get_array(tend_physics, 'rthratenlw_15hPa', rthratenlw_15hPa)
-        call mpas_pool_get_array(tend_physics, 'rthratenlw_20hPa', rthratenlw_20hPa)
-        call mpas_pool_get_array(tend_physics, 'rthratenlw_30hPa', rthratenlw_30hPa)
-        call mpas_pool_get_array(tend_physics, 'rthratenlw_50hPa', rthratenlw_50hPa)
-        call mpas_pool_get_array(tend_physics, 'rthratenlw_70hPa', rthratenlw_70hPa)
-        call mpas_pool_get_array(tend_physics, 'rthratenlw_100hPa', rthratenlw_100hPa)
-        call mpas_pool_get_array(tend_physics, 'rthratenlw_150hPa', rthratenlw_150hPa)
-        call mpas_pool_get_array(tend_physics, 'rthratenlw_200hPa', rthratenlw_200hPa)
-        call mpas_pool_get_array(tend_physics, 'rthratenlw_250hPa', rthratenlw_250hPa)
-        call mpas_pool_get_array(tend_physics, 'rthratenlw_300hPa', rthratenlw_300hPa)
-        call mpas_pool_get_array(tend_physics, 'rthratenlw_400hPa', rthratenlw_400hPa)
-        call mpas_pool_get_array(tend_physics, 'rthratenlw_500hPa', rthratenlw_500hPa)
-        call mpas_pool_get_array(tend_physics, 'rthratenlw_600hPa', rthratenlw_600hPa)
-        call mpas_pool_get_array(tend_physics, 'rthratenlw_700hPa', rthratenlw_700hPa)
-        call mpas_pool_get_array(tend_physics, 'rthratenlw_825hPa', rthratenlw_825hPa)
-        call mpas_pool_get_array(tend_physics, 'rthratenlw_850hPa', rthratenlw_850hPa)
-        call mpas_pool_get_array(tend_physics, 'rthratenlw_875hPa', rthratenlw_875hPa)
-        call mpas_pool_get_array(tend_physics, 'rthratenlw_900hPa', rthratenlw_900hPa)
-        call mpas_pool_get_array(tend_physics, 'rthratenlw_925hPa', rthratenlw_925hPa)
-        call mpas_pool_get_array(tend_physics, 'rthratenlw_950hPa', rthratenlw_950hPa)
-        call mpas_pool_get_array(tend_physics, 'rthratenlw_975hPa', rthratenlw_975hPa)
-        call mpas_pool_get_array(tend_physics, 'rthratenlw_1000hPa', rthratenlw_1000hPa)
+        call mpas_pool_get_array(diag, 'rthratenlw_15hPa', rthratenlw_15hPa)
+        call mpas_pool_get_array(diag, 'rthratenlw_20hPa', rthratenlw_20hPa)
+        call mpas_pool_get_array(diag, 'rthratenlw_30hPa', rthratenlw_30hPa)
+        call mpas_pool_get_array(diag, 'rthratenlw_50hPa', rthratenlw_50hPa)
+        call mpas_pool_get_array(diag, 'rthratenlw_70hPa', rthratenlw_70hPa)
+        call mpas_pool_get_array(diag, 'rthratenlw_100hPa', rthratenlw_100hPa)
+        call mpas_pool_get_array(diag, 'rthratenlw_150hPa', rthratenlw_150hPa)
+        call mpas_pool_get_array(diag, 'rthratenlw_200hPa', rthratenlw_200hPa)
+        call mpas_pool_get_array(diag, 'rthratenlw_250hPa', rthratenlw_250hPa)
+        call mpas_pool_get_array(diag, 'rthratenlw_300hPa', rthratenlw_300hPa)
+        call mpas_pool_get_array(diag, 'rthratenlw_400hPa', rthratenlw_400hPa)
+        call mpas_pool_get_array(diag, 'rthratenlw_500hPa', rthratenlw_500hPa)
+        call mpas_pool_get_array(diag, 'rthratenlw_600hPa', rthratenlw_600hPa)
+        call mpas_pool_get_array(diag, 'rthratenlw_700hPa', rthratenlw_700hPa)
+        call mpas_pool_get_array(diag, 'rthratenlw_825hPa', rthratenlw_825hPa)
+        call mpas_pool_get_array(diag, 'rthratenlw_850hPa', rthratenlw_850hPa)
+        call mpas_pool_get_array(diag, 'rthratenlw_875hPa', rthratenlw_875hPa)
+        call mpas_pool_get_array(diag, 'rthratenlw_900hPa', rthratenlw_900hPa)
+        call mpas_pool_get_array(diag, 'rthratenlw_925hPa', rthratenlw_925hPa)
+        call mpas_pool_get_array(diag, 'rthratenlw_950hPa', rthratenlw_950hPa)
+        call mpas_pool_get_array(diag, 'rthratenlw_975hPa', rthratenlw_975hPa)
+        call mpas_pool_get_array(diag, 'rthratenlw_1000hPa', rthratenlw_1000hPa)
 
-        call mpas_pool_get_array(diag_physics, 'kzq_15hPa', kzq_15hPa)
-        call mpas_pool_get_array(diag_physics, 'kzq_20hPa', kzq_20hPa)
-        call mpas_pool_get_array(diag_physics, 'kzq_30hPa', kzq_30hPa)
-        call mpas_pool_get_array(diag_physics, 'kzq_50hPa', kzq_50hPa)
-        call mpas_pool_get_array(diag_physics, 'kzq_70hPa', kzq_70hPa)
-        call mpas_pool_get_array(diag_physics, 'kzq_100hPa', kzq_100hPa)
-        call mpas_pool_get_array(diag_physics, 'kzq_150hPa', kzq_150hPa)
-        call mpas_pool_get_array(diag_physics, 'kzq_200hPa', kzq_200hPa)
-        call mpas_pool_get_array(diag_physics, 'kzq_250hPa', kzq_250hPa)
-        call mpas_pool_get_array(diag_physics, 'kzq_300hPa', kzq_300hPa)
-        call mpas_pool_get_array(diag_physics, 'kzq_400hPa', kzq_400hPa)
-        call mpas_pool_get_array(diag_physics, 'kzq_500hPa', kzq_500hPa)
-        call mpas_pool_get_array(diag_physics, 'kzq_600hPa', kzq_600hPa)
-        call mpas_pool_get_array(diag_physics, 'kzq_700hPa', kzq_700hPa)
-        call mpas_pool_get_array(diag_physics, 'kzq_825hPa', kzq_825hPa)
-        call mpas_pool_get_array(diag_physics, 'kzq_850hPa', kzq_850hPa)
-        call mpas_pool_get_array(diag_physics, 'kzq_875hPa', kzq_875hPa)
-        call mpas_pool_get_array(diag_physics, 'kzq_900hPa', kzq_900hPa)
-        call mpas_pool_get_array(diag_physics, 'kzq_925hPa', kzq_925hPa)
-        call mpas_pool_get_array(diag_physics, 'kzq_950hPa', kzq_950hPa)
-        call mpas_pool_get_array(diag_physics, 'kzq_975hPa', kzq_975hPa)
-        call mpas_pool_get_array(diag_physics, 'kzq_1000hPa', kzq_1000hPa)
+        call mpas_pool_get_array(diag, 'kzq_15hPa', kzq_15hPa)
+        call mpas_pool_get_array(diag, 'kzq_20hPa', kzq_20hPa)
+        call mpas_pool_get_array(diag, 'kzq_30hPa', kzq_30hPa)
+        call mpas_pool_get_array(diag, 'kzq_50hPa', kzq_50hPa)
+        call mpas_pool_get_array(diag, 'kzq_70hPa', kzq_70hPa)
+        call mpas_pool_get_array(diag, 'kzq_100hPa', kzq_100hPa)
+        call mpas_pool_get_array(diag, 'kzq_150hPa', kzq_150hPa)
+        call mpas_pool_get_array(diag, 'kzq_200hPa', kzq_200hPa)
+        call mpas_pool_get_array(diag, 'kzq_250hPa', kzq_250hPa)
+        call mpas_pool_get_array(diag, 'kzq_300hPa', kzq_300hPa)
+        call mpas_pool_get_array(diag, 'kzq_400hPa', kzq_400hPa)
+        call mpas_pool_get_array(diag, 'kzq_500hPa', kzq_500hPa)
+        call mpas_pool_get_array(diag, 'kzq_600hPa', kzq_600hPa)
+        call mpas_pool_get_array(diag, 'kzq_700hPa', kzq_700hPa)
+        call mpas_pool_get_array(diag, 'kzq_825hPa', kzq_825hPa)
+        call mpas_pool_get_array(diag, 'kzq_850hPa', kzq_850hPa)
+        call mpas_pool_get_array(diag, 'kzq_875hPa', kzq_875hPa)
+        call mpas_pool_get_array(diag, 'kzq_900hPa', kzq_900hPa)
+        call mpas_pool_get_array(diag, 'kzq_925hPa', kzq_925hPa)
+        call mpas_pool_get_array(diag, 'kzq_950hPa', kzq_950hPa)
+        call mpas_pool_get_array(diag, 'kzq_975hPa', kzq_975hPa)
+        call mpas_pool_get_array(diag, 'kzq_1000hPa', kzq_1000hPa)
 
-        call mpas_pool_get_array(diag_physics, 'kzh_15hPa', kzh_15hPa)
-        call mpas_pool_get_array(diag_physics, 'kzh_20hPa', kzh_20hPa)
-        call mpas_pool_get_array(diag_physics, 'kzh_30hPa', kzh_30hPa)
-        call mpas_pool_get_array(diag_physics, 'kzh_50hPa', kzh_50hPa)
-        call mpas_pool_get_array(diag_physics, 'kzh_70hPa', kzh_70hPa)
-        call mpas_pool_get_array(diag_physics, 'kzh_100hPa', kzh_100hPa)
-        call mpas_pool_get_array(diag_physics, 'kzh_150hPa', kzh_150hPa)
-        call mpas_pool_get_array(diag_physics, 'kzh_200hPa', kzh_200hPa)
-        call mpas_pool_get_array(diag_physics, 'kzh_250hPa', kzh_250hPa)
-        call mpas_pool_get_array(diag_physics, 'kzh_300hPa', kzh_300hPa)
-        call mpas_pool_get_array(diag_physics, 'kzh_400hPa', kzh_400hPa)
-        call mpas_pool_get_array(diag_physics, 'kzh_500hPa', kzh_500hPa)
-        call mpas_pool_get_array(diag_physics, 'kzh_600hPa', kzh_600hPa)
-        call mpas_pool_get_array(diag_physics, 'kzh_700hPa', kzh_700hPa)
-        call mpas_pool_get_array(diag_physics, 'kzh_825hPa', kzh_825hPa)
-        call mpas_pool_get_array(diag_physics, 'kzh_850hPa', kzh_850hPa)
-        call mpas_pool_get_array(diag_physics, 'kzh_875hPa', kzh_875hPa)
-        call mpas_pool_get_array(diag_physics, 'kzh_900hPa', kzh_900hPa)
-        call mpas_pool_get_array(diag_physics, 'kzh_925hPa', kzh_925hPa)
-        call mpas_pool_get_array(diag_physics, 'kzh_950hPa', kzh_950hPa)
-        call mpas_pool_get_array(diag_physics, 'kzh_975hPa', kzh_975hPa)
-        call mpas_pool_get_array(diag_physics, 'kzh_1000hPa', kzh_1000hPa)
+        call mpas_pool_get_array(diag, 'kzh_15hPa', kzh_15hPa)
+        call mpas_pool_get_array(diag, 'kzh_20hPa', kzh_20hPa)
+        call mpas_pool_get_array(diag, 'kzh_30hPa', kzh_30hPa)
+        call mpas_pool_get_array(diag, 'kzh_50hPa', kzh_50hPa)
+        call mpas_pool_get_array(diag, 'kzh_70hPa', kzh_70hPa)
+        call mpas_pool_get_array(diag, 'kzh_100hPa', kzh_100hPa)
+        call mpas_pool_get_array(diag, 'kzh_150hPa', kzh_150hPa)
+        call mpas_pool_get_array(diag, 'kzh_200hPa', kzh_200hPa)
+        call mpas_pool_get_array(diag, 'kzh_250hPa', kzh_250hPa)
+        call mpas_pool_get_array(diag, 'kzh_300hPa', kzh_300hPa)
+        call mpas_pool_get_array(diag, 'kzh_400hPa', kzh_400hPa)
+        call mpas_pool_get_array(diag, 'kzh_500hPa', kzh_500hPa)
+        call mpas_pool_get_array(diag, 'kzh_600hPa', kzh_600hPa)
+        call mpas_pool_get_array(diag, 'kzh_700hPa', kzh_700hPa)
+        call mpas_pool_get_array(diag, 'kzh_825hPa', kzh_825hPa)
+        call mpas_pool_get_array(diag, 'kzh_850hPa', kzh_850hPa)
+        call mpas_pool_get_array(diag, 'kzh_875hPa', kzh_875hPa)
+        call mpas_pool_get_array(diag, 'kzh_900hPa', kzh_900hPa)
+        call mpas_pool_get_array(diag, 'kzh_925hPa', kzh_925hPa)
+        call mpas_pool_get_array(diag, 'kzh_950hPa', kzh_950hPa)
+        call mpas_pool_get_array(diag, 'kzh_975hPa', kzh_975hPa)
+        call mpas_pool_get_array(diag, 'kzh_1000hPa', kzh_1000hPa)
 
-        call mpas_pool_get_array(diag_physics, 'kzm_15hPa', kzm_15hPa)
-        call mpas_pool_get_array(diag_physics, 'kzm_20hPa', kzm_20hPa)
-        call mpas_pool_get_array(diag_physics, 'kzm_30hPa', kzm_30hPa)
-        call mpas_pool_get_array(diag_physics, 'kzm_50hPa', kzm_50hPa)
-        call mpas_pool_get_array(diag_physics, 'kzm_70hPa', kzm_70hPa)
-        call mpas_pool_get_array(diag_physics, 'kzm_100hPa', kzm_100hPa)
-        call mpas_pool_get_array(diag_physics, 'kzm_150hPa', kzm_150hPa)
-        call mpas_pool_get_array(diag_physics, 'kzm_200hPa', kzm_200hPa)
-        call mpas_pool_get_array(diag_physics, 'kzm_250hPa', kzm_250hPa)
-        call mpas_pool_get_array(diag_physics, 'kzm_300hPa', kzm_300hPa)
-        call mpas_pool_get_array(diag_physics, 'kzm_400hPa', kzm_400hPa)
-        call mpas_pool_get_array(diag_physics, 'kzm_500hPa', kzm_500hPa)
-        call mpas_pool_get_array(diag_physics, 'kzm_600hPa', kzm_600hPa)
-        call mpas_pool_get_array(diag_physics, 'kzm_700hPa', kzm_700hPa)
-        call mpas_pool_get_array(diag_physics, 'kzm_825hPa', kzm_825hPa)
-        call mpas_pool_get_array(diag_physics, 'kzm_850hPa', kzm_850hPa)
-        call mpas_pool_get_array(diag_physics, 'kzm_875hPa', kzm_875hPa)
-        call mpas_pool_get_array(diag_physics, 'kzm_900hPa', kzm_900hPa)
-        call mpas_pool_get_array(diag_physics, 'kzm_925hPa', kzm_925hPa)
-        call mpas_pool_get_array(diag_physics, 'kzm_950hPa', kzm_950hPa)
-        call mpas_pool_get_array(diag_physics, 'kzm_975hPa', kzm_975hPa)
-        call mpas_pool_get_array(diag_physics, 'kzm_1000hPa', kzm_1000hPa)
+        call mpas_pool_get_array(diag, 'kzm_15hPa', kzm_15hPa)
+        call mpas_pool_get_array(diag, 'kzm_20hPa', kzm_20hPa)
+        call mpas_pool_get_array(diag, 'kzm_30hPa', kzm_30hPa)
+        call mpas_pool_get_array(diag, 'kzm_50hPa', kzm_50hPa)
+        call mpas_pool_get_array(diag, 'kzm_70hPa', kzm_70hPa)
+        call mpas_pool_get_array(diag, 'kzm_100hPa', kzm_100hPa)
+        call mpas_pool_get_array(diag, 'kzm_150hPa', kzm_150hPa)
+        call mpas_pool_get_array(diag, 'kzm_200hPa', kzm_200hPa)
+        call mpas_pool_get_array(diag, 'kzm_250hPa', kzm_250hPa)
+        call mpas_pool_get_array(diag, 'kzm_300hPa', kzm_300hPa)
+        call mpas_pool_get_array(diag, 'kzm_400hPa', kzm_400hPa)
+        call mpas_pool_get_array(diag, 'kzm_500hPa', kzm_500hPa)
+        call mpas_pool_get_array(diag, 'kzm_600hPa', kzm_600hPa)
+        call mpas_pool_get_array(diag, 'kzm_700hPa', kzm_700hPa)
+        call mpas_pool_get_array(diag, 'kzm_825hPa', kzm_825hPa)
+        call mpas_pool_get_array(diag, 'kzm_850hPa', kzm_850hPa)
+        call mpas_pool_get_array(diag, 'kzm_875hPa', kzm_875hPa)
+        call mpas_pool_get_array(diag, 'kzm_900hPa', kzm_900hPa)
+        call mpas_pool_get_array(diag, 'kzm_925hPa', kzm_925hPa)
+        call mpas_pool_get_array(diag, 'kzm_950hPa', kzm_950hPa)
+        call mpas_pool_get_array(diag, 'kzm_975hPa', kzm_975hPa)
+        call mpas_pool_get_array(diag, 'kzm_1000hPa', kzm_1000hPa)
 
         call mpas_pool_get_array(diag, 'ni_15hPa', ni_15hPa)
         call mpas_pool_get_array(diag, 'ni_20hPa', ni_20hPa)
@@ -2701,8 +2705,10 @@ module mpas_isobaric_diagnostics
             do iCell = 1, nCells
             do k = 1, nVertLevels
                kk = nVertLevels+1-k
-               ni(k,iCell) = scalars(index_ni,k,iCell)
-               field_in(iCell,kk) = ni(k,iCell)
+! TODO: fixed value to find bug, need to fix below
+!               ni(k,iCell) = scalars(index_ni,k,iCell)
+!               field_in(iCell,kk) = ni(k,iCell)
+               field_in(iCell,kk) = 1.0
             enddo
             enddo
             call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
@@ -2737,8 +2743,10 @@ module mpas_isobaric_diagnostics
             do iCell = 1, nCells
             do k = 1, nVertLevels
                kk = nVertLevels+1-k
-               nr(k,iCell) = scalars(index_nr,k,iCell)
-               field_in(iCell,kk) = nr(k,iCell)
+! TODO: fixed value to find bug, need to fix below
+!               nr(k,iCell) = scalars(index_nr,k,iCell)
+!               field_in(iCell,kk) = nr(k,iCell)
+               field_in(iCell,kk) = 1.0
             enddo
             enddo
             call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
@@ -2773,8 +2781,10 @@ module mpas_isobaric_diagnostics
             do iCell = 1, nCells
             do k = 1, nVertLevels
                kk = nVertLevels+1-k
-               qr(k,iCell) = scalars(index_qr,k,iCell)
-               field_in(iCell,kk) = qr(k,iCell)
+! TODO: fixed value to find bug, need to fix below
+!               qr(k,iCell) = scalars(index_qr,k,iCell)
+!               field_in(iCell,kk) = qr(k,iCell)
+               field_in(iCell,kk) = 1.0
             enddo
             enddo
             call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
@@ -2809,8 +2819,10 @@ module mpas_isobaric_diagnostics
             do iCell = 1, nCells
             do k = 1, nVertLevels
                kk = nVertLevels+1-k
-               qs(k,iCell) = scalars(index_qs,k,iCell)
-               field_in(iCell,kk) = qs(k,iCell)
+! TODO: fixed value to find bug, need to fix below
+!               qs(k,iCell) = scalars(index_qs,k,iCell)
+!               field_in(iCell,kk) = qs(k,iCell)
+               field_in(iCell,kk) = 1.0
             enddo
             enddo
             call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
@@ -2845,8 +2857,10 @@ module mpas_isobaric_diagnostics
             do iCell = 1, nCells
             do k = 1, nVertLevels
                kk = nVertLevels+1-k
-               qv(k,iCell) = scalars(index_qv,k,iCell)
-               field_in(iCell,kk) = qv(k,iCell)
+! TODO: fixed value to find bug, need to fix below
+!               qv(k,iCell) = scalars(index_qv,k,iCell)
+!               field_in(iCell,kk) = qv(k,iCell)
+               field_in(iCell,kk) = 1.0
             enddo
             enddo
             call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
@@ -3020,7 +3034,9 @@ module mpas_isobaric_diagnostics
             do iCell = 1, nCells
             do k = 1, nVertLevels
                kk = nVertLevels+1-k
-               field_in(iCell,kk) = kzq(k,iCell)
+! TODO: fixed value to find bug, need to fix below
+!               field_in(iCell,kk) = kzq(k,iCell)
+               field_in(iCell,kk) = 1.0
             enddo
             enddo
             call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
@@ -3055,7 +3071,9 @@ module mpas_isobaric_diagnostics
             do iCell = 1, nCells
             do k = 1, nVertLevels
                kk = nVertLevels+1-k
-               field_in(iCell,kk) = kzh(k,iCell)
+! TODO: fixed value to find bug, need to fix below
+!               field_in(iCell,kk) = kzh(k,iCell)
+               field_in(iCell,kk) = 1.0
             enddo
             enddo
             call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
@@ -3090,7 +3108,9 @@ module mpas_isobaric_diagnostics
             do iCell = 1, nCells
             do k = 1, nVertLevels
                kk = nVertLevels+1-k
-               field_in(iCell,kk) = kzm(k,iCell)
+! TODO: fixed value to find bug, need to fix below
+!               field_in(iCell,kk) = kzm(k,iCell)
+               field_in(iCell,kk) = 1.0
             enddo
             enddo
             call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
@@ -3596,7 +3616,6 @@ module mpas_isobaric_diagnostics
        parameter(grav_ratio = (earth_omega*earth_omega * &
                                semi_major_axis*semi_major_axis * semi_minor_axis)/grav_constant)
 
-       print *, "latCell=", lat(:)
 
        sin2(:)  = sin(lat(:))**2
        termg(:) = grav_equator * ( (1.0_RKIND+somigliana*sin2(:)) / &
