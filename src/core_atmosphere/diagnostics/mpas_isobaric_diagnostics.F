@@ -1511,7 +1511,7 @@ module mpas_isobaric_diagnostics
         real (kind=RKIND), dimension(:,:), pointer :: kzq, kzh, kzm
         real (kind=RKIND), dimension(:,:), pointer  :: ni
         real (kind=RKIND), dimension(:,:), pointer  :: nr
-        real (kind=RKIND), dimension(:,:), pointer  :: qr, qs, qv
+        real (kind=RKIND), dimension(:,:), pointer  :: qr, qs
         real (kind=RKIND), dimension(:,:,:), pointer :: scalars
        
         real (kind=RKIND), dimension(:), pointer :: t_iso_levels
@@ -2857,10 +2857,7 @@ module mpas_isobaric_diagnostics
             do iCell = 1, nCells
             do k = 1, nVertLevels
                kk = nVertLevels+1-k
-! TODO: fixed value to find bug, need to fix below
-!               qv(k,iCell) = scalars(index_qv,k,iCell)
-!               field_in(iCell,kk) = qv(k,iCell)
-               field_in(iCell,kk) = 1.0
+               field_in(iCell,kk) = scalars(index_qv,k,iCell)
             enddo
             enddo
             call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
