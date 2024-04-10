@@ -15,7 +15,7 @@ VERSION 0.2.0 - Included variables and new isobaric levels
 VERSION 0.3.0 - Included new levels for existing variables and included new variables
 
 
-MPAS-v8.0.1
+MPAS-v8.0.2
 ====
 
 The Model for Prediction Across Scales (MPAS) is a collaborative project for
@@ -51,25 +51,26 @@ core's user's guide, which can be found at the following web sites:
 
 [MPAS-Seaice](http://mpas-dev.github.io/sea_ice/releases.html)
 
+
 Code Layout
 ----------
 
 Within the MPAS repository, code is laid out as follows. Sub-directories are
 only described below the src directory.
 
-    MPAS-Model
-    ├── src
-    │   ├── driver -- Main driver for MPAS in stand-alone mode (Shared)
-    │   ├── external -- External software for MPAS (Shared)
-    │   ├── framework -- MPAS Framework (Includes DDT Descriptions, and shared routines. Shared)
-    │   ├── operators -- MPAS Opeartors (Includes Operators for MPAS meshes. Shared)
-    │   ├── tools -- Empty directory for include files that Registry generates (Shared)
-    │   │   ├── registry -- Code for building Registry.xml parser (Shared)
-    │   │   └── input_gen -- Code for generating streams and namelist files (Shared)
-    │   └── core_* -- Individual model cores.
-    │       └── inc -- Empty directory for include files that Registry generates
-    ├── testing_and_setup -- Tools for setting up configurations and test cases (Shared)
-    └── default_inputs -- Copies of default stream and namelists files (Shared)
+	MPAS-Model
+	├── src
+	│   ├── driver -- Main driver for MPAS in stand-alone mode (Shared)
+	│   ├── external -- External software for MPAS (Shared)
+	│   ├── framework -- MPAS Framework (Includes DDT Descriptions, and shared routines. Shared)
+	│   ├── operators -- MPAS Opeartors (Includes Operators for MPAS meshes. Shared)
+	│   ├── tools -- Empty directory for include files that Registry generates (Shared)
+	│   │   ├── registry -- Code for building Registry.xml parser (Shared)
+	│   │   └── input_gen -- Code for generating streams and namelist files (Shared)
+	│   └── core_* -- Individual model cores.
+	│       └── inc -- Empty directory for include files that Registry generates
+	├── testing_and_setup -- Tools for setting up configurations and test cases (Shared)
+	└── default_inputs -- Copies of default stream and namelists files (Shared)
 
 Model cores are typically developed independently. For information about
 building and running a particular core, please refer to that core's user's
