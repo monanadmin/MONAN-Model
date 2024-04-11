@@ -1509,9 +1509,6 @@ module mpas_isobaric_diagnostics
         real (kind=RKIND), dimension(:,:), pointer :: umeridional, uzonal, vvel
         real (kind=RKIND), dimension(:,:), pointer :: rqvblten, rqvcuten, rthratenlw
         real (kind=RKIND), dimension(:,:), pointer :: kzq, kzh, kzm
-        real (kind=RKIND), dimension(:,:), pointer  :: ni
-        real (kind=RKIND), dimension(:,:), pointer  :: nr
-        real (kind=RKIND), dimension(:,:), pointer  :: qr, qs
         real (kind=RKIND), dimension(:,:,:), pointer :: scalars
        
         real (kind=RKIND), dimension(:), pointer :: t_iso_levels
@@ -1983,7 +1980,6 @@ module mpas_isobaric_diagnostics
        
         real (kind=RKIND), dimension(:,:), allocatable :: pressure, pressureCp1, pressure2, pressure_v, temperature
         real (kind=RKIND), dimension(:,:), allocatable :: dewpoint, spechum, geoph
-!        real (kind=RKIND), dimension(:,:), allocatable :: kzq, kzh, kzm
        
        !local interpolated fields:
         integer :: nIntP
@@ -2021,12 +2017,6 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_array(state, 'w', vvel, time_lev)
         call mpas_pool_get_array(state, 'theta_m', theta_m, time_lev)
         call mpas_pool_get_array(state, 'scalars', scalars, time_lev)
-!        qv => scalars(index_qv,:,:)
-!        ni => scalars(index_ni,:,:)
-!        nr => scalars(index_nr,:,:)
-!        qr => scalars(index_qr,:,:)
-!        qs => scalars(index_qs,:,:)
-
 
         call mpas_pool_get_array(tend_physics, 'rqvcuten', rqvcuten)
         call mpas_pool_get_array(tend_physics, 'rqvblten', rqvblten)
@@ -2519,9 +2509,6 @@ module mpas_isobaric_diagnostics
         if(.not.allocated(spechum)  ) allocate(spechum(nVertLevels,nCells)    ) !LFR
         if(.not.allocated(geoph)    ) allocate(geoph(nVertLevelsP1,nCells)    ) !EGK
         if(.not.allocated(dewpoint) ) allocate(dewpoint(nVertLevels,nCells)   )
-!        if(.not.allocated(kzq)  ) allocate(kzq(nVertLevels,nCells)   ) !EGK
-!        if(.not.allocated(kzh)  ) allocate(kzh(nVertLevels,nCells)   ) 
-!        if(.not.allocated(kzm)  ) allocate(kzm(nVertLevels,nCells)   ) 
        
         if (need_t_isobaric) then
             t_iso_levels(1) = 30000.0
@@ -2705,10 +2692,7 @@ module mpas_isobaric_diagnostics
             do iCell = 1, nCells
             do k = 1, nVertLevels
                kk = nVertLevels+1-k
-! TODO: fixed value to find bug, need to fix below
-!               ni(k,iCell) = scalars(index_ni,k,iCell)
-!               field_in(iCell,kk) = ni(k,iCell)
-               field_in(iCell,kk) = 1.0
+               field_in(iCell,kk) = scalars(index_ni,k,iCell)
             enddo
             enddo
             call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
@@ -2743,10 +2727,7 @@ module mpas_isobaric_diagnostics
             do iCell = 1, nCells
             do k = 1, nVertLevels
                kk = nVertLevels+1-k
-! TODO: fixed value to find bug, need to fix below
-!               nr(k,iCell) = scalars(index_nr,k,iCell)
-!               field_in(iCell,kk) = nr(k,iCell)
-               field_in(iCell,kk) = 1.0
+               field_in(iCell,kk) = scalars(index_nr,k,iCell)
             enddo
             enddo
             call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
@@ -2781,10 +2762,7 @@ module mpas_isobaric_diagnostics
             do iCell = 1, nCells
             do k = 1, nVertLevels
                kk = nVertLevels+1-k
-! TODO: fixed value to find bug, need to fix below
-!               qr(k,iCell) = scalars(index_qr,k,iCell)
-!               field_in(iCell,kk) = qr(k,iCell)
-               field_in(iCell,kk) = 1.0
+               field_in(iCell,kk) = scalars(index_qr,k,iCell)
             enddo
             enddo
             call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
@@ -2819,10 +2797,7 @@ module mpas_isobaric_diagnostics
             do iCell = 1, nCells
             do k = 1, nVertLevels
                kk = nVertLevels+1-k
-! TODO: fixed value to find bug, need to fix below
-!               qs(k,iCell) = scalars(index_qs,k,iCell)
-!               field_in(iCell,kk) = qs(k,iCell)
-               field_in(iCell,kk) = 1.0
+               field_in(iCell,kk) = scalars(index_qs,k,iCell)
             enddo
             enddo
             call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
@@ -3031,9 +3006,7 @@ module mpas_isobaric_diagnostics
             do iCell = 1, nCells
             do k = 1, nVertLevels
                kk = nVertLevels+1-k
-! TODO: fixed value to find bug, need to fix below
-!               field_in(iCell,kk) = kzq(k,iCell)
-               field_in(iCell,kk) = 1.0
+               field_in(iCell,kk) = kzq(k,iCell)
             enddo
             enddo
             call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
@@ -3068,9 +3041,7 @@ module mpas_isobaric_diagnostics
             do iCell = 1, nCells
             do k = 1, nVertLevels
                kk = nVertLevels+1-k
-! TODO: fixed value to find bug, need to fix below
-!               field_in(iCell,kk) = kzh(k,iCell)
-               field_in(iCell,kk) = 1.0
+               field_in(iCell,kk) = kzh(k,iCell)
             enddo
             enddo
             call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
@@ -3105,9 +3076,7 @@ module mpas_isobaric_diagnostics
             do iCell = 1, nCells
             do k = 1, nVertLevels
                kk = nVertLevels+1-k
-! TODO: fixed value to find bug, need to fix below
-!               field_in(iCell,kk) = kzm(k,iCell)
-               field_in(iCell,kk) = 1.0
+               field_in(iCell,kk) = kzm(k,iCell)
             enddo
             enddo
             call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
@@ -3546,9 +3515,6 @@ module mpas_isobaric_diagnostics
         if(allocated(dewpoint)    ) deallocate(dewpoint )
         if(allocated(spechum)     ) deallocate(spechum  )
         if(allocated(geoph)       ) deallocate(geoph    )
-!        if(allocated(kzq)         ) deallocate(kzq      ) 
-!        if(allocated(kzh)         ) deallocate(kzh      )
-!        if(allocated(kzm)         ) deallocate(kzm      )
 
     end subroutine interp_diagnostics
 
