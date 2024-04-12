@@ -783,6 +783,12 @@
        if(kpbl(i).le.1) pblflg(i) = .false.
      endif
    enddo
+
+!..Bug fix (2024Apr06), initializing value of we variable.
+   do i = its,ite
+     we(i) = 0. !EGK - bug fix in debug mode
+   enddo
+
 !
 !     estimate the entrainment parameters
 !
