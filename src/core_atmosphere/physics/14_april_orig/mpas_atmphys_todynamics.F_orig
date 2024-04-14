@@ -98,8 +98,6 @@
  integer:: i,iCell,k,n
  integer,pointer:: index_qv, index_qc, index_qr, index_qi, index_qs, index_qg
  integer,pointer:: index_ni
- integer,pointer:: index_cnvcf, index_buoyx
-
  integer,pointer:: nCells,nCellsSolve,nEdges,nEdgesSolve
 
  real(kind=RKIND),dimension(:,:),pointer:: mass          ! time level 2 rho_zz
@@ -114,8 +112,6 @@
                                            rucuten,rvcuten
  real(kind=RKIND),dimension(:,:),pointer:: rthratenlw,rthratensw                                    
  
- real(kind=RKIND),dimension(:,:),pointer:: rcnvcfcuten,rbuoyxcuten
-
  real(kind=RKIND),dimension(:,:),pointer:: tend_u_phys !nick
  real(kind=RKIND),dimension(:,:),pointer  :: tend_theta,tend_theta_euler,tend_u
  real(kind=RKIND),dimension(:,:,:),pointer:: tend_scalars
@@ -153,9 +149,6 @@
  call mpas_pool_get_dimension(state, 'index_qg', index_qg)
  call mpas_pool_get_dimension(state, 'index_ni', index_ni)
 
- call mpas_pool_get_dimension(state, 'index_cnvcf', index_cnvcf)
- call mpas_pool_get_dimension(state, 'index_buoyx', index_buoyx)
-
  call mpas_pool_get_array(tend_physics, 'rublten', rublten)
  call mpas_pool_get_array(tend_physics, 'rvblten', rvblten)
  call mpas_pool_get_array(tend_physics, 'rublten_Edge', rublten_Edge)
@@ -177,11 +170,6 @@
 
  call mpas_pool_get_array(tend_physics, 'rthratenlw', rthratenlw)
  call mpas_pool_get_array(tend_physics, 'rthratensw', rthratensw)
-
- call mpas_pool_get_array(tend_physics, 'rcnvcfcuten', rcnvcfcuten)
- call mpas_pool_get_array(tend_physics, 'rbuoyxcuten', rbuoyxcuten)
-
-
 
  call mpas_pool_get_array(tend,'u'           , tend_u         )
  call mpas_pool_get_array(tend,'theta_m'     , tend_theta     )
@@ -222,9 +210,6 @@
  if (.not. associated(rqccuten)) allocate(rqccuten(0,0))
  if (.not. associated(rqicuten)) allocate(rqicuten(0,0))
 
- if (.not. associated(rbuoyxcuten)) allocate(rbuoyxcuten(0,0))
- if (.not. associated(rcnvcfcuten)) allocate(rcnvcfcuten(0,0))
-
  call physics_get_tend_work(block, mesh, nCells, nEdges, nCellsSolve, nEdgesSolve, &
                            rk_step, dynamics_substep, &
                            config_pbl_scheme, config_convection_scheme, config_radt_lw_scheme, config_radt_sw_scheme, &
@@ -239,8 +224,8 @@
                            theta_m, scalars, &
                            tend_rtheta_physics, &
                            tend_theta_euler, &
-                           exchange_halo_group, &
-                           index_cnvcf,index_buoyx,rbuoyxcuten,rcnvcfcuten)
+                           exchange_halo_group &
+                           )
 
  !
  ! Clean up any pointers that were allocated with zero size before the call to
@@ -261,8 +246,6 @@
  if (size(rqvcuten) == 0) deallocate(rqvcuten)
  if (size(rqccuten) == 0) deallocate(rqccuten)
  if (size(rqicuten) == 0) deallocate(rqicuten)
- if (size(rbuoyxcuten) == 0) deallocate(rbuoyxcuten)
- if (size(rcnvcfcuten) == 0) deallocate(rcnvcfcuten)
 
 ! deallocate(theta)
  deallocate(tend_th)
@@ -296,8 +279,8 @@
                                  rthratenlw, rthratensw, &
                                  tend_u_phys, &
                                  theta_m, scalars, tend_theta, tend_theta_euler, &
-                                 exchange_halo_group, &
-                                 index_cnvcf,index_buoyx,rbuoyxcuten,rcnvcfcuten)
+                                 exchange_halo_group &
+                                )
 !==================================================================================================
 
     use mpas_atm_dimensions
@@ -313,7 +296,6 @@
     character(len=StrKIND), intent(in) :: config_radt_lw_scheme
     character(len=StrKIND), intent(in) :: config_radt_sw_scheme
     integer, intent(in) :: index_qv, index_qc, index_qr, index_qi, index_qs, index_ni
-    integer, intent(in) :: index_cnvcf,index_buoyx
     real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: rublten
     real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: rvblten
     real (kind=RKIND), dimension(nVertLevels,nEdges+1), intent(in) :: mass_edge
@@ -338,9 +320,6 @@
     real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: rqscuten
     real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: rthratenlw
     real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: rthratensw
-    real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: rbuoyxcuten
-    real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: rcnvcfcuten
-
     real (kind=RKIND), dimension(nVertLevels,nEdges+1), intent(inout) :: tend_u_phys
     real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: theta_m
     real (kind=RKIND), dimension(num_scalars,nVertLevels,nCells+1), intent(in) :: scalars
@@ -426,29 +405,7 @@
                  tend_u(k,i)=tend_u(k,i)+rucuten_Edge(k,i)*mass_edge(k,i)
               enddo
               enddo
-           
-           case('cu_gf_monan')
-              if (rk_step == 1 .and. dynamics_substep == 1) then
-                 call exchange_halo_group(block % domain, 'physics:cuten')
-                 call tend_toEdges(block,mesh,rucuten,rvcuten,rucuten_Edge)
-                 
-                 tend_u_phys(1:nVertLevels,1:nEdges) =  tend_u_phys(1:nVertLevels,1:nEdges) &
-                                                     + rucuten_Edge(1:nVertLevels,1:nEdges)
-              end if
-              do i = 1, nEdgesSolve
-              do k = 1, nVertLevels
-                 tend_u(k,i)=tend_u(k,i)+rucuten_Edge(k,i)*mass_edge(k,i)
-              enddo
-              enddo
-!srf- the sources and sinks of the scalars below are included in the routine "update_convection_step2" 
-!              do i = 1, nCellsSolve
-!              do k = 1, nVertLevels
-!                 tend_scalars(index_cnvcf,k,i) = tend_scalars(index_cnvcf,k,i) + rcnvcfcuten(k,i)*mass(k,i)
-!                 tend_scalars(index_buoyx,k,i) = tend_scalars(index_buoyx,k,i) + rbuoyxcuten(k,i)*mass(k,i)
-!              enddo
-!              enddo
-!srf---------------------------------------------------------------------------------------------------------
- 
+
             case default
         end select convection_select
     endif

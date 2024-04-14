@@ -1648,7 +1648,7 @@ module mpas_isobaric_diagnostics
        parameter(grav_ratio = (earth_omega*earth_omega * &
                                semi_major_axis*semi_major_axis * semi_minor_axis)/grav_constant)
 
-       print *, "latCell=", lat(:)
+       !print *, "latCell=", lat(:)
 
        sin2(:)  = sin(lat(:))**2
        termg(:) = grav_equator * ( (1.0_RKIND+somigliana*sin2(:)) / &

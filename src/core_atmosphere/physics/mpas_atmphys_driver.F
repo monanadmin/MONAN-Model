@@ -316,7 +316,7 @@
        call allocate_convection(block%configs)
 !$OMP PARALLEL DO
        do thread=1,nThreads
-          call driver_convection(itimestep,block%configs,mesh,sfc_input,diag_physics,tend_physics, &
+          call driver_convection(itimestep,block%configs,mesh,sfc_input,diag_physics,tend_physics,diag, &
                                  cellSolveThreadStart(thread), cellSolveThreadEnd(thread))
        end do
 !$OMP END PARALLEL DO
@@ -326,8 +326,8 @@
     if(config_convection_scheme .ne. 'off') then
 !$OMP PARALLEL DO
        do thread=1,nThreads
-          call update_convection_step2(block%configs,diag_physics, &
-                               cellSolveThreadStart(thread),cellSolveThreadEnd(thread))
+          call update_convection_step2(block%configs,mesh,sfc_input,diag_physics,tend_physics,state,diag, &
+                                       time_lev,cellSolveThreadStart(thread),cellSolveThreadEnd(thread))
        end do
 !$OMP END PARALLEL DO
     end if

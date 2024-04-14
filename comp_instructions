@@ -1,0 +1,16 @@
+     make gnu CORE=init_atmosphere PRECISION=single
+     make clean CORE=atmosphere
+     make gnu CORE=atmosphere PRECISION=single
+
+
+
+      Compilar
+      General MPAS build command:
+      make target CORE=core <options>
+      - target := clean or gnu, gfortran, nvhpc, pgi
+      - core   := atmosphere or init_atmosphere
+      - options:= DEBUG=true, AUTOCLEAN=true, PRECISION=single, OPENMP=true
+     
+
+
+

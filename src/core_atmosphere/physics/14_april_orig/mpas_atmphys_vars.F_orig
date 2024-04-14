@@ -320,7 +320,7 @@
     rvcuten_p          !
 
 !... grell-freitas specific parameters and arrays:
- integer, parameter:: ishallow  = 1 !shallow convection used with grell scheme.
+    integer, parameter:: ishallow  = 1 !shallow convection used with grell scheme.
 
  integer,dimension(:,:),allocatable:: &
     k22_shallow_p,    &!
@@ -351,24 +351,6 @@
  real(kind=RKIND),dimension(:,:,:),allocatable:: &
     rqvften_p,        &!
     rthften_p          !
-
-!... gf monan specific arrays:
- real(kind=RKIND),dimension(:,:,:),allocatable:: &
-    cnvcf_p,              &
-    buoyx_p,              &
-    rcnvcfcuten_p,        &!
-    rbuoyxcuten_p,        &!
-    v3d1_p
- 
- real(kind=RKIND),dimension(:,:),allocatable:: &
-    cape_p,   &!
-    cin_p,    &!
-    v2d1_p     !
- 
- real(kind=RKIND),dimension(:,:),allocatable:: &
-    wlpool_p,   &!
-    vcpool_p     !
-  
 
 !=================================================================================================================
 !... variables and arrays related to parameterization of pbl:

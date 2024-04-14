@@ -1137,8 +1137,7 @@ module atm_time_integration
       call mpas_pool_get_array(state, 'scalars', scalars_2, 2)
 
       if(config_convection_scheme == 'cu_grell_freitas' .or. &
-         config_convection_scheme == 'cu_ntiedtke'      .or. &
-         config_convection_scheme == 'cu_gf_monan'     ) then
+         config_convection_scheme == 'cu_ntiedtke') then
 
          call mpas_pool_get_array(tend_physics, 'rqvdynten', rqvdynten)
          call mpas_pool_get_array(state, 'theta_m', theta_m, 2)
@@ -3431,9 +3430,7 @@ module atm_time_integration
       ! next, do one scalar at a time
 
       do iScalar = 1, num_scalars
-         !srf 
-         !print*,'scalars',iScalar,maxval(scalars_new(iScalar,:,:))
-         !
+
          do iCell=cellStart,cellEnd
 !DIR$ IVDEP
             do k=1,nVertLevels
