@@ -50,11 +50,16 @@ module mpas_isobaric_diagnostics
                need_qr_15, need_qr_20, need_qr_30, need_qr_50, need_qr_70, need_qr_100, need_qr_150, need_qr_200, need_qr_250, need_qr_300, need_qr_400, need_qr_500, need_qr_600, need_qr_700, need_qr_825, need_qr_850, need_qr_875, need_qr_900, need_qr_925, need_qr_950, need_qr_975, need_qr_1000, &
                need_qs_15, need_qs_20, need_qs_30, need_qs_50, need_qs_70, need_qs_100, need_qs_150, need_qs_200, need_qs_250, need_qs_300, need_qs_400, need_qs_500, need_qs_600, need_qs_700, need_qs_825, need_qs_850, need_qs_875, need_qs_900, need_qs_925, need_qs_950, need_qs_975, need_qs_1000, &
                need_qv_15, need_qv_20, need_qv_30, need_qv_50, need_qv_70, need_qv_100, need_qv_150, need_qv_200, need_qv_250, need_qv_300, need_qv_400, need_qv_500, need_qv_600, need_qv_700, need_qv_825, need_qv_850, need_qv_875, need_qv_900, need_qv_925, need_qv_950, need_qv_975, need_qv_1000, &
+               need_qc_15, need_qc_20, need_qc_30, need_qc_50, need_qc_70, need_qc_100, need_qc_150, need_qc_200, need_qc_250, need_qc_300, need_qc_400, need_qc_500, need_qc_600, need_qc_700, need_qc_825, need_qc_850, need_qc_875, need_qc_900, need_qc_925, need_qc_950, need_qc_975, need_qc_1000, &
+               need_qg_15, need_qg_20, need_qg_30, need_qg_50, need_qg_70, need_qg_100, need_qg_150, need_qg_200, need_qg_250, need_qg_300, need_qg_400, need_qg_500, need_qg_600, need_qg_700, need_qg_825, need_qg_850, need_qg_875, need_qg_900, need_qg_925, need_qg_950, need_qg_975, need_qg_1000, &
+               need_qi_15, need_qi_20, need_qi_30, need_qi_50, need_qi_70, need_qi_100, need_qi_150, need_qi_200, need_qi_250, need_qi_300, need_qi_400, need_qi_500, need_qi_600, need_qi_700, need_qi_825, need_qi_850, need_qi_875, need_qi_900, need_qi_925, need_qi_950, need_qi_975, need_qi_1000, &
                need_vorticity_50, need_vorticity_100, need_vorticity_200, need_vorticity_250, need_vorticity_500, need_vorticity_700, need_vorticity_850, need_vorticity_925, &
                need_t_isobaric, need_z_isobaric, need_meanT_500_300
     logical :: need_temp, need_relhum, need_dewpoint, need_w, need_uzonal, need_umeridional, need_vorticity, & 
                need_height, need_spechum, need_geoph, need_rqvblten, need_rqvcuten, need_rthratenlw, &
-               need_kzq, need_kzh, need_kzm, need_ni, need_nr, need_qr, need_qs, need_qv
+               need_kzq, need_kzh, need_kzm, & 
+               need_ni, need_nr, need_qr, need_qs, need_qv, need_qc, need_qg, need_qi, &
+               need_mp_thompson, need_cu_grell_freitas, need_bl_mynn
 
 
     contains
@@ -71,15 +76,18 @@ module mpas_isobaric_diagnostics
     !>  saving pointers to pools that are used in the computation of diagnostics.
     !
     !-----------------------------------------------------------------------
-    subroutine isobaric_diagnostics_setup(all_pools, simulation_clock)
+    subroutine isobaric_diagnostics_setup(configs, all_pools, simulation_clock)
 
         use mpas_derived_types, only : MPAS_pool_type, MPAS_clock_type
         use mpas_pool_routines, only : mpas_pool_get_subpool
 
         implicit none
 
+        type (MPAS_pool_type), pointer :: configs
         type (MPAS_pool_type), pointer :: all_pools
         type (MPAS_clock_type), pointer :: simulation_clock
+
+        character(len=StrKIND), pointer :: micropScheme, convectionScheme, pblScheme
 
         clock => simulation_clock
 
@@ -90,6 +98,47 @@ module mpas_isobaric_diagnostics
 #ifdef DO_PHYSICS
         call mpas_pool_get_subpool(all_pools, 'tend_physics', tend_physics)
 #endif
+
+        call mpas_pool_get_config(configs, 'config_microp_scheme', micropScheme)
+        call mpas_pool_get_config(configs, 'config_convection_scheme', convectionScheme)
+        call mpas_pool_get_config(configs, 'config_pbl_scheme', pblScheme)
+
+        if (.not. associated(micropScheme)) then
+            call mpas_log_write('config_microp_scheme is not a namelist option...')
+            return
+        end if
+
+        if (.not. associated(convectionScheme)) then
+            call mpas_log_write('config_convection_scheme is not a namelist option...')
+            return
+        end if
+
+        if (.not. associated(pblScheme)) then
+            call mpas_log_write('config_pbl_scheme is not a namelist option...')
+            return
+        end if        
+
+        if (trim(micropScheme) == "mp_thompson") then
+           need_mp_thompson = .true.
+        else
+           need_mp_thompson = .false.
+        endif
+
+        if (trim(convectionScheme) == "cu_grell_freitas") then
+           need_cu_grell_freitas = .true.
+        else
+           need_cu_grell_freitas = .false.
+        endif
+
+        if (trim(pblScheme) == "bl_mynn") then
+           need_bl_mynn = .true.
+        else
+           need_bl_mynn = .false.
+        endif
+
+        print *, "mp_thompson=", need_mp_thompson
+        print *, "cu_grell_freitas=", need_cu_grell_freitas
+        print *, "bl_mynn=", need_bl_mynn
 
     end subroutine isobaric_diagnostics_setup
 
@@ -108,7 +157,7 @@ module mpas_isobaric_diagnostics
     subroutine isobaric_diagnostics_compute()
 
         use mpas_atm_diagnostics_utils, only : MPAS_field_will_be_written
-
+ 
         implicit none
 
         logical :: need_any_diags
@@ -136,6 +185,9 @@ module mpas_isobaric_diagnostics
         need_qr = .false.
         need_qs = .false.
         need_qv = .false.
+        need_qc = .false.
+        need_qg = .false.
+        need_qi = .false.
 
         need_mslp = MPAS_field_will_be_written('mslp')
         need_any_diags = need_any_diags .or. need_mslp
@@ -1439,6 +1491,207 @@ module mpas_isobaric_diagnostics
         need_qv = need_qv .or. need_qv_1000
         need_any_diags = need_any_diags .or. need_qv_1000
 
+        need_qc_15 = MPAS_field_will_be_written('qc_15hPa')
+        need_qc = need_qc .or. need_qc_15
+        need_any_diags = need_any_diags .or. need_qc_15
+        need_qc_20 = MPAS_field_will_be_written('qc_20hPa')
+        need_qc = need_qc .or. need_qc_20
+        need_any_diags = need_any_diags .or. need_qc_20
+        need_qc_30 = MPAS_field_will_be_written('qc_30hPa')
+        need_qc = need_qc .or. need_qc_30
+        need_any_diags = need_any_diags .or. need_qc_30
+        need_qc_50 = MPAS_field_will_be_written('qc_50hPa')
+        need_qc = need_qc .or. need_qc_50
+        need_any_diags = need_any_diags .or. need_qc_50
+        need_qc_70 = MPAS_field_will_be_written('qc_70hPa')
+        need_qc = need_qc .or. need_qc_70
+        need_any_diags = need_any_diags .or. need_qc_70
+        need_qc_100 = MPAS_field_will_be_written('qc_100hPa')
+        need_qc = need_qc .or. need_qc_100
+        need_any_diags = need_any_diags .or. need_qc_100
+        need_qc_150 = MPAS_field_will_be_written('qc_150hPa')
+        need_qc = need_qc .or. need_qc_150
+        need_any_diags = need_any_diags .or. need_qc_150
+        need_qc_200 = MPAS_field_will_be_written('qc_200hPa')
+        need_qc = need_qc .or. need_qc_200
+        need_any_diags = need_any_diags .or. need_qc_200
+        need_qc_250 = MPAS_field_will_be_written('qc_250hPa')
+        need_qc = need_qc .or. need_qc_250
+        need_any_diags = need_any_diags .or. need_qc_250
+        need_qc_300 = MPAS_field_will_be_written('qc_300hPa')
+        need_qc = need_qc .or. need_qc_300
+        need_any_diags = need_any_diags .or. need_qc_300
+        need_qc_400 = MPAS_field_will_be_written('qc_400hPa')
+        need_qc = need_qc .or. need_qc_400
+        need_any_diags = need_any_diags .or. need_qc_400
+        need_qc_500 = MPAS_field_will_be_written('qc_500hPa')
+        need_qc = need_qc .or. need_qc_500
+        need_any_diags = need_any_diags .or. need_qc_500
+        need_qc_600 = MPAS_field_will_be_written('qc_600hPa')
+        need_qc = need_qc .or. need_qc_600
+        need_any_diags = need_any_diags .or. need_qc_600
+        need_qc_700 = MPAS_field_will_be_written('qc_700hPa')
+        need_qc = need_qc .or. need_qc_700
+        need_any_diags = need_any_diags .or. need_qc_700
+        need_qc_825 = MPAS_field_will_be_written('qc_825hPa')
+        need_qc = need_qc .or. need_qc_825
+        need_any_diags = need_any_diags .or. need_qc_825
+        need_qc_850 = MPAS_field_will_be_written('qc_850hPa')
+        need_qc = need_qc .or. need_qc_850
+        need_any_diags = need_any_diags .or. need_qc_850
+        need_qc_875 = MPAS_field_will_be_written('qc_875hPa')
+        need_qc = need_qc .or. need_qc_875
+        need_any_diags = need_any_diags .or. need_qc_875
+        need_qc_900 = MPAS_field_will_be_written('qc_900hPa')
+        need_qc = need_qc .or. need_qc_900
+        need_any_diags = need_any_diags .or. need_qc_900
+        need_qc_925 = MPAS_field_will_be_written('qc_925hPa')
+        need_qc = need_qc .or. need_qc_925
+        need_any_diags = need_any_diags .or. need_qc_925
+        need_qc_950 = MPAS_field_will_be_written('qc_950hPa')
+        need_qc = need_qc .or. need_qc_950
+        need_any_diags = need_any_diags .or. need_qc_950
+        need_qc_975 = MPAS_field_will_be_written('qc_975hPa')
+        need_qc = need_qc .or. need_qc_975
+        need_any_diags = need_any_diags .or. need_qc_975
+        need_qc_1000 = MPAS_field_will_be_written('qc_1000hPa')
+        need_qc = need_qc .or. need_qc_1000
+        need_any_diags = need_any_diags .or. need_qc_1000
+
+        need_qg_15 = MPAS_field_will_be_written('qg_15hPa')
+        need_qg = need_qg .or. need_qg_15
+        need_any_diags = need_any_diags .or. need_qg_15
+        need_qg_20 = MPAS_field_will_be_written('qg_20hPa')
+        need_qg = need_qg .or. need_qg_20
+        need_any_diags = need_any_diags .or. need_qg_20
+        need_qg_30 = MPAS_field_will_be_written('qg_30hPa')
+        need_qg = need_qg .or. need_qg_30
+        need_any_diags = need_any_diags .or. need_qg_30
+        need_qg_50 = MPAS_field_will_be_written('qg_50hPa')
+        need_qg = need_qg .or. need_qg_50
+        need_any_diags = need_any_diags .or. need_qg_50
+        need_qg_70 = MPAS_field_will_be_written('qg_70hPa')
+        need_qg = need_qg .or. need_qg_70
+        need_any_diags = need_any_diags .or. need_qg_70
+        need_qg_100 = MPAS_field_will_be_written('qg_100hPa')
+        need_qg = need_qg .or. need_qg_100
+        need_any_diags = need_any_diags .or. need_qg_100
+        need_qg_150 = MPAS_field_will_be_written('qg_150hPa')
+        need_qg = need_qg .or. need_qg_150
+        need_any_diags = need_any_diags .or. need_qg_150
+        need_qg_200 = MPAS_field_will_be_written('qg_200hPa')
+        need_qg = need_qg .or. need_qg_200
+        need_any_diags = need_any_diags .or. need_qg_200
+        need_qg_250 = MPAS_field_will_be_written('qg_250hPa')
+        need_qg = need_qg .or. need_qg_250
+        need_any_diags = need_any_diags .or. need_qg_250
+        need_qg_300 = MPAS_field_will_be_written('qg_300hPa')
+        need_qg = need_qg .or. need_qg_300
+        need_any_diags = need_any_diags .or. need_qg_300
+        need_qg_400 = MPAS_field_will_be_written('qg_400hPa')
+        need_qg = need_qg .or. need_qg_400
+        need_any_diags = need_any_diags .or. need_qg_400
+        need_qg_500 = MPAS_field_will_be_written('qg_500hPa')
+        need_qg = need_qg .or. need_qg_500
+        need_any_diags = need_any_diags .or. need_qg_500
+        need_qg_600 = MPAS_field_will_be_written('qg_600hPa')
+        need_qg = need_qg .or. need_qg_600
+        need_any_diags = need_any_diags .or. need_qg_600
+        need_qg_700 = MPAS_field_will_be_written('qg_700hPa')
+        need_qg = need_qg .or. need_qg_700
+        need_any_diags = need_any_diags .or. need_qg_700
+        need_qg_825 = MPAS_field_will_be_written('qg_825hPa')
+        need_qg = need_qg .or. need_qg_825
+        need_any_diags = need_any_diags .or. need_qg_825
+        need_qg_850 = MPAS_field_will_be_written('qg_850hPa')
+        need_qg = need_qg .or. need_qg_850
+        need_any_diags = need_any_diags .or. need_qg_850
+        need_qg_875 = MPAS_field_will_be_written('qg_875hPa')
+        need_qg = need_qg .or. need_qg_875
+        need_any_diags = need_any_diags .or. need_qg_875
+        need_qg_900 = MPAS_field_will_be_written('qg_900hPa')
+        need_qg = need_qg .or. need_qg_900
+        need_any_diags = need_any_diags .or. need_qg_900
+        need_qg_925 = MPAS_field_will_be_written('qg_925hPa')
+        need_qg = need_qg .or. need_qg_925
+        need_any_diags = need_any_diags .or. need_qg_925
+        need_qg_950 = MPAS_field_will_be_written('qg_950hPa')
+        need_qg = need_qg .or. need_qg_950
+        need_any_diags = need_any_diags .or. need_qg_950
+        need_qg_975 = MPAS_field_will_be_written('qg_975hPa')
+        need_qg = need_qg .or. need_qg_975
+        need_any_diags = need_any_diags .or. need_qg_975
+        need_qg_1000 = MPAS_field_will_be_written('qg_1000hPa')
+        need_qg = need_qg .or. need_qg_1000
+        need_any_diags = need_any_diags .or. need_qg_1000
+
+        need_qi_15 = MPAS_field_will_be_written('qi_15hPa')
+        need_qi = need_qi .or. need_qi_15
+        need_any_diags = need_any_diags .or. need_qi_15
+        need_qi_20 = MPAS_field_will_be_written('qi_20hPa')
+        need_qi = need_qi .or. need_qi_20
+        need_any_diags = need_any_diags .or. need_qi_20
+        need_qi_30 = MPAS_field_will_be_written('qi_30hPa')
+        need_qi = need_qi .or. need_qi_30
+        need_any_diags = need_any_diags .or. need_qi_30
+        need_qi_50 = MPAS_field_will_be_written('qi_50hPa')
+        need_qi = need_qi .or. need_qi_50
+        need_any_diags = need_any_diags .or. need_qi_50
+        need_qi_70 = MPAS_field_will_be_written('qi_70hPa')
+        need_qi = need_qi .or. need_qi_70
+        need_any_diags = need_any_diags .or. need_qi_70
+        need_qi_100 = MPAS_field_will_be_written('qi_100hPa')
+        need_qi = need_qi .or. need_qi_100
+        need_any_diags = need_any_diags .or. need_qi_100
+        need_qi_150 = MPAS_field_will_be_written('qi_150hPa')
+        need_qi = need_qi .or. need_qi_150
+        need_any_diags = need_any_diags .or. need_qi_150
+        need_qi_200 = MPAS_field_will_be_written('qi_200hPa')
+        need_qi = need_qi .or. need_qi_200
+        need_any_diags = need_any_diags .or. need_qi_200
+        need_qi_250 = MPAS_field_will_be_written('qi_250hPa')
+        need_qi = need_qi .or. need_qi_250
+        need_any_diags = need_any_diags .or. need_qi_250
+        need_qi_300 = MPAS_field_will_be_written('qi_300hPa')
+        need_qi = need_qi .or. need_qi_300
+        need_any_diags = need_any_diags .or. need_qi_300
+        need_qi_400 = MPAS_field_will_be_written('qi_400hPa')
+        need_qi = need_qi .or. need_qi_400
+        need_any_diags = need_any_diags .or. need_qi_400
+        need_qi_500 = MPAS_field_will_be_written('qi_500hPa')
+        need_qi = need_qi .or. need_qi_500
+        need_any_diags = need_any_diags .or. need_qi_500
+        need_qi_600 = MPAS_field_will_be_written('qi_600hPa')
+        need_qi = need_qi .or. need_qi_600
+        need_any_diags = need_any_diags .or. need_qi_600
+        need_qi_700 = MPAS_field_will_be_written('qi_700hPa')
+        need_qi = need_qi .or. need_qi_700
+        need_any_diags = need_any_diags .or. need_qi_700
+        need_qi_825 = MPAS_field_will_be_written('qi_825hPa')
+        need_qi = need_qi .or. need_qi_825
+        need_any_diags = need_any_diags .or. need_qi_825
+        need_qi_850 = MPAS_field_will_be_written('qi_850hPa')
+        need_qi = need_qi .or. need_qi_850
+        need_any_diags = need_any_diags .or. need_qi_850
+        need_qi_875 = MPAS_field_will_be_written('qi_875hPa')
+        need_qi = need_qi .or. need_qi_875
+        need_any_diags = need_any_diags .or. need_qi_875
+        need_qi_900 = MPAS_field_will_be_written('qi_900hPa')
+        need_qi = need_qi .or. need_qi_900
+        need_any_diags = need_any_diags .or. need_qi_900
+        need_qi_925 = MPAS_field_will_be_written('qi_925hPa')
+        need_qi = need_qi .or. need_qi_925
+        need_any_diags = need_any_diags .or. need_qi_925
+        need_qi_950 = MPAS_field_will_be_written('qi_950hPa')
+        need_qi = need_qi .or. need_qi_950
+        need_any_diags = need_any_diags .or. need_qi_950
+        need_qi_975 = MPAS_field_will_be_written('qi_975hPa')
+        need_qi = need_qi .or. need_qi_975
+        need_any_diags = need_any_diags .or. need_qi_975
+        need_qi_1000 = MPAS_field_will_be_written('qi_1000hPa')
+        need_qi = need_qi .or. need_qi_1000
+        need_any_diags = need_any_diags .or. need_qi_1000
+
         need_vorticity_50 = MPAS_field_will_be_written('vorticity_50hPa')
         need_vorticity = need_vorticity .or. need_vorticity_50
         need_any_diags = need_any_diags .or. need_vorticity_50
@@ -1470,6 +1723,10 @@ module mpas_isobaric_diagnostics
         need_meanT_500_300 = MPAS_field_will_be_written('meanT_500_300')
         need_any_diags = need_any_diags .or. need_meanT_500_300
 
+!        print *, "mp_thompson2=", need_mp_thompson
+!        print *, "cu_grell_freitas2=", need_cu_grell_freitas
+!        print *, "bl_mynn2=", need_bl_mynn
+
         if (need_any_diags) then
             call interp_diagnostics(mesh, state, 1, diag, diag_physics, tend_physics)
         end if
@@ -1482,7 +1739,7 @@ module mpas_isobaric_diagnostics
    !==================================================================================================
 
        !input arguments:
-        type (mpas_pool_type), intent(in)  :: mesh
+        type (mpas_pool_type), intent(in) :: mesh
         type (mpas_pool_type), intent(in) :: state
         integer, intent(in) :: time_lev              ! which time level to use from state
        
@@ -1495,9 +1752,9 @@ module mpas_isobaric_diagnostics
         integer :: iCell,iVert,iVertD,k,kk
         integer, pointer :: nCells, nCellsSolve, nVertLevels, nVertices, vertexDegree, nIsoLevelsT, nIsoLevelsZ
         integer :: nVertLevelsP1
-        integer, pointer :: index_qv, index_ni, index_nr, num_scalars, index_qr, index_qs
+        integer, pointer :: index_qv, index_ni, index_nr, num_scalars, index_qr, index_qs, index_qc, index_qg, index_qi
         integer, dimension(:,:), pointer :: cellsOnVertex
-       
+
         type (field2DReal), pointer:: pressure_p_field
        
         real (kind=RKIND), dimension(:), pointer :: areaTriangle, latCell
@@ -1963,6 +2220,75 @@ module mpas_isobaric_diagnostics
         real (kind=RKIND), dimension(:), pointer :: qv_975hPa
         real (kind=RKIND), dimension(:), pointer :: qv_1000hPa
 
+        real (kind=RKIND), dimension(:), pointer :: qc_15hPa
+        real (kind=RKIND), dimension(:), pointer :: qc_20hPa
+        real (kind=RKIND), dimension(:), pointer :: qc_30hPa
+        real (kind=RKIND), dimension(:), pointer :: qc_50hPa
+        real (kind=RKIND), dimension(:), pointer :: qc_70hPa
+        real (kind=RKIND), dimension(:), pointer :: qc_100hPa
+        real (kind=RKIND), dimension(:), pointer :: qc_150hPa
+        real (kind=RKIND), dimension(:), pointer :: qc_200hPa
+        real (kind=RKIND), dimension(:), pointer :: qc_250hPa
+        real (kind=RKIND), dimension(:), pointer :: qc_300hPa
+        real (kind=RKIND), dimension(:), pointer :: qc_400hPa
+        real (kind=RKIND), dimension(:), pointer :: qc_500hPa
+        real (kind=RKIND), dimension(:), pointer :: qc_600hPa
+        real (kind=RKIND), dimension(:), pointer :: qc_700hPa
+        real (kind=RKIND), dimension(:), pointer :: qc_825hPa
+        real (kind=RKIND), dimension(:), pointer :: qc_850hPa
+        real (kind=RKIND), dimension(:), pointer :: qc_875hPa
+        real (kind=RKIND), dimension(:), pointer :: qc_900hPa
+        real (kind=RKIND), dimension(:), pointer :: qc_925hPa
+        real (kind=RKIND), dimension(:), pointer :: qc_950hPa
+        real (kind=RKIND), dimension(:), pointer :: qc_975hPa
+        real (kind=RKIND), dimension(:), pointer :: qc_1000hPa
+
+        real (kind=RKIND), dimension(:), pointer :: qg_15hPa
+        real (kind=RKIND), dimension(:), pointer :: qg_20hPa
+        real (kind=RKIND), dimension(:), pointer :: qg_30hPa
+        real (kind=RKIND), dimension(:), pointer :: qg_50hPa
+        real (kind=RKIND), dimension(:), pointer :: qg_70hPa
+        real (kind=RKIND), dimension(:), pointer :: qg_100hPa
+        real (kind=RKIND), dimension(:), pointer :: qg_150hPa
+        real (kind=RKIND), dimension(:), pointer :: qg_200hPa
+        real (kind=RKIND), dimension(:), pointer :: qg_250hPa
+        real (kind=RKIND), dimension(:), pointer :: qg_300hPa
+        real (kind=RKIND), dimension(:), pointer :: qg_400hPa
+        real (kind=RKIND), dimension(:), pointer :: qg_500hPa
+        real (kind=RKIND), dimension(:), pointer :: qg_600hPa
+        real (kind=RKIND), dimension(:), pointer :: qg_700hPa
+        real (kind=RKIND), dimension(:), pointer :: qg_825hPa
+        real (kind=RKIND), dimension(:), pointer :: qg_850hPa
+        real (kind=RKIND), dimension(:), pointer :: qg_875hPa
+        real (kind=RKIND), dimension(:), pointer :: qg_900hPa
+        real (kind=RKIND), dimension(:), pointer :: qg_925hPa
+        real (kind=RKIND), dimension(:), pointer :: qg_950hPa
+        real (kind=RKIND), dimension(:), pointer :: qg_975hPa
+        real (kind=RKIND), dimension(:), pointer :: qg_1000hPa
+
+        real (kind=RKIND), dimension(:), pointer :: qi_15hPa
+        real (kind=RKIND), dimension(:), pointer :: qi_20hPa
+        real (kind=RKIND), dimension(:), pointer :: qi_30hPa
+        real (kind=RKIND), dimension(:), pointer :: qi_50hPa
+        real (kind=RKIND), dimension(:), pointer :: qi_70hPa
+        real (kind=RKIND), dimension(:), pointer :: qi_100hPa
+        real (kind=RKIND), dimension(:), pointer :: qi_150hPa
+        real (kind=RKIND), dimension(:), pointer :: qi_200hPa
+        real (kind=RKIND), dimension(:), pointer :: qi_250hPa
+        real (kind=RKIND), dimension(:), pointer :: qi_300hPa
+        real (kind=RKIND), dimension(:), pointer :: qi_400hPa
+        real (kind=RKIND), dimension(:), pointer :: qi_500hPa
+        real (kind=RKIND), dimension(:), pointer :: qi_600hPa
+        real (kind=RKIND), dimension(:), pointer :: qi_700hPa
+        real (kind=RKIND), dimension(:), pointer :: qi_825hPa
+        real (kind=RKIND), dimension(:), pointer :: qi_850hPa
+        real (kind=RKIND), dimension(:), pointer :: qi_875hPa
+        real (kind=RKIND), dimension(:), pointer :: qi_900hPa
+        real (kind=RKIND), dimension(:), pointer :: qi_925hPa
+        real (kind=RKIND), dimension(:), pointer :: qi_950hPa
+        real (kind=RKIND), dimension(:), pointer :: qi_975hPa
+        real (kind=RKIND), dimension(:), pointer :: qi_1000hPa
+
         real (kind=RKIND), dimension(:), pointer :: vorticity_50hPa
         real (kind=RKIND), dimension(:), pointer :: vorticity_100hPa
         real (kind=RKIND), dimension(:), pointer :: vorticity_200hPa
@@ -2004,6 +2330,9 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_dimension(state, 'index_nr', index_nr)
         call mpas_pool_get_dimension(state, 'index_qr', index_qr)
         call mpas_pool_get_dimension(state, 'index_qs', index_qs)
+        call mpas_pool_get_dimension(state, 'index_qc', index_qc)
+        call mpas_pool_get_dimension(state, 'index_qg', index_qg)
+        call mpas_pool_get_dimension(state, 'index_qi', index_qi)
         call mpas_pool_get_dimension(state, 'num_scalars', num_scalars)
        
         nVertLevelsP1 = nVertLevels + 1
@@ -2490,6 +2819,75 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_array(diag, 'qv_975hPa', qv_975hPa)
         call mpas_pool_get_array(diag, 'qv_1000hPa', qv_1000hPa)
 
+        call mpas_pool_get_array(diag, 'qc_15hPa', qc_15hPa)
+        call mpas_pool_get_array(diag, 'qc_20hPa', qc_20hPa)
+        call mpas_pool_get_array(diag, 'qc_30hPa', qc_30hPa)
+        call mpas_pool_get_array(diag, 'qc_50hPa', qc_50hPa)
+        call mpas_pool_get_array(diag, 'qc_70hPa', qc_70hPa)
+        call mpas_pool_get_array(diag, 'qc_100hPa', qc_100hPa)
+        call mpas_pool_get_array(diag, 'qc_150hPa', qc_150hPa)
+        call mpas_pool_get_array(diag, 'qc_200hPa', qc_200hPa)
+        call mpas_pool_get_array(diag, 'qc_250hPa', qc_250hPa)
+        call mpas_pool_get_array(diag, 'qc_300hPa', qc_300hPa)
+        call mpas_pool_get_array(diag, 'qc_400hPa', qc_400hPa)
+        call mpas_pool_get_array(diag, 'qc_500hPa', qc_500hPa)
+        call mpas_pool_get_array(diag, 'qc_600hPa', qc_600hPa)
+        call mpas_pool_get_array(diag, 'qc_700hPa', qc_700hPa)
+        call mpas_pool_get_array(diag, 'qc_825hPa', qc_825hPa)
+        call mpas_pool_get_array(diag, 'qc_850hPa', qc_850hPa)
+        call mpas_pool_get_array(diag, 'qc_875hPa', qc_875hPa)
+        call mpas_pool_get_array(diag, 'qc_900hPa', qc_900hPa)
+        call mpas_pool_get_array(diag, 'qc_925hPa', qc_925hPa)
+        call mpas_pool_get_array(diag, 'qc_950hPa', qc_950hPa)
+        call mpas_pool_get_array(diag, 'qc_975hPa', qc_975hPa)
+        call mpas_pool_get_array(diag, 'qc_1000hPa', qc_1000hPa)
+
+        call mpas_pool_get_array(diag, 'qg_15hPa', qg_15hPa)
+        call mpas_pool_get_array(diag, 'qg_20hPa', qg_20hPa)
+        call mpas_pool_get_array(diag, 'qg_30hPa', qg_30hPa)
+        call mpas_pool_get_array(diag, 'qg_50hPa', qg_50hPa)
+        call mpas_pool_get_array(diag, 'qg_70hPa', qg_70hPa)
+        call mpas_pool_get_array(diag, 'qg_100hPa', qg_100hPa)
+        call mpas_pool_get_array(diag, 'qg_150hPa', qg_150hPa)
+        call mpas_pool_get_array(diag, 'qg_200hPa', qg_200hPa)
+        call mpas_pool_get_array(diag, 'qg_250hPa', qg_250hPa)
+        call mpas_pool_get_array(diag, 'qg_300hPa', qg_300hPa)
+        call mpas_pool_get_array(diag, 'qg_400hPa', qg_400hPa)
+        call mpas_pool_get_array(diag, 'qg_500hPa', qg_500hPa)
+        call mpas_pool_get_array(diag, 'qg_600hPa', qg_600hPa)
+        call mpas_pool_get_array(diag, 'qg_700hPa', qg_700hPa)
+        call mpas_pool_get_array(diag, 'qg_825hPa', qg_825hPa)
+        call mpas_pool_get_array(diag, 'qg_850hPa', qg_850hPa)
+        call mpas_pool_get_array(diag, 'qg_875hPa', qg_875hPa)
+        call mpas_pool_get_array(diag, 'qg_900hPa', qg_900hPa)
+        call mpas_pool_get_array(diag, 'qg_925hPa', qg_925hPa)
+        call mpas_pool_get_array(diag, 'qg_950hPa', qg_950hPa)
+        call mpas_pool_get_array(diag, 'qg_975hPa', qg_975hPa)
+        call mpas_pool_get_array(diag, 'qg_1000hPa', qg_1000hPa)
+
+        call mpas_pool_get_array(diag, 'qi_15hPa', qi_15hPa)
+        call mpas_pool_get_array(diag, 'qi_20hPa', qi_20hPa)
+        call mpas_pool_get_array(diag, 'qi_30hPa', qi_30hPa)
+        call mpas_pool_get_array(diag, 'qi_50hPa', qi_50hPa)
+        call mpas_pool_get_array(diag, 'qi_70hPa', qi_70hPa)
+        call mpas_pool_get_array(diag, 'qi_100hPa', qi_100hPa)
+        call mpas_pool_get_array(diag, 'qi_150hPa', qi_150hPa)
+        call mpas_pool_get_array(diag, 'qi_200hPa', qi_200hPa)
+        call mpas_pool_get_array(diag, 'qi_250hPa', qi_250hPa)
+        call mpas_pool_get_array(diag, 'qi_300hPa', qi_300hPa)
+        call mpas_pool_get_array(diag, 'qi_400hPa', qi_400hPa)
+        call mpas_pool_get_array(diag, 'qi_500hPa', qi_500hPa)
+        call mpas_pool_get_array(diag, 'qi_600hPa', qi_600hPa)
+        call mpas_pool_get_array(diag, 'qi_700hPa', qi_700hPa)
+        call mpas_pool_get_array(diag, 'qi_825hPa', qi_825hPa)
+        call mpas_pool_get_array(diag, 'qi_850hPa', qi_850hPa)
+        call mpas_pool_get_array(diag, 'qi_875hPa', qi_875hPa)
+        call mpas_pool_get_array(diag, 'qi_900hPa', qi_900hPa)
+        call mpas_pool_get_array(diag, 'qi_925hPa', qi_925hPa)
+        call mpas_pool_get_array(diag, 'qi_950hPa', qi_950hPa)
+        call mpas_pool_get_array(diag, 'qi_975hPa', qi_975hPa)
+        call mpas_pool_get_array(diag, 'qi_1000hPa', qi_1000hPa)
+
         call mpas_pool_get_array(diag, 'vorticity_50hPa', vorticity_50hPa)
         call mpas_pool_get_array(diag, 'vorticity_100hPa', vorticity_100hPa)
         call mpas_pool_get_array(diag, 'vorticity_200hPa', vorticity_200hPa)
@@ -2687,74 +3085,82 @@ module mpas_isobaric_diagnostics
             ! call mpas_log_write('--- end interpolate temperature:')
         end if
 
-        if (NEED_NI) then
-           !... ni:
-            do iCell = 1, nCells
-            do k = 1, nVertLevels
-               kk = nVertLevels+1-k
-               field_in(iCell,kk) = scalars(index_ni,k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+!        print *, "mp_thompson3=", need_mp_thompson
+!        print *, "cu_grell_freitas3=", need_cu_grell_freitas
+!        print *, "bl_mynn3=", need_bl_mynn
 
-            ni_15hPa(1:nCells) = field_interp(1:nCells,1)
-            ni_20hPa(1:nCells) = field_interp(1:nCells,2)
-            ni_30hPa(1:nCells) = field_interp(1:nCells,3)
-            ni_50hPa(1:nCells) = field_interp(1:nCells,4)
-            ni_70hPa(1:nCells) = field_interp(1:nCells,5)
-            ni_100hPa(1:nCells) = field_interp(1:nCells,6)
-            ni_150hPa(1:nCells) = field_interp(1:nCells,7)
-            ni_200hPa(1:nCells) = field_interp(1:nCells,8)
-            ni_250hPa(1:nCells) = field_interp(1:nCells,9)
-            ni_300hPa(1:nCells) = field_interp(1:nCells,10)
-            ni_400hPa(1:nCells) = field_interp(1:nCells,11)
-            ni_500hPa(1:nCells) = field_interp(1:nCells,12)
-            ni_600hPa(1:nCells) = field_interp(1:nCells,13)
-            ni_700hPa(1:nCells) = field_interp(1:nCells,14)
-            ni_825hPa(1:nCells) = field_interp(1:nCells,15)
-            ni_850hPa(1:nCells) = field_interp(1:nCells,16)
-            ni_875hPa(1:nCells) = field_interp(1:nCells,17)
-            ni_900hPa(1:nCells) = field_interp(1:nCells,18)
-            ni_925hPa(1:nCells) = field_interp(1:nCells,19)
-            ni_950hPa(1:nCells) = field_interp(1:nCells,20)
-            ni_975hPa(1:nCells) = field_interp(1:nCells,21)
-            ni_1000hPa(1:nCells) = field_interp(1:nCells,22)
-            ! call mpas_log_write('--- end interpolate ni:')
+        if (need_mp_thompson .eqv. .true. .or. need_bl_mynn .eqv. .true.) then
+            if (NEED_NI) then
+               !... ni:
+                do iCell = 1, nCells
+                do k = 1, nVertLevels
+                   kk = nVertLevels+1-k
+                   field_in(iCell,kk) = scalars(index_ni,k,iCell)
+                enddo
+                enddo
+                call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+    
+                ni_15hPa(1:nCells) = field_interp(1:nCells,1)
+                ni_20hPa(1:nCells) = field_interp(1:nCells,2)
+                ni_30hPa(1:nCells) = field_interp(1:nCells,3)
+                ni_50hPa(1:nCells) = field_interp(1:nCells,4)
+                ni_70hPa(1:nCells) = field_interp(1:nCells,5)
+                ni_100hPa(1:nCells) = field_interp(1:nCells,6)
+                ni_150hPa(1:nCells) = field_interp(1:nCells,7)
+                ni_200hPa(1:nCells) = field_interp(1:nCells,8)
+                ni_250hPa(1:nCells) = field_interp(1:nCells,9)
+                ni_300hPa(1:nCells) = field_interp(1:nCells,10)
+                ni_400hPa(1:nCells) = field_interp(1:nCells,11)
+                ni_500hPa(1:nCells) = field_interp(1:nCells,12)
+                ni_600hPa(1:nCells) = field_interp(1:nCells,13)
+                ni_700hPa(1:nCells) = field_interp(1:nCells,14)
+                ni_825hPa(1:nCells) = field_interp(1:nCells,15)
+                ni_850hPa(1:nCells) = field_interp(1:nCells,16)
+                ni_875hPa(1:nCells) = field_interp(1:nCells,17)
+                ni_900hPa(1:nCells) = field_interp(1:nCells,18)
+                ni_925hPa(1:nCells) = field_interp(1:nCells,19)
+                ni_950hPa(1:nCells) = field_interp(1:nCells,20)
+                ni_975hPa(1:nCells) = field_interp(1:nCells,21)
+                ni_1000hPa(1:nCells) = field_interp(1:nCells,22)
+                ! call mpas_log_write('--- end interpolate ni:')
+            end if
         end if
 
-        if (NEED_NR) then
-           !... nr:
-            do iCell = 1, nCells
-            do k = 1, nVertLevels
-               kk = nVertLevels+1-k
-               field_in(iCell,kk) = scalars(index_nr,k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
-
-            nr_15hPa(1:nCells) = field_interp(1:nCells,1)
-            nr_20hPa(1:nCells) = field_interp(1:nCells,2)
-            nr_30hPa(1:nCells) = field_interp(1:nCells,3)
-            nr_50hPa(1:nCells) = field_interp(1:nCells,4)
-            nr_70hPa(1:nCells) = field_interp(1:nCells,5)
-            nr_100hPa(1:nCells) = field_interp(1:nCells,6)
-            nr_150hPa(1:nCells) = field_interp(1:nCells,7)
-            nr_200hPa(1:nCells) = field_interp(1:nCells,8)
-            nr_250hPa(1:nCells) = field_interp(1:nCells,9)
-            nr_300hPa(1:nCells) = field_interp(1:nCells,10)
-            nr_400hPa(1:nCells) = field_interp(1:nCells,11)
-            nr_500hPa(1:nCells) = field_interp(1:nCells,12)
-            nr_600hPa(1:nCells) = field_interp(1:nCells,13)
-            nr_700hPa(1:nCells) = field_interp(1:nCells,14)
-            nr_825hPa(1:nCells) = field_interp(1:nCells,15)
-            nr_850hPa(1:nCells) = field_interp(1:nCells,16)
-            nr_875hPa(1:nCells) = field_interp(1:nCells,17)
-            nr_900hPa(1:nCells) = field_interp(1:nCells,18)
-            nr_925hPa(1:nCells) = field_interp(1:nCells,19)
-            nr_950hPa(1:nCells) = field_interp(1:nCells,20)
-            nr_975hPa(1:nCells) = field_interp(1:nCells,21)
-            nr_1000hPa(1:nCells) = field_interp(1:nCells,22)
-            ! call mpas_log_write('--- end interpolate nr:')
+        if (need_mp_thompson .eqv. .true.) then
+            if (NEED_NR) then
+               !... nr:
+                do iCell = 1, nCells
+                do k = 1, nVertLevels
+                   kk = nVertLevels+1-k
+                   field_in(iCell,kk) = scalars(index_nr,k,iCell)
+                enddo
+                enddo
+                call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+    
+                nr_15hPa(1:nCells) = field_interp(1:nCells,1)
+                nr_20hPa(1:nCells) = field_interp(1:nCells,2)
+                nr_30hPa(1:nCells) = field_interp(1:nCells,3)
+                nr_50hPa(1:nCells) = field_interp(1:nCells,4)
+                nr_70hPa(1:nCells) = field_interp(1:nCells,5)
+                nr_100hPa(1:nCells) = field_interp(1:nCells,6)
+                nr_150hPa(1:nCells) = field_interp(1:nCells,7)
+                nr_200hPa(1:nCells) = field_interp(1:nCells,8)
+                nr_250hPa(1:nCells) = field_interp(1:nCells,9)
+                nr_300hPa(1:nCells) = field_interp(1:nCells,10)
+                nr_400hPa(1:nCells) = field_interp(1:nCells,11)
+                nr_500hPa(1:nCells) = field_interp(1:nCells,12)
+                nr_600hPa(1:nCells) = field_interp(1:nCells,13)
+                nr_700hPa(1:nCells) = field_interp(1:nCells,14)
+                nr_825hPa(1:nCells) = field_interp(1:nCells,15)
+                nr_850hPa(1:nCells) = field_interp(1:nCells,16)
+                nr_875hPa(1:nCells) = field_interp(1:nCells,17)
+                nr_900hPa(1:nCells) = field_interp(1:nCells,18)
+                nr_925hPa(1:nCells) = field_interp(1:nCells,19)
+                nr_950hPa(1:nCells) = field_interp(1:nCells,20)
+                nr_975hPa(1:nCells) = field_interp(1:nCells,21)
+                nr_1000hPa(1:nCells) = field_interp(1:nCells,22)
+                ! call mpas_log_write('--- end interpolate nr:')
+            end if
         end if
 
         if (NEED_QR) then
@@ -2860,6 +3266,112 @@ module mpas_isobaric_diagnostics
             qv_975hPa(1:nCells) = field_interp(1:nCells,21)
             qv_1000hPa(1:nCells) = field_interp(1:nCells,22)
             ! call mpas_log_write('--- end interpolate qv:')
+        end if
+
+        if (NEED_QC) then
+           !... qc:
+            do iCell = 1, nCells
+            do k = 1, nVertLevels
+               kk = nVertLevels+1-k
+               field_in(iCell,kk) = scalars(index_qc,k,iCell)
+!               field_in(iCell,kk) = 1.
+            enddo
+            enddo
+            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+
+            qc_15hPa(1:nCells) = field_interp(1:nCells,1)
+            qc_20hPa(1:nCells) = field_interp(1:nCells,2)
+            qc_30hPa(1:nCells) = field_interp(1:nCells,3)
+            qc_50hPa(1:nCells) = field_interp(1:nCells,4)
+            qc_70hPa(1:nCells) = field_interp(1:nCells,5)
+            qc_100hPa(1:nCells) = field_interp(1:nCells,6)
+            qc_150hPa(1:nCells) = field_interp(1:nCells,7)
+            qc_200hPa(1:nCells) = field_interp(1:nCells,8)
+            qc_250hPa(1:nCells) = field_interp(1:nCells,9)
+            qc_300hPa(1:nCells) = field_interp(1:nCells,10)
+            qc_400hPa(1:nCells) = field_interp(1:nCells,11)
+            qc_500hPa(1:nCells) = field_interp(1:nCells,12)
+            qc_600hPa(1:nCells) = field_interp(1:nCells,13)
+            qc_700hPa(1:nCells) = field_interp(1:nCells,14)
+            qc_825hPa(1:nCells) = field_interp(1:nCells,15)
+            qc_850hPa(1:nCells) = field_interp(1:nCells,16)
+            qc_875hPa(1:nCells) = field_interp(1:nCells,17)
+            qc_900hPa(1:nCells) = field_interp(1:nCells,18)
+            qc_925hPa(1:nCells) = field_interp(1:nCells,19)
+            qc_950hPa(1:nCells) = field_interp(1:nCells,20)
+            qc_975hPa(1:nCells) = field_interp(1:nCells,21)
+            qc_1000hPa(1:nCells) = field_interp(1:nCells,22)
+            ! call mpas_log_write('--- end interpolate qc:')
+        end if
+
+        if (NEED_QG) then
+           !... qg:
+            do iCell = 1, nCells
+            do k = 1, nVertLevels
+               kk = nVertLevels+1-k
+               field_in(iCell,kk) = scalars(index_qg,k,iCell)
+            enddo
+            enddo
+            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+
+            qg_15hPa(1:nCells) = field_interp(1:nCells,1)
+            qg_20hPa(1:nCells) = field_interp(1:nCells,2)
+            qg_30hPa(1:nCells) = field_interp(1:nCells,3)
+            qg_50hPa(1:nCells) = field_interp(1:nCells,4)
+            qg_70hPa(1:nCells) = field_interp(1:nCells,5)
+            qg_100hPa(1:nCells) = field_interp(1:nCells,6)
+            qg_150hPa(1:nCells) = field_interp(1:nCells,7)
+            qg_200hPa(1:nCells) = field_interp(1:nCells,8)
+            qg_250hPa(1:nCells) = field_interp(1:nCells,9)
+            qg_300hPa(1:nCells) = field_interp(1:nCells,10)
+            qg_400hPa(1:nCells) = field_interp(1:nCells,11)
+            qg_500hPa(1:nCells) = field_interp(1:nCells,12)
+            qg_600hPa(1:nCells) = field_interp(1:nCells,13)
+            qg_700hPa(1:nCells) = field_interp(1:nCells,14)
+            qg_825hPa(1:nCells) = field_interp(1:nCells,15)
+            qg_850hPa(1:nCells) = field_interp(1:nCells,16)
+            qg_875hPa(1:nCells) = field_interp(1:nCells,17)
+            qg_900hPa(1:nCells) = field_interp(1:nCells,18)
+            qg_925hPa(1:nCells) = field_interp(1:nCells,19)
+            qg_950hPa(1:nCells) = field_interp(1:nCells,20)
+            qg_975hPa(1:nCells) = field_interp(1:nCells,21)
+            qg_1000hPa(1:nCells) = field_interp(1:nCells,22)
+            ! call mpas_log_write('--- end interpolate qg:')
+        end if
+
+        if (NEED_QI) then
+           !... qi:
+            do iCell = 1, nCells
+            do k = 1, nVertLevels
+               kk = nVertLevels+1-k
+               field_in(iCell,kk) = scalars(index_qi,k,iCell)
+            enddo
+            enddo
+            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+
+            qi_15hPa(1:nCells) = field_interp(1:nCells,1)
+            qi_20hPa(1:nCells) = field_interp(1:nCells,2)
+            qi_30hPa(1:nCells) = field_interp(1:nCells,3)
+            qi_50hPa(1:nCells) = field_interp(1:nCells,4)
+            qi_70hPa(1:nCells) = field_interp(1:nCells,5)
+            qi_100hPa(1:nCells) = field_interp(1:nCells,6)
+            qi_150hPa(1:nCells) = field_interp(1:nCells,7)
+            qi_200hPa(1:nCells) = field_interp(1:nCells,8)
+            qi_250hPa(1:nCells) = field_interp(1:nCells,9)
+            qi_300hPa(1:nCells) = field_interp(1:nCells,10)
+            qi_400hPa(1:nCells) = field_interp(1:nCells,11)
+            qi_500hPa(1:nCells) = field_interp(1:nCells,12)
+            qi_600hPa(1:nCells) = field_interp(1:nCells,13)
+            qi_700hPa(1:nCells) = field_interp(1:nCells,14)
+            qi_825hPa(1:nCells) = field_interp(1:nCells,15)
+            qi_850hPa(1:nCells) = field_interp(1:nCells,16)
+            qi_875hPa(1:nCells) = field_interp(1:nCells,17)
+            qi_900hPa(1:nCells) = field_interp(1:nCells,18)
+            qi_925hPa(1:nCells) = field_interp(1:nCells,19)
+            qi_950hPa(1:nCells) = field_interp(1:nCells,20)
+            qi_975hPa(1:nCells) = field_interp(1:nCells,21)
+            qi_1000hPa(1:nCells) = field_interp(1:nCells,22)
+            ! call mpas_log_write('--- end interpolate qi:')
         end if
 
         if (NEED_RQVBLTEN) then
