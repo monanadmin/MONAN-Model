@@ -1162,7 +1162,7 @@
         <var name="qr_1000hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
              description="Rain number concentration vertically interpolated to 1000s hPa"/>
 
-             <var name="qs_15hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+        <var name="qs_15hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
              description="Rain number concentration vertically interpolated to 15 hPa"/>
 
         <var name="qs_20hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
@@ -1228,7 +1228,7 @@
         <var name="qs_1000hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
              description="Rain number concentration vertically interpolated to 1000s hPa"/>
 
-             <var name="qv_15hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+        <var name="qv_15hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
              description="Rain number concentration vertically interpolated to 15 hPa"/>
 
         <var name="qv_20hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
@@ -1293,6 +1293,204 @@
 
         <var name="qv_1000hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
              description="Rain number concentration vertically interpolated to 1000s hPa"/>
+
+        <var name="qc_15hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Cloud water mixing ratio vertically interpolated to 15 hPa"/>
+
+        <var name="qc_20hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Cloud water mixing ratio vertically interpolated to 20 hPa"/>
+
+        <var name="qc_30hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Cloud water mixing ratio vertically interpolated to 30 hPa"/>
+
+        <var name="qc_50hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Cloud water mixing ratio vertically interpolated to 50 hPa"/>
+
+        <var name="qc_70hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Cloud water mixing ratio vertically interpolated to 70 hPa"/>
+
+        <var name="qc_100hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Cloud water mixing ratio vertically interpolated to 100 hPa"/>
+
+        <var name="qc_150hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Cloud water mixing ratio vertically interpolated to 150 hPa"/>
+
+        <var name="qc_200hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Cloud water mixing ratio vertically interpolated to 200 hPa"/>
+
+        <var name="qc_250hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Cloud water mixing ratio vertically interpolated to 250 hPa"/>
+
+        <var name="qc_300hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Cloud water mixing ratio vertically interpolated to 300 hPa"/>
+
+        <var name="qc_400hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Cloud water mixing ratio vertically interpolated to 400 hPa"/>
+
+        <var name="qc_500hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Cloud water mixing ratio vertically interpolated to 500 hPa"/>
+
+        <var name="qc_600hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Cloud water mixing ratio vertically interpolated to 600 hPa"/>
+
+        <var name="qc_700hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Cloud water mixing ratio vertically interpolated to 700 hPa"/>
+
+        <var name="qc_825hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Cloud water mixing ratio vertically interpolated to 825 hPa"/>
+
+        <var name="qc_850hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Cloud water mixing ratio vertically interpolated to 850 hPa"/>
+
+        <var name="qc_875hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Cloud water mixing ratio vertically interpolated to 875 hPa"/>
+
+        <var name="qc_900hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Cloud water mixing ratio vertically interpolated to 900 hPa"/>
+
+        <var name="qc_925hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Cloud water mixing ratio vertically interpolated to 925 hPa"/>
+
+        <var name="qc_950hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Cloud water mixing ratio vertically interpolated to 950 hPa"/>
+
+        <var name="qc_975hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Cloud water mixing ratio vertically interpolated to 975 hPa"/>
+
+        <var name="qc_1000hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Cloud water mixing ratio vertically interpolated to 1000s hPa"/>
+
+        <var name="qg_15hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Graupel mixing ratio vertically interpolated to 15 hPa"/>
+
+        <var name="qg_20hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Graupel mixing ratio vertically interpolated to 20 hPa"/>
+
+        <var name="qg_30hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Graupel mixing ratio vertically interpolated to 30 hPa"/>
+
+        <var name="qg_50hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Graupel mixing ratio vertically interpolated to 50 hPa"/>
+
+        <var name="qg_70hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Graupel mixing ratio vertically interpolated to 70 hPa"/>
+
+        <var name="qg_100hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Graupel mixing ratio vertically interpolated to 100 hPa"/>
+
+        <var name="qg_150hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Graupel mixing ratio vertically interpolated to 150 hPa"/>
+
+        <var name="qg_200hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Graupel mixing ratio vertically interpolated to 200 hPa"/>
+
+        <var name="qg_250hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Graupel mixing ratio vertically interpolated to 250 hPa"/>
+
+        <var name="qg_300hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Graupel mixing ratio vertically interpolated to 300 hPa"/>
+
+        <var name="qg_400hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Graupel mixing ratio vertically interpolated to 400 hPa"/>
+
+        <var name="qg_500hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Graupel mixing ratio vertically interpolated to 500 hPa"/>
+
+        <var name="qg_600hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Graupel mixing ratio vertically interpolated to 600 hPa"/>
+
+        <var name="qg_700hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Graupel mixing ratio vertically interpolated to 700 hPa"/>
+
+        <var name="qg_825hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Graupel mixing ratio vertically interpolated to 825 hPa"/>
+
+        <var name="qg_850hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Graupel mixing ratio vertically interpolated to 850 hPa"/>
+
+        <var name="qg_875hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Graupel mixing ratio vertically interpolated to 875 hPa"/>
+
+        <var name="qg_900hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Graupel mixing ratio vertically interpolated to 900 hPa"/>
+
+        <var name="qg_925hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Graupel mixing ratio vertically interpolated to 925 hPa"/>
+
+        <var name="qg_950hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Graupel mixing ratio vertically interpolated to 950 hPa"/>
+
+        <var name="qg_975hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Graupel mixing ratio vertically interpolated to 975 hPa"/>
+
+        <var name="qg_1000hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Graupel mixing ratio vertically interpolated to 1000s hPa"/>
+
+        <var name="qi_15hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Ice mixing ratio vertically interpolated to 15 hPa"/>
+
+        <var name="qi_20hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Ice mixing ratio vertically interpolated to 20 hPa"/>
+
+        <var name="qi_30hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Ice mixing ratio vertically interpolated to 30 hPa"/>
+
+        <var name="qi_50hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Ice mixing ratio vertically interpolated to 50 hPa"/>
+
+        <var name="qi_70hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Ice mixing ratio vertically interpolated to 70 hPa"/>
+
+        <var name="qi_100hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Ice mixing ratio vertically interpolated to 100 hPa"/>
+
+        <var name="qi_150hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Ice mixing ratio vertically interpolated to 150 hPa"/>
+
+        <var name="qi_200hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Ice mixing ratio vertically interpolated to 200 hPa"/>
+
+        <var name="qi_250hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Ice mixing ratio vertically interpolated to 250 hPa"/>
+
+        <var name="qi_300hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Ice mixing ratio vertically interpolated to 300 hPa"/>
+
+        <var name="qi_400hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Ice mixing ratio vertically interpolated to 400 hPa"/>
+
+        <var name="qi_500hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Ice mixing ratio vertically interpolated to 500 hPa"/>
+
+        <var name="qi_600hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Ice mixing ratio vertically interpolated to 600 hPa"/>
+
+        <var name="qi_700hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Ice mixing ratio vertically interpolated to 700 hPa"/>
+
+        <var name="qi_825hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Ice mixing ratio vertically interpolated to 825 hPa"/>
+
+        <var name="qi_850hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Ice mixing ratio vertically interpolated to 850 hPa"/>
+
+        <var name="qi_875hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Ice mixing ratio vertically interpolated to 875 hPa"/>
+
+        <var name="qi_900hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Ice mixing ratio vertically interpolated to 900 hPa"/>
+
+        <var name="qi_925hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Ice mixing ratio vertically interpolated to 925 hPa"/>
+
+        <var name="qi_950hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Ice mixing ratio vertically interpolated to 950 hPa"/>
+
+        <var name="qi_975hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Ice mixing ratio vertically interpolated to 975 hPa"/>
+
+        <var name="qi_1000hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
+             description="Ice mixing ratio vertically interpolated to 1000s hPa"/>
 
         <var name="vorticity_50hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
              description="Relative vorticity vertically interpolated to 50 hPa"/>
