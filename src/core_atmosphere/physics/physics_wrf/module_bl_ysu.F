@@ -391,10 +391,10 @@
       call bl_ysu_run(ux=u3d_hv,vx=v3d_hv                                      &
               ,tx=t3d_hv                                                       &
               ,qvx=qv3d_hv,qcx=qc3d_hv,qix=qi3d_hv                             &
-              ,f_qc=flag_qc,f_qi=flag_qi                                       &
               ,nmix=nmix,qmix=qmix_hv                                          &
               ,p2d=p3d_hv,p2di=p3di_hv                                         &
               ,pi2d=pi3d_hv                                                    &
+              ,f_qc=flag_qc,f_qi=flag_qi                                       & !PK: correct position
               ,utnp=rublten_hv,vtnp=rvblten_hv                                 &
               ,ttnp=rthblten_hv,qvtnp=rqvblten_hv                              &
               ,qctnp=rqcblten_hv,qitnp=rqiblten_hv                             &
