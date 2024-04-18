@@ -1370,7 +1370,7 @@
  real(kind=RKIND),dimension(:,:,:),pointer:: scalars
 
 !local variables and arrays for the 'cu_gf_monan':
- integer:: i,k,j
+ integer:: i,k,j,k_amb_wind
  real(kind=RKIND),parameter:: alp = 0.5                      ! semi-implicit, 1=explicit
  real(kind=RKIND),parameter:: tau_cloud_diss0 = 1.0e-3       ! seconds^(-1)
  real(kind=RKIND),parameter:: width  = 1000.                 ! meters
@@ -1378,8 +1378,11 @@
  real(kind=RKIND),parameter:: Kfr = 0.9                      ! internal Froude number 
  real(kind=RKIND),parameter:: epsx = 100.                    ! threshold 
  real(kind=RKIND),parameter:: slope_pool = 45.*(3.1416/180.) ! using mean value of Reif et al 2020
+ real(kind=RKIND),parameter:: startlev = 1000.               ! meters above local surface
+ real(kind=RKIND),parameter:: endlev   = 4000.               ! meters above local surface
+
  real(kind=RKIND):: vert_scale_diss,tau_cloud_diss,htopx,snk,src,tau_cp,denom 
- real(kind=RKIND):: total_dz,H_env,gama,temp, rvap, press, qes
+ real(kind=RKIND):: total_dz,H_env,gama,temp, rvap, press, qes, zlevel, dzrho, aux, MCL_speed
 !-----------------------------------------------------------------------------------------------------------------
 
  call mpas_pool_get_config(configs,'config_bucket_rainc',bucket_rainc)
@@ -1420,22 +1423,22 @@
               htopx = zgrid(1,i) !- local terrain
               do k = kts,kte
                 !-- this goes from 1 to 0.1 as the height goes from the local surface height to the upper levels
-                vert_scale_diss = 1./(1.5+atan(2.*(zgrid(k,i) - htopx - turncf)/width))/3.      
-                vert_scale_diss = max(min (vert_scale_diss,1.) , 0.1) ! = 1. to turn off vertical variation
-                tau_cloud_diss = 1./(vert_scale_diss*tau_cloud_diss0)
+                vert_scale_diss = 1._RKIND/(1.5_RKIND+atan(2._RKIND*(zgrid(k,i) - htopx - turncf)/width))/3.      
+                vert_scale_diss = max(min (vert_scale_diss,1.) , 0.1_RKIND) ! = 1. to turn off vertical variation
+                tau_cloud_diss = 1._RKIND/(vert_scale_diss*tau_cloud_diss0)
                 
                 !---- sink term for cloud fraction
-                snk = dt_dyn * (1./tau_cloud_diss) * (1.0 - 0.01*rh(k,i)) * abs(cnvcf(k,i))
+                snk = dt_dyn * (1._RKIND/tau_cloud_diss) * (1.0_RKIND - 0.01_RKIND*rh(k,i)) * abs(cnvcf(k,i))
  
                 !---- source term for cloud fraction
                 src = dt_dyn * rcnvcfcuten(k,i)
  
                 !- using semi-impl formulation;
                 !- f(t+dt)  = ( f(t) - (dt/tau)* (alp* f(t)) ] / (1+(dt/tau)* (1-alp))
-                denom = 1. + (1.-alp)*src + (1.-alp)*(1.-0.01*rh(k,i))*dt_dyn/tau_cloud_diss
+                denom = 1._RKIND + (1._RKIND-alp)*src + (1.-alp)*(1._RKIND-0.01_RKIND*rh(k,i))*dt_dyn/tau_cloud_diss
 
                 !---- update cnvcf
-                cnvcf(k,i) = ( cnvcf(k,i) - alp*snk + (1.-alp*cnvcf(k,i))*src )/denom
+                cnvcf(k,i) = ( cnvcf(k,i) - alp*snk + (1._RKIND-alp*cnvcf(k,i))*src )/denom
                 
                 !---- fuly explicit (Tiedtke 1993)
                 !cnvcf(k,i) = cnvcf(k,i) + (1.-cnvcf(k,i))*src - snk
@@ -1445,7 +1448,7 @@
                 !cnvcf(k,i) = cnvcf(k,i) + (1.-cnvcf(k,i)*src - snk
 
                !---- sanity check for the cloud fraction
-                cnvcf(k,i) = min(1.0, max(0., cnvcf(k,i)))
+                cnvcf(k,i) = min(1.0_RKIND, max(0._RKIND, cnvcf(k,i)))
              enddo
           enddo
 
@@ -1457,12 +1460,13 @@
           buoyx => scalars(index_buoyx,:,:)
           call mpas_pool_get_array(tend_physics,'rbuoyxcuten',rbuoyxcuten)
           call mpas_pool_get_array(sfc_input,'xland' ,xland )
- 
+          call mpas_pool_get_array(mesh,     'zgrid' ,zgrid )
+
           do i = its,ite
              !<var name="xland" type="real" dimensions="nCells Time" units="unitless"
              !description="land-ocean mask (1=land including sea-ice ; 2=ocean)"/>
-             if(xland(i) < 1.5 ) tau_cp = tau_land_cp
-             if(xland(i) > 1.5 ) tau_cp = tau_ocea_cp
+             if(xland(i) < 1.5_RKIND ) tau_cp = tau_land_cp
+             if(xland(i) > 1.5_RKIND ) tau_cp = tau_ocea_cp
 
               do k = kts,kte                
                 !---- sink term for the buoyancy excess
@@ -1473,10 +1477,10 @@
                 
                 !- using semi-impl formulation;
                 !- f(t+dt)  = ( f(t) - (dt/tau)* (alp* f(t)) ] / (1+(dt/tau)* (1-alp))
-                buoyx(k,i) = (buoyx(k,i) + src - snk) / (1. + (dt_dyn/tau_cp)*(1.-alp))
+                buoyx(k,i) = (buoyx(k,i) + src - snk) / (1._RKIND + (dt_dyn/tau_cp)*(1._RKIND-alp))
                
                 !---- sanity check for the buoyancy excess
-                buoyx(k,i) = max(0., buoyx(k,i))
+                buoyx(k,i) = max(0._RKIND, buoyx(k,i))
              enddo
           enddo
           !-- Max vertical velocity at the leading of the cold pool (based on Reif et al 2020)
@@ -1488,13 +1492,13 @@
           
           do j = jts,jte
           do i = its,ite
-             wlpool(i) = 0.0
-             vcpool(i) = 0.0
-             total_dz  = 0.0
+             wlpool(i) = 0.0_RKIND
+             vcpool(i) = 0.0_RKIND
+             total_dz  = 0.0_RKIND
              
              loopK: do k = kts, kte
                
-                if(buoyx(k,i) < epsx .or. total_dz .gt. 2000. ) exit loopK 
+                if(buoyx(k,i) < epsx .or. total_dz .gt. 2000._RKIND ) exit loopK 
                 total_dz  = total_dz + dz_p(i,k,j)
                 temp  = t_p(i,k,j)
                 press = pres_p(i,k,j)
@@ -1502,22 +1506,68 @@
                 
                 qes=satur_spec_hum(temp,press)
                 gama=(xlv/cp)*(xlv/(R_v*temp*temp))*qes
-                gama= 1./(1.+gama)
+                gama= 1._RKIND/(1._RKIND+gama)
 
                 vcpool(i) = vcpool(i) + (gravity* dz_p(i,k,j)* min(mx_buoy2, buoyx(k,i))*gama/(cp*temp))
                 wlpool(i) = wlpool(i) + (gravity* dz_p(i,k,j)* min(mx_buoy2, buoyx(k,i))*gama/(cp*temp))
 
             enddo loopK
-            vcpool(i) = min(20., Kfr *sqrt(vcpool(i)))
+            vcpool(i) = min(20._RKIND, Kfr *sqrt(vcpool(i)))
 
             !-- estimating the slope of head cold pool, option using RKW theory
             ! rkw = exp(-abs(vcpool(i)-wshear(i))/(vcpool(i)+wshear(i)+1.e-6))
             ! slope_pool(i) = max(45.,abs(asind(rkw)))
 
-            wlpool(i) = min(10., Kfr *sin(slope_pool)*sqrt(wlpool(i)))
+            wlpool(i) = min(10._RKIND, Kfr *sin(slope_pool)*sqrt(wlpool(i)))
           enddo
           enddo
-      endif 
+          !
+          !--- mean cloud layer horizontal wind (MCL)
+          !
+          call mpas_pool_get_array(diag_physics,'umcl'  ,umcl )
+          call mpas_pool_get_array(diag_physics,'vmcl'  ,vmcl )
+
+          do j = jts,jte
+          do i = its,ite
+            umcl(i)  = 0.0_RKIND
+            vmcl(i)  = 0.0_RKIND
+            total_dz = 0.0_RKIND
+            
+            loopK_2: do k = kts, kte
+                     !-- height level above local surface 
+                     zlevel = zgrid(k,i) - zgrid(1,i)
+                     if(zlevel < startlev .or. zlevel > endlev) cycle loopK_2  
+                     dzrho    = dz_p(i,k,j)*rho_p(i,k,j)
+                     umcl(i)  = umcl(i)  + u_p(i,k,j)*dzrho
+                     vmcl(i)  = vmcl(i)  + v_p(i,k,j)*dzrho
+                     total_dz = total_dz + dzrho
+            enddo loopK_2
+            umcl(i) = umcl(i)/(total_dz+1.e-12_RKIND)
+            vmcl(i) = vmcl(i)/(total_dz+1.e-12_RKIND)        
+          enddo
+          enddo
+         !-- add cold pool gust velocity to the MCL wind, keeping the original MCL wind direction
+         !-- add the influence of ambient flow to the MCL wind
+         !-- 'factor' = 0.62 is suggested by Simpson and Britter (1980) to add the cold pool velocity 
+         !-- the to ambient wind (see page 346 Storm and Cloud Dynamics, Cotton et al. 2nd edition)
+         k_amb_wind = 2
+         do j = jts,jte
+         do i = its,ite
+           MCL_speed = sqrt (umcl(i)**2 + vmcl(i)**2)
+           aux = (MCL_speed + vcpool(i))/(MCL_speed+1.e-12_RKIND)
+           umcl(i) = aux * umcl(i)
+           vmcl(i) = aux * vmcl(i)
+           
+           !-- including the influence of the ambient flow to the MCL wind
+           umcl(i) = umcl(i) + 0.62_RKIND * u_p(i,k_amb_wind,j)
+           vmcl(i) = vmcl(i) + 0.62_RKIND * v_p(i,k_amb_wind,j)
+          enddo
+          enddo
+          !print*,'umcl',maxval(umcl),minval(umcl)
+      endif  !- (convection_tracer == 1)
+
+
+
 
     case default
 
