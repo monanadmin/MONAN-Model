@@ -571,7 +571,7 @@ contains
       conv_cld_fr5d  = 0.0
       TRACER  (:,:,:,:) = 0.0 
 
-      print*,"============================================ in convection"
+      !print*,"============================================ in convection"
 
       !----------------------------------------------------------------------
       !-do not change this
@@ -619,7 +619,8 @@ contains
       !         ,maxval(abs(rqvcuten(its:ite,kts:kte,jts:jte)))*86400.*2.5e+6/1004.
       !print*,"CAPE CIN",maxval(mpas_cape),minval(mpas_cape),maxval(mpas_cin),minval(mpas_cin)
       
-      print*,"buoyx",maxval(buoyx),minval(buoyx),maxval(wlpool),minval(wlpool)
+      !print*,"buoyx kJ/kg - Wlpool m/s",1.e-3*maxval(buoyx(its:ite,kts:kte,jts:jte)),1.e-3*minval(buoyx(its:ite,kts:kte,jts:jte))&
+      !              ,maxval(wlpool(its:ite,jts:jte)),minval(wlpool(its:ite,jts:jte))
 
       !-- big loop over j dimension
       j_loop: do j = jts,jtf
