@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<registry model="mpas" core="atmosphere" core_abbrev="atm" version="8.0.2">
+<registry model="mpas" core="atmosphere" core_abbrev="atm" version="8.0.1">
 
 <!-- **************************************************************************************** -->
 <!-- ************************************** Dimensions ************************************** -->
@@ -1259,7 +1259,29 @@
             <var name="rthratenlw_925hPa"/>
             <var name="rthratenlw_950hPa"/>
             <var name="rthratenlw_975hPa"/>
-	    <var name="rthratenlw_1000hPa"/>
+            <var name="rthratenlw_1000hPa"/>
+            <var name="rucuten_15hPa"/>
+            <var name="rucuten_20hPa"/>
+            <var name="rucuten_30hPa"/>
+            <var name="rucuten_50hPa"/>
+            <var name="rucuten_70hPa"/>
+            <var name="rucuten_100hPa"/>
+            <var name="rucuten_150hPa"/>
+            <var name="rucuten_200hPa"/>
+            <var name="rucuten_250hPa"/>
+            <var name="rucuten_300hPa"/>
+            <var name="rucuten_400hPa"/>
+            <var name="rucuten_500hPa"/>
+            <var name="rucuten_600hPa"/>
+            <var name="rucuten_700hPa"/>
+            <var name="rucuten_825hPa"/>
+            <var name="rucuten_850hPa"/>
+            <var name="rucuten_875hPa"/>
+            <var name="rucuten_900hPa"/>
+            <var name="rucuten_925hPa"/>
+            <var name="rucuten_950hPa"/>
+            <var name="rucuten_975hPa"/>
+            <var name="rucuten_1000hPa"/>            
             <var name="kzq_15hPa"/>
             <var name="kzq_20hPa"/>
             <var name="kzq_30hPa"/>

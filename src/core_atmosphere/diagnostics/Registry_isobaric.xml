@@ -766,6 +766,72 @@
         <var name="rthratenlw_1000hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
              description="Tendency of potential temperature due to long wave radiation vertically interpolated to 1000s hPa"/>
 
+        <var name="rucuten_15hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 15 hPa"/>
+
+        <var name="rucuten_20hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 20 hPa"/>
+
+        <var name="rucuten_30hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 30 hPa"/>
+
+        <var name="rucuten_50hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 50 hPa"/>
+
+        <var name="rucuten_70hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 70 hPa"/>
+
+        <var name="rucuten_100hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 100 hPa"/>
+
+        <var name="rucuten_150hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 150 hPa"/>
+
+        <var name="rucuten_200hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 200 hPa"/>
+
+        <var name="rucuten_250hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 250 hPa"/>
+
+        <var name="rucuten_300hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 300 hPa"/>
+
+        <var name="rucuten_400hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 400 hPa"/>
+
+        <var name="rucuten_500hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 500 hPa"/>
+
+        <var name="rucuten_600hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 600 hPa"/>
+
+        <var name="rucuten_700hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 700 hPa"/>
+
+        <var name="rucuten_825hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 825 hPa"/>
+
+        <var name="rucuten_850hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 850 hPa"/>
+
+        <var name="rucuten_875hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 875 hPa"/>
+
+        <var name="rucuten_900hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 900 hPa"/>
+
+        <var name="rucuten_925hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 925 hPa"/>
+
+        <var name="rucuten_950hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 950 hPa"/>
+
+        <var name="rucuten_975hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 975 hPa"/>
+
+        <var name="rucuten_1000hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+		description="Tendency of zonal wind due to cumulus convection 1000s hPa"/>
+
         <var name="kzq_15hPa" type="real" dimensions="nCells Time"  units="m^{2} s^{-1}"
              description="Vertical diffusion coefficient of water vapor and cloud condensates vertically interpolated to 15 hPa"/>
 
