@@ -1139,8 +1139,11 @@ contains
   !endif
 
          !enddo
-
-
+         !-- diagnostic 2d
+         do i=its,itf
+            if(do_this_column(i,j) == 0) cycle
+            var2d1(i,j) = xmb4d(i,j,shal)
+         enddo
          !-- deep + shallow + mid convection
          do i = its,itf
             if(do_this_column(i,j) == 0) cycle
@@ -1159,16 +1162,19 @@ contains
                rqccuten (i,k,j)=  rqccuten (i,k,j) *      FractLiqF(temp_old(k,i))
 
                !-- in updraft liq water content ( check the array config clwup5d(kts:kte,its:ite,jts:jte,maxiens) )
-               if(present(gdc )) &
-                 gdc (i,k,j) = (clwup5d(k,i,j,shal) + clwup5d(k,i,j,deep) + clwup5d(k,i,j,mid))*fixout_qv(i) &
-                             * FractLiqF(temp_old(k,i))
+               !if(present(gdc )) &
+               !  gdc (i,k,j) = (clwup5d(k,i,j,shal) + clwup5d(k,i,j,deep) + clwup5d(k,i,j,mid))*fixout_qv(i) &
+               !              * FractLiqF(temp_old(k,i))
                
                !-- in updraft ice water content
-               if(present(gdc2)) &
-                 gdc2(i,k,j) = (clwup5d(k,i,j,shal) + clwup5d(k,i,j,deep) + clwup5d(k,i,j,mid))*fixout_qv(i) &
-                             * (1.0-FractLiqF(temp_old(k,i))) 
+               !if(present(gdc2)) &
+               !  gdc2(i,k,j) = (clwup5d(k,i,j,shal) + clwup5d(k,i,j,deep) + clwup5d(k,i,j,mid))*fixout_qv(i) &
+               !              * (1.0-FractLiqF(temp_old(k,i))) 
 
-               var3d1(i,k,j) = var3d1_2d(k,i)
+              !var3d1(i,k,j) = var3d1_2d(k,i)
+               var3d1(i,k,j) = (zup5d(k,i,j,shal) + zup5d(k,i,j,mid) + zup5d(k,i,j,deep))
+               
+               
                !REVSU_GF (kr,i,j)= revsu_gf_2d(k,i)*fixout_qv(i) !-- already contains deep and mid amounts.
                !---these arrays are only for the deep plume mode
                !PRFIL_GF (kr,i,j)= prfil_gf_2d (k,i)*fixout_qv(i) !-- ice/liq prec flux of the deep plume

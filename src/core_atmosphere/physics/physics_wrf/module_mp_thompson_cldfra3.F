@@ -105,6 +105,10 @@
             TK   = t(i,k,j)
             TC   = TK - 273.16
 
+            !srf--- copied from WRF 2024       
+            if(TC .ge. 25.0) then
+              CLDFRA(i,k,j) = 0.0
+            else
             qvsw = rslf(P(i,k,j), TK)
             qvsi = rsif(P(i,k,j), TK)
 
@@ -131,7 +135,10 @@
                RHI_max = MAX(RHUM+1.E-6, qvsw/qvsi)
                CLDFRA(I,K,J) = MAX(0., 1.0-SQRT((RHI_max-RHUM)/(RHI_max-RH_00O(i,j))))
             endif
-            CLDFRA(I,K,J) = MIN(0.90, CLDFRA(I,K,J))
+              !srf--- why cloud fraction cannot be 1?
+              !srf---  CLDFRA(I,K,J) = MIN(0.90, CLDFRA(I,K,J))
+              CLDFRA(I,K,J) = MIN(1.0, CLDFRA(I,K,J))
+            endif
 
          endif
       ENDDO
@@ -517,6 +524,7 @@
 
       END SUBROUTINE adjust_cloudFinal
 
+ 
 !=================================================================================================================
   end module module_mp_thompson_cldfra3
 !=================================================================================================================

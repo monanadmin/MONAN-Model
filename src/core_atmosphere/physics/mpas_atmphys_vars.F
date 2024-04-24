@@ -699,7 +699,8 @@
     qvrad_p,          &!water vapor mixing ratio local to cloudiness and radiation                         [kg/kg]
     qcrad_p,          &!cloud liquid water mixing ratio local to cloudiness and radiation                  [kg/kg]
     qirad_p,          &!cloud ice mixing ratio local to cloudiness and radiation                           [kg/kg]
-    qsrad_p            !snow mixing ratio local to cloudiness and radiation                                [kg/kg]
+    qsrad_p,          &!snow mixing ratio local to cloudiness and radiation                                [kg/kg]
+    zgrid_p
 
 !=================================================================================================================
 !.. variables and arrays related to land-surface parameterization:
