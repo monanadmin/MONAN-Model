@@ -57,7 +57,7 @@ module mpas_isobaric_diagnostics
                need_vorticity_50, need_vorticity_100, need_vorticity_200, need_vorticity_250, need_vorticity_500, need_vorticity_700, need_vorticity_850, need_vorticity_925, &
                need_t_isobaric, need_z_isobaric, need_meanT_500_300
     logical :: need_temp, need_relhum, need_dewpoint, need_w, need_uzonal, need_umeridional, need_vorticity, & 
-               need_height, need_spechum, need_geoph, need_rqvblten, need_rqvcuten, need_rthratenlw, need_rucuten &
+               need_height, need_spechum, need_geoph, need_rqvblten, need_rqvcuten, need_rthratenlw, need_rucuten, &
                need_kzq, need_kzh, need_kzm, & 
                need_ni, need_nr, need_qr, need_qs, need_qv, need_qc, need_qg, need_qi, &
                need_mp_thompson, need_cu_grell_freitas, need_bl_mynn
@@ -1834,6 +1834,7 @@ module mpas_isobaric_diagnostics
         real (kind=RKIND), dimension(:,:), pointer :: relhum, theta_m, vorticity
         real (kind=RKIND), dimension(:,:), pointer :: umeridional, uzonal, vvel
         real (kind=RKIND), dimension(:,:), pointer :: rqvblten, rqvcuten, rthratenlw
+        real (kind=RKIND), dimension(:,:), pointer :: rucuten
         real (kind=RKIND), dimension(:,:), pointer :: kzq, kzh, kzm
         real (kind=RKIND), dimension(:,:,:), pointer :: scalars
        
