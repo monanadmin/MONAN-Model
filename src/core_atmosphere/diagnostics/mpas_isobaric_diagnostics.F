@@ -1899,7 +1899,8 @@ module mpas_isobaric_diagnostics
        
         real (kind=RKIND), dimension(:), pointer :: areaTriangle, latCell
         real (kind=RKIND), dimension(:,:), pointer :: kiteAreasOnVertex
-        
+
+        real (kind=RKIND), dimension(:,:), pointer :: rho
         real (kind=RKIND), dimension(:,:), pointer :: exner, height
         real (kind=RKIND), dimension(:,:), pointer :: pressure_b, pressure_p 
         real (kind=RKIND), dimension(:,:), pointer :: relhum, theta_m, vorticity
@@ -2498,7 +2499,7 @@ module mpas_isobaric_diagnostics
         integer :: nIntP
         real (kind=RKIND) :: w1,w2,z0,z1,z2
         real (kind=RKIND), dimension(:,:), allocatable :: field_in,press_in
-        real (kind=RKIND), dimension(:,:), allocatable :: field_interp,
+        real (kind=RKIND), dimension(:,:), allocatable :: field_interp,press_interp
         
         parameter (grav=9.80616) !LFR
         
@@ -2637,7 +2638,7 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_array(diag, 'uzonal_875hPa'  , uzonal_875hPa)
         call mpas_pool_get_array(diag, 'uzonal_900hPa'  , uzonal_900hPa)
         call mpas_pool_get_array(diag, 'uzonal_925hPa'  , uzonal_925hPa)
-        call mpas_pool_get_array(diag, 'uzonal_950hPacall mpas_pool_get_array(diag, 'rho', rho)'  , uzonal_950hPa)
+        call mpas_pool_get_array(diag, 'uzonal_950hPa'  , uzonal_950hPa)
         call mpas_pool_get_array(diag, 'uzonal_975hPa'  , uzonal_975hPa)
         call mpas_pool_get_array(diag, 'uzonal_1000hPa' , uzonal_1000hPa)
        
