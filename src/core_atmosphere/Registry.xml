@@ -1063,6 +1063,32 @@
             <var name="temperature_950hPa"/>
             <var name="temperature_975hPa"/>
             <var name="temperature_1000hPa"/>
+
+            <var name="cldfrac_15hPa"/>
+            <var name="cldfrac_20hPa"/>
+            <var name="cldfrac_30hPa"/>
+            <var name="cldfrac_50hPa"/>
+            <var name="cldfrac_70hPa"/>
+            <var name="cldfrac_100hPa"/>
+            <var name="cldfrac_150hPa"/>
+            <var name="cldfrac_200hPa"/>
+            <var name="cldfrac_250hPa"/>
+            <var name="cldfrac_300hPa"/>
+            <var name="cldfrac_400hPa"/>
+            <var name="cldfrac_500hPa"/>
+            <var name="cldfrac_600hPa"/>
+            <var name="cldfrac_700hPa"/>
+            <var name="cldfrac_825hPa"/>
+            <var name="cldfrac_850hPa"/>
+            <var name="cldfrac_875hPa"/>
+            <var name="cldfrac_900hPa"/>
+            <var name="cldfrac_925hPa"/>
+            <var name="cldfrac_950hPa"/>
+            <var name="cldfrac_975hPa"/>
+            <var name="cldfrac_1000hPa"/>
+
+
+
             <var name="height_15hPa"/>
             <var name="height_20hPa"/>
             <var name="height_30hPa"/>
@@ -1193,7 +1219,7 @@
             <var name="geoph_925hPa"/>
             <var name="geoph_950hPa"/>
             <var name="geoph_975hPa"/>
-	    <var name="geoph_1000hPa"/>
+            <var name="geoph_1000hPa"/>
             <var name="rqvblten_15hPa"/>
             <var name="rqvblten_20hPa"/>
             <var name="rqvblten_30hPa"/>
