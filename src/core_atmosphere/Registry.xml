@@ -1006,10 +1006,14 @@
 
             <var name="initial_time"/>
             <var name="xtime"/>
-
-                        <!-- Begin isobaric diagnostics defined in diagnostics/Registry_isobaric.xml -->
+            <!-- Begin vars to be used to post to generate figures to site -->
+            <var name="nEdgesOnCell"/>
+            <var name="verticesOnCell"/>
+            <var name="latVertex"/>
+            <var name="lonVertex"/>
+            <!-- Begin isobaric diagnostics defined in diagnostics/Registry_isobaric.xml -->
             <var name="mslp"/>
-	    <var name="lonCell"/>
+            <var name="lonCell"/>
             <var name="latCell"/>
             <var name="relhum_15hPa"/>
             <var name="relhum_20hPa"/>
@@ -1193,7 +1197,29 @@
             <var name="geoph_925hPa"/>
             <var name="geoph_950hPa"/>
             <var name="geoph_975hPa"/>
-	    <var name="geoph_1000hPa"/>
+            <var name="geoph_1000hPa"/>
+            <var name="omega_15hPa"/>
+            <var name="omega_20hPa"/>
+            <var name="omega_30hPa"/>
+            <var name="omega_50hPa"/>
+            <var name="omega_70hPa"/>
+            <var name="omega_100hPa"/>
+            <var name="omega_150hPa"/>
+            <var name="omega_200hPa"/>
+            <var name="omega_250hPa"/>
+            <var name="omega_300hPa"/>
+            <var name="omega_400hPa"/>
+            <var name="omega_500hPa"/>
+            <var name="omega_600hPa"/>
+            <var name="omega_700hPa"/>
+            <var name="omega_825hPa"/>
+            <var name="omega_850hPa"/>
+            <var name="omega_875hPa"/>
+            <var name="omega_900hPa"/>
+            <var name="omega_925hPa"/>
+            <var name="omega_950hPa"/>
+            <var name="omega_975hPa"/>
+            <var name="omega_1000hPa"/>
             <var name="rqvblten_15hPa"/>
             <var name="rqvblten_20hPa"/>
             <var name="rqvblten_30hPa"/>
