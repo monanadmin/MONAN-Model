@@ -30,6 +30,7 @@ module mpas_isobaric_diagnostics
     private
 
     logical :: need_mslp, &
+               need_cldfrac_15, need_cldfrac_20, need_cldfrac_30, need_cldfrac_50, need_cldfrac_70, need_cldfrac_100, need_cldfrac_150,need_cldfrac_200, need_cldfrac_250, need_cldfrac_300, need_cldfrac_400, need_cldfrac_500, need_cldfrac_600,need_cldfrac_700, need_cldfrac_825, need_cldfrac_850, need_cldfrac_875, need_cldfrac_900, need_cldfrac_925,need_cldfrac_950, need_cldfrac_975, need_cldfrac_1000, &
                need_relhum_15, need_relhum_20, need_relhum_30, need_relhum_50, need_relhum_70, need_relhum_100, need_relhum_150, need_relhum_200, need_relhum_250, need_relhum_300, need_relhum_400, need_relhum_500, need_relhum_600, need_relhum_700, need_relhum_825, need_relhum_850, need_relhum_875, need_relhum_900, need_relhum_925, need_relhum_950, need_relhum_975, need_relhum_1000, &
                need_dewpoint_50, need_dewpoint_100, need_dewpoint_200, need_dewpoint_250, need_dewpoint_500, need_dewpoint_700, need_dewpoint_850, need_dewpoint_925, &
                need_temp_15, need_temp_20, need_temp_30, need_temp_50, need_temp_70, need_temp_100, need_temp_150, need_temp_200, need_temp_250, need_temp_300, need_temp_400, need_temp_500, need_temp_600, need_temp_700, need_temp_825, need_temp_850, need_temp_875, need_temp_900, need_temp_925, need_temp_950, need_temp_975, need_temp_1000, &
@@ -58,7 +59,7 @@ module mpas_isobaric_diagnostics
                need_t_isobaric, need_z_isobaric, need_meanT_500_300
     logical :: need_temp, need_relhum, need_dewpoint, need_w, need_uzonal, need_umeridional, need_vorticity, & 
                need_height, need_spechum, need_geoph, need_rqvblten, need_rqvcuten, need_rthratenlw, need_rucuten, &
-               need_kzq, need_kzh, need_kzm, & 
+               need_kzq, need_kzh, need_kzm, need_cldfrac, & 
                need_ni, need_nr, need_qr, need_qs, need_qv, need_qc, need_qg, need_qi, &
                need_mp_thompson, need_cu_grell_freitas, need_bl_mynn
 
@@ -165,6 +166,7 @@ module mpas_isobaric_diagnostics
 
         need_any_diags = .false.
 
+        need_cldfrac = .false.
         need_temp = .false.
         need_dewpoint = .false.
         need_relhum = .false.
@@ -284,6 +286,74 @@ module mpas_isobaric_diagnostics
         need_dewpoint_925 = MPAS_field_will_be_written('dewpoint_925hPa')
         need_dewpoint = need_dewpoint .or. need_dewpoint_925
         need_any_diags = need_any_diags .or. need_dewpoint_925
+
+        need_cldfrac_15 = MPAS_field_will_be_written('cldfrac_15hPa')
+        need_cldfrac = need_cldfrac .or. need_cldfrac_15
+        need_any_diags = need_any_diags .or. need_cldfrac_15
+        need_cldfrac_20 = MPAS_field_will_be_written('cldfrac_20hPa')
+        need_cldfrac = need_cldfrac .or. need_cldfrac_20
+        need_any_diags = need_any_diags .or. need_cldfrac_20
+        need_cldfrac_30 = MPAS_field_will_be_written('cldfrac_30hPa')
+        need_cldfrac = need_cldfrac .or. need_cldfrac_30
+        need_any_diags = need_any_diags .or. need_cldfrac_30
+        need_cldfrac_50 = MPAS_field_will_be_written('cldfrac_50hPa')
+        need_cldfrac = need_cldfrac .or. need_cldfrac_50
+        need_any_diags = need_any_diags .or. need_cldfrac_50
+        need_cldfrac_70 = MPAS_field_will_be_written('cldfrac_70hPa')
+        need_cldfrac = need_cldfrac .or. need_cldfrac_70
+        need_any_diags = need_any_diags .or. need_cldfrac_70
+        need_cldfrac_100 = MPAS_field_will_be_written('cldfrac_100hPa')
+        need_cldfrac = need_cldfrac .or. need_cldfrac_100
+        need_any_diags = need_any_diags .or. need_cldfrac_100
+        need_cldfrac_150 = MPAS_field_will_be_written('cldfrac_150hPa')
+        need_cldfrac = need_cldfrac .or. need_cldfrac_150
+        need_any_diags = need_any_diags .or. need_cldfrac_150
+        need_cldfrac_200 = MPAS_field_will_be_written('cldfrac_200hPa')
+        need_cldfrac = need_cldfrac .or. need_cldfrac_200
+        need_any_diags = need_any_diags .or. need_cldfrac_200
+        need_cldfrac_250 = MPAS_field_will_be_written('cldfrac_250hPa')
+        need_cldfrac = need_cldfrac .or. need_cldfrac_250
+        need_any_diags = need_any_diags .or. need_cldfrac_250
+        need_cldfrac_300 = MPAS_field_will_be_written('cldfrac_300hPa')
+        need_cldfrac = need_cldfrac .or. need_cldfrac_300
+        need_any_diags = need_any_diags .or. need_cldfrac_300
+        need_cldfrac_400 = MPAS_field_will_be_written('cldfrac_400hPa')
+        need_cldfrac = need_cldfrac .or. need_cldfrac_400
+        need_any_diags = need_any_diags .or. need_cldfrac_400
+        need_cldfrac_500 = MPAS_field_will_be_written('cldfrac_500hPa')
+        need_cldfrac = need_cldfrac .or. need_cldfrac_500
+        need_any_diags = need_any_diags .or. need_cldfrac_500
+        need_cldfrac_600 = MPAS_field_will_be_written('cldfrac_600hPa')
+        need_cldfrac = need_cldfrac .or. need_cldfrac_600
+        need_any_diags = need_any_diags .or. need_cldfrac_600
+        need_cldfrac_700 = MPAS_field_will_be_written('cldfrac_700hPa')
+        need_cldfrac = need_cldfrac .or. need_cldfrac_700
+        need_any_diags = need_any_diags .or. need_cldfrac_700
+        need_cldfrac_825 = MPAS_field_will_be_written('cldfrac_825hPa')
+        need_cldfrac = need_cldfrac .or. need_cldfrac_825
+        need_any_diags = need_any_diags .or. need_cldfrac_825
+        need_cldfrac_850 = MPAS_field_will_be_written('cldfrac_850hPa')
+        need_cldfrac = need_cldfrac .or. need_cldfrac_850
+        need_any_diags = need_any_diags .or. need_cldfrac_850
+        need_cldfrac_875 = MPAS_field_will_be_written('cldfrac_875hPa')
+        need_cldfrac = need_cldfrac .or. need_cldfrac_875
+        need_any_diags = need_any_diags .or. need_cldfrac_875
+        need_cldfrac_900 = MPAS_field_will_be_written('cldfrac_900hPa')
+        need_cldfrac = need_cldfrac .or. need_cldfrac_900
+        need_any_diags = need_any_diags .or. need_cldfrac_900
+        need_cldfrac_925 = MPAS_field_will_be_written('cldfrac_925hPa')
+        need_cldfrac = need_cldfrac .or. need_cldfrac_925
+        need_any_diags = need_any_diags .or. need_cldfrac_925
+        need_cldfrac_950 = MPAS_field_will_be_written('cldfrac_950hPa')
+        need_cldfrac = need_cldfrac .or. need_cldfrac_950
+        need_any_diags = need_any_diags .or. need_cldfrac_950
+        need_cldfrac_975 = MPAS_field_will_be_written('cldfrac_975hPa')
+        need_cldfrac = need_cldfrac .or. need_cldfrac_975
+        need_any_diags = need_any_diags .or. need_cldfrac_975
+        need_cldfrac_1000 = MPAS_field_will_be_written('cldfrac_1000hPa')
+        need_cldfrac = need_cldfrac .or. need_cldfrac_1000
+        need_any_diags = need_any_diags .or. need_cldfrac_1000
+
 
         need_temp_15 = MPAS_field_will_be_written('temperature_15hPa')
         need_temp = need_temp .or. need_temp_15
@@ -1835,6 +1905,7 @@ module mpas_isobaric_diagnostics
         real (kind=RKIND), dimension(:,:), pointer :: umeridional, uzonal, vvel
         real (kind=RKIND), dimension(:,:), pointer :: rqvblten, rqvcuten, rthratenlw
         real (kind=RKIND), dimension(:,:), pointer :: rucuten
+        real (kind=RKIND), dimension(:,:), pointer :: cldfrac
         real (kind=RKIND), dimension(:,:), pointer :: kzq, kzh, kzm
         real (kind=RKIND), dimension(:,:,:), pointer :: scalars
        
@@ -1843,7 +1914,30 @@ module mpas_isobaric_diagnostics
         real (kind=RKIND), dimension(:,:), pointer :: t_isobaric
         real (kind=RKIND), dimension(:,:), pointer :: z_isobaric
         real (kind=RKIND), dimension(:), pointer :: meanT_500_300
-       
+
+        real (kind=RKIND), dimension(:), pointer :: cldfrac_15hPa
+        real (kind=RKIND), dimension(:), pointer :: cldfrac_20hPa
+        real (kind=RKIND), dimension(:), pointer :: cldfrac_30hPa  
+        real (kind=RKIND), dimension(:), pointer :: cldfrac_50hPa
+        real (kind=RKIND), dimension(:), pointer :: cldfrac_70hPa
+        real (kind=RKIND), dimension(:), pointer :: cldfrac_100hPa
+        real (kind=RKIND), dimension(:), pointer :: cldfrac_150hPa
+        real (kind=RKIND), dimension(:), pointer :: cldfrac_200hPa
+        real (kind=RKIND), dimension(:), pointer :: cldfrac_250hPa
+        real (kind=RKIND), dimension(:), pointer :: cldfrac_300hPa
+        real (kind=RKIND), dimension(:), pointer :: cldfrac_400hPa
+        real (kind=RKIND), dimension(:), pointer :: cldfrac_500hPa
+        real (kind=RKIND), dimension(:), pointer :: cldfrac_600hPa
+        real (kind=RKIND), dimension(:), pointer :: cldfrac_700hPa
+        real (kind=RKIND), dimension(:), pointer :: cldfrac_825hPa
+        real (kind=RKIND), dimension(:), pointer :: cldfrac_850hPa
+        real (kind=RKIND), dimension(:), pointer :: cldfrac_875hPa
+        real (kind=RKIND), dimension(:), pointer :: cldfrac_900hPa
+        real (kind=RKIND), dimension(:), pointer :: cldfrac_925hPa
+        real (kind=RKIND), dimension(:), pointer :: cldfrac_950hPa
+        real (kind=RKIND), dimension(:), pointer :: cldfrac_975hPa
+        real (kind=RKIND), dimension(:), pointer :: cldfrac_1000hPa
+
         real (kind=RKIND), dimension(:), pointer :: temperature_15hPa
         real (kind=RKIND), dimension(:), pointer :: temperature_20hPa
         real (kind=RKIND), dimension(:), pointer :: temperature_30hPa  
@@ -2448,6 +2542,8 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_array(diag_physics, 'kzq', kzq)
         call mpas_pool_get_array(diag_physics, 'kzh', kzh)
         call mpas_pool_get_array(diag_physics, 'kzm', kzm)
+        call mpas_pool_get_array(diag_physics,'cldfrac',cldfrac)
+
 
         call mpas_pool_get_field(diag, 'pressure_p', pressure_p_field)
         call mpas_dmpar_exch_halo_field(pressure_p_field)
@@ -2466,6 +2562,30 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_array(diag, 'z_isobaric', z_isobaric)
         call mpas_pool_get_array(diag, 'meanT_500_300', meanT_500_300)
       
+        call mpas_pool_get_array(diag, 'cldfrac_15hPa'  , cldfrac_15hPa)
+        call mpas_pool_get_array(diag, 'cldfrac_20hPa'  , cldfrac_20hPa)
+        call mpas_pool_get_array(diag, 'cldfrac_30hPa'  , cldfrac_30hPa)
+        call mpas_pool_get_array(diag, 'cldfrac_50hPa'  , cldfrac_50hPa)
+        call mpas_pool_get_array(diag, 'cldfrac_70hPa'  , cldfrac_70hPa)
+        call mpas_pool_get_array(diag, 'cldfrac_100hPa' , cldfrac_100hPa)
+        call mpas_pool_get_array(diag, 'cldfrac_150hPa' , cldfrac_150hPa)
+        call mpas_pool_get_array(diag, 'cldfrac_200hPa' , cldfrac_200hPa)
+        call mpas_pool_get_array(diag, 'cldfrac_250hPa' , cldfrac_250hPa)
+        call mpas_pool_get_array(diag, 'cldfrac_300hPa' , cldfrac_300hPa)
+        call mpas_pool_get_array(diag, 'cldfrac_400hPa' , cldfrac_400hPa)
+        call mpas_pool_get_array(diag, 'cldfrac_500hPa' , cldfrac_500hPa)
+        call mpas_pool_get_array(diag, 'cldfrac_600hPa' , cldfrac_600hPa)
+        call mpas_pool_get_array(diag, 'cldfrac_700hPa' , cldfrac_700hPa)
+        call mpas_pool_get_array(diag, 'cldfrac_825hPa' , cldfrac_825hPa)
+        call mpas_pool_get_array(diag, 'cldfrac_850hPa' , cldfrac_850hPa)
+        call mpas_pool_get_array(diag, 'cldfrac_875hPa' , cldfrac_875hPa)
+        call mpas_pool_get_array(diag, 'cldfrac_900hPa' , cldfrac_900hPa)
+        call mpas_pool_get_array(diag, 'cldfrac_925hPa' , cldfrac_925hPa)
+        call mpas_pool_get_array(diag, 'cldfrac_950hPa' , cldfrac_950hPa)
+        call mpas_pool_get_array(diag, 'cldfrac_975hPa' , cldfrac_975hPa)
+        call mpas_pool_get_array(diag, 'cldfrac_1000hPa', cldfrac_1000hPa)
+
+
         call mpas_pool_get_array(diag, 'temperature_15hPa'  , temperature_15hPa)
         call mpas_pool_get_array(diag, 'temperature_20hPa'  , temperature_20hPa)
         call mpas_pool_get_array(diag, 'temperature_30hPa'  , temperature_30hPa)
@@ -3166,6 +3286,43 @@ module mpas_isobaric_diagnostics
         enddo
        
         if(.not.allocated(field_in)) allocate(field_in(nCells,nVertLevels))
+
+        if (NEED_CLDFRAC) then
+           !... temperature:
+            do iCell = 1, nCells
+               do k = 1, nVertLevels
+                  kk = nVertLevels+1-k
+                  field_in(iCell,kk) = cldfrac(k,iCell)
+                  !write(88,*) "LFR-DBG: k,iCell,cldFrac ",k,iCell,cldfrac(k,iCell)
+               enddo
+            enddo
+            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+
+            cldfrac_15hPa(1:nCells)   = field_interp(1:nCells,1)
+            cldfrac_20hPa(1:nCells)   = field_interp(1:nCells,2)
+            cldfrac_30hPa(1:nCells)   = field_interp(1:nCells,3)
+            cldfrac_50hPa(1:nCells)   = field_interp(1:nCells,4)
+            cldfrac_70hPa(1:nCells)   = field_interp(1:nCells,5)
+            cldfrac_100hPa(1:nCells)  = field_interp(1:nCells,6)
+            cldfrac_150hPa(1:nCells)  = field_interp(1:nCells,7)
+            cldfrac_200hPa(1:nCells)  = field_interp(1:nCells,8)
+            cldfrac_250hPa(1:nCells)  = field_interp(1:nCells,9)
+            cldfrac_300hPa(1:nCells)  = field_interp(1:nCells,10)
+            cldfrac_400hPa(1:nCells)  = field_interp(1:nCells,11)
+            cldfrac_500hPa(1:nCells)  = field_interp(1:nCells,12)
+            cldfrac_600hPa(1:nCells)  = field_interp(1:nCells,13)
+            cldfrac_700hPa(1:nCells)  = field_interp(1:nCells,14)
+            cldfrac_825hPa(1:nCells)  = field_interp(1:nCells,15)
+            cldfrac_850hPa(1:nCells)  = field_interp(1:nCells,16)
+            cldfrac_875hPa(1:nCells)  = field_interp(1:nCells,17)
+            cldfrac_900hPa(1:nCells)  = field_interp(1:nCells,18)
+            cldfrac_925hPa(1:nCells)  = field_interp(1:nCells,19)
+            cldfrac_950hPa(1:nCells)  = field_interp(1:nCells,20)
+            cldfrac_975hPa(1:nCells)  = field_interp(1:nCells,21)
+            cldfrac_1000hPa(1:nCells) = field_interp(1:nCells,22)
+            ! call mpas_log_write('--- end interpolate temperature:')
+        end if
+
 
         if (NEED_TEMP) then
            !... temperature:
