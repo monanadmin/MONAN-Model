@@ -676,7 +676,7 @@
           !- normalized saturation deficit
           ZSBAR = ZA * ( ZRT (i,k) - ZQSL )
           !- "Q1" parameter
-          ZQ1   = ZSBAR / ZSIGMA
+          ZQ1   = ZSBAR / ZSIGMA !- zq1_tuning
 
           !- total cloud fraction
           CLDFRA(I,K,J) = MAX( 0., MIN(1.,0.5+0.36*ATAN(1.55*ZQ1)) )

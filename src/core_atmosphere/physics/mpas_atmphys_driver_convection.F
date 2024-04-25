@@ -198,6 +198,8 @@
           rbuoyxcuten_p(i,k,j) = 0._RKIND
           qccu_p(i,k,j)        = 0._RKIND
           qicu_p(i,k,j)        = 0._RKIND
+          tkepbl_p(i,k,j)      = 0._RKIND
+          elpbl_p(i,k,j)       = 0._RKIND
        enddo
        enddo
        enddo
@@ -805,7 +807,7 @@
  real(kind=RKIND),intent(in):: dt_dyn
 
 !local pointers:
- character(len=StrKIND),pointer:: convection_scheme
+ character(len=StrKIND),pointer:: convection_scheme,config_pbl_scheme
  integer,dimension(:),pointer:: kpbl,k22_shallow,kbcon_shallow,ktop_shallow,ktop_deep
  real(kind=RKIND),dimension(:),pointer  :: areaCell,meshDensity
  real(kind=RKIND),dimension(:),pointer  :: nca,cubot,cutop,cuprec,raincv,wlpool
@@ -869,8 +871,6 @@
          call mpas_pool_get_array(diag_physics,'kpbl'      ,kpbl    )
          call mpas_pool_get_array(diag_physics,'qc_cu'     ,qc_cu   )
          call mpas_pool_get_array(diag_physics,'qi_cu'     ,qi_cu   )
-         call mpas_pool_get_array(diag_physics,'tke_pbl'   ,tke_pbl )
-         call mpas_pool_get_array(diag_physics,'el_pbl'    ,el_pbl  )
          call mpas_pool_get_array(diag_physics,'wlpool'    ,wlpool  )
 
          call mpas_pool_get_array(tend_physics,'rqvblten'  ,rqvblten  )
@@ -899,10 +899,8 @@
             wlpool_p(i,j)        = wlpool(i)
      
             do k = kts,kte
-               qccu_p(i,k,j)      = qc_cu(k,i)
-               qicu_p(i,k,j)      = qi_cu(k,i)
-               tkepbl_p(i,k,j)    = tke_pbl(k,i)
-               elpbl_p(i,k,j)     = el_pbl(k,i)
+               qccu_p(i,k,j)       = qc_cu(k,i)
+               qicu_p(i,k,j)       = qi_cu(k,i)
 
                rthblten_p(i,k,j)    = rthblten(k,i)
                rthdynten_p(i,k,j)   = rthdynten(k,i)
@@ -918,6 +916,21 @@
             enddo
          enddo
          enddo
+         
+         call mpas_pool_get_config(configs, 'config_pbl_scheme', config_pbl_scheme)
+         if (trim(config_pbl_scheme) == "bl_mynn") then
+               call mpas_pool_get_array(diag_physics,'tke_pbl'   ,tke_pbl )
+               call mpas_pool_get_array(diag_physics,'el_pbl'    ,el_pbl  )
+               do j = jts,jte
+               do i = its,ite               
+                  do k = kts,kte
+                     tkepbl_p(i,k,j) = tke_pbl(k,i)
+                     elpbl_p(i,k,j)  = el_pbl(k,i)                    
+                  enddo
+               enddo
+               enddo
+         endif
+
 
     case ("cu_grell_freitas")
        call mpas_pool_get_config(configs,'config_len_disp',len_disp)

@@ -149,7 +149,7 @@ else if (trim(config_physics_suite) == 'mesoscale_reference_monan') then
 
     if (trim(config_microp_scheme)     == 'suite') config_microp_scheme     = 'mp_wsm6'
     if (trim(config_convection_scheme) == 'suite') config_convection_scheme = 'cu_gf_monan'
-    if (trim(config_pbl_scheme)        == 'suite') config_pbl_scheme        = 'bl_mynn'
+    if (trim(config_pbl_scheme)        == 'suite') config_pbl_scheme        = 'bl_ysu'
     if (trim(config_gwdo_scheme)       == 'suite') config_gwdo_scheme       = 'bl_ysu_gwdo'
     if (trim(config_radt_lw_scheme)    == 'suite') config_radt_lw_scheme    = 'rrtmg_lw'
     if (trim(config_radt_sw_scheme)    == 'suite') config_radt_sw_scheme    = 'rrtmg_sw'
