@@ -165,6 +165,7 @@
  do k = kts,kte
  do i = its,ite
     cldfrac(k,i) = cldfrac_p(i,k,j)
+    !write(77,*) "LFR-DBG: k,iCell,cldFrac ",k,i,cldfrac(k,i)
  enddo
  enddo
  enddo
@@ -206,8 +207,10 @@
       call mpas_timer_stop('calc_cldincidence')
 
     case("cld_fraction")
+      !print *,"DBG-LFR : using cld_fraction" 
       call mpas_timer_start('calc_cldfraction')
       call calc_cldfraction(cldfrac_p,t_p,pres_p,qvrad_p,qcrad_p,qirad_p,qs_p,its,ite)
+      !print *,"DBG-LFR :",cldfrac_p
       call mpas_timer_stop('calc_cldfraction')
 
     case("cld_fraction_thompson")

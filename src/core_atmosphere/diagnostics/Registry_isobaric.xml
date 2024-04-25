@@ -16,6 +16,72 @@
         <var name="mslp" type="real" dimensions="nCells Time" units="Pa"
              description="Mean sea-level pressure"/>
 
+        <var name="cldfrac_15hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 15 hPa"/>
+
+        <var name="cldfrac_20hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 20 hPa"/>
+
+        <var name="cldfrac_30hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 30 hPa"/>
+
+        <var name="cldfrac_50hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 50 hPa"/>
+
+        <var name="cldfrac_70hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 70 hPa"/>
+
+        <var name="cldfrac_100hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 100 hPa"/>
+
+        <var name="cldfrac_150hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 150 hPa"/>
+
+        <var name="cldfrac_200hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 200 hPa"/>
+
+        <var name="cldfrac_250hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 250 hPa"/>
+
+        <var name="cldfrac_300hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 300 hPa"/>
+
+        <var name="cldfrac_400hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 400 hPa"/>
+
+        <var name="cldfrac_500hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 500 hPa"/>
+
+        <var name="cldfrac_600hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 600 hPa"/>
+
+        <var name="cldfrac_700hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 700 hPa"/>
+
+        <var name="cldfrac_825hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 825 hPa"/>
+
+        <var name="cldfrac_850hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 850 hPa"/>
+
+        <var name="cldfrac_875hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 875 hPa"/>
+
+        <var name="cldfrac_900hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 900 hPa"/>
+
+        <var name="cldfrac_925hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 925 hPa"/>
+        
+        <var name="cldfrac_950hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 950 hPa"/>
+
+        <var name="cldfrac_975hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 975 hPa"/>
+
+        <var name="cldfrac_1000hPa" type="real" dimensions="nCells Time" units="unitless"
+		description="horizontal cloud fraction vertically interpolated to 1000s hPa"/>
+
         <var name="temperature_15hPa" type="real" dimensions="nCells Time" units="K"
              description="Temperature vertically interpolated to 15 hPa"/>
 
@@ -567,6 +633,78 @@
 
         <var name="geoph_1000hPa" type="real" dimensions="nCells Time" units="m"
              description="Geopotential height vertically interpolated to 1000s hPa"/>
+
+
+        <var name="omega_15hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 15 hPa"/>
+
+        <var name="omega_20hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 20 hPa"/>
+
+        <var name="omega_30hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 30 hPa"/>             
+        
+        <var name="omega_50hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 50 hPa"/>
+        
+        <var name="omega_70hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Geppercential height vertically interpolated to 70 hPa"/>
+
+        <var name="omega_100hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 100 hPa"/>
+
+        <var name="omega_150hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 150 hPa"/>
+
+        <var name="omega_200hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 200 hPa"/>     
+
+        <var name="omega_250hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 250 hPa"/>
+
+        <var name="omega_300hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 300 hPa"/>
+
+        <var name="omega_400hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 400 hPa"/>
+
+        <var name="omega_500hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 500 hPa"/>
+
+        <var name="omega_600hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 600 hPa"/>
+
+        <var name="omega_700hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 700 hPa"/>
+
+        <var name="omega_825hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 825 hPa"/>
+
+        <var name="omega_850hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 850 hPa"/>
+
+        <var name="omega_875hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 875 hPa"/>
+
+        <var name="omega_900hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 900 hPa"/>
+
+        <var name="omega_925hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 925 hPa"/>
+
+        <var name="omega_950hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 950 hPa"/>
+
+        <var name="omega_975hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 975 hPa"/>
+
+        <var name="omega_1000hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 1000s hPa"/>
+
+
+
+
+
 
         <var name="rqvblten_15hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
              description="Tendency of meridional wind due to pbl processes vertically interpolated to 15 hPa"/>
