@@ -349,7 +349,7 @@
 
 !initialization of parameterized convective processes:
  if(config_convection_scheme .ne. 'off') &
-    call init_convection(mesh,configs,diag_physics)
+    call init_convection(dminfo,mesh,configs,diag_physics)
 
 !initialization of cloud microphysics processes:
  if(config_microp_scheme .ne. 'off') &

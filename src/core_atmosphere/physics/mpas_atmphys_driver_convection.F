@@ -29,6 +29,8 @@
                             , tau_ocea_cp, tau_land_cp            &
                             , mx_buoy1, mx_buoy2                  &
                             , satur_spec_hum
+ 
+ use mpas_dmpar, only : IO_NODE
                             
  implicit none
  private
@@ -168,7 +170,8 @@
        if(.not.allocated(cin_p)          ) allocate(cin_p(ims:ime,jms:jme)              )
        if(.not.allocated(wlpool_p)       ) allocate(wlpool_p(ims:ime,jms:jme)           )
        if(.not.allocated(v2d1_p)         ) allocate(v2d1_p(ims:ime,jms:jme)             )
-
+       if(.not.allocated(xlat_p)         ) allocate(xlat_p(ims:ime,jms:jme)             )
+       if(.not.allocated(xlon_p)         ) allocate(xlon_p(ims:ime,jms:jme)             )
 
        if(.not.allocated(rthblten_p)     ) allocate(rthblten_p(ims:ime,kms:kme,jms:jme) )
        if(.not.allocated(rthdynten_p)    ) allocate(rthdynten_p(ims:ime,kms:kme,jms:jme))
@@ -418,6 +421,8 @@
        if(allocated(cin_p)          ) deallocate(cin_p          )
        if(allocated(wlpool_p)       ) deallocate(wlpool_p       )
        if(allocated(v2d1_p)         ) deallocate(v2d1_p         )
+       if(allocated(xlat_p)         ) deallocate(xlat_p         )
+       if(allocated(xlon_p)         ) deallocate(xlon_p         )
 
        if(allocated(rthblten_p)     ) deallocate(rthblten_p     )
        if(allocated(rthdynten_p)    ) deallocate(rthdynten_p    )
@@ -475,12 +480,13 @@
  end subroutine deallocate_convection
 
 !=================================================================================================================
- subroutine init_convection(mesh,configs,diag_physics)
+ subroutine init_convection(dminfo,mesh,configs,diag_physics)
 !=================================================================================================================
 
 !input arguments:
  type(mpas_pool_type),intent(in):: mesh
  type(mpas_pool_type),intent(in):: configs
+ type(dm_info),intent(in):: dminfo
 
 !inout arguments:
  type(mpas_pool_type),intent(inout):: diag_physics
@@ -517,8 +523,9 @@
     case ("cu_gf_monan")
        modConvParGF_initialized = .false.
        init_stat = initModConvParGF()
-       mynum = 1
-       call readGFConvParNML(mynum)
+       mynum = dminfo % my_proc_id
+       !print*," mynum", dminfo % my_proc_id
+       call readGFConvParNML(mynum,IO_NODE)
 
     case default
 
@@ -527,7 +534,7 @@
  end subroutine init_convection
 
 !=================================================================================================================
- subroutine driver_convection(itimestep,configs,mesh,sfc_input,diag_physics,tend_physics,diag,its,ite)
+ subroutine driver_convection(itimestep,configs,mesh,sfc_input,diag_physics,tend_physics,diag,dminfo,its,ite)
 !=================================================================================================================
 
 !input arguments:
@@ -535,6 +542,7 @@
  type(mpas_pool_type),intent(in):: mesh
  type(mpas_pool_type),intent(in):: sfc_input
  type(mpas_pool_type),intent(in):: diag
+ type(dm_info),intent(in):: dminfo
 
  integer,intent(in):: its,ite
  integer,intent(in):: itimestep
@@ -616,6 +624,7 @@
        call cu_gf_monan_driver(                                                           &
              dt              = dt_dyn                 , confrq        = dt_cu           , &
              dx_p            = dx_p                   , areaCell      = area_p          , &
+             lats            = xlat_p                 , lons          = xlon_p          , &
              u               = u_p                    , v             = v_p             , &
              w               = w_p                    , temp          = t_p             , &
              rvap            = qv_p                   , rho           = rho_p           , &
@@ -642,8 +651,8 @@
              var2d1          = v2d1_p                 , var3d1        = v3d1_p          , &
              ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde      , &
              ims = ims , ime = ime , jms = jms , jme = jme , kms = kds , kme = kme      , &
-             its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte        &
-                             )
+             its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte      , &
+             itimestep       = itimestep              , mynum         = dminfo%my_proc_id )
 
        call mpas_timer_stop('Grell-Freitas-MONAN')
 
@@ -813,6 +822,7 @@
  real(kind=RKIND),dimension(:),pointer  :: nca,cubot,cutop,cuprec,raincv,wlpool
  real(kind=RKIND),dimension(:),pointer  :: gsw,hfx,qfx,xland,t2m,cape,cin
  real(kind=RKIND),dimension(:),pointer  :: xmb_total,xmb_shallow
+ real(kind=RKIND),dimension(:),pointer  :: latCell,lonCell
  real(kind=RKIND),dimension(:,:),pointer:: zgrid
  real(kind=RKIND),dimension(:,:),pointer:: qc_cu,qi_cu,tke_pbl,el_pbl
  real(kind=RKIND),dimension(:,:),pointer:: w0avg
@@ -860,6 +870,8 @@
          call mpas_pool_get_array(mesh,'areaCell'   ,areaCell   )
          call mpas_pool_get_array(mesh,'meshDensity',meshDensity)
          call mpas_pool_get_array(mesh,'zgrid'      ,zgrid      )
+         call mpas_pool_get_array(mesh,'latCell'    ,latCell    )
+         call mpas_pool_get_array(mesh,'lonCell'    ,lonCell    )
 
          call mpas_pool_get_array(sfc_input,'xland',xland)
 
@@ -897,7 +909,10 @@
             cape_p(i,j)          = cape(i)
             cin_p(i,j)           = cin(i)
             wlpool_p(i,j)        = wlpool(i)
-     
+            xlat_p(i,j)          = latCell(i) / degrad
+            xlon_p(i,j)          = lonCell(i) / degrad
+
+
             do k = kts,kte
                qccu_p(i,k,j)       = qc_cu(k,i)
                qicu_p(i,k,j)       = qi_cu(k,i)
