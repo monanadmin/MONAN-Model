@@ -832,6 +832,138 @@
         <var name="rucuten_1000hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
 		description="Tendency of zonal wind due to cumulus convection 1000s hPa"/>
 
+        <var name="rvcuten_15hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 15 hPa"/>
+
+        <var name="rvcuten_20hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 20 hPa"/>
+
+        <var name="rvcuten_30hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 30 hPa"/>
+
+        <var name="rvcuten_50hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 50 hPa"/>
+
+        <var name="rvcuten_70hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 70 hPa"/>
+
+        <var name="rvcuten_100hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 100 hPa"/>
+
+        <var name="rvcuten_150hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 150 hPa"/>
+
+        <var name="rvcuten_200hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 200 hPa"/>
+
+        <var name="rvcuten_250hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 250 hPa"/>
+
+        <var name="rvcuten_300hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 300 hPa"/>
+
+        <var name="rvcuten_400hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 400 hPa"/>
+
+        <var name="rvcuten_500hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 500 hPa"/>
+
+        <var name="rvcuten_600hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 600 hPa"/>
+
+        <var name="rvcuten_700hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 700 hPa"/>
+
+        <var name="rvcuten_825hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 825 hPa"/>
+
+        <var name="rvcuten_850hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 850 hPa"/>
+
+        <var name="rvcuten_875hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 875 hPa"/>
+
+        <var name="rvcuten_900hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="TTendency of meridional wind due to cumulus convection 900 hPa"/>
+
+        <var name="rvcuten_925hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 925 hPa"/>
+
+        <var name="rvcuten_950hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 950 hPa"/>
+
+        <var name="rvcuten_975hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 975 hPa"/>
+
+        <var name="rvcuten_1000hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+		description="Tendency of meridional wind due to cumulus convection 1000 hPa"/>
+
+        <var name="rvblten_15hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 15 hPa"/>
+
+        <var name="rvblten_20hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 20 hPa"/>
+
+        <var name="rvblten_30hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 30 hPa"/>
+
+        <var name="rvblten_50hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 50 hPa"/>
+
+        <var name="rvblten_70hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 70 hPa"/>
+
+        <var name="rvblten_100hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 100 hPa"/>
+
+        <var name="rvblten_150hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 150 hPa"/>
+
+        <var name="rvblten_200hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 200 hPa"/>
+
+        <var name="rvblten_250hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 250 hPa"/>
+
+        <var name="rvblten_300hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 300 hPa"/>
+
+        <var name="rvblten_400hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 400 hPa"/>
+
+        <var name="rvblten_500hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 500 hPa"/>
+
+        <var name="rvblten_600hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 600 hPa"/>
+
+        <var name="rvblten_700hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 700 hPa"/>
+
+        <var name="rvblten_825hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 825 hPa"/>
+
+        <var name="rvblten_850hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 850 hPa"/>
+
+        <var name="rvblten_875hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 875 hPa"/>
+
+        <var name="rvblten_900hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 900 hPa"/>
+
+        <var name="rvblten_925hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 925 hPa"/>
+
+        <var name="rvblten_950hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 950 hPa"/>
+
+        <var name="rvblten_975hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 975 hPa"/>
+
+        <var name="rvblten_1000hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+		description="Tendency of meridional wind due to pbl processes 1000 hPa"/>
+
         <var name="kzq_15hPa" type="real" dimensions="nCells Time"  units="m^{2} s^{-1}"
              description="Vertical diffusion coefficient of water vapor and cloud condensates vertically interpolated to 15 hPa"/>
 
