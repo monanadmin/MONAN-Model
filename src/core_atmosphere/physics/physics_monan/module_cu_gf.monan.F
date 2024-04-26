@@ -346,7 +346,8 @@ contains
               ,confrq                &
               ,dx_p                  &
               ,areaCell              &
-              
+              ,lats                  &
+              ,lons                  &
               ,u                     &
               ,v                     &
               ,w                     &
@@ -372,7 +373,7 @@ contains
               ,cnvcf                 &
               ,rthblten              & ! tendency of potential temperature due to pbl processes
               ,rqvblten              & ! tendency of water vapor mixing ratio due to pbl processes
-              ,rthratenlw            & ! tendency of potential temperature due to radiation (lw)
+              ,rthratenlw            & !  tendency of potential temperature due to radiation (lw)
               ,rthratensw            & ! tendency of potential temperature due to radiation (sw)
               ,rthdyten              & ! tendency of potential temperature due to dynamics plus filters
               ,rqvdyten              & ! tendency of water vapor mixing ration due to dynamics plus filters
@@ -396,13 +397,10 @@ contains
               ,ids, ide, jds, jde, kds, kde   &
               ,ims, ime, jms, jme, kms, kme   &
               ,its, ite, jts, jte, kts, kte   &
-                                 )
+              ,itimestep             &
+              ,mynum                 )
 
 ! --- vars need to be implemented
-                           ! ,lons                  &
-                           ! ,lats                  &
-                           ! ,col_sat               &
-                           ! ,curr_rvap             & remover
                            ! ,TRACER                &
                            ! ,lightn_dens           &
                            ! ,rnlcuten              &
@@ -418,11 +416,12 @@ contains
       !intent in arguments:
       integer                                 ,intent(in):: ids,ide,jds,jde,kds,kde & 
                                                            ,ims,ime,jms,jme,kms,kme & 
-                                                           ,its,ite,jts,jte,kts,kte
-      integer, dimension(ims:ime,jms:jme )    ,intent(in):: kpbl
+                                                           ,its,ite,jts,jte,kts,kte &
+                                                           ,itimestep, mynum
+      integer, dimension(ims:ime,jms:jme)     ,intent(in):: kpbl
 
       real                                    ,intent(in):: dt, confrq
-      real, dimension(ims:ime,jms:jme)        ,intent(in):: areaCell,dx_p
+      real, dimension(ims:ime,jms:jme)        ,intent(in):: areaCell,dx_p,lats,lons
       real, dimension(ims:ime,jms:jme)        ,intent(in):: sflux_r,sflux_t,topt,xland,temp2m
       real, dimension(ims:ime,jms:jme)        ,intent(in):: mpas_cape,mpas_cin
 
@@ -444,14 +443,13 @@ contains
       real,dimension(ims:ime,kms:kme,jms:jme) ,intent(out):: var3d1
 
       !----------------------- local and future in/out arguments
-      integer, parameter :: mynum = 1
       integer, parameter :: mtp = 1, nmp=1
       real :: time= 0., itime1 = 0.
       real:: FSCAV(mtp)
 
  
-      real,    dimension(its:ite,jts:jte) :: aot500 ,sfc_press,lons,lats &
-                                            ,col_sat,stochastic_sig,dx2d
+      real,    dimension(its:ite,jts:jte) :: aot500 ,sfc_press,col_sat &
+                                                    ,stochastic_sig,dx2d
 
       real,    dimension(its:ite,jts:jte) :: rh_dicycle_fct,lightn_dens
 
@@ -538,11 +536,22 @@ contains
 
       real :: dp,dq,exner, dtdt,pten,pqen,paph,zrho,pahfs,pqhfl,zkhvfl,pgeoh
       real :: fixouts,dt_inv,temp2theta,theta2temp,total_dp
-      integer :: jlx,kk,plume,ii_plume
-
+      integer :: jlx,kk,plume,ii_plume, l_unit,irec,rec_size,iloc,kloc
+      character(len=6)  :: c_itimestep
+      character(len=128) :: outname
+      logical :: debug_mpas 
       !- tmp delete no futuro-----------------------------------------------
       rh_dicycle_fct = 0.
       
+!print*,'itimestep',itimestep
+!      print*,'mpas qv', maxval(abs(rqvcuten(its:ite,kts:kte,jts:jte))),mynum
+!      print*,'mpas th', maxval(abs(rthcuten(its:ite,kts:kte,jts:jte))),mynum
+!      print*,'mpas qi', maxval(abs(rqicuten(its:ite,kts:kte,jts:jte))),mynum
+!      print*,'mpas qc', maxval(abs(rqccuten(its:ite,kts:kte,jts:jte))),mynum
+
+
+
+
       !--- these arrays must be set to zero every timestep.
       ierr4d         = 0.0
       jmin4d         = 0.0
@@ -581,7 +590,7 @@ contains
       itf = min(ite,ide-1)
       ktf = min(kte,kde-1)
       jtf = min(jte,jde-1)
-
+      
       int_time   = int_time + dt
       WHOAMI_ALL = mynum
       time_in    = time
@@ -590,8 +599,6 @@ contains
       FSCAV         (:)   = 0.1
       stochastic_sig(:,:) = 1.0  
       aot500        (:,:) = 0.0
-      lons          (:,:) = 0.0  !falta
-      lats          (:,:) = 0.0  !falta
       col_sat       (:,:) = 0.0  !falta
       !----------------------------------------------------------------------
       !in-cloud cloud water and cloud ice mixing ratios:
@@ -688,8 +695,8 @@ contains
             
             ter11 (i) = max(0.,topt(i,j))
             kpbli (i) = kpbl(i,j)
-            xlons (i) = lons(i,j)*180./3.14159
-            xlats (i) = lats(i,j)*180./3.14159
+            xlons (i) = lons(i,j) ! in degrees
+            xlats (i) = lats(i,j) ! in degress
           enddo
          !- heigths
          do i=its,itf
@@ -1092,14 +1099,18 @@ contains
             enddo loop1
          enddo
 
+!--- temporary : we will overwritten all grid boxes 
+do_this_column(:,:) = 1
+!--- temporary : 
+
          !----------- check for negative water vapor mix ratio
          do i=its,itf
             if(do_this_column(i,j) == 0) cycle
-            do k = kts,ktf
+            do k = kts,kte
                temp_tendqv(k,i)= outq (k,i,shal) + outq (k,i,deep) + outq (k,i,mid )
             enddo
 
-            do k = kts,ktf
+            do k = kts,kte
                distance(k)= qv_curr(k,i) + temp_tendqv(k,i) * dt
             enddo
             
@@ -1131,14 +1142,14 @@ contains
             !print*,'prec',i,conprr(i,j)*3600,fixout_qv(i)
          enddo
          !do i=its,itf
-          ! if(do_this_column(i,j) == 0) cycle
-        ! if(conprr(i,j)*3600.>1000.) then 
-           ! print*,"prec",i,(conprr(i,j))*3600.,maxval(outt (:,i,deep))*86400.&
-           !                ,maxval(outq (:,i,deep))*86400.*2.5e+6/1000.4
-           ! stop 333
-  !endif
-
+         ! if(do_this_column(i,j) == 0) cycle
+         ! if(conprr(i,j)*3600.>1000.) then 
+         ! print*,"prec",i,(conprr(i,j))*3600.,maxval(outt (:,i,deep))*86400.&
+         !                ,maxval(outq (:,i,deep))*86400.*2.5e+6/1000.4
+         ! stop 333
+         !endif
          !enddo
+
          !-- diagnostic 2d
          do i=its,itf
             if(do_this_column(i,j) == 0) cycle
@@ -1315,6 +1326,83 @@ contains
 
 
       enddo j_loop
+
+      !-- special output for debug purposes 
+      if( OUTPUT_SOUND == 3) then
+         debug_mpas = .false. 
+        !-- condition :
+        if(maxval(abs(rqvcuten(its:itf,kts:ktf,jts:jtf))*86400.*2.5e6/1004.) > 0.9*max_tq_tend) debug_mpas = .true.
+          
+        if(debug_mpas) then
+          print*,"--------------------------",itimestep
+          print*,'mpas debug', maxval(abs(rqvcuten(its:itf,kts:ktf,jts:jtf))*86400.*2.5e6/1004.),0.9*max_tq_tend,mynum
+          iloc = maxloc(rqvcuten(its:itf,kts,jts),1)
+          print*,'maxloc1',xlats(iloc),xlons(iloc),xmb4d(iloc,jts:jtf,deep),cprr4d(iloc,jts:jtf,deep)*3600.
+          print*,'maxloc1',ierr4d(iloc,jts:jtf,deep)
+
+          !
+          write(c_itimestep,'(i6)') itimestep
+          write(outname,'(i128)') mynum
+          outname='gf_timestep_'//trim(adjustl(c_itimestep))//'_proc_'//trim(adjustl(outname))
+
+          rec_size = (jtf-jts+1)*(itf-its+1)*4
+          l_unit = 10
+          open(newunit = l_unit, file=trim(adjustl(outname))//".bin", form='unformatted', &
+               access='direct', status='replace', recl=rec_size)
+               irec=1
+               do k=kts,ktf
+                 write(l_unit,rec=irec) rthcuten(its:itf,k,jts:jtf)*86400.
+                 irec=irec+1
+               enddo
+               do k=kts,ktf
+                 write(l_unit,rec=irec) rqvcuten(its:itf,k,jts:jtf)*86400.*2.5e6/1004.
+                 irec=irec+1
+               enddo
+               do k=kts,ktf
+                 write(l_unit,rec=irec) zup5d(k,its:itf,jts:jtf,deep)
+                 irec=irec+1
+               enddo
+               do k=kts,ktf
+                 write(l_unit,rec=irec) zdn5d(k,its:itf,jts:jtf,deep)
+                 irec=irec+1
+               enddo
+               do k=kts,ktf
+                 write(l_unit,rec=irec) zo(k,its:itf)
+                 irec=irec+1
+               enddo
+               !- 2-d vars
+               write(l_unit,rec=irec) xlons (its:itf)                    ; irec=irec+1
+               write(l_unit,rec=irec) xlats (its:itf)                    ; irec=irec+1
+               write(l_unit,rec=irec) xmb4d (its:itf,jts:jtf,deep)       ; irec=irec+1
+               write(l_unit,rec=irec) cprr4d(its:itf,jts:jtf,deep)*3600. ; irec=irec+1
+
+          close(l_unit)
+
+          open(newunit = l_unit, file=trim(adjustl(outname))//".ctl", action='write', status='replace')
+              write(l_unit,*) 'dset ^'//trim(adjustl(outname))//'.bin'
+              write(l_unit,*) 'undef -0.9990000E+34'
+              write(l_unit,*) 'options byteswapped'
+              write(l_unit,*) 'title GF_teste'
+              write(l_unit,*) 'xdef ',itf-its+1,' linear ',1,1
+              write(l_unit,*) 'ydef ',1,        ' linear ',1,1
+              write(l_unit,*) 'zdef ',ktf-kts+1,' linear ',1,1
+              write(l_unit,*) 'tdef 1 linear 00:00Z01JAN200 1mo'
+              write(l_unit,*) 'vars ',9
+              write(l_unit,*) 'rthcuten',ktf-kts+1,'99 ','K/day'
+              write(l_unit,*) 'rqvcuten',ktf-kts+1,'99 ','K/day'
+              write(l_unit,*) 'zup'     ,ktf-kts+1,'99 ','kg/m2/s'
+              write(l_unit,*) 'zdn'     ,ktf-kts+1,'99 ','kg/m2/s'
+              write(l_unit,*) 'zo'      ,ktf-kts+1,'99 ','m'
+              write(l_unit,*) 'xlons'   ,0,'99 ','deg'
+              write(l_unit,*) 'xlats'   ,0,'99 ','deg'
+              write(l_unit,*) 'mbdp'    ,0,'99 ','kg/m2/s'
+              write(l_unit,*) 'prdp'    ,0,'99 ','mm/h'
+              
+              write(l_unit,*) 'endvars'
+              
+          close(l_unit)
+        endif
+      endif
 
    end subroutine cu_gf_monan_driver
    !---------------------------------------------------------------------------------------------------
@@ -7111,11 +7199,13 @@ contains
 
    end subroutine cloud_dissipation
    !------------------------------------------------------------------------------------
-   subroutine readGFConvParNML(mynum)
+   subroutine readGFConvParNML(mynum, IO_NODE)
       implicit none
       integer,intent(in) :: mynum
+      integer,intent(in), optional :: IO_NODE
       integer :: nlunit = 4
       character (len = 64) :: fn_nml = 'GF_ConvPar_nml'
+      integer :: local_io_node
       logical :: exists
       namelist /GF_NML/ icumulus_gf, closure_choice,use_scale_dep,dicycle     &
          ,use_tracer_transp, use_tracer_scaven,use_flux_form, use_tracer_evap &
@@ -7136,6 +7226,12 @@ contains
          ,add_coldpool_clos,add_coldpool_trig,add_coldpool_diff,n_cldrop,output_sound&
          ,use_pass_cloudvol,use_lcl_ctrl_entr,use_rhu_ctrl_entr
 
+      if(present(IO_NODE)) then 
+         local_io_node = IO_NODE
+      else
+         local_io_node = mynum
+      endif
+
       inquire (file = trim (fn_nml), exist = exists)
       if (.not. exists) then
          write (6, *) 'GF_convpar_nml :: namelist file: ', trim (fn_nml), ' does not exist'
@@ -7145,7 +7241,9 @@ contains
          read (nlunit,nml=GF_NML)
          close(nlunit)
       endif
-      if(mynum==1) then
+
+
+      if(mynum==local_io_node) then
          !- print the namelist
          print*,"           "
          print*,"------------- GF ConvPar namelist -------------"
