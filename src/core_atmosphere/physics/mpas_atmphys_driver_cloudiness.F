@@ -526,6 +526,7 @@
     real :: ZLL, DZZ, ZZZ ! length scales
     real :: ZAH, ZA, ZB, ZSBAR, ZQ1, ZSIGMA, ZDRW, ZDTL ! related to computation of Sig_s
     real :: ZSIG_CONV,  ZSIGMA_NOCONV,  ZQ1_NOCONV      ! convective part of Sig_s
+    real, parameter :: zq1_tuning = 1.
     !
     !*       0.2  Definition of constants :
     !
@@ -676,7 +677,7 @@
           !- normalized saturation deficit
           ZSBAR = ZA * ( ZRT (i,k) - ZQSL )
           !- "Q1" parameter
-          ZQ1   = ZSBAR / ZSIGMA !- zq1_tuning
+          ZQ1   = ZSBAR / ZSIGMA - zq1_tuning
 
           !- total cloud fraction
           CLDFRA(I,K,J) = MAX( 0., MIN(1.,0.5+0.36*ATAN(1.55*ZQ1)) )
