@@ -1356,7 +1356,6 @@
             <var name="rucuten_950hPa"/>
             <var name="rucuten_975hPa"/>
             <var name="rucuten_1000hPa"/>            
-<<<<<<< HEAD
             <var name="rvcuten_15hPa"/>
             <var name="rvcuten_20hPa"/>
             <var name="rvcuten_30hPa"/>
@@ -1401,34 +1400,6 @@
             <var name="rvblten_950hPa"/>
             <var name="rvblten_975hPa"/>
             <var name="rvblten_1000hPa"/>            
-=======
-
-
-            <var name="rublten_15hPa"/>
-            <var name="rublten_20hPa"/>
-            <var name="rublten_30hPa"/>
-            <var name="rublten_50hPa"/>
-            <var name="rublten_70hPa"/>
-            <var name="rublten_100hPa"/>
-            <var name="rublten_150hPa"/>
-            <var name="rublten_200hPa"/>
-            <var name="rublten_250hPa"/>
-            <var name="rublten_300hPa"/>
-            <var name="rublten_400hPa"/>
-            <var name="rublten_500hPa"/>
-            <var name="rublten_600hPa"/>
-            <var name="rublten_700hPa"/>
-            <var name="rublten_825hPa"/>
-            <var name="rublten_850hPa"/>
-            <var name="rublten_875hPa"/>
-            <var name="rublten_900hPa"/>
-            <var name="rublten_925hPa"/>
-            <var name="rublten_950hPa"/>
-            <var name="rublten_975hPa"/>
-            <var name="rublten_1000hPa"/>
-
-
->>>>>>> develop
             <var name="kzq_15hPa"/>
             <var name="kzq_20hPa"/>
             <var name="kzq_30hPa"/>
