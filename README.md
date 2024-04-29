@@ -1,4 +1,4 @@
-# MONAN-v0.4.0
+# MONAN-v0.5.0
 
 ## Model for Ocean-laNd-Atmosphere predictioN
 
@@ -10,10 +10,11 @@ The MONAN Model is managed by a scientific committee appointed by INPE's directo
 HISTORY
 =======
 
-VERSION 0.1.0 - Initial version structure (0.1.0) based on the dynamic core of the MPAS 8.0.1 Model
-VERSION 0.2.0 - Included variables and new isobaric levels
-VERSION 0.3.0 - Included new levels for existing variables and included new variables
-VERSION 0.4.0 - Included new variables; update MPAS-v8.0.2; bug fixes
+VERSION 0.1.0 - Initial version structure (0.1.0) based on the dynamic core of the MPAS 8.0.1 Model.
+VERSION 0.2.0 - Included variables and new isobaric levels.
+VERSION 0.3.0 - Included new levels for existing variables and included new variables.
+VERSION 0.4.0 - Included new variables; update MPAS-v8.0.2; bug fixes.
+VERSION 0.4.0 - Included new variables.
 
 MPAS-v8.0.2
 ====
