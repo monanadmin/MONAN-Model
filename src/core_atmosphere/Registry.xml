@@ -1378,6 +1378,32 @@
             <var name="rvcuten_950hPa"/>
             <var name="rvcuten_975hPa"/>
             <var name="rvcuten_1000hPa"/>            
+
+
+            <var name="rublten_15hPa"/>
+            <var name="rublten_20hPa"/>
+            <var name="rublten_30hPa"/>
+            <var name="rublten_50hPa"/>
+            <var name="rublten_70hPa"/>
+            <var name="rublten_100hPa"/>
+            <var name="rublten_150hPa"/>
+            <var name="rublten_200hPa"/>
+            <var name="rublten_250hPa"/>
+            <var name="rublten_300hPa"/>
+            <var name="rublten_400hPa"/>
+            <var name="rublten_500hPa"/>
+            <var name="rublten_600hPa"/>
+            <var name="rublten_700hPa"/>
+            <var name="rublten_825hPa"/>
+            <var name="rublten_850hPa"/>
+            <var name="rublten_875hPa"/>
+            <var name="rublten_900hPa"/>
+            <var name="rublten_925hPa"/>
+            <var name="rublten_950hPa"/>
+            <var name="rublten_975hPa"/>
+            <var name="rublten_1000hPa"/>
+
+
             <var name="rvblten_15hPa"/>
             <var name="rvblten_20hPa"/>
             <var name="rvblten_30hPa"/>
