@@ -1098,7 +1098,13 @@ contains
                endif
             enddo loop1
          enddo
-
+        !-- diagnostic 2d
+         do i=its,itf
+            var2d1(i,j) = 0.
+            if(do_this_column(i,j) == 0) cycle
+            var2d1(i,j) = zo(ktop4d(i,j,deep),i)-zo(1,i)
+         enddo
+ 
 !--- temporary : we will overwritten all grid boxes 
 do_this_column(:,:) = 1
 !--- temporary : 
@@ -1150,11 +1156,6 @@ do_this_column(:,:) = 1
          !endif
          !enddo
 
-         !-- diagnostic 2d
-         do i=its,itf
-            if(do_this_column(i,j) == 0) cycle
-            var2d1(i,j) = xmb4d(i,j,shal)
-         enddo
          !-- deep + shallow + mid convection
          do i = its,itf
             if(do_this_column(i,j) == 0) cycle
