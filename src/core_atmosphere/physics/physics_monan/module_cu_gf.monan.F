@@ -564,14 +564,14 @@ contains
 
 
       !--- these arrays must be set to zero every timestep.
-      ierr4d         = 0.0
-      jmin4d         = 0.0
-      klcl4d         = 0.0
-      k224d          = 0.0
-      kbcon4d        = 0.0
-      ktop4d         = 0.0
-      kstabi4d       = 0.0
-      kstabm4d       = 0.0
+      ierr4d         = 0
+      jmin4d         = kts
+      klcl4d         = kts
+      k224d          = kts
+      kbcon4d        = kts
+      ktop4d         = kts
+      kstabi4d       = kts
+      kstabm4d       = kts
       cprr4d         = 0.0
       xmb4d          = 0.0
       edt4d          = 0.0
@@ -1090,7 +1090,30 @@ contains
                endif
             enddo loop1
          enddo
+         
+         do i=its,itf
+            if(do_this_column(i,j) == 0) cycle
+            !-- updraft mass flux @ cloud base (kg/m2/s1)
+            rmfxdpcu(i,j)  = xmb4d(i,j,deep) 
+            rmfxmdcu(i,j)  = xmb4d(i,j,mid)
+            rmfxshcu(i,j)  = xmb4d(i,j,shal)
+            
+            !-- cloud top height above msl (m)
+            rtopdpcu(i,j)  =zo(ktop4d(i,j,deep),i)
+            rtopmdcu(i,j)  =zo(ktop4d(i,j,mid ),i) 
+            rtopshcu(i,j)  =zo(ktop4d(i,j,shal),i)
+
+            !-- cloud base height above msl (m)
+            rbotdpcu(i,j)  = zo(kbcon4d(i,j,deep),i)
+         enddo
  
+         !-- diagnostic/debug 2d
+         do i=its,itf
+            if(do_this_column(i,j) == 0) cycle
+            var2d1(i,j) = lightn_dens(i,j)
+            var2d2(i,j) = AA0(i,j)
+         enddo
+
 !--- temporary : we will overwritten all grid boxes 
 do_this_column(:,:) = 1
 !--- temporary : 
@@ -1133,31 +1156,7 @@ do_this_column(:,:) = 1
             raincv(i,j)      = conprr(i,j)*dt
             !print*,'prec',i,conprr(i,j)*3600,fixout_qv(i)
          enddo
-         do i=its,itf
-            if(do_this_column(i,j) == 0) cycle
-            !-- updraft mass flux @ cloud base (kg/m2/s1)
-            rmfxdpcu(i,j)  = xmb4d(i,j,deep) 
-            rmfxmdcu(i,j)  = xmb4d(i,j,mid)
-            rmfxshcu(i,j)  = xmb4d(i,j,shal)
-            
-            !-- cloud top height above msl (m)
-            rtopdpcu(i,j)  =zo(ktop4d(i,j,deep),i)
-            rtopmdcu(i,j)  =zo(ktop4d(i,j,mid ),i) 
-            rtopshcu(i,j)  =zo(ktop4d(i,j,shal),i)
-
-            !-- cloud base height above msl (m)
-            rbotdpcu(i,j)  = zo(kbcon4d(i,j,deep),i)
-         enddo
- 
-         !-- diagnostic/debug 2d
-         do i=its,itf
-            var2d1(i,j) = 0.0
-            var2d2(i,j) = 0.0
-            if(do_this_column(i,j) == 0) cycle
-            var2d1(i,j) = lightn_dens(i,j)
-            var2d2(i,j) = AA0(i,j)
-         enddo
- 
+  
 
          !do i=its,itf
          ! if(do_this_column(i,j) == 0) cycle
@@ -3467,8 +3466,8 @@ do_this_column(:,:) = 1
                  !aa1_bl_  (i) = zlcl_sfc (i)!*1.e-3
                else
                  aa1_adv_ (i) = -0.9990000E+34
-                 !aa0_     (i) = -0.9990000E+34
-                 !aa1_bl_  (i) = -0.9990000E+34
+                 !aa0_    (i) = -0.9990000E+34
+                 !aa1_bl_ (i) = -0.9990000E+34
                endif
             enddo  
 
@@ -3477,16 +3476,16 @@ do_this_column(:,:) = 1
             !else
             !  aa1_adv_ (:) = vshear (:)
             !endif
-          
-            do i=its,itf
-               if(ierr(i) == 0) cycle
-               kbcon(i)=1
-               ktop(i)=1
-               klcl(i)=1
-               jmin(i)=1
-               k22(i)=1
-            enddo
-      endif
+       endif   
+       do i=its,itf
+         if(ierr(i) == 0) cycle
+         kbcon(i)=kts
+         ktop (i)=kts
+         klcl (i)=kts
+         jmin (i)=kts
+         k22  (i)=kts
+       enddo
+      
       !
       !
       !
