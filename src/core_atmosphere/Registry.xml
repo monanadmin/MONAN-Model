@@ -2440,12 +2440,52 @@
                      description="mean cloud layer horizontal meridional velocity"
                      packages="cu_gf_monan_in"/>
 
+                <var name="rupmfxcu" type="real" dimensions="nVertLevels nCells Time" units="kg m^{-2} s^{-1}"
+                     description="vertical updraft mass flux from cumulus parameterization"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="rdnmfxcu" type="real" dimensions="nVertLevels nCells Time" units="kg m^{-2} s^{-1}"
+                     description="vertical downdraft mass flux from cumulus parameterization"
+                     packages="cu_gf_monan_in"/>
+
                 <var name="v3d1" type="real" dimensions="nVertLevels nCells Time" units="undef"
                      description="dummy 3d variable 1 for output only"
                      packages="cu_gf_monan_in"/>
 
+                <var name="rmfxdpcu" type="real" dimensions="nCells Time" units="kg m^{-2} s^{-1}"
+                     description="updraft mass flux at cloud base from deep cumulus parameterization"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="rmfxmdcu" type="real" dimensions="nCells Time" units="kg m^{-2} s^{-1}"
+                     description="updraft mass flux at cloud base from congestus cumulus parameterization"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="rmfxshcu" type="real" dimensions="nCells Time" units="kg m^{-2} s^{-1}"
+                     description="updraft mass flux at cloud base from shallow cumulus parameterization"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="rtopdpcu" type="real" dimensions="nCells Time" units="m"
+                     description="cloud top height above msl from deep cumulus parameterization"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="rbotdpcu" type="real" dimensions="nCells Time" units="m"
+                     description="cloud base height above msl from deep cumulus parameterization"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="rtopmdcu" type="real" dimensions="nCells Time" units="m"
+                     description="cloud top height above msl from congestus cumulus parameterization"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="rtopshcu" type="real" dimensions="nCells Time" units="m"
+                     description="cloud top height above msl from shallow cumulus parameterization"
+                     packages="cu_gf_monan_in"/>
+
                 <var name="v2d1" type="real" dimensions="nCells Time" units="undef"
                      description="dummy 2d variable 1 for output only"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="v2d2" type="real" dimensions="nCells Time" units="undef"
+                     description="dummy 2d variable 2 for output only"
                      packages="cu_gf_monan_in"/>
 
                 <!-- ... KAIN_FRITSCH AND GRELL-FREITAS: -->

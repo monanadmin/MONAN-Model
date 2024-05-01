@@ -169,9 +169,17 @@
        if(.not.allocated(cape_p)         ) allocate(cape_p(ims:ime,jms:jme)             )
        if(.not.allocated(cin_p)          ) allocate(cin_p(ims:ime,jms:jme)              )
        if(.not.allocated(wlpool_p)       ) allocate(wlpool_p(ims:ime,jms:jme)           )
-       if(.not.allocated(v2d1_p)         ) allocate(v2d1_p(ims:ime,jms:jme)             )
        if(.not.allocated(xlat_p)         ) allocate(xlat_p(ims:ime,jms:jme)             )
        if(.not.allocated(xlon_p)         ) allocate(xlon_p(ims:ime,jms:jme)             )
+       if(.not.allocated(rmfxdpcu_p)     ) allocate(rmfxdpcu_p(ims:ime,jms:jme)         )
+       if(.not.allocated(rmfxmdcu_p)     ) allocate(rmfxmdcu_p(ims:ime,jms:jme)         )
+       if(.not.allocated(rmfxshcu_p)     ) allocate(rmfxshcu_p(ims:ime,jms:jme)         )
+       if(.not.allocated(rtopdpcu_p)     ) allocate(rtopdpcu_p(ims:ime,jms:jme)         )
+       if(.not.allocated(rtopmdcu_p)     ) allocate(rtopmdcu_p(ims:ime,jms:jme)         )
+       if(.not.allocated(rtopshcu_p)     ) allocate(rtopshcu_p(ims:ime,jms:jme)         )
+       if(.not.allocated(rbotdpcu_p)     ) allocate(rbotdpcu_p(ims:ime,jms:jme)         )
+       if(.not.allocated(v2d1_p)         ) allocate(v2d1_p(ims:ime,jms:jme)             )
+       if(.not.allocated(v2d2_p)         ) allocate(v2d2_p(ims:ime,jms:jme)             )    
 
        if(.not.allocated(rthblten_p)     ) allocate(rthblten_p(ims:ime,kms:kme,jms:jme) )
        if(.not.allocated(rthdynten_p)    ) allocate(rthdynten_p(ims:ime,kms:kme,jms:jme))
@@ -182,15 +190,15 @@
        if(.not.allocated(rqvdynten_p)    ) allocate(rqvdynten_p(ims:ime,kms:kme,jms:jme))
        if(.not.allocated(rucuten_p)      ) allocate(rucuten_p(ims:ime,kms:kme,jms:jme)  )
        if(.not.allocated(rvcuten_p)      ) allocate(rvcuten_p(ims:ime,kms:kme,jms:jme)  )
-
-       if(.not.allocated(qccu_p)         ) allocate(qccu_p(ims:ime,kms:kme,jms:jme)     )
-       if(.not.allocated(qicu_p)         ) allocate(qicu_p(ims:ime,kms:kme,jms:jme)     )
-       if(.not.allocated(tkepbl_p)       ) allocate(tkepbl_p(ims:ime,kms:kme,jms:jme)   )
-       if(.not.allocated(elpbl_p)        ) allocate(elpbl_p(ims:ime,kms:kme,jms:jme)    )
-       if(.not.allocated(rcnvcfcuten_p)  ) allocate(rcnvcfcuten_p(ims:ime,kms:kme,jms:jme)  )
-       if(.not.allocated(rbuoyxcuten_p)  ) allocate(rbuoyxcuten_p(ims:ime,kms:kme,jms:jme)  ) 
-       if(.not.allocated(v3d1_p)         ) allocate(v3d1_p(ims:ime,kms:kme,jms:jme)     )
-
+       if(.not.allocated(rcnvcfcuten_p)  ) allocate(rcnvcfcuten_p(ims:ime,kms:kme,jms:jme))
+       if(.not.allocated(rbuoyxcuten_p)  ) allocate(rbuoyxcuten_p(ims:ime,kms:kme,jms:jme)) 
+       
+       if(.not.allocated(tkepbl_p)       ) allocate(tkepbl_p  (ims:ime,kms:kme,jms:jme) )
+       if(.not.allocated(elpbl_p)        ) allocate(elpbl_p   (ims:ime,kms:kme,jms:jme) )
+       if(.not.allocated(rupmfxcu_p)     ) allocate(rupmfxcu_p(ims:ime,kms:kme,jms:jme) )
+       if(.not.allocated(rdnmfxcu_p)     ) allocate(rdnmfxcu_p(ims:ime,kms:kme,jms:jme) )
+       if(.not.allocated(v3d1_p)         ) allocate(v3d1_p    (ims:ime,kms:kme,jms:jme) )
+ 
 
        do i = its,ite
        do k = kts,kte
@@ -199,17 +207,25 @@
           rvcuten_p(i,k,j)     = 0._RKIND
           rcnvcfcuten_p(i,k,j) = 0._RKIND
           rbuoyxcuten_p(i,k,j) = 0._RKIND
-          qccu_p(i,k,j)        = 0._RKIND
-          qicu_p(i,k,j)        = 0._RKIND
           tkepbl_p(i,k,j)      = 0._RKIND
           elpbl_p(i,k,j)       = 0._RKIND
+          rupmfxcu_p(i,k,j)    = 0._RKIND
+          rdnmfxcu_p(i,k,j)    = 0._RKIND
        enddo
        enddo
        enddo
 
        do i = its,ite
        do j = jts,jte
-          v2d1_p(i,j)   = 0._RKIND
+          rmfxdpcu_p(i,j)   = 0._RKIND
+          rmfxmdcu_p(i,j)   = 0._RKIND
+          rmfxshcu_p(i,j)   = 0._RKIND
+          rtopdpcu_p(i,j)   = 0._RKIND
+          rtopmdcu_p(i,j)   = 0._RKIND
+          rtopshcu_p(i,j)   = 0._RKIND
+          rbotdpcu_p(i,j)   = 0._RKIND
+          v2d2_p(i,j)       = 0._RKIND
+          v2d1_p(i,j)       = 0._RKIND
        enddo
        enddo
        do i = its,ite
@@ -420,9 +436,16 @@
        if(allocated(cape_p)         ) deallocate(cape_p         )
        if(allocated(cin_p)          ) deallocate(cin_p          )
        if(allocated(wlpool_p)       ) deallocate(wlpool_p       )
-       if(allocated(v2d1_p)         ) deallocate(v2d1_p         )
        if(allocated(xlat_p)         ) deallocate(xlat_p         )
        if(allocated(xlon_p)         ) deallocate(xlon_p         )
+       if(allocated(rmfxmdcu_p)     ) deallocate(rmfxmdcu_p     )
+       if(allocated(rmfxshcu_p)     ) deallocate(rmfxshcu_p     )
+       if(allocated(rtopdpcu_p)     ) deallocate(rtopdpcu_p     )
+       if(allocated(rtopmdcu_p)     ) deallocate(rtopmdcu_p     )
+       if(allocated(rtopshcu_p)     ) deallocate(rtopshcu_p     )
+       if(allocated(rbotdpcu_p)     ) deallocate(rbotdpcu_p     )
+       if(allocated(v2d1_p)         ) deallocate(v2d1_p         )
+       if(allocated(v2d2_p)         ) deallocate(v2d2_p         )    
 
        if(allocated(rthblten_p)     ) deallocate(rthblten_p     )
        if(allocated(rthdynten_p)    ) deallocate(rthdynten_p    )
@@ -431,13 +454,14 @@
        if(allocated(rqvdynten_p)    ) deallocate(rqvdynten_p    )
        if(allocated(rucuten_p)      ) deallocate(rucuten_p      )
        if(allocated(rvcuten_p)      ) deallocate(rvcuten_p      )
-
-       if(allocated(qccu_p)         ) deallocate(qccu_p         )
-       if(allocated(qicu_p)         ) deallocate(qicu_p         )
-       if(allocated(tkepbl_p)       ) deallocate(tkepbl_p       )
-       if(allocated(elpbl_p)        ) deallocate(elpbl_p        )
        if(allocated(rcnvcfcuten_p)  ) deallocate(rcnvcfcuten_p  )
        if(allocated(rbuoyxcuten_p)  ) deallocate(rbuoyxcuten_p  )
+
+       if(allocated(tkepbl_p)       ) deallocate(tkepbl_p       )
+       if(allocated(elpbl_p)        ) deallocate(elpbl_p        )
+       if(allocated(rupmfxcu_p)     ) deallocate(rupmfxcu_p     )
+       if(allocated(rdnmfxcu_p)     ) deallocate(rdnmfxcu_p     )
+       if(allocated(rmfxdpcu_p)     ) deallocate(rmfxdpcu_p     )
        if(allocated(v3d1_p)         ) deallocate(v3d1_p         )
 
  
@@ -620,7 +644,6 @@
  !name="lonCell" type="real" dimensions="nCells" units="rad"description="Longitude of cells"/>
  !print*,"------------------------------------------------------------------"
  !print*,'going to gf',maxval(rthcuten_p(its:ite,kts:kte,jts:jte))*86400._RKIND
-
        call cu_gf_monan_driver(                                                           &
              dt              = dt_dyn                 , confrq        = dt_cu           , &
              dx_p            = dx_p                   , areaCell      = area_p          , &
@@ -642,13 +665,18 @@
              rthdyten        = rthdynten_p            , rqvdyten      = rqvdynten_p     , &    
              
              raincv          = raincv_p               , conprr        = pratec_p        , &     
-             gdc             = qccu_p                 , gdc2          = qicu_p          , &
              rthcuten        = rthcuten_p             , rqvcuten      = rqvcuten_p      , & 
              rqccuten        = rqccuten_p             , rqicuten      = rqicuten_p      , &
              rucuten         = rucuten_p              , rvcuten       = rvcuten_p       , &
              rbuoyxcuten     = rbuoyxcuten_p          , rcnvcfcuten   = rcnvcfcuten_p   , &
+             rupmfxcu        = rupmfxcu_p             , rdnmfxcu      = rdnmfxcu_p      , &
 
-             var2d1          = v2d1_p                 , var3d1        = v3d1_p          , &
+             rmfxdpcu        = rmfxdpcu_p             , rmfxmdcu      = rmfxmdcu_p      , &
+             rmfxshcu        = rmfxshcu_p             , rtopdpcu      = rtopdpcu_p      , &
+             rtopmdcu        = rtopmdcu_p             , rtopshcu      = rtopshcu_p      , &
+             rbotdpcu        = rbotdpcu_p                                               , &
+             var2d1          = v2d1_p                 , var2d2        = v2d2_p          , &               
+             var3d1          = v3d1_p                                                   , &
              ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde      , &
              ims = ims , ime = ime , jms = jms , jme = jme , kms = kds , kme = kme      , &
              its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte      , &
@@ -881,8 +909,6 @@
          call mpas_pool_get_array(diag_physics,'qfx'       ,qfx     )
          call mpas_pool_get_array(diag_physics,'t2m'       ,t2m     )
          call mpas_pool_get_array(diag_physics,'kpbl'      ,kpbl    )
-         call mpas_pool_get_array(diag_physics,'qc_cu'     ,qc_cu   )
-         call mpas_pool_get_array(diag_physics,'qi_cu'     ,qi_cu   )
          call mpas_pool_get_array(diag_physics,'wlpool'    ,wlpool  )
 
          call mpas_pool_get_array(tend_physics,'rqvblten'  ,rqvblten  )
@@ -914,9 +940,7 @@
 
 
             do k = kts,kte
-               qccu_p(i,k,j)       = qc_cu(k,i)
-               qicu_p(i,k,j)       = qi_cu(k,i)
-
+ 
                rthblten_p(i,k,j)    = rthblten(k,i)
                rthdynten_p(i,k,j)   = rthdynten(k,i)
                rthratenlw_p(i,k,j)  = rthratenlw(k,i) 
@@ -1150,10 +1174,15 @@
  real(kind=RKIND),dimension(:,:),pointer:: w0avg
  real(kind=RKIND),dimension(:,:),pointer:: rthcuten,rqvcuten,rqccuten,rqicuten,rqrcuten,rqscuten
  real(kind=RKIND),dimension(:,:),pointer:: rucuten,rvcuten
- real(kind=RKIND),dimension(:,:),pointer:: rcnvcfcuten, rbuoyxcuten
- !
- real(kind=RKIND),dimension(:),pointer  :: v2d1
+ 
+ !local pointers specific for gf_monan convection scheme
+ real(kind=RKIND),dimension(:),pointer  :: rmfxdpcu,rmfxmdcu,rmfxshcu
+ real(kind=RKIND),dimension(:),pointer  :: rtopdpcu,rtopmdcu,rtopshcu
+ real(kind=RKIND),dimension(:),pointer  :: rbotdpcu,v2d1,v2d2
  real(kind=RKIND),dimension(:,:),pointer:: v3d1
+ real(kind=RKIND),dimension(:,:),pointer:: rcnvcfcuten, rbuoyxcuten
+ real(kind=RKIND),dimension(:,:),pointer:: rupmfxcu, rdnmfxcu
+
 !-----------------------------------------------------------------------------------------------------------------
 
  call mpas_pool_get_config(configs,'config_convection_scheme',convection_scheme)
@@ -1182,9 +1211,18 @@
  convection_select: select case(convection_scheme)
     
     case ("cu_gf_monan")
-       call mpas_pool_get_array(diag_physics,'qc_cu'       ,qc_cu      )
-       call mpas_pool_get_array(diag_physics,'qi_cu'       ,qi_cu      )
+       call mpas_pool_get_array(diag_physics,'rmfxdpcu'    ,rmfxdpcu   )
+       call mpas_pool_get_array(diag_physics,'rmfxmdcu'    ,rmfxmdcu   )
+       call mpas_pool_get_array(diag_physics,'rmfxshcu'    ,rmfxshcu   )
+       call mpas_pool_get_array(diag_physics,'rtopdpcu'    ,rtopdpcu   )
+       call mpas_pool_get_array(diag_physics,'rtopmdcu'    ,rtopmdcu   )
+       call mpas_pool_get_array(diag_physics,'rtopshcu'    ,rtopshcu   )
+       call mpas_pool_get_array(diag_physics,'rbotdpcu'    ,rbotdpcu   )
        call mpas_pool_get_array(diag_physics,'v2d1'        ,v2d1       )
+       call mpas_pool_get_array(diag_physics,'v2d2'        ,v2d2       )
+
+       call mpas_pool_get_array(diag_physics,'rupmfxcu'    ,rupmfxcu   )
+       call mpas_pool_get_array(diag_physics,'rdnmfxcu'    ,rdnmfxcu   )
        call mpas_pool_get_array(diag_physics,'v3d1'        ,v3d1       )
 
        call mpas_pool_get_array(tend_physics,'rucuten'     ,rucuten    )
@@ -1196,19 +1234,33 @@
        do j = jts,jte
        do i = its,ite
           do k = kts,kte
-             qc_cu(k,i)        = qccu_p(i,k,j)
-             qi_cu(k,i)        = qicu_p(i,k,j)
              rucuten(k,i)      = rucuten_p(i,k,j)
              rvcuten(k,i)      = rvcuten_p(i,k,j)
              rbuoyxcuten(k,i)  = rbuoyxcuten_p(i,k,j)
              rcnvcfcuten(k,i)  = rcnvcfcuten_p(i,k,j)
-          enddo
+             rupmfxcu(k,i)     = rupmfxcu_p(i,k,j)
+             rdnmfxcu(k,i)     = rdnmfxcu_p(i,k,j)
+         enddo
        enddo
        enddo
+       !- 2-d
+       do j = jts,jte
+       do i = its,ite
+          rmfxdpcu(i) = rmfxdpcu_p(i,j)  
+          rmfxmdcu(i) = rmfxmdcu_p(i,j)  
+          rmfxshcu(i) = rmfxshcu_p(i,j)  
+          rtopdpcu(i) = rtopdpcu_p(i,j)  
+          rtopmdcu(i) = rtopmdcu_p(i,j)  
+          rtopshcu(i) = rtopshcu_p(i,j)  
+          rbotdpcu(i) = rbotdpcu_p(i,j)  
+       enddo
+       enddo
+
        !- dummy vars for debug/output 
        do j = jts,jte
        do i = its,ite
           v2d1(i)  = v2d1_p(i,j)
+          v2d2(i)  = v2d2_p(i,j)
           do k = kts,kte
              v3d1(k,i) = v3d1_p(i,k,j)
           enddo

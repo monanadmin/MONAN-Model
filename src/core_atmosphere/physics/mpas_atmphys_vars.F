@@ -358,12 +358,22 @@
     buoyx_p,              &
     rcnvcfcuten_p,        &!
     rbuoyxcuten_p,        &!
+    rupmfxcu_p,           &!
+    rdnmfxcu_p,           &!
     v3d1_p
  
  real(kind=RKIND),dimension(:,:),allocatable:: &
-    cape_p,   &!
-    cin_p,    &!
-    v2d1_p     !
+    cape_p,         &!
+    cin_p,          &!
+    rmfxdpcu_p,     &!
+    rmfxmdcu_p,     &
+    rmfxshcu_p,     &
+    rtopdpcu_p,     &
+    rtopmdcu_p,     &
+    rtopshcu_p,     &
+    rbotdpcu_p,     &
+    v2d1_p,         &
+    v2d2_p          !
  
  real(kind=RKIND),dimension(:,:),allocatable:: &
     wlpool_p,   &!

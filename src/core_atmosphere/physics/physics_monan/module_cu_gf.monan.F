@@ -380,8 +380,6 @@ contains
               !---- output ----
               ,raincv                &
               ,conprr                &
-              ,gdc                   &
-              ,gdc2                  &
               ,rthcuten              &
               ,rqvcuten              &
               ,rqccuten              &
@@ -390,8 +388,18 @@ contains
               ,rvcuten               &
               ,rbuoyxcuten           &
               ,rcnvcfcuten           &
+              ,rupmfxcu              &
+              ,rdnmfxcu              &
               !
+              ,rmfxdpcu              & 
+              ,rmfxmdcu              &
+              ,rmfxshcu              &
+              ,rtopdpcu              &
+              ,rtopmdcu              &
+              ,rtopshcu              &
+              ,rbotdpcu              &
               ,var2d1                &
+              ,var2d2                &
               ,var3d1                &
               !
               ,ids, ide, jds, jde, kds, kde   &
@@ -435,11 +443,14 @@ contains
       real,dimension(ims:ime,jms:jme)         ,intent(inout):: raincv,conprr,wlpool
       real,dimension(ims:ime,kms:kme,jms:jme) ,intent(inout):: rthcuten,rqvcuten,rqccuten,rqicuten &
                                                               ,rucuten,rvcuten,rbuoyxcuten,rcnvcfcuten
-      real,dimension(ims:ime,kms:kme,jms:jme) ,intent(inout),optional:: gdc,gdc2
 
+      !---intent out arguments
+      real,dimension(ims:ime,jms:jme)         ,intent(out):: rmfxdpcu,rmfxmdcu,rmfxshcu &
+                                                            ,rtopdpcu,rtopmdcu,rtopshcu &
+                                                            ,rbotdpcu
+      real,dimension(ims:ime,jms:jme)         ,intent(out):: var2d1,var2d2
 
-      !---intent out arguments 
-      real,dimension(ims:ime,jms:jme)         ,intent(out):: var2d1
+      real,dimension(ims:ime,kms:kme,jms:jme) ,intent(out):: rupmfxcu,rdnmfxcu
       real,dimension(ims:ime,kms:kme,jms:jme) ,intent(out):: var3d1
 
       !----------------------- local and future in/out arguments
@@ -601,25 +612,6 @@ contains
       aot500        (:,:) = 0.0
       col_sat       (:,:) = 0.0  !falta
       !----------------------------------------------------------------------
-      !in-cloud cloud water and cloud ice mixing ratios:
-       if(present(gdc)) then
-          do j = jts, jte
-             do k = jts, kte
-                do i = its, ite
-                   gdc(i,k,j) = 0.
-                enddo
-             enddo
-         enddo
-       endif
-       if(present(gdc2)) then
-          do j = jts, jte
-             do k = jts, kte
-                do i = its, ite
-                   gdc2(i,k,j) = 0.
-                enddo
-             enddo
-         enddo
-       endif
       !print*, 'domain', its,itf,ite,kts,ktf,kte,jts,jtf,jte
       !print*,'ins---',maxval(conprr(its:ite,jts:jte))*3600 &
       !         ,maxval(abs(rthcuten(its:ite,kts:kte,jts:jte)))*86400.&
@@ -1098,12 +1090,6 @@ contains
                endif
             enddo loop1
          enddo
-        !-- diagnostic 2d
-         do i=its,itf
-            var2d1(i,j) = 0.
-            if(do_this_column(i,j) == 0) cycle
-            var2d1(i,j) = zo(ktop4d(i,j,deep),i)-zo(1,i)
-         enddo
  
 !--- temporary : we will overwritten all grid boxes 
 do_this_column(:,:) = 1
@@ -1136,7 +1122,7 @@ do_this_column(:,:) = 1
          
 
          !------------ feedback
-         !-- deep convection
+         !--- surface precipitation 
          do i=its,itf
             if(do_this_column(i,j) == 0) cycle
             cprr4d(i,j,deep) =  cprr4d(i,j,deep)* fixout_qv(i)
@@ -1147,6 +1133,32 @@ do_this_column(:,:) = 1
             raincv(i,j)      = conprr(i,j)*dt
             !print*,'prec',i,conprr(i,j)*3600,fixout_qv(i)
          enddo
+         do i=its,itf
+            if(do_this_column(i,j) == 0) cycle
+            !-- updraft mass flux @ cloud base (kg/m2/s1)
+            rmfxdpcu(i,j)  = xmb4d(i,j,deep) 
+            rmfxmdcu(i,j)  = xmb4d(i,j,mid)
+            rmfxshcu(i,j)  = xmb4d(i,j,shal)
+            
+            !-- cloud top height above msl (m)
+            rtopdpcu(i,j)  =zo(ktop4d(i,j,deep),i)
+            rtopmdcu(i,j)  =zo(ktop4d(i,j,mid ),i) 
+            rtopshcu(i,j)  =zo(ktop4d(i,j,shal),i)
+
+            !-- cloud base height above msl (m)
+            rbotdpcu(i,j)  = zo(kbcon4d(i,j,deep),i)
+         enddo
+ 
+         !-- diagnostic/debug 2d
+         do i=its,itf
+            var2d1(i,j) = 0.0
+            var2d2(i,j) = 0.0
+            if(do_this_column(i,j) == 0) cycle
+            var2d1(i,j) = lightn_dens(i,j)
+            var2d2(i,j) = AA0(i,j)
+         enddo
+ 
+
          !do i=its,itf
          ! if(do_this_column(i,j) == 0) cycle
          ! if(conprr(i,j)*3600.>1000.) then 
@@ -1163,53 +1175,44 @@ do_this_column(:,:) = 1
                temp2theta = 1./pi(i,k,j)
 
                !- feedback the tendencies from convection
-               rthcuten (i,k,j)= (outt (k,i,shal) + outt (k,i,deep) + outt (k,i,mid)) *fixout_qv(i) * temp2theta
+               rthcuten (i,k,j) = (outt (k,i,shal) + outt (k,i,deep) + outt (k,i,mid)) *fixout_qv(i) * temp2theta
 
-               rqvcuten (i,k,j)= (outq (k,i,shal) + outq (k,i,deep) + outq (k,i,mid)) *fixout_qv(i)
+               rqvcuten (i,k,j) = (outq (k,i,shal) + outq (k,i,deep) + outq (k,i,mid)) *fixout_qv(i)
 
-               rqccuten (i,k,j)= (outqc(k,i,shal) + outqc(k,i,deep) + outqc(k,i,mid)) *fixout_qv(i)
+               rqccuten (i,k,j) = (outqc(k,i,shal) + outqc(k,i,deep) + outqc(k,i,mid)) *fixout_qv(i)
 
-               rqicuten (i,k,j)=  rqccuten (i,k,j) * (1.0-FractLiqF(temp_old(k,i)))
+               rqicuten (i,k,j) =  rqccuten (i,k,j) * (1.0-FractLiqF(temp_old(k,i)))
                
-               rqccuten (i,k,j)=  rqccuten (i,k,j) *      FractLiqF(temp_old(k,i))
+               rqccuten (i,k,j) =  rqccuten (i,k,j) *      FractLiqF(temp_old(k,i))
+  
+               !- vertical updraft and downdraft mass fluxes
+               rupmfxcu (i,k,j) = (zup5d(k,i,j,shal) + zup5d(k,i,j,mid) + zup5d(k,i,j,deep))
+               rdnmfxcu (i,k,j) = (zdn5d(k,i,j,shal) + zdn5d(k,i,j,mid) + zdn5d(k,i,j,deep))
+               
+               !- var output for diagnostic/debug
+               var3d1(i,k,j) = var3d1_2d(k,i)
 
+
+               !--- keep this for potential later use --------------------------------------
                !-- in updraft liq water content ( check the array config clwup5d(kts:kte,its:ite,jts:jte,maxiens) )
                !if(present(gdc )) &
                !  gdc (i,k,j) = (clwup5d(k,i,j,shal) + clwup5d(k,i,j,deep) + clwup5d(k,i,j,mid))*fixout_qv(i) &
-               !              * FractLiqF(temp_old(k,i))
-               
+               !              * FractLiqF(temp_old(k,i))               
                !-- in updraft ice water content
                !if(present(gdc2)) &
                !  gdc2(i,k,j) = (clwup5d(k,i,j,shal) + clwup5d(k,i,j,deep) + clwup5d(k,i,j,mid))*fixout_qv(i) &
                !              * (1.0-FractLiqF(temp_old(k,i))) 
-
-              !var3d1(i,k,j) = var3d1_2d(k,i)
-               var3d1(i,k,j) = (zup5d(k,i,j,shal) + zup5d(k,i,j,mid) + zup5d(k,i,j,deep))
-               
-               
-               !REVSU_GF (kr,i,j)= revsu_gf_2d(k,i)*fixout_qv(i) !-- already contains deep and mid amounts.
-               !---these arrays are only for the deep plume mode
-               !PRFIL_GF (kr,i,j)= prfil_gf_2d (k,i)*fixout_qv(i) !-- ice/liq prec flux of the deep plume
-               !VAR3d_aGF(kr,i,j)= var3d_gf_2d(k,i)              !-- vertical velocity of the deep plume
-               !VAR3d_aGF(kr,i,j)= outt (k,i,mid)*fixout_qv(i)   !--
-               !VAR3d_bGF(kr,i,j)= outq (k,i,mid)*fixout_qv(i)   !--
-
-               !if(icumulus_gf(shal) == OFF) then
-               !   VAR3d_cGF(kr,i,j)= outqc (k,i,deep)*fixout_qv(i)  !--
-               !   VAR3d_dGF(kr,i,j)= outqc (k,i,mid) *fixout_qv(i)  !--
-               !else
-               !   VAR3d_cGF(kr,i,j)= outt (k,i,shal)*fixout_qv(i)   !--
-               !   VAR3d_dGF(kr,i,j)= outq (k,i,shal)*fixout_qv(i)   !--
-               !endif
+               !-------------------------------------------------------------------------------------
+                
 
             enddo
          enddo
- !           print*,'outs---',maxval(fixout_qv),maxval(conprr(:,jts))*3600,maxval(abs(outt (:,:,deep)))*86400,&
- !               maxval(abs(rthcuten(:,:,jts)))*86400.,maxval(abs(rqvcuten(:,:,jts)))*86400.*2.5e+6/1004.
+         ! print*,'outs---',maxval(fixout_qv),maxval(conprr(:,jts))*3600,maxval(abs(outt (:,:,deep)))*86400,&
+         !                  maxval(abs(rthcuten(:,:,jts)))*86400.,maxval(abs(rqvcuten(:,:,jts)))*86400.*2.5e+6/1004.
  
-  !   print*,'outs---',maxval(conprr(its:ite,jts:jte))*3600, maxval(abs(outt (:,:,deep)))*86400&
-  !                  ,maxval(abs(rthcuten(its:ite,kts:kte,jts:jte)))*86400.&
-  !                  ,maxval(abs(rqvcuten(its:ite,kts:kte,jts:jte)))*86400.*2.5e+6/1004.
+         !   print*,'outs---',maxval(conprr(its:ite,jts:jte))*3600, maxval(abs(outt (:,:,deep)))*86400&
+         !                  ,maxval(abs(rthcuten(its:ite,kts:kte,jts:jte)))*86400.&
+         !                  ,maxval(abs(rqvcuten(its:ite,kts:kte,jts:jte)))*86400.*2.5e+6/1004.
 
 
          if(use_momentum_transp > 0) then
