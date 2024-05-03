@@ -1121,7 +1121,7 @@ contains
          enddo
 
 !--- temporary : we will overwritten all grid boxes 
-do_this_column(:,:) = 1
+!do_this_column(:,:) = 1
 !--- temporary : 
 
          !----------- check for negative water vapor mix ratio

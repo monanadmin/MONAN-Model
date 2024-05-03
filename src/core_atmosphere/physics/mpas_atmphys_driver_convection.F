@@ -868,6 +868,7 @@
 
  call mpas_pool_get_config(configs,'config_convection_scheme',convection_scheme)
 
+
  if(trim(convection_scheme) /= "cu_gf_monan") then 
      call mpas_pool_get_array(diag_physics,'cuprec',cuprec)
      call mpas_pool_get_array(diag_physics,'raincv',raincv)
@@ -890,6 +891,7 @@
      enddo
      enddo
  end if
+
  convection_select: select case(convection_scheme)
 
      case ("cu_gf_monan")
