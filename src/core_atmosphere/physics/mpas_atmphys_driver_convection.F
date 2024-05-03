@@ -868,27 +868,28 @@
 
  call mpas_pool_get_config(configs,'config_convection_scheme',convection_scheme)
 
- call mpas_pool_get_array(diag_physics,'cuprec',cuprec)
- call mpas_pool_get_array(diag_physics,'raincv',raincv)
+ if(trim(convection_scheme) /= "cu_gf_monan") then 
+     call mpas_pool_get_array(diag_physics,'cuprec',cuprec)
+     call mpas_pool_get_array(diag_physics,'raincv',raincv)
 
- call mpas_pool_get_array(tend_physics,'rthcuten',rthcuten)
- call mpas_pool_get_array(tend_physics,'rqvcuten',rqvcuten)
- call mpas_pool_get_array(tend_physics,'rqccuten',rqccuten)
- call mpas_pool_get_array(tend_physics,'rqicuten',rqicuten)
+     call mpas_pool_get_array(tend_physics,'rthcuten',rthcuten)
+     call mpas_pool_get_array(tend_physics,'rqvcuten',rqvcuten)
+     call mpas_pool_get_array(tend_physics,'rqccuten',rqccuten)
+     call mpas_pool_get_array(tend_physics,'rqicuten',rqicuten)
 
- do j = jts,jte
- do i = its,ite
-    raincv_p(i,j) = raincv(i)
-    pratec_p(i,j) = cuprec(i)
-    do k = kts,kte
-       rthcuten_p(i,k,j) = rthcuten(k,i)
-       rqvcuten_p(i,k,j) = rqvcuten(k,i)
-       rqccuten_p(i,k,j) = rqccuten(k,i)
-       rqicuten_p(i,k,j) = rqicuten(k,i)
-    enddo
- enddo
- enddo
-
+     do j = jts,jte
+     do i = its,ite
+        raincv_p(i,j) = raincv(i)
+        pratec_p(i,j) = cuprec(i)
+        do k = kts,kte
+           rthcuten_p(i,k,j) = rthcuten(k,i)
+           rqvcuten_p(i,k,j) = rqvcuten(k,i)
+           rqccuten_p(i,k,j) = rqccuten(k,i)
+           rqicuten_p(i,k,j) = rqicuten(k,i)
+        enddo
+     enddo
+     enddo
+ end if
  convection_select: select case(convection_scheme)
 
      case ("cu_gf_monan")
@@ -917,8 +918,6 @@
          call mpas_pool_get_array(tend_physics,'rthdynten' ,rthdynten )
          call mpas_pool_get_array(tend_physics,'rthratenlw',rthratenlw)
          call mpas_pool_get_array(tend_physics,'rthratensw',rthratensw)
-         call mpas_pool_get_array(tend_physics,'rucuten'   ,rucuten   )
-         call mpas_pool_get_array(tend_physics,'rvcuten'   ,rvcuten   )
          call mpas_pool_get_array(tend_physics,'rcnvcfcuten' ,rcnvcfcuten   )
          call mpas_pool_get_array(tend_physics,'rbuoyxcuten' ,rbuoyxcuten   )
 
@@ -947,8 +946,6 @@
                rthratensw_p(i,k,j)  = rthratensw(k,i)
                rqvblten_p(i,k,j)    = rqvblten(k,i)
                rqvdynten_p(i,k,j)   = rqvdynten(k,i)
-               rucuten_p(i,k,j)     = rucuten(k,i)
-               rvcuten_p(i,k,j)     = rvcuten(k,i)
                rbuoyxcuten_p(i,k,j) = rbuoyxcuten(k,i)
                rcnvcfcuten_p(i,k,j) = rcnvcfcuten(k,i)
               

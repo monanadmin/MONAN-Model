@@ -109,7 +109,7 @@ module module_cu_gf_monan
       ,add_coldpool_clos,add_coldpool_trig,mx_buoy1, mx_buoy2, cum_t_star&
       ,add_coldpool_diff,n_cldrop,use_gustiness, use_random_num          &
       ,dcape_threshold,modConvParGF_initialized,use_pass_cloudvol        &
-      ,use_lcl_ctrl_entr,use_rhu_ctrl_entr
+      ,use_lcl_ctrl_entr,use_rhu_ctrl_entr,cum_min_cloud_depth
 
    public convParGFDriver,makeDropletNumber,makeIceNumber,FractLiqF      &
       ,coldPoolStart,readGFConvParNML,initModConvParGF,cu_gf_monan_driver&
@@ -246,6 +246,8 @@ module module_cu_gf_monan
                                                    != default = 1.0
    real,   dimension(maxiens) :: cum_ave_layer     != layer depth for average the properties
                                                    != of source air parcels (mbar)
+   real,   dimension(maxiens) :: cum_min_cloud_depth != minimum cloud depth (mbar)
+                                                   
    real,   dimension(maxiens) :: cum_t_star        != scale temperature for the diurnal cycle closure
 
    integer,dimension(maxiens) :: cum_use_excess    != use t,q excess sub-grid scale variability
@@ -292,6 +294,7 @@ module module_cu_gf_monan
    real    ::  T_star            != Scale Temperature for the DC closure
    real    ::  AVE_LAYER         != layer depth for average the properties of source air parcels (mbar)
    real    ::  c0                != autoconversion constant
+   real    ::  min_cloud_depth   != minimum cloud depth for activate convection
    integer ::  USE_EXCESS        != default= 1   - use T,Q excess sub-grid scale variability
 
    !-- General internal controls for the diverse options in GF
@@ -958,6 +961,7 @@ contains
 
             if(icumulus_gf(plume) /= ON ) cycle
 
+            min_cloud_depth=  cum_min_cloud_depth(plume)
             hei_down_land  =  cum_hei_down_land  (plume)
             hei_down_ocean =  cum_hei_down_ocean (plume)
             hei_updf_land  =  cum_hei_updf_land  (plume)
@@ -1112,8 +1116,8 @@ contains
          !-- diagnostic/debug 2d
          do i=its,itf
             if(do_this_column(i,j) == 0) cycle
-            var2d1(i,j) = lightn_dens(i,j)
-            var2d2(i,j) = AA0(i,j)
+            var2d1(i,j) = cum_ztexec(i) !lightn_dens(i,j)
+            var2d2(i,j) = cum_zqexec(i) 
          enddo
 
 !--- temporary : we will overwritten all grid boxes 
@@ -7229,7 +7233,7 @@ do_this_column(:,:) = 1
          ,rh_dicycle,cum_t_star, convection_tracer, tau_ocea_cp, tau_land_cp      &
          ,use_memory, add_coldpool_prop ,mx_buoy1, mx_buoy2,max_tq_tend           &
          ,add_coldpool_clos,add_coldpool_trig,add_coldpool_diff,n_cldrop,output_sound&
-         ,use_pass_cloudvol,use_lcl_ctrl_entr,use_rhu_ctrl_entr
+         ,use_pass_cloudvol,use_lcl_ctrl_entr,use_rhu_ctrl_entr,cum_min_cloud_depth
 
       if(present(IO_NODE)) then 
          local_io_node = IO_NODE
@@ -7255,6 +7259,7 @@ do_this_column(:,:) = 1
          print*,"!---- the main controls"
          print*, 'icumulus_gf        ' , icumulus_gf
          print*, 'cum_entr           ' , real(cum_entr_rate      ,4)
+         print*, 'cum_min_cloud_depth' , real(cum_min_cloud_depth,4)
          print*, 'closure_choice     ' , closure_choice
          print*, 'use_scale_dep      ' , use_scale_dep
          print*, 'sig_factor         ' , real(sig_factor         ,4)
@@ -7281,7 +7286,6 @@ do_this_column(:,:) = 1
          print*, 'use_pass_cloudvol  ' , use_pass_cloudvol
          print*, 'use_lcl_ctrl_entr  ' , use_lcl_ctrl_entr
          print*, 'use_rhu_ctrl_entr  ' , use_rhu_ctrl_entr
-
 
          print*,'!--- controls rainfall evaporation'
          print*, 'use_rebcb          ' , use_rebcb
@@ -8371,11 +8375,13 @@ do_this_column(:,:) = 1
 
       !-- local vars
      integer :: i,k,vtp_index
-     real :: min_deep_top, min_shall_top      
+     !real, parameter:: cloud_depth_dp = 200. ,cloud_depth_sh = 100. &
+     !                 ,cloud_depth_md = 150.!hPa
+     real :: min_deep_top, min_shall_top, cloud_depth    
      integer, dimension (kts:kte,its:ite) ::  k_inv_layers
      real,    dimension (kts:kte,its:ite) ::  dtempdz
-
-     if(cumulus == 'mid') then
+    
+      if(cumulus == 'mid') then
          if(use_inv_layers) then
             !
             !--- get inversion layers
@@ -8401,9 +8407,10 @@ do_this_column(:,:) = 1
          !
          do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
-            if(po_cup(ktop(i),i) > 750.) then
+            cloud_depth =  po_cup(kbcon(i),i)-po_cup(ktop(i),i)
+            if(po_cup(ktop(i),i) > 750. .or. cloud_depth < min_cloud_depth) then
                ierr(i)=55 ; is_removed = remove(vec_ok, i)
-               ierrc(i)='ktop too low for mid'
+               ierrc(i)='cloud top or cloud_depth too low for mid'
             endif
          enddo
       endif
@@ -8423,32 +8430,35 @@ do_this_column(:,:) = 1
             i = get_data_value(vec_ok,vtp_index)
             min_shall_top=600.
             !if(icumulus_gf(mid) == 0) min_shall_top=500.
-            if(po_cup(ktop(i),i) < min_shall_top) then
+            cloud_depth =  po_cup(kbcon(i),i)-po_cup(ktop(i),i)
+            if(po_cup(ktop(i),i) < min_shall_top .or. cloud_depth < min_cloud_depth ) then
                ierr(i)=26 ; is_removed = remove(vec_ok, i)
-               ierrc(i)='shallow convection wit h cloud top above min_shall_top hpa' 
+               ierrc(i)='cloud top too high or cloud_depth too low for shallow' 
             endif
          enddo
       endif
-
-      do vtp_index = get_num_elements(vec_ok),1,-1
-         i = get_data_value(vec_ok,vtp_index)
-         if(ktop(i) <= kbcon(i))then
-            ierr(i)=5 ; is_removed = remove(vec_ok, i)
-            ierrc(i)='ktop too small'
-         endif
-      enddo
 
       if(cumulus == 'deep') then
             min_deep_top=500.
             if(icumulus_gf(mid) == 0) min_deep_top=600.
             do vtp_index = get_num_elements(vec_ok),1,-1
                i = get_data_value(vec_ok,vtp_index)
-               if(po_cup(ktop(i),i) > min_deep_top) then
+               cloud_depth =  po_cup(kbcon(i),i)-po_cup(ktop(i),i)
+               if(po_cup(ktop(i),i) > min_deep_top .or. cloud_depth < min_cloud_depth ) then
                   ierr(i)=55 ; is_removed = remove(vec_ok, i)
-                  ierrc(i)='ktop too low for deep'
+                  ierrc(i)='cloud top or cloud_depth too low for deep'
                endif
             enddo
       endif
+
+      !--- last check
+      !do vtp_index = get_num_elements(vec_ok),1,-1
+      !   i = get_data_value(vec_ok,vtp_index)
+      !   if(ktop(i) <= kbcon(i))then
+      !      ierr(i)=5 ; is_removed = remove(vec_ok, i)
+      !      ierrc(i)='ktop too small'
+      !   endif
+      !enddo
 
    end subroutine get_cloud_top_by_inv_layers
    !------------------------------------------------------------------------------------
@@ -9780,6 +9790,7 @@ do_this_column(:,:) = 1
       cum_max_edt_ocean = (/0.90, 0.00, 0.20/)
       cum_use_excess    = (/2, 1, 1/)
       cum_ave_layer     = (/50., 25., 25./)
+      cum_min_cloud_depth=(/200., 100., 150./)
       sgs_w_timescale   = 1 
       tau_deep          = 3600.0  
       tau_mid           = 1200.0  
