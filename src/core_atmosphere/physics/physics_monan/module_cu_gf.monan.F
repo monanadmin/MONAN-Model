@@ -1090,23 +1090,25 @@ contains
                endif
             enddo loop1
          enddo
-         
+         !
+         !-- output
          do i=its,itf
-            if(do_this_column(i,j) == 0) cycle
-            !-- updraft mass flux @ cloud base (kg/m2/s1)
-            rmfxdpcu(i,j)  = xmb4d(i,j,deep) 
-            rmfxmdcu(i,j)  = xmb4d(i,j,mid)
-            rmfxshcu(i,j)  = xmb4d(i,j,shal)
-            
-            !-- cloud top height above msl (m)
-            rtopdpcu(i,j)  =zo(ktop4d(i,j,deep),i)
-            rtopmdcu(i,j)  =zo(ktop4d(i,j,mid ),i) 
-            rtopshcu(i,j)  =zo(ktop4d(i,j,shal),i)
-
-            !-- cloud base height above msl (m)
-            rbotdpcu(i,j)  = zo(kbcon4d(i,j,deep),i)
+             if(ierr4d (i,j,deep) == 0 ) then
+               rmfxdpcu(i,j) = xmb4d(i,j,deep)         !-- updraft mass flux @ cloud base (kg/m2/s)
+               rtopdpcu(i,j) = zo(ktop4d (i,j,deep),i) !-- cloud top height above msl (m)
+               rbotdpcu(i,j) = zo(kbcon4d(i,j,deep),i) !-- cloud base height above msl (m)
+             endif
+             if(ierr4d (i,j,mid ) == 0 ) then
+               rmfxmdcu(i,j) = xmb4d(i,j,mid) 
+               rtopmdcu(i,j) = zo(ktop4d(i,j,mid),i)
+             endif
+             if(ierr4d (i,j,shal) == 0 ) then
+               rmfxshcu(i,j) = xmb4d(i,j,shal) 
+               rtopshcu(i,j) = zo(ktop4d(i,j,shal),i)
+             endif
+             if(rtopdpcu(i,j)<1000. .and. rtopdpcu(i,j)>10. ) print*,'top',i,mynum,rtopdpcu(i,j),rbotdpcu(i,j)
          enddo
- 
+
          !-- diagnostic/debug 2d
          do i=its,itf
             if(do_this_column(i,j) == 0) cycle
@@ -1180,16 +1182,16 @@ do_this_column(:,:) = 1
 
                rqccuten (i,k,j) = (outqc(k,i,shal) + outqc(k,i,deep) + outqc(k,i,mid)) *fixout_qv(i)
 
-               rqicuten (i,k,j) =  rqccuten (i,k,j) * (1.0-FractLiqF(temp_old(k,i)))
+               rqicuten (i,k,j) = rqccuten (i,k,j) * (1.0-FractLiqF(temp_old(k,i)))
                
-               rqccuten (i,k,j) =  rqccuten (i,k,j) *      FractLiqF(temp_old(k,i))
+               rqccuten (i,k,j) = rqccuten (i,k,j) *      FractLiqF(temp_old(k,i))
   
                !- vertical updraft and downdraft mass fluxes
-               rupmfxcu (i,k,j) = (zup5d(k,i,j,shal) + zup5d(k,i,j,mid) + zup5d(k,i,j,deep))
-               rdnmfxcu (i,k,j) = (zdn5d(k,i,j,shal) + zdn5d(k,i,j,mid) + zdn5d(k,i,j,deep))
+               rupmfxcu (i,k,j) = zup5d(k,i,j,shal) + zup5d(k,i,j,mid) + zup5d(k,i,j,deep)
+               rdnmfxcu (i,k,j) = zdn5d(k,i,j,shal) + zdn5d(k,i,j,mid) + zdn5d(k,i,j,deep)
                
                !- var output for diagnostic/debug
-               var3d1(i,k,j) = var3d1_2d(k,i)
+               var3d1   (i,k,j) = var3d1_2d(k,i)
 
 
                !--- keep this for potential later use --------------------------------------
@@ -1218,8 +1220,8 @@ do_this_column(:,:) = 1
             do i = its,itf
                if(do_this_column(i,j) == 0) cycle
                do k = kts,kte
-                  rucuten (i,k,j)= (outU(k,i,deep)+outU(k,i,mid)+outU(k,i,shal)) *fixout_qv(i)
-                  rvcuten (i,k,j)= (outV(k,i,deep)+outV(k,i,mid)+outV(k,i,shal)) *fixout_qv(i)
+                  rucuten (i,k,j) = (outU(k,i,deep)+outU(k,i,mid)+outU(k,i,shal)) *fixout_qv(i)
+                  rvcuten (i,k,j) = (outV(k,i,deep)+outV(k,i,mid)+outV(k,i,shal)) *fixout_qv(i)
                enddo
             enddo
          endif
@@ -1271,9 +1273,9 @@ do_this_column(:,:) = 1
                if(do_this_column(i,j) == 0) cycle
                do k = kts,kte
                   kr=k!+1
-                  SUB_MPQL (:,kr,i,j)= (outmpql(:,k,i,deep)+outmpql(:,k,i,mid)+outmpql(:,k,i,shal)) *fixout_qv(i)
-                  SUB_MPQI (:,kr,i,j)= (outmpqi(:,k,i,deep)+outmpqi(:,k,i,mid)+outmpqi(:,k,i,shal)) *fixout_qv(i)
-                  SUB_MPCF (:,kr,i,j)= (outmpcf(:,k,i,deep)+outmpcf(:,k,i,mid)+outmpcf(:,k,i,shal)) *fixout_qv(i)
+                  SUB_MPQL (:,kr,i,j) = (outmpql(:,k,i,deep)+outmpql(:,k,i,mid)+outmpql(:,k,i,shal)) *fixout_qv(i)
+                  SUB_MPQI (:,kr,i,j) = (outmpqi(:,k,i,deep)+outmpqi(:,k,i,mid)+outmpqi(:,k,i,shal)) *fixout_qv(i)
+                  SUB_MPCF (:,kr,i,j) = (outmpcf(:,k,i,deep)+outmpcf(:,k,i,mid)+outmpcf(:,k,i,shal)) *fixout_qv(i)
                enddo
             enddo
          endif
@@ -1294,7 +1296,7 @@ do_this_column(:,:) = 1
                if(do_this_column(i,j) == 0) cycle
                do k = kts,kte
                   kr=k!+1
-                  rchemcuten (:,kr,i,j)= (out_CHEM(:,k,i,deep) +out_CHEM(:,k,i,mid)+out_CHEM(:,k,i,shal)) *fixout_qv(i)
+                  rchemcuten (:,kr,i,j) = (out_CHEM(:,k,i,deep) +out_CHEM(:,k,i,mid)+out_CHEM(:,k,i,shal)) *fixout_qv(i)
                enddo
             enddo
 
@@ -1306,12 +1308,12 @@ do_this_column(:,:) = 1
                   if(CHEM_NAME_MASK (ispc) == 0 ) cycle
 
                   do k=kts,ktf
-                     distance(k)= se_chem(ispc,k,i) + RCHEMCUTEN(ispc,k,i,j)* dt
+                     distance(k) = se_chem(ispc,k,i) + RCHEMCUTEN(ispc,k,i,j)* dt
                   enddo
 
                   !-- fixer for mass of tracer
                   if(minval(distance(kts:ktf)) < 0.) then
-                     zmax   =  minloc(distance(kts:ktf),1)
+                     zmax = minloc(distance(kts:ktf),1)
 
                      if( abs(rchemcuten(ispc,zmax,i,j)*dt) <  p_mintracer) then
                         fixouts= 0.999999
@@ -1321,7 +1323,7 @@ do_this_column(:,:) = 1
                      endif
                      if(fixouts > 1. .or. fixouts <0.)fixouts=0.
 
-                     rchemcuten(ispc,kts:ktf,i,j)=fixouts*rchemcuten(ispc,kts:ktf,i,j)
+                     rchemcuten(ispc,kts:ktf,i,j) = fixouts*rchemcuten(ispc,kts:ktf,i,j)
                   endif
                enddo
             enddo
