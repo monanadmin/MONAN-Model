@@ -868,7 +868,6 @@
 
  call mpas_pool_get_config(configs,'config_convection_scheme',convection_scheme)
 
-
  if(trim(convection_scheme) /= "cu_gf_monan") then 
      call mpas_pool_get_array(diag_physics,'cuprec',cuprec)
      call mpas_pool_get_array(diag_physics,'raincv',raincv)
@@ -891,7 +890,6 @@
      enddo
      enddo
  end if
-
  convection_select: select case(convection_scheme)
 
      case ("cu_gf_monan")
@@ -1434,6 +1432,7 @@
 !local pointers:
  integer,pointer:: index_cnvcf, index_buoyx
  integer,dimension(:),pointer:: i_rainc
+ integer,pointer:: nEdgesSolve
 
 !local pointers:
  character(len=StrKIND),pointer:: convection_scheme
@@ -1642,11 +1641,7 @@
            vmcl(i) = vmcl(i) + 0.62_RKIND * v_p(i,k_amb_wind,j)
           enddo
           enddo
-          !print*,'umcl',maxval(umcl),minval(umcl)
       endif  !- (convection_tracer == 1)
-
-
-
 
     case default
 

@@ -575,7 +575,7 @@ module atm_time_integration
       call mpas_timer_start('physics_get_tend')
       rk_step = 1
       dynamics_substep = 1
-      call physics_get_tend( block, mesh, state, diag, tend, tend_physics, &
+      call physics_get_tend( block, mesh, state, diag, diag_physics,tend, tend_physics, &
                              block % configs, rk_step, dynamics_substep, &
                              tend_ru_physics, tend_rtheta_physics, tend_rho_physics, &
                              exchange_halo_group )
@@ -1311,6 +1311,7 @@ module atm_time_integration
       type (mpas_pool_type), pointer :: tend
       type (mpas_pool_type), pointer :: state
       type (mpas_pool_type), pointer :: diag
+      type (mpas_pool_type), pointer :: diag_physics
       type (mpas_pool_type), pointer :: mesh
       type (mpas_pool_type), pointer :: halo_scratch
 
@@ -1337,6 +1338,8 @@ module atm_time_integration
       call mpas_pool_get_subpool(block % structs, 'tend', tend)
       call mpas_pool_get_subpool(block % structs, 'state', state)
       call mpas_pool_get_subpool(block % structs, 'diag', diag)
+      call mpas_pool_get_subpool(block % structs, 'diag_physics', diag_physics)
+
       call mpas_pool_get_subpool(block % structs, 'mesh', mesh)
       call mpas_pool_get_subpool(block % structs, 'halo_scratch', halo_scratch)
 
@@ -1391,13 +1394,13 @@ module atm_time_integration
       !$OMP PARALLEL DO
       do thread=1,nThreads
          if (rk_step < 3 .or. (.not. config_monotonic .and. .not. config_positive_definite)) then
-            call atm_advance_scalars(field_name, tend, state, diag, mesh, block % configs, rk_timestep(rk_step), &
+            call atm_advance_scalars(field_name, tend, state, diag, diag_physics, mesh, block % configs, rk_timestep(rk_step), &
                                      edgeThreadStart(thread), edgeThreadEnd(thread), &
                                      cellSolveThreadStart(thread), cellSolveThreadEnd(thread), &
                                      horiz_flux_array, rk_step, config_time_integration_order, &
                                      advance_density=config_split_dynamics_transport)
          else
-            call atm_advance_scalars_mono(field_name, block, tend, state, diag, mesh, halo_scratch, &
+            call atm_advance_scalars_mono(field_name, block, tend, state, diag, diag_physics, mesh, halo_scratch, &
                                           block % configs, rk_timestep(rk_step), &
                                           cellThreadStart(thread), cellThreadEnd(thread), &
                                           edgeThreadStart(thread), edgeThreadEnd(thread), &
@@ -2748,7 +2751,7 @@ module atm_time_integration
    !>  to the work routine.
    !
    !-----------------------------------------------------------------------
-   subroutine atm_advance_scalars(field_name, tend, state, diag, mesh, configs, dt, &
+   subroutine atm_advance_scalars(field_name, tend, state, diag, diag_physics, mesh, configs, dt, &
                                   edgeStart, edgeEnd, &
                                   cellSolveStart, cellSolveEnd, &
                                   horiz_flux_arr, rk_step, config_time_integration_order, advance_density)
@@ -2760,6 +2763,7 @@ module atm_time_integration
       type (mpas_pool_type), intent(in) :: tend
       type (mpas_pool_type), intent(inout) :: state
       type (mpas_pool_type), intent(in) :: diag
+      type (mpas_pool_type), intent(in) :: diag_physics
       type (mpas_pool_type), intent(in) :: mesh
       type (mpas_pool_type), intent(in) :: configs
       integer, intent(in) :: rk_step    !  rk substep we are integrating
@@ -2794,6 +2798,10 @@ module atm_time_integration
 
       logical :: local_advance_density
 
+!-srf 
+      integer, pointer :: index_buoyx
+      real (kind=RKIND), dimension(:,:), pointer :: rumcl
+!-srf 
 
       if (present(advance_density)) then
          local_advance_density = advance_density
@@ -2847,24 +2855,27 @@ module atm_time_integration
              nEdges, horiz_flux_arr, rk_step, config_time_integration_order, &
              local_advance_density)
 
-!srf
-!-- if(gf_monan .and. convection_tracer == 1)
- !     call mpas_pool_get_array(diag, 'ruAvg', uhAvg) = umcl,vmcl
- !     call mpas_pool_get_array(diag, 'wwAvg', wwAvg) = 0.
+!--srf
+!-- this is only for GF_MONAN cumulus scheme and convection_tracer == 1 
+      call mpas_pool_get_dimension(state,'index_buoyx',index_buoyx)
+      if(index_buoyx > 0) then
+           call mpas_pool_get_array(diag_physics, 'rumcl', rumcl) ! = umcl,vmcl
 
-      call atm_advance_scalars_work_coldpool(state,nCells, num_scalars, dt, &
+           call atm_advance_scalars_work_coldpool(state,nCells, num_scalars, dt, &
              edgeStart, edgeEnd, &
              cellSolveStart, cellSolveEnd, &
              coef_3rd_order, scalar_old, scalar_new, rho_zz_old, rho_zz_new, &
-             uhAvg, wwAvg, dvEdge, &
+             rumcl, &
+             wwAvg, &  ! <<<< falta 
+             dvEdge, &
              cellsOnEdge, edgesOnCell, nEdgesOnCell, edgesOnCell_sign, invAreaCell, &
              scalar_tend_save, fnm, fnp, rdnw, &
              bdyMaskCell, bdyMaskEdge, &
              nAdvCellsForEdge, advCellsForEdge, adv_coefs, adv_coefs_3rd, &
              nEdges, horiz_flux_arr, rk_step, config_time_integration_order, &
              local_advance_density)
-
-
+      endif
+!--srf 
 
 
    end subroutine atm_advance_scalars
@@ -3149,12 +3160,12 @@ module atm_time_integration
    !>  to the work routine.
    !
    !-----------------------------------------------------------------------
-   subroutine atm_advance_scalars_mono(field_name, block, tend, state, diag, mesh, halo_scratch, configs, dt, &
+   subroutine atm_advance_scalars_mono(field_name, block, tend, state, diag, diag_physics, mesh, halo_scratch, configs, dt, &
                                        cellStart, cellEnd, edgeStart, edgeEnd, &
                                        cellSolveStart, cellSolveEnd, &
                                        scalar_old, scalar_new, s_max, s_min, wdtn, flux_arr, &
                                        flux_upwind_tmp, flux_tmp, exchange_halo_group, advance_density, rho_zz_int)
-
+      use mpas_atm_dimensions, only : nVertLevels
       implicit none
 
       ! Arguments
@@ -3163,6 +3174,7 @@ module atm_time_integration
       type (mpas_pool_type), intent(in)    :: tend
       type (mpas_pool_type), intent(inout) :: state
       type (mpas_pool_type), intent(in)    :: diag
+      type (mpas_pool_type), intent(in)    :: diag_physics
       type (mpas_pool_type), intent(in)    :: mesh
       type (mpas_pool_type), intent(in)    :: halo_scratch
       type (mpas_pool_type), intent(in)    :: configs
@@ -3203,7 +3215,11 @@ module atm_time_integration
 
       type (field3DReal), pointer :: scale
       real (kind=RKIND), dimension(:,:,:), pointer :: scale_arr
-
+!-srf 
+      integer, pointer :: index_buoyx
+      real (kind=RKIND), dimension(:,:), pointer :: rumcl
+      real (kind=RKIND), allocatable, dimension(:,:) :: wwAvg_local
+!-srf
 
       call mpas_pool_get_config(configs, 'config_coef_3rd_order', coef_3rd_order)
 
@@ -3255,21 +3271,29 @@ module atm_time_integration
                                    bdyMaskCell, bdyMaskEdge, &
                                    exchange_halo_group, advance_density, rho_zz_int)
 
-      !--srf
-      call atm_advance_scalars_mono_work_coldpool(block, state, nCells, nEdges, num_scalars, dt, &
+!--srf
+!-- this is only for GF_MONAN cumulus scheme and convection_tracer == 1 
+      call mpas_pool_get_dimension(state,'index_buoyx',index_buoyx)
+      if(index_buoyx > 0) then
+           call mpas_pool_get_array(diag_physics, 'rumcl', rumcl) ! = umcl,vmcl
+           if(.not. allocated(wwAvg_local)) allocate(wwAvg_local(nVertLevels+1,nCells+1))
+           wwAvg_local = 0.0_RKIND
+           call atm_advance_scalars_mono_work_coldpool(block, state, nCells, nEdges, num_scalars, dt, &
                                    cellStart, cellEnd, edgeStart, edgeEnd, &
                                    cellSolveStart, cellSolveEnd, &
-                                   coef_3rd_order, nCellsSolve, uhAvg, wwAvg, scalar_tend, rho_zz_old, &
+                                   coef_3rd_order, nCellsSolve,  &
+                                   rumcl,       &  ! uhAvg, &
+                                   wwAvg_local, &  ! wwAvg, &     
+                                   scalar_tend, rho_zz_old, &
                                    rho_zz_new, scalars_old, scalars_new, invAreaCell, dvEdge, cellsOnEdge, cellsOnCell, &
                                    edgesOnCell, edgesOnCell_sign, nEdgesOnCell, fnm, fnp, rdnw, nAdvCellsForEdge, &
                                    advCellsForEdge, adv_coefs, adv_coefs_3rd, scalar_old, scalar_new, s_max, s_min, &
                                    wdtn, scale_arr, flux_arr, flux_upwind_tmp, flux_tmp, &
                                    bdyMaskCell, bdyMaskEdge, &
                                    exchange_halo_group, advance_density, rho_zz_int)
-     
-
-
-
+          if(allocated(wwAvg_local)) deallocate(wwAvg_local)
+      endif
+!--srf 
 
       call mpas_deallocate_scratch_field(scale)
 
@@ -6798,8 +6822,8 @@ module atm_time_integration
 !DIR$ IVDEP
       do k = 1,nVertLevels
 !DIR$ IVDEP
-      do iScalar = 1,num_scalars  ; if(iScalar /= index_buoyx) cycle !srf
-
+!-srf do iScalar = 1,num_scalars  ; if(iScalar /= index_buoyx) cycle !srf
+          iScalar = index_buoyx
 
 #ifndef DO_PHYSICS
 !TBH:  Michael, would you please check this change?  Our test uses -DDO_PHYSICS
@@ -6808,7 +6832,7 @@ module atm_time_integration
 #endif
          scalars_old(iScalar,k,iCell) = scalars_old(iScalar,k,iCell)+dt*scalar_tend(iScalar,k,iCell) / rho_zz_old(k,iCell)
          scalar_tend(iScalar,k,iCell) = 0.0
-      end do
+!srf   end do
       end do
       end do
 
@@ -6853,9 +6877,8 @@ module atm_time_integration
 
       ! next, do one scalar at a time
 
-      do iScalar = 1, num_scalars ; if(iScalar /= index_buoyx) cycle !srf
-         !srf 
-         print*,'scalars',iScalar,maxval(scalars_new(iScalar,:,:))
+!--srf do iScalar = 1, num_scalars ; if(iScalar /= index_buoyx) cycle !srf
+       iScalar = index_buoyx 
          !
          do iCell=cellStart,cellEnd
 !DIR$ IVDEP
@@ -7254,7 +7277,7 @@ module atm_time_integration
             end if
          end do
 
-      end do !  loop over scalars
+!srf  end do !  loop over scalars
 
    end subroutine atm_advance_scalars_mono_work_coldpool
     !-----------------------------------------------------------------------
@@ -7400,7 +7423,8 @@ module atm_time_integration
 !DIR$ IVDEP
             do k = 1,nVertLevels
 !DIR$ IVDEP
-               do iScalar = 1,num_scalars; if(iScalar /= index_buoyx) cycle !srf
+!srf             do iScalar = 1,num_scalars; if(iScalar /= index_buoyx) cycle !srf
+                  iScalar = index_buoyx
                   horiz_flux_arr(iScalar,k,iEdge) = &
                        scalar_weight2(k,1)  * scalar_new(iScalar,k,ica(1)) + &
                        scalar_weight2(k,2)  * scalar_new(iScalar,k,ica(2)) + &
@@ -7412,7 +7436,7 @@ module atm_time_integration
                        scalar_weight2(k,8)  * scalar_new(iScalar,k,ica(8)) + &
                        scalar_weight2(k,9)  * scalar_new(iScalar,k,ica(9)) + &
                        scalar_weight2(k,10) * scalar_new(iScalar,k,ica(10))
-               end do
+ !srf              end do
             end do
 
          case default
@@ -7424,9 +7448,10 @@ module atm_time_integration
                do k=1,nVertLevels
                   scalar_weight = adv_coefs(j,iEdge) + sign(1.0_RKIND,uhAvg(k,iEdge))*adv_coefs_3rd(j,iEdge)
 !DIR$ IVDEP
-                  do iScalar=1,num_scalars; if(iScalar /= index_buoyx) cycle !srf
+!srf                 do iScalar=1,num_scalars; if(iScalar /= index_buoyx) cycle !srf
+                      iScalar = index_buoyx
                      horiz_flux_arr(iScalar,k,iEdge) = horiz_flux_arr(iScalar,k,iEdge) + scalar_weight * scalar_new(iScalar,k,iAdvCell)
-                  end do
+!srf                 end do
                end do
             end do
 
@@ -7442,9 +7467,10 @@ module atm_time_integration
                u_positive = dvEdge(iEdge)*abs(u_direction + 0.5_RKIND)
                u_negative = dvEdge(iEdge)*abs(u_direction - 0.5_RKIND)
 !DIR$ IVDEP
-               do iScalar=1,num_scalars  ; if(iScalar /= index_buoyx) cycle !srf
+!srf               do iScalar=1,num_scalars  ; if(iScalar /= index_buoyx) cycle !srf
+                     iScalar = index_buoyx
                   horiz_flux_arr(iScalar,k,iEdge) = u_positive*scalar_new(iScalar,k,cell1) + u_negative*scalar_new(iScalar,k,cell2)
-               end do
+!srf               end do
             end do
 
           end if ! end of regional MPAS test
@@ -7463,7 +7489,8 @@ module atm_time_integration
 #ifndef DO_PHYSICS
             scalar_tend_save(:,:,iCell) = 0.0  !  testing purposes - we have no sources or sinks
 #endif
-            scalar_tend_column(1:num_scalars,1:nVertlevels) = 0.
+!srf        scalar_tend_column(1:num_scalars,1:nVertlevels) = 0.
+            scalar_tend_column(index_buoyx,1:nVertlevels) = 0.
 
             do i=1,nEdgesOnCell(iCell)
                iEdge = edgesOnCell(i,iCell)
@@ -7473,10 +7500,11 @@ module atm_time_integration
 !DIR$ IVDEP
                do k=1,nVertLevels
 !DIR$ IVDEP
-                  do iScalar=1,num_scalars  ; if(iScalar /= index_buoyx) cycle !srf
+!srf               do iScalar=1,num_scalars  ; if(iScalar /= index_buoyx) cycle !srf
+                        iScalar = index_buoyx
                         scalar_tend_column(iScalar,k) = scalar_tend_column(iScalar,k) &
                                - edgesOnCell_sign(i,iCell) * uhAvg(k,iEdge)*horiz_flux_arr(iScalar,k,iEdge)
-                  end do
+!srf               end do
                end do
                
             end do
@@ -7484,45 +7512,51 @@ module atm_time_integration
 !DIR$ IVDEP
             do k=1,nVertLevels
 !DIR$ IVDEP
-               do iScalar=1,num_scalars ; if(iScalar /= index_buoyx) cycle !srf
+!srf           do iScalar=1,num_scalars ; if(iScalar /= index_buoyx) cycle !srf
+                     iScalar = index_buoyx
                      scalar_tend_column(iScalar,k) = scalar_tend_column(iScalar,k) * invAreaCell(iCell) + scalar_tend_save(iScalar,k,iCell)
-               end do
+!srf           end do
             end do
  
 
       !
       !  vertical flux divergence and update of the scalars
       !
-         wdtn(:,1) = 0.0
-         wdtn(:,nVertLevels+1) = 0.0
-
-         k = 2
-         do iScalar=1,num_scalars ; if(iScalar /= index_buoyx) cycle !srf
-            wdtn(iScalar,k) = wwAvg(k,iCell)*(fnm(k)*scalar_new(iScalar,k,iCell)+fnp(k)*scalar_new(iScalar,k-1,iCell))
-         end do
-          
-!DIR$ IVDEP
-         do k=3,nVertLevels-1
-!DIR$ IVDEP
-            do iScalar=1,num_scalars ; if(iScalar /= index_buoyx) cycle !srf
-               wdtn(iScalar,k) = flux3( scalar_new(iScalar,k-2,iCell),scalar_new(iScalar,k-1,iCell),  &
-                                        scalar_new(iScalar,k  ,iCell),scalar_new(iScalar,k+1,iCell),  &
-                                        wwAvg(k,iCell), coef_3rd_order )
-            end do
-         end do
-         k = nVertLevels
-         do iScalar=1,num_scalars; if(iScalar /= index_buoyx) cycle !srf
-            wdtn(iScalar,k) = wwAvg(k,iCell)*(fnm(k)*scalar_new(iScalar,k,iCell)+fnp(k)*scalar_new(iScalar,k-1,iCell))
-         end do
+!--srf the cold pool gust front is essentially a terrain-following horizontal movement.
+         wdtn(:,:) = 0.0
+!          
+!        wdtn(:,1) = 0.0
+!        wdtn(:,nVertLevels+1) = 0.0
+!
+!        k = 2
+!         do iScalar=1,num_scalars ; if(iScalar /= index_buoyx) cycle !srf
+!            wdtn(iScalar,k) = wwAvg(k,iCell)*(fnm(k)*scalar_new(iScalar,k,iCell)+fnp(k)*scalar_new(iScalar,k-1,iCell))
+!         end do
+!          
+!!DIR$ IVDEP
+!         do k=3,nVertLevels-1
+!!DIR$ IVDEP
+!            do iScalar=1,num_scalars ; if(iScalar /= index_buoyx) cycle !srf
+!               wdtn(iScalar,k) = flux3( scalar_new(iScalar,k-2,iCell),scalar_new(iScalar,k-1,iCell),  &
+!                                        scalar_new(iScalar,k  ,iCell),scalar_new(iScalar,k+1,iCell),  &
+!                                        wwAvg(k,iCell), coef_3rd_order )
+!            end do
+!         end do
+!         k = nVertLevels
+!         do iScalar=1,num_scalars; if(iScalar /= index_buoyx) cycle !srf
+!            wdtn(iScalar,k) = wwAvg(k,iCell)*(fnm(k)*scalar_new(iScalar,k,iCell)+fnp(k)*scalar_new(iScalar,k-1,iCell))
+!         end do
+!--srf
 
 !DIR$ IVDEP
          do k=1,nVertLevels
             rho_zz_new_inv = 1.0_RKIND / (weight_time_old*rho_zz_old(k,iCell) + weight_time_new*rho_zz_new(k,iCell))
 !DIR$ IVDEP
-            do iScalar=1,num_scalars ; if(iScalar /= index_buoyx) cycle !srf
+!srf        do iScalar=1,num_scalars ; if(iScalar /= index_buoyx) cycle !srf
+               iScalar = index_buoyx
                scalar_new(iScalar,k,iCell) = (   scalar_old(iScalar,k,iCell)*rho_zz_old(k,iCell) &
                      + dt*( scalar_tend_column(iScalar,k) -rdnw(k)*(wdtn(iScalar,k+1)-wdtn(iScalar,k)) ) ) * rho_zz_new_inv
-            end do
+!srf        end do
          end do
 
         end if ! specified zone regional_MPAS test

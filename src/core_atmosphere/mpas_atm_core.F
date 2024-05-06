@@ -1616,6 +1616,11 @@ module atm_core
          call mpas_dmpar_exch_group_create(domain, 'physics:cuten')
          call mpas_dmpar_exch_group_add_field(domain, 'physics:cuten', 'rucuten', timeLevel=1, haloLayers=(/1,2/))
          call mpas_dmpar_exch_group_add_field(domain, 'physics:cuten', 'rvcuten', timeLevel=1, haloLayers=(/1,2/))
+         !-srf
+  !       call mpas_dmpar_exch_group_create(domain, 'physics:coldpool')
+  !       call mpas_dmpar_exch_group_add_field(domain, 'physics:coldpool' , 'umcl'   , timeLevel=1, haloLayers=(/1,2/))
+  !       call mpas_dmpar_exch_group_add_field(domain, 'physics:coldpool' , 'vmcl'   , timeLevel=1, haloLayers=(/1,2/))
+         !-srf
 #endif
 
          !
@@ -1749,6 +1754,13 @@ module atm_core
          call mpas_halo_exch_group_add_field(domain, 'physics:cuten', 'rucuten', timeLevel=1, haloLayers=(/1,2/))
          call mpas_halo_exch_group_add_field(domain, 'physics:cuten', 'rvcuten', timeLevel=1, haloLayers=(/1,2/))
          call mpas_halo_exch_group_complete(domain, 'physics:cuten')
+
+!-srf
+  !       call mpas_halo_exch_group_create(domain, 'physics:coldpool')
+  !       call mpas_halo_exch_group_add_field(domain, 'physics:coldpool', 'umcl', timeLevel=1, haloLayers=(/1,2/))
+  !       call mpas_halo_exch_group_add_field(domain, 'physics:coldpool', 'vmcl', timeLevel=1, haloLayers=(/1,2/))
+  !       call mpas_halo_exch_group_complete(domain, 'physics:coldpool')
+!-srf
 #endif
 
          !

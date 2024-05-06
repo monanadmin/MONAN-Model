@@ -69,7 +69,7 @@
 
  
 !=================================================================================================================
- subroutine physics_get_tend( block, mesh, state, diag, tend, tend_physics, configs, rk_step, dynamics_substep, &
+ subroutine physics_get_tend( block, mesh, state, diag, diag_physics, tend, tend_physics, configs, rk_step, dynamics_substep, &
                               tend_ru_physics, tend_rtheta_physics, tend_rho_physics, exchange_halo_group )
 !=================================================================================================================
    
@@ -86,6 +86,7 @@
 
 !inout variables:
  type(mpas_pool_type),intent(inout):: diag
+ type(mpas_pool_type),intent(inout):: diag_physics
  type(mpas_pool_type),intent(inout):: tend
  type(mpas_pool_type),intent(inout):: tend_physics
 
@@ -126,6 +127,8 @@
 
  real(kind=RKIND),dimension(:,:),allocatable:: theta,tend_th
 
+ real(kind=RKIND),dimension(:,:),pointer:: rumcl
+ real(kind=RKIND),dimension(:)  ,pointer:: umcl,vmcl
 
 !=================================================================================================================
  call mpas_pool_get_dimension(mesh, 'nCells', nCells)
@@ -181,12 +184,16 @@
  call mpas_pool_get_array(tend_physics, 'rcnvcfcuten', rcnvcfcuten)
  call mpas_pool_get_array(tend_physics, 'rbuoyxcuten', rbuoyxcuten)
 
-
-
  call mpas_pool_get_array(tend,'u'           , tend_u         )
  call mpas_pool_get_array(tend,'theta_m'     , tend_theta     )
  call mpas_pool_get_array(tend,'theta_euler' ,tend_theta_euler)
  call mpas_pool_get_array(tend,'scalars_tend',tend_scalars    )
+
+ !-srf
+ call mpas_pool_get_array(diag_physics,'umcl'  ,umcl )
+ call mpas_pool_get_array(diag_physics,'vmcl'  ,vmcl )
+ call mpas_pool_get_array(diag_physics,'rumcl' ,rumcl)
+ !-srf
 
 !initialize the tendency for the potential temperature and all scalars due to PBL, convection,
 !and longwave and shortwave radiation:
@@ -240,7 +247,7 @@
                            tend_rtheta_physics, &
                            tend_theta_euler, &
                            exchange_halo_group, &
-                           index_cnvcf,index_buoyx,rbuoyxcuten,rcnvcfcuten)
+                           index_cnvcf,index_buoyx,rbuoyxcuten,rcnvcfcuten,rumcl,umcl,vmcl)
 
  !
  ! Clean up any pointers that were allocated with zero size before the call to
@@ -297,7 +304,7 @@
                                  tend_u_phys, &
                                  theta_m, scalars, tend_theta, tend_theta_euler, &
                                  exchange_halo_group, &
-                                 index_cnvcf,index_buoyx,rbuoyxcuten,rcnvcfcuten)
+                                 index_cnvcf,index_buoyx,rbuoyxcuten,rcnvcfcuten,rumcl,umcl,vmcl)
 !==================================================================================================
 
     use mpas_atm_dimensions
@@ -340,7 +347,9 @@
     real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: rthratensw
     real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: rbuoyxcuten
     real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: rcnvcfcuten
-
+    real (kind=RKIND), dimension(nCells)              , intent(in) :: umcl
+    real (kind=RKIND), dimension(nCells)              , intent(in) :: vmcl
+    real (kind=RKIND), dimension(nVertLevels,nEdges+1), intent(inout) :: rumcl
     real (kind=RKIND), dimension(nVertLevels,nEdges+1), intent(inout) :: tend_u_phys
     real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: theta_m
     real (kind=RKIND), dimension(num_scalars,nVertLevels,nCells+1), intent(in) :: scalars
@@ -440,6 +449,18 @@
                  tend_u(k,i)=tend_u(k,i)+rucuten_Edge(k,i)*mass_edge(k,i)
               enddo
               enddo
+            ! if (convection _tracer == 1) ! falta
+             !-- calculating the horizontal mean cloud layer momentum at cell edge (rho*u/zz)
+             !-- used in the cold pool gust front 2-d advection
+             
+             ! call exchange_halo_group(block % domain, 'physics:coldpool')
+
+             call UVMCL_toEdges(mesh,umcl,vmcl,rumcl)
+             do i = 1, nEdgesSolve
+                do k = 1, nVertLevels
+                    rumcl(k,i)=rumcl(k,i)*mass_edge(k,i)
+                enddo
+             enddo
 !srf- the sources and sinks of the scalars below are included in the routine "update_convection_step2" 
 !              do i = 1, nCellsSolve
 !              do k = 1, nVertLevels
@@ -537,6 +558,65 @@
  end do
  
  end subroutine tend_toEdges
+ !
+ !=================================================================================================================
+ subroutine UVMCL_toEdges(mesh,UMCL,VMCL,RUMCL)
+  !-- calculating the horizontal mean cloud layer momentum at cell edge (rho*u/zz)
+  !-- used in the cold pool gust front 2-d advection
+  !-- adapted by Saulo Freitas (06MAY2024) for the convection organization parameterization.
+  
+  use mpas_atm_dimensions
+
+ !input arguments:
+ ! type(block_type),intent(in),target:: block
+  type(mpas_pool_type),intent(in):: mesh
+  real(kind=RKIND),intent(in),dimension(:),target:: umcl,vmcl 
+
+ !output arguments:
+  real(kind=RKIND),intent(out),dimension(:,:):: rumcl
+
+ !local variables:
+  integer:: iCell,iEdge,k,j
+  integer:: cell1, cell2
+  integer,pointer:: nCells,nCellsSolve,nEdges
+  integer,dimension(:,:),pointer:: cellsOnEdge
+
+  real(kind=RKIND), dimension(:,:), pointer :: east, north, edgeNormalVectors
+
+  call mpas_pool_get_dimension(mesh, 'nCells', nCells)
+  call mpas_pool_get_dimension(mesh, 'nCellsSolve', nCellsSolve)
+  call mpas_pool_get_dimension(mesh, 'nEdges', nEdges)
+
+  call mpas_pool_get_array(mesh, 'east', east)
+  call mpas_pool_get_array(mesh, 'north', north)
+  call mpas_pool_get_array(mesh, 'edgeNormalVectors', edgeNormalVectors)
+
+  call mpas_pool_get_array(mesh, 'cellsOnEdge', cellsOnEdge)
+
+  !--srf: rumcl does not vary on vertical, see Freitas et al. (JAMES 2024) for explanation.
+  !--     It is used to transport the scalar 'buoyx' representing the MSE anomalies in the 
+  !--     leading edge of the cold pool.
+  do iEdge = 1, nEdges
+     cell1 = cellsOnEdge(1,iEdge)
+     cell2 = cellsOnEdge(2,iEdge)
+                            
+     rumcl(1,iEdge) =   umcl(cell1) * 0.5 * (edgeNormalVectors(1,iEdge) * east(1,cell1)   &
+                                          +  edgeNormalVectors(2,iEdge) * east(2,cell1)   &
+                                          +  edgeNormalVectors(3,iEdge) * east(3,cell1))  &
+                      + vmcl(cell1) * 0.5 * (edgeNormalVectors(1,iEdge) * north(1,cell1)  &
+                                          +  edgeNormalVectors(2,iEdge) * north(2,cell1)  &
+                                          +  edgeNormalVectors(3,iEdge) * north(3,cell1)) &
+                      + umcl(cell2) * 0.5 * (edgeNormalVectors(1,iEdge) * east(1,cell2)   &
+                                          +  edgeNormalVectors(2,iEdge) * east(2,cell2)   &
+                                          +  edgeNormalVectors(3,iEdge) * east(3,cell2))  &
+                      + vmcl(cell2) * 0.5 * (edgeNormalVectors(1,iEdge) * north(1,cell2)  &
+                                          +  edgeNormalVectors(2,iEdge) * north(2,cell2)  &
+                                          +  edgeNormalVectors(3,iEdge) * north(3,cell2))
+  
+     rumcl(2:,iEdge) =  rumcl(1,iEdge)
+  end do
+  
+  end subroutine UVMCL_toEdges
 
 !=================================================================================================================
  end module mpas_atmphys_todynamics
