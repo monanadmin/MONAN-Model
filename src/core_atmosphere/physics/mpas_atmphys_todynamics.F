@@ -231,6 +231,10 @@
 
  if (.not. associated(rbuoyxcuten)) allocate(rbuoyxcuten(0,0))
  if (.not. associated(rcnvcfcuten)) allocate(rcnvcfcuten(0,0))
+ if (.not. associated(umcl)) allocate(umcl(0))
+ if (.not. associated(vmcl)) allocate(vmcl(0))
+ 
+
 
  call physics_get_tend_work(block, mesh, nCells, nEdges, nCellsSolve, nEdgesSolve, &
                            rk_step, dynamics_substep, &
@@ -270,6 +274,8 @@
  if (size(rqicuten) == 0) deallocate(rqicuten)
  if (size(rbuoyxcuten) == 0) deallocate(rbuoyxcuten)
  if (size(rcnvcfcuten) == 0) deallocate(rcnvcfcuten)
+ if (size(umcl) == 0) deallocate(umcl)
+ if (size(vmcl) == 0) deallocate(vmcl)
 
 ! deallocate(theta)
  deallocate(tend_th)
@@ -347,8 +353,8 @@
     real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: rthratensw
     real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: rbuoyxcuten
     real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: rcnvcfcuten
-    real (kind=RKIND), dimension(nCells)              , intent(in) :: umcl
-    real (kind=RKIND), dimension(nCells)              , intent(in) :: vmcl
+    real (kind=RKIND), dimension(nCells+1)            , intent(in) :: umcl
+    real (kind=RKIND), dimension(nCells+1)            , intent(in) :: vmcl
     real (kind=RKIND), dimension(nVertLevels,nEdges+1), intent(inout) :: rumcl
     real (kind=RKIND), dimension(nVertLevels,nEdges+1), intent(inout) :: tend_u_phys
     real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: theta_m
@@ -449,18 +455,21 @@
                  tend_u(k,i)=tend_u(k,i)+rucuten_Edge(k,i)*mass_edge(k,i)
               enddo
               enddo
-            ! if (convection _tracer == 1) ! falta
+             ! if (convection _tracer == 1) ! falta
              !-- calculating the horizontal mean cloud layer momentum at cell edge (rho*u/zz)
              !-- used in the cold pool gust front 2-d advection
              
-             ! call exchange_halo_group(block % domain, 'physics:coldpool')
+             !if (rk_step == 1 .and. dynamics_substep == 1) then  ! <<<< check this >>>>>>
 
-             call UVMCL_toEdges(mesh,umcl,vmcl,rumcl)
-             do i = 1, nEdgesSolve
+               call exchange_halo_group(block % domain, 'physics:coldpool')
+               call UVMCL_toEdges(mesh,umcl,vmcl,rumcl)
+               do i = 1, nEdgesSolve
                 do k = 1, nVertLevels
                     rumcl(k,i)=rumcl(k,i)*mass_edge(k,i)
                 enddo
-             enddo
+               enddo
+             !end if
+
 !srf- the sources and sinks of the scalars below are included in the routine "update_convection_step2" 
 !              do i = 1, nCellsSolve
 !              do k = 1, nVertLevels
@@ -538,6 +547,8 @@
  call mpas_pool_get_array(mesh, 'edgeNormalVectors', edgeNormalVectors)
 
  call mpas_pool_get_array(mesh, 'cellsOnEdge', cellsOnEdge)
+  print*,'Ux_tend',size(Ux_tend,2), cellsOnEdge(2,1), cellsOnEdge(1,1)
+  print*,'Uy_tend',size(Uy_tend,2), cellsOnEdge(2,nEdges), cellsOnEdge(1,nEdges)
 
  do iEdge = 1, nEdges
     cell1 = cellsOnEdge(1,iEdge)
@@ -596,6 +607,9 @@
   !--srf: rumcl does not vary on vertical, see Freitas et al. (JAMES 2024) for explanation.
   !--     It is used to transport the scalar 'buoyx' representing the MSE anomalies in the 
   !--     leading edge of the cold pool.
+  print*,'Vsizes',size(vmcl), cellsOnEdge(2,1), cellsOnEdge(1,1)
+  print*,'Usizes',size(umcl), cellsOnEdge(2,nEdges), cellsOnEdge(1,nEdges)
+
   do iEdge = 1, nEdges
      cell1 = cellsOnEdge(1,iEdge)
      cell2 = cellsOnEdge(2,iEdge)

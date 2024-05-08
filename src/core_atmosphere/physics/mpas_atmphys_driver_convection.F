@@ -639,11 +639,6 @@
     
     case ("cu_gf_monan")
        call mpas_timer_start('Grell-Freitas-MONAN')
- !srf --- misssing
- !name="latCell" type="real" dimensions="nCells" units="rad"description="Latitude of cells"/>
- !name="lonCell" type="real" dimensions="nCells" units="rad"description="Longitude of cells"/>
- !print*,"------------------------------------------------------------------"
- !print*,'going to gf',maxval(rthcuten_p(its:ite,kts:kte,jts:jte))*86400._RKIND
        call cu_gf_monan_driver(                                                           &
              dt              = dt_dyn                 , confrq        = dt_cu           , &
              dx_p            = dx_p                   , areaCell      = area_p          , &

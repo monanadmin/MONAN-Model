@@ -663,7 +663,7 @@
             <var name="re_snow" packages="mp_thompson_in;mp_wsm6_in"/>
             <var name="nt_c" packages="mp_thompson_in"/>
             <var name="mu_c" packages="mp_thompson_in"/>
-                        <var name="tend_sfc_pressure"/>
+            <var name="tend_sfc_pressure"/>
             <var name="rt_diabatic_tend"/>
             <var name="nsteps_accum"/>
             <var name="ndays_accum"/>
@@ -828,8 +828,12 @@
             <var name="rniblten"/>
             <var name="rthratensw"/>
             <var name="rthratenlw"/>
-            <var name="rcnvcfcuten"/>
-            <var name="rbuoyxcuten"/>            
+            <var name="rcnvcfcuten" packages="cu_gf_monan_in"/>
+            <var name="rbuoyxcuten" packages="cu_gf_monan_in"/>
+            <var name="umcl" packages="cu_gf_monan_in"/>
+            <var name="vmcl" packages="cu_gf_monan_in"/>
+            <var name="wlpool" packages="cu_gf_monan_in"/>
+            <var name="vcpool" packages="cu_gf_monan_in"/>
             <var name="isltyp"/>
             <var name="ivgtyp"/>
             <var name="mminlu"/>
@@ -1230,19 +1234,19 @@
 #endif
         </stream>
 
-            <stream name="iau" 
-                        type="input" 
-                        filename_template="x1.40962.AmB.$Y-$M-$D_$h.$m.$s.nc" 
-                        input_interval="initial_only"
-                        filename_interval="none"
-                        immutable="true"
-                        packages="iau">
+        <stream name="iau" 
+          type="input" 
+          filename_template="x1.40962.AmB.$Y-$M-$D_$h.$m.$s.nc" 
+          input_interval="initial_only"
+          filename_interval="none"
+          immutable="true"
+          packages="iau">
 
-            <var name="xtime"/>
-            <var_struct name="tend_iau"/>
+          <var name="xtime"/>
+          <var_struct name="tend_iau"/>
         </stream>
 
-                <stream name="lbc_in"
+        <stream name="lbc_in"
                         type="input"
                         filename_template="lbc.$Y-$M-$D_$h.$m.$s.nc"
                         filename_interval="input_interval"
@@ -1257,7 +1261,7 @@
                         <var name="lbc_theta" />
                         <var_array name="lbc_scalars" />
 
-                </stream>
+        </stream>
     </streams>
 
 
@@ -1876,7 +1880,6 @@
         </var_struct>
 
         <var_struct name="tend" time_levs="1">
-
                 
                 <!-- tendencies for prognostic variables -->
                 <var name="tend_u" name_in_code="u" type="real" dimensions="nVertLevels nEdges Time" units="m s^{-2}"
