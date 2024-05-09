@@ -1434,8 +1434,9 @@
  real(kind=RKIND),pointer:: bucket_rainc
  real(kind=RKIND),dimension(:),pointer:: cuprec,rainc
  real(kind=RKIND),dimension(:),pointer:: xland
- real(kind=RKIND),dimension(:),pointer:: wlpool,vcpool,umcl,vmcl
+ real(kind=RKIND),dimension(:),pointer:: wlpool,vcpool
 
+ real(kind=RKIND),dimension(:,:),pointer:: umcl,vmcl
  real(kind=RKIND),dimension(:,:),pointer:: zgrid,rh
  real(kind=RKIND),dimension(:,:),pointer:: cnvcf,buoyx
  real(kind=RKIND),dimension(:,:),pointer:: rcnvcfcuten,rbuoyxcuten
@@ -1602,8 +1603,8 @@
 
           do j = jts,jte
           do i = its,ite
-            umcl(i)  = 0.0_RKIND
-            vmcl(i)  = 0.0_RKIND
+            umcl(1,i)  = 0.0_RKIND
+            vmcl(1,i)  = 0.0_RKIND
             total_dz = 0.0_RKIND
             
             loopK_2: do k = kts, kte
@@ -1611,29 +1612,36 @@
                      zlevel = zgrid(k,i) - zgrid(1,i)
                      if(zlevel < startlev .or. zlevel > endlev) cycle loopK_2  
                      dzrho    = dz_p(i,k,j)*rho_p(i,k,j)
-                     umcl(i)  = umcl(i)  + u_p(i,k,j)*dzrho
-                     vmcl(i)  = vmcl(i)  + v_p(i,k,j)*dzrho
+                     umcl(1,i)  = umcl(1,i)  + u_p(i,k,j)*dzrho
+                     vmcl(1,i)  = vmcl(1,i)  + v_p(i,k,j)*dzrho
                      total_dz = total_dz + dzrho
             enddo loopK_2
-            umcl(i) = umcl(i)/(total_dz+1.e-12_RKIND)
-            vmcl(i) = vmcl(i)/(total_dz+1.e-12_RKIND)        
+            umcl(1,i) = umcl(1,i)/(total_dz+1.e-12_RKIND)
+            vmcl(1,i) = vmcl(1,i)/(total_dz+1.e-12_RKIND)        
           enddo
           enddo
-         !-- add cold pool gust velocity to the MCL wind, keeping the original MCL wind direction
-         !-- add the influence of ambient flow to the MCL wind
-         !-- 'factor' = 0.62 is suggested by Simpson and Britter (1980) to add the cold pool velocity 
-         !-- the to ambient wind (see page 346 Storm and Cloud Dynamics, Cotton et al. 2nd edition)
-         k_amb_wind = 2
-         do j = jts,jte
-         do i = its,ite
-           MCL_speed = sqrt (umcl(i)**2 + vmcl(i)**2)
-           aux = (MCL_speed + vcpool(i))/(MCL_speed+1.e-12_RKIND)
-           umcl(i) = aux * umcl(i)
-           vmcl(i) = aux * vmcl(i)
+          !-- add cold pool gust velocity to the MCL wind, keeping the original MCL wind direction
+          !-- add the influence of ambient flow to the MCL wind
+          !-- 'factor' = 0.62 is suggested by Simpson and Britter (1980) to add the cold pool velocity 
+          !-- the to ambient wind (see page 346 Storm and Cloud Dynamics, Cotton et al. 2nd edition)
+          k_amb_wind = 2
+          do j = jts,jte
+          do i = its,ite
+            MCL_speed = sqrt (umcl(1,i)**2 + vmcl(1,i)**2)
+            aux = (MCL_speed + vcpool(i))/(MCL_speed+1.e-12_RKIND)
+            umcl(1,i) = aux * umcl(1,i)
+            vmcl(1,i) = aux * vmcl(1,i)
            
-           !-- including the influence of the ambient flow to the MCL wind
-           umcl(i) = umcl(i) + 0.62_RKIND * u_p(i,k_amb_wind,j)
-           vmcl(i) = vmcl(i) + 0.62_RKIND * v_p(i,k_amb_wind,j)
+            !-- including the influence of the ambient flow to the MCL wind
+            umcl(1,i) = umcl(1,i) + 0.62_RKIND * u_p(i,k_amb_wind,j)
+            vmcl(1,i) = vmcl(1,i) + 0.62_RKIND * v_p(i,k_amb_wind,j)
+          enddo
+          enddo
+          !-- copying the value @ level one to levels 2:nvertlevels
+          do j = jts,jte
+          do i = its,ite
+            umcl(2:,i) = umcl(1,i)
+            vmcl(2:,i) = vmcl(1,i)
           enddo
           enddo
       endif  !- (convection_tracer == 1)

@@ -128,7 +128,7 @@
  real(kind=RKIND),dimension(:,:),allocatable:: theta,tend_th
 
  real(kind=RKIND),dimension(:,:),pointer:: rumcl
- real(kind=RKIND),dimension(:)  ,pointer:: umcl,vmcl
+ real(kind=RKIND),dimension(:,:)  ,pointer:: umcl,vmcl
 
 !=================================================================================================================
  call mpas_pool_get_dimension(mesh, 'nCells', nCells)
@@ -228,12 +228,12 @@
  if (.not. associated(rqvcuten)) allocate(rqvcuten(0,0))
  if (.not. associated(rqccuten)) allocate(rqccuten(0,0))
  if (.not. associated(rqicuten)) allocate(rqicuten(0,0))
-
+!-srf
  if (.not. associated(rbuoyxcuten)) allocate(rbuoyxcuten(0,0))
  if (.not. associated(rcnvcfcuten)) allocate(rcnvcfcuten(0,0))
- if (.not. associated(umcl)) allocate(umcl(0))
- if (.not. associated(vmcl)) allocate(vmcl(0))
- 
+ if (.not. associated(umcl)) allocate(umcl(0,0))
+ if (.not. associated(vmcl)) allocate(vmcl(0,0))
+ !-srf
 
 
  call physics_get_tend_work(block, mesh, nCells, nEdges, nCellsSolve, nEdgesSolve, &
@@ -272,10 +272,12 @@
  if (size(rqvcuten) == 0) deallocate(rqvcuten)
  if (size(rqccuten) == 0) deallocate(rqccuten)
  if (size(rqicuten) == 0) deallocate(rqicuten)
+ !-srf
  if (size(rbuoyxcuten) == 0) deallocate(rbuoyxcuten)
  if (size(rcnvcfcuten) == 0) deallocate(rcnvcfcuten)
  if (size(umcl) == 0) deallocate(umcl)
  if (size(vmcl) == 0) deallocate(vmcl)
+!-srf
 
 ! deallocate(theta)
  deallocate(tend_th)
@@ -353,8 +355,8 @@
     real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: rthratensw
     real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: rbuoyxcuten
     real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: rcnvcfcuten
-    real (kind=RKIND), dimension(nCells+1)            , intent(in) :: umcl
-    real (kind=RKIND), dimension(nCells+1)            , intent(in) :: vmcl
+    real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: umcl
+    real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: vmcl
     real (kind=RKIND), dimension(nVertLevels,nEdges+1), intent(inout) :: rumcl
     real (kind=RKIND), dimension(nVertLevels,nEdges+1), intent(inout) :: tend_u_phys
     real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: theta_m
@@ -363,7 +365,7 @@
     real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: tend_theta_euler
     procedure (halo_exchange_routine) :: exchange_halo_group
 
-    integer :: i, k
+    integer :: i, k , mynum
     real (kind=RKIND) :: coeff
 
     !add coupled tendencies due to PBL processes:
@@ -460,8 +462,13 @@
              !-- used in the cold pool gust front 2-d advection
              
              !if (rk_step == 1 .and. dynamics_substep == 1) then  ! <<<< check this >>>>>>
+mynum = block % domain % dminfo % my_proc_id
+!umcl=float(mynum)
+print*,'1mynum',mynum,maxval(umcl),minval(umcl)
 
                call exchange_halo_group(block % domain, 'physics:coldpool')
+print*,'2mynum',mynum,maxval(umcl),minval(umcl)
+
                call UVMCL_toEdges(mesh,umcl,vmcl,rumcl)
                do i = 1, nEdgesSolve
                 do k = 1, nVertLevels
@@ -581,7 +588,7 @@
  !input arguments:
  ! type(block_type),intent(in),target:: block
   type(mpas_pool_type),intent(in):: mesh
-  real(kind=RKIND),intent(in),dimension(:),target:: umcl,vmcl 
+  real(kind=RKIND),intent(in),dimension(:,:),target:: umcl,vmcl 
 
  !output arguments:
   real(kind=RKIND),intent(out),dimension(:,:):: rumcl
@@ -614,16 +621,16 @@
      cell1 = cellsOnEdge(1,iEdge)
      cell2 = cellsOnEdge(2,iEdge)
                             
-     rumcl(1,iEdge) =   umcl(cell1) * 0.5 * (edgeNormalVectors(1,iEdge) * east(1,cell1)   &
+     rumcl(1,iEdge) =   umcl(1,cell1) * 0.5 * (edgeNormalVectors(1,iEdge) * east(1,cell1)   &
                                           +  edgeNormalVectors(2,iEdge) * east(2,cell1)   &
                                           +  edgeNormalVectors(3,iEdge) * east(3,cell1))  &
-                      + vmcl(cell1) * 0.5 * (edgeNormalVectors(1,iEdge) * north(1,cell1)  &
+                      + vmcl(1,cell1) * 0.5 * (edgeNormalVectors(1,iEdge) * north(1,cell1)  &
                                           +  edgeNormalVectors(2,iEdge) * north(2,cell1)  &
                                           +  edgeNormalVectors(3,iEdge) * north(3,cell1)) &
-                      + umcl(cell2) * 0.5 * (edgeNormalVectors(1,iEdge) * east(1,cell2)   &
+                      + umcl(1,cell2) * 0.5 * (edgeNormalVectors(1,iEdge) * east(1,cell2)   &
                                           +  edgeNormalVectors(2,iEdge) * east(2,cell2)   &
                                           +  edgeNormalVectors(3,iEdge) * east(3,cell2))  &
-                      + vmcl(cell2) * 0.5 * (edgeNormalVectors(1,iEdge) * north(1,cell2)  &
+                      + vmcl(1,cell2) * 0.5 * (edgeNormalVectors(1,iEdge) * north(1,cell2)  &
                                           +  edgeNormalVectors(2,iEdge) * north(2,cell2)  &
                                           +  edgeNormalVectors(3,iEdge) * north(3,cell2))
   

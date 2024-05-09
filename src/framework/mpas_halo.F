@@ -152,7 +152,7 @@ module mpas_halo
 
         use mpas_derived_types, only : domain_type, mpas_pool_type, mpas_pool_iterator_type, MPAS_POOL_CONFIG, &
                                        MPAS_POOL_REAL, MPAS_HALO_REAL, mpas_halo_group, MPAS_LOG_CRIT, &
-                                       field1DReal, field2DReal, field3DReal
+                                       field2DReal, field3DReal
         use mpas_pool_routines, only : mpas_pool_get_subpool, mpas_pool_remove_subpool, mpas_pool_destroy_pool, &
                                        mpas_pool_begin_iteration, mpas_pool_get_next_member, mpas_pool_get_dimension, &
                                        mpas_pool_remove_field, mpas_pool_get_field
@@ -170,7 +170,6 @@ module mpas_halo
         integer, dimension(:), pointer :: fieldHaloInfo
         integer, dimension(:), pointer :: haloLayers
         type (mpas_halo_group), pointer :: newGroup
-        type (field1DReal), pointer :: r1d
         type (field2DReal), pointer :: r2d
         type (field3DReal), pointer :: r3d
         integer, pointer :: timeLevel
@@ -230,16 +229,7 @@ module mpas_halo
                 end select
 
                 if (fieldHaloInfo(1) == MPAS_POOL_REAL) then
-                    !-- srf added for the cold pool parameterization
-                    if (fieldHaloInfo(2) == 1) then
-                        call mpas_pool_get_field(completedGroup, trim(itr % memberName)//'.field', r1d)
-                        call mpas_halo_compact_halo_info(domain, r1d % sendList, r1d % recvList, r1d % dimSizes, &
-                                                         haloLayers, &
-                                                         newGroup % fields(i) % compactHaloInfo, &
-                                                         newGroup % fields(i) % compactSendLists, &
-                                                         newGroup % fields(i) % compactRecvLists)
-                
-                    else if (fieldHaloInfo(2) == 2) then
+                    if (fieldHaloInfo(2) == 2) then
                         call mpas_pool_get_field(completedGroup, trim(itr % memberName)//'.field', r2d)
                         call mpas_halo_compact_halo_info(domain, r2d % sendList, r2d % recvList, r2d % dimSizes, &
                                                          haloLayers, &
@@ -397,7 +387,7 @@ module mpas_halo
     subroutine mpas_halo_exch_group_add_field(domain, groupName, fieldName, timeLevel, haloLayers, iErr)
 
         use mpas_derived_types, only : domain_type, mpas_pool_type, mpas_pool_field_info_type, MPAS_POOL_REAL, &
-                                       field1DReal, field2DReal, field3DReal, MPAS_LOG_CRIT
+                                       field2DReal, field3DReal, MPAS_LOG_CRIT
         use mpas_pool_routines, only : mpas_pool_get_subpool, mpas_pool_add_config, mpas_pool_get_field_info, &
                                        mpas_pool_add_dimension, mpas_pool_get_field, mpas_pool_add_field
         use mpas_log, only : mpas_log_write
@@ -415,7 +405,6 @@ module mpas_halo
         type (mpas_pool_field_info_type) :: info
         integer, allocatable, dimension(:) :: fieldHaloInfo
         integer :: local_timeLevel
-        type (field1DReal), pointer :: r1d
         type (field2DReal), pointer :: r2d
         type (field3DReal), pointer :: r3d
 
@@ -467,19 +456,13 @@ module mpas_halo
         ! Store a reference to the field itself in the pool
         !
         if (info % fieldType == MPAS_POOL_REAL) then
-            !-- srf - added for the cold pool parameterization (umcl and vmcl are '1d')
-            if (info % nDims == 1) then
-                call mpas_pool_get_field(domain % blocklist % allFields, fieldName, r1d, timeLevel=local_timeLevel)
-                call mpas_pool_add_field(group, fieldName//'.field', r1d)
-            !--srf 
-            elseif (info % nDims == 2) then
+            if (info % nDims == 2) then
                 call mpas_pool_get_field(domain % blocklist % allFields, fieldName, r2d, timeLevel=local_timeLevel)
                 call mpas_pool_add_field(group, fieldName//'.field', r2d)
             else if (info % nDims == 3) then
                 call mpas_pool_get_field(domain % blocklist % allFields, fieldName, r3d, timeLevel=local_timeLevel)
                 call mpas_pool_add_field(group, fieldName//'.field', r3d)
             else
-                print*,'ndims',info % nDims,trim(fieldName)
                 call mpas_log_write('Unsupported dimensionality for real field '//trim(fieldName), messageType=MPAS_LOG_CRIT)
             end if
         else
