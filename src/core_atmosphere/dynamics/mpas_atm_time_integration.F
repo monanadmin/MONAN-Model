@@ -2979,7 +2979,7 @@ module atm_time_integration
                 coef3*abs(ua)*((q_ip1 - q_im2)-3.*(q_i-q_im1))/12.0
 
  !-srf 
-      print*,'atm_advance_scalars_work : index_buoyx',index_buoyx
+      !print*,'atm_advance_scalars_work : index_buoyx',index_buoyx
 !-srf
       local_advance_density = advance_density
 
@@ -3432,7 +3432,7 @@ module atm_time_integration
                 flux4(q_im2, q_im1, q_i, q_ip1, ua) +           &
                 coef3*abs(ua)*((q_ip1 - q_im2)-3.*(q_i-q_im1))/12.0
  !-srf 
-      print*,'atm_advance_scalars_work_mono : index_buoyx',index_buoyx
+      !print*,'atm_advance_scalars_work_mono : index_buoyx',index_buoyx
 !-srf
 
       if (present(advance_density)) then
@@ -6777,7 +6777,7 @@ module atm_time_integration
                 coef3*abs(ua)*((q_ip1 - q_im2)-3.*(q_i-q_im1))/12.0
 
  !-srf 
-      print*,'atm_advance_scalars_work_coldpool : index_buoyx',index_buoyx
+      !print*,'atm_advance_scalars_work_coldpool : index_buoyx',index_buoyx
 !-srf
 
       local_advance_density = advance_density
@@ -7076,7 +7076,7 @@ module atm_time_integration
                 flux4(q_im2, q_im1, q_i, q_ip1, ua) +           &
                 coef3*abs(ua)*((q_ip1 - q_im2)-3.*(q_i-q_im1))/12.0
  !-srf 
-      print*,'atm_advance_scalars_work_mono_coldpool : index_buoyx',index_buoyx
+      !print*,'atm_advance_scalars_work_mono_coldpool : index_buoyx',index_buoyx
 !-srf
       if (present(advance_density)) then
          local_advance_density = advance_density
@@ -7151,7 +7151,7 @@ module atm_time_integration
 
       do iScalar = 1, num_scalars ; if(iScalar /= index_buoyx) cycle !--srf
          !srf 
-         !print*,'scalars',iScalar,maxval(scalars_new(iScalar,:,:))
+         !!print*,'scalars',iScalar,maxval(scalars_new(iScalar,:,:))
          !
          do iCell=cellStart,cellEnd
 !DIR$ IVDEP
