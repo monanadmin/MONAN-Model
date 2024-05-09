@@ -1378,6 +1378,32 @@
             <var name="rvcuten_950hPa"/>
             <var name="rvcuten_975hPa"/>
             <var name="rvcuten_1000hPa"/>            
+
+
+            <var name="rublten_15hPa"/>
+            <var name="rublten_20hPa"/>
+            <var name="rublten_30hPa"/>
+            <var name="rublten_50hPa"/>
+            <var name="rublten_70hPa"/>
+            <var name="rublten_100hPa"/>
+            <var name="rublten_150hPa"/>
+            <var name="rublten_200hPa"/>
+            <var name="rublten_250hPa"/>
+            <var name="rublten_300hPa"/>
+            <var name="rublten_400hPa"/>
+            <var name="rublten_500hPa"/>
+            <var name="rublten_600hPa"/>
+            <var name="rublten_700hPa"/>
+            <var name="rublten_825hPa"/>
+            <var name="rublten_850hPa"/>
+            <var name="rublten_875hPa"/>
+            <var name="rublten_900hPa"/>
+            <var name="rublten_925hPa"/>
+            <var name="rublten_950hPa"/>
+            <var name="rublten_975hPa"/>
+            <var name="rublten_1000hPa"/>
+
+
             <var name="rvblten_15hPa"/>
             <var name="rvblten_20hPa"/>
             <var name="rvblten_30hPa"/>
@@ -1650,7 +1676,32 @@
             <var name="vorticity_700hPa"/>
             <var name="vorticity_850hPa"/>
             <var name="vorticity_925hPa"/>
+            <var name="zgeo_15hPa"/>
+            <var name="zgeo_20hPa"/>
+            <var name="zgeo_30hPa"/>
+            <var name="zgeo_50hPa"/>
+            <var name="zgeo_70hPa"/>
+            <var name="zgeo_100hPa"/>
+            <var name="zgeo_150hPa"/>
+            <var name="zgeo_200hPa"/>
+            <var name="zgeo_250hPa"/>
+            <var name="zgeo_300hPa"/>
+            <var name="zgeo_400hPa"/>
+            <var name="zgeo_500hPa"/>
+            <var name="zgeo_600hPa"/>
+            <var name="zgeo_700hPa"/>
+            <var name="zgeo_825hPa"/>
+            <var name="zgeo_850hPa"/>
+            <var name="zgeo_875hPa"/>
+            <var name="zgeo_900hPa"/>
+            <var name="zgeo_925hPa"/>
+            <var name="zgeo_950hPa"/>
+            <var name="zgeo_975hPa"/>
+            <var name="zgeo_1000hPa"/>
+            <var name="zgeo_isobaric"/>
             <var name="t_isobaric"/>
+            <var name="temperature"/>
+            <var name="pressure"/>
             <var name="t_iso_levels"/>
             <var name="z_isobaric"/>
             <var name="z_iso_levels"/>
