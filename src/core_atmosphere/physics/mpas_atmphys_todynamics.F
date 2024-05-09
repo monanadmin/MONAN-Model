@@ -128,7 +128,7 @@
  real(kind=RKIND),dimension(:,:),allocatable:: theta,tend_th
 
  real(kind=RKIND),dimension(:,:),pointer:: rumcl
- real(kind=RKIND),dimension(:,:)  ,pointer:: umcl,vmcl
+ real(kind=RKIND),dimension(:,:),pointer:: umcl,vmcl
 
 !=================================================================================================================
  call mpas_pool_get_dimension(mesh, 'nCells', nCells)
@@ -461,22 +461,23 @@
              !-- calculating the horizontal mean cloud layer momentum at cell edge (rho*u/zz)
              !-- used in the cold pool gust front 2-d advection
              
-             !if (rk_step == 1 .and. dynamics_substep == 1) then  ! <<<< check this >>>>>>
-mynum = block % domain % dminfo % my_proc_id
-!umcl=float(mynum)
-print*,'1mynum',mynum,maxval(umcl),minval(umcl)
-
-               call exchange_halo_group(block % domain, 'physics:coldpool')
-print*,'2mynum',mynum,maxval(umcl),minval(umcl)
-
+             if (rk_step == 1 .and. dynamics_substep == 1) then  ! <<<< check this >>>>>>
+               mynum = block % domain % dminfo % my_proc_id
+               !umcl=float(mynum)
+               !print*,'1mynum',mynum,nint(umcl(1,:)) !maxval(umcl),minval(umcl)
+               !print*,'1mynum',mynum,size(umcl)/55,size(rucuten)/55,size(tend_u)/55
+               
+                call exchange_halo_group(block % domain, 'physics:coldpool')
+            
+               !print*,'2mynum',mynum,nint(umcl(1,:))!,maxval(umcl),minval(umcl)
                call UVMCL_toEdges(mesh,umcl,vmcl,rumcl)
+              !call tend_toEdges(block,mesh,umcl,vmcl,rumcl)
                do i = 1, nEdgesSolve
                 do k = 1, nVertLevels
                     rumcl(k,i)=rumcl(k,i)*mass_edge(k,i)
                 enddo
                enddo
-             !end if
-
+             end if
 !srf- the sources and sinks of the scalars below are included in the routine "update_convection_step2" 
 !              do i = 1, nCellsSolve
 !              do k = 1, nVertLevels
@@ -554,8 +555,8 @@ print*,'2mynum',mynum,maxval(umcl),minval(umcl)
  call mpas_pool_get_array(mesh, 'edgeNormalVectors', edgeNormalVectors)
 
  call mpas_pool_get_array(mesh, 'cellsOnEdge', cellsOnEdge)
-  print*,'Ux_tend',size(Ux_tend,2), cellsOnEdge(2,1), cellsOnEdge(1,1)
-  print*,'Uy_tend',size(Uy_tend,2), cellsOnEdge(2,nEdges), cellsOnEdge(1,nEdges)
+ ! print*,'Ux_tend',size(Ux_tend,2), cellsOnEdge(2,1), cellsOnEdge(1,1)
+ ! print*,'Uy_tend',size(Uy_tend,2), cellsOnEdge(2,nEdges), cellsOnEdge(1,nEdges)
 
  do iEdge = 1, nEdges
     cell1 = cellsOnEdge(1,iEdge)
@@ -614,26 +615,25 @@ print*,'2mynum',mynum,maxval(umcl),minval(umcl)
   !--srf: rumcl does not vary on vertical, see Freitas et al. (JAMES 2024) for explanation.
   !--     It is used to transport the scalar 'buoyx' representing the MSE anomalies in the 
   !--     leading edge of the cold pool.
-  print*,'Vsizes',size(vmcl), cellsOnEdge(2,1), cellsOnEdge(1,1)
-  print*,'Usizes',size(umcl), cellsOnEdge(2,nEdges), cellsOnEdge(1,nEdges)
-
+ 
   do iEdge = 1, nEdges
      cell1 = cellsOnEdge(1,iEdge)
      cell2 = cellsOnEdge(2,iEdge)
                             
      rumcl(1,iEdge) =   umcl(1,cell1) * 0.5 * (edgeNormalVectors(1,iEdge) * east(1,cell1)   &
-                                          +  edgeNormalVectors(2,iEdge) * east(2,cell1)   &
-                                          +  edgeNormalVectors(3,iEdge) * east(3,cell1))  &
+                                          +    edgeNormalVectors(2,iEdge) * east(2,cell1)   &
+                                          +    edgeNormalVectors(3,iEdge) * east(3,cell1))  &
                       + vmcl(1,cell1) * 0.5 * (edgeNormalVectors(1,iEdge) * north(1,cell1)  &
-                                          +  edgeNormalVectors(2,iEdge) * north(2,cell1)  &
-                                          +  edgeNormalVectors(3,iEdge) * north(3,cell1)) &
+                                          +    edgeNormalVectors(2,iEdge) * north(2,cell1)  &
+                                          +    edgeNormalVectors(3,iEdge) * north(3,cell1)) &
                       + umcl(1,cell2) * 0.5 * (edgeNormalVectors(1,iEdge) * east(1,cell2)   &
-                                          +  edgeNormalVectors(2,iEdge) * east(2,cell2)   &
-                                          +  edgeNormalVectors(3,iEdge) * east(3,cell2))  &
+                                          +    edgeNormalVectors(2,iEdge) * east(2,cell2)   &
+                                          +    edgeNormalVectors(3,iEdge) * east(3,cell2))  &
                       + vmcl(1,cell2) * 0.5 * (edgeNormalVectors(1,iEdge) * north(1,cell2)  &
-                                          +  edgeNormalVectors(2,iEdge) * north(2,cell2)  &
-                                          +  edgeNormalVectors(3,iEdge) * north(3,cell2))
-  
+                                          +    edgeNormalVectors(2,iEdge) * north(2,cell2)  &
+                                          +    edgeNormalVectors(3,iEdge) * north(3,cell2))
+     !-- As umcl and vmcl do not have dependence on vertical level, rumcl for k=2,3, ... nvertlevels
+     !-- will be the same as at k=1
      rumcl(2:,iEdge) =  rumcl(1,iEdge)
   end do
   
