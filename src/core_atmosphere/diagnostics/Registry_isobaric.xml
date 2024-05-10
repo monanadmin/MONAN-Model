@@ -3,11 +3,14 @@
 <!-- ******************************* -->
 
 <dims>
-        <dim name="nIsoLevelsT"         definition="5"
+        <dim name="nIsoLevelsT"         definition="22"
              description="Number of isobaric levels to which temperature will be vertically interpolated"/>
 
         <dim name="nIsoLevelsZ"         definition="13"
              description="Number of isobaric levels to which height will be vertically interpolated"/>
+
+        <dim name="t_iso_levels"         definition="22"
+             description="Isobaric levels to which temperature will be vertically interpolated"/>
 </dims>
 
 
@@ -15,6 +18,72 @@
 
         <var name="mslp" type="real" dimensions="nCells Time" units="Pa"
              description="Mean sea-level pressure"/>
+
+        <var name="cldfrac_15hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 15 hPa"/>
+
+        <var name="cldfrac_20hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 20 hPa"/>
+
+        <var name="cldfrac_30hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 30 hPa"/>
+
+        <var name="cldfrac_50hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 50 hPa"/>
+
+        <var name="cldfrac_70hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 70 hPa"/>
+
+        <var name="cldfrac_100hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 100 hPa"/>
+
+        <var name="cldfrac_150hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 150 hPa"/>
+
+        <var name="cldfrac_200hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 200 hPa"/>
+
+        <var name="cldfrac_250hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 250 hPa"/>
+
+        <var name="cldfrac_300hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 300 hPa"/>
+
+        <var name="cldfrac_400hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 400 hPa"/>
+
+        <var name="cldfrac_500hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 500 hPa"/>
+
+        <var name="cldfrac_600hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 600 hPa"/>
+
+        <var name="cldfrac_700hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 700 hPa"/>
+
+        <var name="cldfrac_825hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 825 hPa"/>
+
+        <var name="cldfrac_850hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 850 hPa"/>
+
+        <var name="cldfrac_875hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 875 hPa"/>
+
+        <var name="cldfrac_900hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 900 hPa"/>
+
+        <var name="cldfrac_925hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 925 hPa"/>
+        
+        <var name="cldfrac_950hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 950 hPa"/>
+
+        <var name="cldfrac_975hPa" type="real" dimensions="nCells Time" units="unitless"
+             description="horizontal cloud fraction vertically interpolated to 975 hPa"/>
+
+        <var name="cldfrac_1000hPa" type="real" dimensions="nCells Time" units="unitless"
+		description="horizontal cloud fraction vertically interpolated to 1000s hPa"/>
 
         <var name="temperature_15hPa" type="real" dimensions="nCells Time" units="K"
              description="Temperature vertically interpolated to 15 hPa"/>
@@ -568,6 +637,78 @@
         <var name="geoph_1000hPa" type="real" dimensions="nCells Time" units="m"
              description="Geopotential height vertically interpolated to 1000s hPa"/>
 
+
+        <var name="omega_15hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 15 hPa"/>
+
+        <var name="omega_20hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 20 hPa"/>
+
+        <var name="omega_30hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 30 hPa"/>             
+        
+        <var name="omega_50hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 50 hPa"/>
+        
+        <var name="omega_70hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Geppercential height vertically interpolated to 70 hPa"/>
+
+        <var name="omega_100hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 100 hPa"/>
+
+        <var name="omega_150hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 150 hPa"/>
+
+        <var name="omega_200hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 200 hPa"/>     
+
+        <var name="omega_250hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 250 hPa"/>
+
+        <var name="omega_300hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 300 hPa"/>
+
+        <var name="omega_400hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 400 hPa"/>
+
+        <var name="omega_500hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 500 hPa"/>
+
+        <var name="omega_600hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 600 hPa"/>
+
+        <var name="omega_700hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 700 hPa"/>
+
+        <var name="omega_825hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 825 hPa"/>
+
+        <var name="omega_850hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 850 hPa"/>
+
+        <var name="omega_875hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 875 hPa"/>
+
+        <var name="omega_900hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 900 hPa"/>
+
+        <var name="omega_925hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 925 hPa"/>
+
+        <var name="omega_950hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 950 hPa"/>
+
+        <var name="omega_975hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 975 hPa"/>
+
+        <var name="omega_1000hPa" type="real" dimensions="nCells Time" units="hPa/s"
+             description="Omega vertically interpolated to 1000s hPa"/>
+
+
+
+
+
+
         <var name="rqvblten_15hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
              description="Tendency of meridional wind due to pbl processes vertically interpolated to 15 hPa"/>
 
@@ -765,6 +906,341 @@
 
         <var name="rthratenlw_1000hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
              description="Tendency of potential temperature due to long wave radiation vertically interpolated to 1000s hPa"/>
+
+
+        <var name="rthratensw_15hPa" type="real" dimensions="nCells Time" units="K s^{-1}"
+             description="Tendency of potential temperature due to short wave radiation vertically interpolated to 15 hPa"/>
+
+        <var name="rthratensw_20hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
+             description="Tendency of potential temperature due to short wave radiation vertically interpolated to 20 hPa"/>
+
+        <var name="rthratensw_30hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
+             description="Tendency of potential temperature due to short wave radiation vertically interpolated to 30 hPa"/>
+
+        <var name="rthratensw_50hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
+             description="Tendency of potential temperature due to short wave radiation vertically interpolated to 50 hPa"/>
+
+        <var name="rthratensw_70hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
+             description="Tendency of potential temperature due to short wave radiation vertically interpolated to 70 hPa"/>
+
+        <var name="rthratensw_100hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
+             description="Tendency of potential temperature due to short wave radiation vertically interpolated to 100 hPa"/>
+
+        <var name="rthratensw_150hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
+             description="Tendency of potential temperature due to short wave radiation vertically interpolated to 150 hPa"/>
+
+        <var name="rthratensw_200hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
+             description="Tendency of potential temperature due to short wave radiation vertically interpolated to 200 hPa"/>
+
+        <var name="rthratensw_250hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
+             description="Tendency of potential temperature due to short wave radiation vertically interpolated to 250 hPa"/>
+
+        <var name="rthratensw_300hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
+             description="Tendency of potential temperature due to short wave radiation vertically interpolated to 300 hPa"/>
+
+        <var name="rthratensw_400hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
+             description="Tendency of potential temperature due to short wave radiation vertically interpolated to 400 hPa"/>
+
+        <var name="rthratensw_500hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
+             description="Tendency of potential temperature due to short wave radiation vertically interpolated to 500 hPa"/>
+
+        <var name="rthratensw_600hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
+             description="Tendency of potential temperature due to short wave radiation vertically interpolated to 600 hPa"/>
+
+        <var name="rthratensw_700hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
+             description="Tendency of potential temperature due to short wave radiation vertically interpolated to 700 hPa"/>
+
+        <var name="rthratensw_825hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
+             description="Tendency of potential temperature due to short wave radiation vertically interpolated to 825 hPa"/>
+
+        <var name="rthratensw_850hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
+             description="Tendency of potential temperature due to short wave radiation vertically interpolated to 850 hPa"/>
+
+        <var name="rthratensw_875hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
+             description="Tendency of potential temperature due to short wave radiation vertically interpolated to 875 hPa"/>
+
+        <var name="rthratensw_900hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
+             description="Tendency of potential temperature due to short wave radiation vertically interpolated to 900 hPa"/>
+
+        <var name="rthratensw_925hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
+             description="Tendency of potential temperature due to short wave radiation vertically interpolated to 925 hPa"/>
+
+        <var name="rthratensw_950hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
+             description="Tendency of potential temperature due to short wave radiation vertically interpolated to 950 hPa"/>
+
+        <var name="rthratensw_975hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
+             description="Tendency of potential temperature due to short wave radiation vertically interpolated to 975 hPa"/>
+
+        <var name="rthratensw_1000hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
+             description="Tendency of potential temperature due to short wave radiation vertically interpolated to 1000s hPa"/>
+
+        <var name="rucuten_15hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 15 hPa"/>
+
+        <var name="rucuten_20hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 20 hPa"/>
+
+        <var name="rucuten_30hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 30 hPa"/>
+
+        <var name="rucuten_50hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 50 hPa"/>
+
+        <var name="rucuten_70hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 70 hPa"/>
+
+        <var name="rucuten_100hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 100 hPa"/>
+
+        <var name="rucuten_150hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 150 hPa"/>
+
+        <var name="rucuten_200hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 200 hPa"/>
+
+        <var name="rucuten_250hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 250 hPa"/>
+
+        <var name="rucuten_300hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 300 hPa"/>
+
+        <var name="rucuten_400hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 400 hPa"/>
+
+        <var name="rucuten_500hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 500 hPa"/>
+
+        <var name="rucuten_600hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 600 hPa"/>
+
+        <var name="rucuten_700hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 700 hPa"/>
+
+        <var name="rucuten_825hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 825 hPa"/>
+
+        <var name="rucuten_850hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 850 hPa"/>
+
+        <var name="rucuten_875hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 875 hPa"/>
+
+        <var name="rucuten_900hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 900 hPa"/>
+
+        <var name="rucuten_925hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 925 hPa"/>
+
+        <var name="rucuten_950hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 950 hPa"/>
+
+        <var name="rucuten_975hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection 975 hPa"/>
+
+        <var name="rucuten_1000hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+		description="Tendency of zonal wind due to cumulus convection 1000s hPa"/>
+
+        <var name="rvcuten_15hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 15 hPa"/>
+
+        <var name="rvcuten_20hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 20 hPa"/>
+
+        <var name="rvcuten_30hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 30 hPa"/>
+
+        <var name="rvcuten_50hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 50 hPa"/>
+
+        <var name="rvcuten_70hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 70 hPa"/>
+
+        <var name="rvcuten_100hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 100 hPa"/>
+
+        <var name="rvcuten_150hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 150 hPa"/>
+
+        <var name="rvcuten_200hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 200 hPa"/>
+
+        <var name="rvcuten_250hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 250 hPa"/>
+
+        <var name="rvcuten_300hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 300 hPa"/>
+
+        <var name="rvcuten_400hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 400 hPa"/>
+
+        <var name="rvcuten_500hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 500 hPa"/>
+
+        <var name="rvcuten_600hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 600 hPa"/>
+
+        <var name="rvcuten_700hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 700 hPa"/>
+
+        <var name="rvcuten_825hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 825 hPa"/>
+
+        <var name="rvcuten_850hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 850 hPa"/>
+
+        <var name="rvcuten_875hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 875 hPa"/>
+
+        <var name="rvcuten_900hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="TTendency of meridional wind due to cumulus convection 900 hPa"/>
+
+        <var name="rvcuten_925hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 925 hPa"/>
+
+        <var name="rvcuten_950hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 950 hPa"/>
+
+        <var name="rvcuten_975hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection 975 hPa"/>
+
+        <var name="rvcuten_1000hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+		description="Tendency of meridional wind due to cumulus convection 1000 hPa"/>
+
+
+        <var name="rublten_15hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="tendency of zonal wind due to pbl processes 15 hPa"/>
+
+        <var name="rublten_20hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="tendency of zonal wind due to pbl processes 20 hPa"/>
+
+        <var name="rublten_30hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="tendency of zonal wind due to pbl processes 30 hPa"/>
+
+        <var name="rublten_50hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="tendency of zonal wind due to pbl processes 50 hPa"/>
+
+        <var name="rublten_70hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="tendency of zonal wind due to pbl processes 70 hPa"/>
+
+        <var name="rublten_100hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="tendency of zonal wind due to pbl processes 100 hPa"/>
+
+        <var name="rublten_150hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="tendency of zonal wind due to pbl processes 150 hPa"/>
+
+        <var name="rublten_200hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="tendency of zonal wind due to pbl processes 200 hPa"/>
+
+        <var name="rublten_250hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="tendency of zonal wind due to pbl processes 250 hPa"/>
+
+        <var name="rublten_300hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="tendency of zonal wind due to pbl processes 300 hPa"/>
+
+        <var name="rublten_400hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="tendency of zonal wind due to pbl processes 400 hPa"/>
+
+        <var name="rublten_500hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="tendency of zonal wind due to pbl processes 500 hPa"/>
+
+        <var name="rublten_600hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="tendency of zonal wind due to pbl processes 600 hPa"/>
+
+        <var name="rublten_700hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="tendency of zonal wind due to pbl processes 700 hPa"/>
+
+        <var name="rublten_825hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="tendency of zonal wind due to pbl processes 825 hPa"/>
+
+        <var name="rublten_850hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="tendency of zonal wind due to pbl processes 850 hPa"/>
+
+        <var name="rublten_875hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="tendency of zonal wind due to pbl processes 875 hPa"/>
+
+        <var name="rublten_900hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="tendency of zonal wind due to pbl processes 900 hPa"/>
+
+        <var name="rublten_925hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="tendency of zonal wind due to pbl processes 925 hPa"/>
+
+        <var name="rublten_950hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="tendency of zonal wind due to pbl processes 950 hPa"/>
+
+        <var name="rublten_975hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="tendency of zonal wind due to pbl processes 975 hPa"/>
+
+        <var name="rublten_1000hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+		description="tendency of zonal wind due to pbl processes 1000s hPa"/>
+
+
+
+
+        <var name="rvblten_15hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 15 hPa"/>
+
+        <var name="rvblten_20hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 20 hPa"/>
+
+        <var name="rvblten_30hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 30 hPa"/>
+
+        <var name="rvblten_50hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 50 hPa"/>
+
+        <var name="rvblten_70hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 70 hPa"/>
+
+        <var name="rvblten_100hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 100 hPa"/>
+
+        <var name="rvblten_150hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 150 hPa"/>
+
+        <var name="rvblten_200hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 200 hPa"/>
+
+        <var name="rvblten_250hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 250 hPa"/>
+
+        <var name="rvblten_300hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 300 hPa"/>
+
+        <var name="rvblten_400hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 400 hPa"/>
+
+        <var name="rvblten_500hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 500 hPa"/>
+
+        <var name="rvblten_600hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 600 hPa"/>
+
+        <var name="rvblten_700hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 700 hPa"/>
+
+        <var name="rvblten_825hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 825 hPa"/>
+
+        <var name="rvblten_850hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 850 hPa"/>
+
+        <var name="rvblten_875hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 875 hPa"/>
+
+        <var name="rvblten_900hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 900 hPa"/>
+
+        <var name="rvblten_925hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 925 hPa"/>
+
+        <var name="rvblten_950hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 950 hPa"/>
+
+        <var name="rvblten_975hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes 975 hPa"/>
+
+        <var name="rvblten_1000hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
+		description="Tendency of meridional wind due to pbl processes 1000 hPa"/>
 
         <var name="kzq_15hPa" type="real" dimensions="nCells Time"  units="m^{2} s^{-1}"
              description="Vertical diffusion coefficient of water vapor and cloud condensates vertically interpolated to 15 hPa"/>
@@ -1515,6 +1991,75 @@
 
         <var name="vorticity_925hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
              description="Relative vorticity vertically interpolated to 925 hPa"/>
+
+        <var name="zgeo_15hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 15 hPa"/>
+
+        <var name="zgeo_20hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 20 hPa"/>
+
+        <var name="zgeo_30hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 30 hPa"/>             
+        
+        <var name="zgeo_50hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 50 hPa"/>
+        
+        <var name="zgeo_70hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geppercential height vertically interpolated to 70 hPa"/>
+
+        <var name="zgeo_100hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 100 hPa"/>
+
+        <var name="zgeo_150hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 150 hPa"/>
+
+        <var name="zgeo_200hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 200 hPa"/>     
+
+        <var name="zgeo_250hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 250 hPa"/>
+
+        <var name="zgeo_300hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 300 hPa"/>
+
+        <var name="zgeo_400hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 400 hPa"/>
+
+        <var name="zgeo_500hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 500 hPa"/>
+
+        <var name="zgeo_600hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 600 hPa"/>
+
+        <var name="zgeo_700hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 700 hPa"/>
+
+        <var name="zgeo_825hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 825 hPa"/>
+
+        <var name="zgeo_850hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 850 hPa"/>
+
+        <var name="zgeo_875hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 875 hPa"/>
+
+        <var name="zgeo_900hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 900 hPa"/>
+
+        <var name="zgeo_925hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 925 hPa"/>
+
+        <var name="zgeo_950hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 950 hPa"/>
+
+        <var name="zgeo_975hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 975 hPa"/>
+
+        <var name="zgeo_1000hPa" type="real" dimensions="nCells Time" units="m"
+             description="Geopotential height vertically interpolated to 1000s hPa"/>
+
+        <var name="zgeo_isobaric"    type="real" dimensions="t_iso_levels nCells Time" units="m"
+             description="Geopotential height interpolated to isobaric surfaces defined in t_iso_levels"/>     
 
         <var name="t_isobaric"       type="real" dimensions="nIsoLevelsT nCells Time" units="K"
              description="Temperature interpolated to isobaric surfaces defined in t_iso_levels"/>
