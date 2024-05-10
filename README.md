@@ -14,7 +14,7 @@ VERSION 0.1.0 - Initial version structure (0.1.0) based on the dynamic core of t
 VERSION 0.2.0 - Included variables and new isobaric levels.
 VERSION 0.3.0 - Included new levels for existing variables and included new variables.
 VERSION 0.4.0 - Included new variables; update MPAS-v8.0.2; bug fixes.
-VERSION 0.4.0 - Included new variables.
+VERSION 0.5.0 - Included new variables.
 
 MPAS-v8.0.2
 ====
