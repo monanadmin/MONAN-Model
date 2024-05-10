@@ -31,7 +31,6 @@
                             , satur_spec_hum
  use mpas_atm_dimensions, only : nVertLevels
  use mpas_dmpar, only : IO_NODE
- use mpas_atmphys_todynamics, only : tend_toEdges
  implicit none
  !--srf
  ! Abstract interface for routine used to communicate halos of fields
@@ -1680,7 +1679,7 @@
           !-- array for the horizontal mean cloud layer momentum at cell edge
           call mpas_pool_get_array(diag, 'rumcl' ,rumcl)
           !-- calculate the horizontal mean cloud layer momentum at cell edge
-          call tend_toEdges(block,mesh,umcl,vmcl,rumcl)
+          call UVMCL_toEdges(mesh,UMCL,VMCL,RUMCL)
           !-- get rho_zz averaged from cell centers to the cell edge
           call mpas_pool_get_array(diag , 'rho_edge', rho_edge)
 
