@@ -1874,9 +1874,13 @@
                 <var name="kdiff" type="real" dimensions="nVertLevels nCells Time" units="m^2 s^{-1}"
                      description="Smagorinsky horizontal eddy viscosity"/>
 
+                <var name="rumcl" type="real" dimensions="nVertLevels nEdges Time" units="kg m^{-2} s^{-1}"
+                     description="horizontal mean cloud layer momentum at cell edge (rho*u/zz)"
+                     packages="cu_gf_monan_in"/>
+
                 <var name="surface_pressure" type="real" dimensions="nCells Time" units="Pa"
                      description="Diagnosed surface pressure"/>
-
+                
         </var_struct>
 
         <var_struct name="tend" time_levs="1">
@@ -2443,10 +2447,6 @@
                      description="horizontal mean cloud layer meridional velocity"
                      packages="cu_gf_monan_in"/>
                
-                <var name="rumcl" type="real" dimensions="nVertLevels nEdges Time" units="kg m^{-2} s^{-1}"
-                     description="horizontal mean cloud layer momentum at cell edge (rho*u/zz)"
-                     packages="cu_gf_monan_in"/>
-
                 <var name="rupmfxcu" type="real" dimensions="nVertLevels nCells Time" units="kg m^{-2} s^{-1}"
                      description="vertical updraft mass flux from cumulus parameterization"
                      packages="cu_gf_monan_in"/>

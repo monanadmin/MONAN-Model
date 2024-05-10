@@ -29,10 +29,27 @@
                             , tau_ocea_cp, tau_land_cp            &
                             , mx_buoy1, mx_buoy2                  &
                             , satur_spec_hum
- 
+ use mpas_atm_dimensions, only : nVertLevels
  use mpas_dmpar, only : IO_NODE
-                            
+ use mpas_atmphys_todynamics, only : tend_toEdges
  implicit none
+ !--srf
+ ! Abstract interface for routine used to communicate halos of fields
+ ! in a named group
+ !
+ abstract interface
+      subroutine halo_exchange_routine(domain, halo_group, ierr)
+
+         use mpas_derived_types, only : domain_type
+
+         type (domain_type), intent(inout) :: domain
+         character(len=*), intent(in) :: halo_group
+         integer, intent(out), optional :: ierr
+
+      end subroutine halo_exchange_routine
+ end interface
+ !--srf
+ 
  private
  public:: allocate_convection,     &
           deallocate_convection,   &
@@ -1407,15 +1424,18 @@
  end subroutine update_convection_step1
 
 !=================================================================================================================
- subroutine update_convection_step2(configs,mesh,sfc_input,diag_physics,tend_physics,state,diag,time_lev,its,ite)
+ subroutine update_convection_step2(configs,mesh,sfc_input,diag_physics,tend_physics,state,diag,time_lev,its,ite,  &
+                                    exchange_halo_group,block)
 !=================================================================================================================
 
 !input arguments:
+ type(block_type), intent(in) :: block
  type(mpas_pool_type),intent(in):: configs
  type(mpas_pool_type),intent(in):: mesh
  type(mpas_pool_type),intent(in):: sfc_input
  type(mpas_pool_type),intent(in):: state
  type(mpas_pool_type),intent(in):: diag
+ procedure (halo_exchange_routine) :: exchange_halo_group
 
  integer,intent(in):: its,ite
  integer,intent(in):: time_lev
@@ -1427,7 +1447,8 @@
 !local pointers:
  integer,pointer:: index_cnvcf, index_buoyx
  integer,dimension(:),pointer:: i_rainc
- integer,pointer:: nEdgesSolve
+ integer,pointer:: nEdgesSolve,nCells,nCellsSolve,nEdges
+
 
 !local pointers:
  character(len=StrKIND),pointer:: convection_scheme
@@ -1437,9 +1458,11 @@
  real(kind=RKIND),dimension(:),pointer:: wlpool,vcpool
 
  real(kind=RKIND),dimension(:,:),pointer:: umcl,vmcl
+ real(kind=RKIND),dimension(:,:),pointer:: rumcl
  real(kind=RKIND),dimension(:,:),pointer:: zgrid,rh
  real(kind=RKIND),dimension(:,:),pointer:: cnvcf,buoyx
  real(kind=RKIND),dimension(:,:),pointer:: rcnvcfcuten,rbuoyxcuten
+ real(kind=RKIND),dimension(:,:),pointer:: rho_edge     ! diag rho_edge
 
  real(kind=RKIND),dimension(:,:,:),pointer:: scalars
 
@@ -1638,19 +1661,105 @@
           enddo
           enddo
           !-- copying the value @ level one to levels 2:nvertlevels
+          !-- (the 1-d (ncells) arrays umcl,vmcl are converted to 2-d (nvert,ncells) because 
+          !-- the current MPAS paralelization does not support exchange of halos of 1-d arrays)
           do j = jts,jte
           do i = its,ite
             umcl(2:,i) = umcl(1,i)
             vmcl(2:,i) = vmcl(1,i)
           enddo
           enddo
+          !
+          call mpas_pool_get_dimension(mesh, 'nEdgesSolve', nEdgesSolve)
+          !-
+          !-- calculating the horizontal mean cloud layer momentum at cell edge (rho*u/zz)
+          !-- used in the cold pool gust front 2-d advection for the convection 
+          !---organization parameterization.
+          !-- exchange halos of umcl and vmcl (see src/core_atmosphere/mpas_atm_core.F)
+          call exchange_halo_group(block % domain, 'physics:coldpool')
+          !-- array for the horizontal mean cloud layer momentum at cell edge
+          call mpas_pool_get_array(diag, 'rumcl' ,rumcl)
+          !-- calculate the horizontal mean cloud layer momentum at cell edge
+          call tend_toEdges(block,mesh,umcl,vmcl,rumcl)
+          !-- get rho_zz averaged from cell centers to the cell edge
+          call mpas_pool_get_array(diag , 'rho_edge', rho_edge)
+
+          do i = 1, nEdgesSolve
+             do k = 1, nVertLevels  
+                rumcl(k,i)=rumcl(k,i)*rho_edge(k,i)
+             enddo
+          enddo
       endif  !- (convection_tracer == 1)
+
+
+
 
     case default
 
  end select convection_select
  
  end subroutine update_convection_step2
+!=================================================================================================================
+ !-- alternative routine for "tend_toEdges" --!
+ subroutine UVMCL_toEdges(mesh,UMCL,VMCL,RUMCL)
+  !-- calculating the horizontal mean cloud layer momentum at cell edge (rho*u/zz)
+  !-- used in the cold pool gust front advection for the convection
+  !-- organization parameterization.
+  
+  use mpas_atm_dimensions
+
+ !input arguments:
+ ! type(block_type),intent(in),target:: block
+  type(mpas_pool_type),intent(in):: mesh
+  real(kind=RKIND),intent(in),dimension(:,:),target:: umcl,vmcl 
+
+ !output arguments:
+  real(kind=RKIND),intent(out),dimension(:,:):: rumcl
+
+ !local variables:
+  integer:: iCell,iEdge,k,j
+  integer:: cell1, cell2
+  integer,pointer:: nCells,nCellsSolve,nEdges
+  integer,dimension(:,:),pointer:: cellsOnEdge
+
+  real(kind=RKIND), dimension(:,:), pointer :: east, north, edgeNormalVectors
+
+  call mpas_pool_get_dimension(mesh, 'nCells', nCells)
+  call mpas_pool_get_dimension(mesh, 'nCellsSolve', nCellsSolve)
+  call mpas_pool_get_dimension(mesh, 'nEdges', nEdges)
+
+  call mpas_pool_get_array(mesh, 'east', east)
+  call mpas_pool_get_array(mesh, 'north', north)
+  call mpas_pool_get_array(mesh, 'edgeNormalVectors', edgeNormalVectors)
+
+  call mpas_pool_get_array(mesh, 'cellsOnEdge', cellsOnEdge)
+
+  !--srf: rumcl does not vary on vertical, see Freitas et al. (JAMES 2024) for explanation.
+  !--     It is used to transport the scalar 'buoyx' representing the MSE anomalies in the 
+  !--     leading edge of the cold pool.
+  !print*,'ncells=',nCells,nCellsSolve, nEdges
+
+  do iEdge = 1, nEdges
+     cell1 = cellsOnEdge(1,iEdge)
+     cell2 = cellsOnEdge(2,iEdge)
+     rumcl(1,iEdge) =   umcl(1,cell1) * 0.5 * (edgeNormalVectors(1,iEdge) * east(1,cell1)   &
+                                          +    edgeNormalVectors(2,iEdge) * east(2,cell1)   &
+                                          +    edgeNormalVectors(3,iEdge) * east(3,cell1))  &
+                      + vmcl(1,cell1) * 0.5 * (edgeNormalVectors(1,iEdge) * north(1,cell1)  &
+                                          +    edgeNormalVectors(2,iEdge) * north(2,cell1)  &
+                                          +    edgeNormalVectors(3,iEdge) * north(3,cell1)) &
+                      + umcl(1,cell2) * 0.5 * (edgeNormalVectors(1,iEdge) * east(1,cell2)   &
+                                          +    edgeNormalVectors(2,iEdge) * east(2,cell2)   &
+                                          +    edgeNormalVectors(3,iEdge) * east(3,cell2))  &
+                      + vmcl(1,cell2) * 0.5 * (edgeNormalVectors(1,iEdge) * north(1,cell2)  &
+                                          +    edgeNormalVectors(2,iEdge) * north(2,cell2)  &
+                                          +    edgeNormalVectors(3,iEdge) * north(3,cell2))
+     !-- As umcl and vmcl do not have dependence on vertical level, rumcl for k=2,3, ... nvertlevels
+     !-- will be the same as at k=1
+     rumcl(2:,iEdge) =  rumcl(1,iEdge)
+  end do
+  
+  end subroutine UVMCL_toEdges
 
 !=================================================================================================================
  end module mpas_atmphys_driver_convection

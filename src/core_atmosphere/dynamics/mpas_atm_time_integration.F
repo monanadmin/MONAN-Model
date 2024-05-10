@@ -2862,7 +2862,8 @@ module atm_time_integration
 !--srf
 !-- this is only for GF_MONAN cumulus scheme and convection_tracer == 1 
       if(index_buoyx > 0) then
-        call mpas_pool_get_array(diag_physics, 'rumcl', rumcl) ! = umcl,vmcl
+        call mpas_pool_get_array(diag, 'rumcl', rumcl) ! = umcl,vmcl
+        
         if(.not. allocated(wwAvg_local)) allocate(wwAvg_local(nVertLevels+1,nCells+1)); wwAvg_local = 0.0_RKIND
 
         call atm_advance_scalars_work_coldpool(nCells, num_scalars, dt, &
@@ -3286,7 +3287,7 @@ module atm_time_integration
 !--srf
 !-- this is only for GF_MONAN cumulus scheme and convection_tracer == 1 
       if(index_buoyx > 0) then
-        call mpas_pool_get_array(diag_physics, 'rumcl', rumcl) ! = umcl,vmcl
+        call mpas_pool_get_array(diag, 'rumcl', rumcl) ! = umcl,vmcl
         if(.not. allocated(wwAvg_local)) allocate(wwAvg_local(nVertLevels+1,nCells+1)); wwAvg_local = 0.0_RKIND
         
         call atm_advance_scalars_mono_work_coldpool(block, state, nCells, nEdges, num_scalars, dt, &
@@ -6781,6 +6782,9 @@ module atm_time_integration
 !-srf
 
       local_advance_density = advance_density
+
+!print*,'ADVANCE',maxval(uhAvg),minval(uhAvg),maxval(uhAvg(1:1, edgeStart:edgeEnd)) &
+!              ,minval(uhAvg(1:1, edgeStart:edgeEnd))
 
       !
       ! Runge Kutta integration, so we compute fluxes from scalar_new values, update starts from scalar_old

@@ -15,7 +15,7 @@
 
  implicit none
  private
- public:: physics_get_tend
+ public:: physics_get_tend,tend_toEdges
 
 
 !Interface between the physics parameterizations and the non-hydrostatic dynamical core.
@@ -189,12 +189,6 @@
  call mpas_pool_get_array(tend,'theta_euler' ,tend_theta_euler)
  call mpas_pool_get_array(tend,'scalars_tend',tend_scalars    )
 
- !-srf
- call mpas_pool_get_array(diag_physics,'umcl'  ,umcl )
- call mpas_pool_get_array(diag_physics,'vmcl'  ,vmcl )
- call mpas_pool_get_array(diag_physics,'rumcl' ,rumcl)
- !-srf
-
 !initialize the tendency for the potential temperature and all scalars due to PBL, convection,
 !and longwave and shortwave radiation:
 ! allocate(theta(nVertLevels,nCellsSolve)  )
@@ -231,10 +225,7 @@
 !-srf
  if (.not. associated(rbuoyxcuten)) allocate(rbuoyxcuten(0,0))
  if (.not. associated(rcnvcfcuten)) allocate(rcnvcfcuten(0,0))
- if (.not. associated(umcl)) allocate(umcl(0,0))
- if (.not. associated(vmcl)) allocate(vmcl(0,0))
- !-srf
-
+!-srf
 
  call physics_get_tend_work(block, mesh, nCells, nEdges, nCellsSolve, nEdgesSolve, &
                            rk_step, dynamics_substep, &
@@ -251,7 +242,7 @@
                            tend_rtheta_physics, &
                            tend_theta_euler, &
                            exchange_halo_group, &
-                           index_cnvcf,index_buoyx,rbuoyxcuten,rcnvcfcuten,rumcl,umcl,vmcl)
+                           index_cnvcf,index_buoyx,rbuoyxcuten,rcnvcfcuten)
 
  !
  ! Clean up any pointers that were allocated with zero size before the call to
@@ -275,9 +266,7 @@
  !-srf
  if (size(rbuoyxcuten) == 0) deallocate(rbuoyxcuten)
  if (size(rcnvcfcuten) == 0) deallocate(rcnvcfcuten)
- if (size(umcl) == 0) deallocate(umcl)
- if (size(vmcl) == 0) deallocate(vmcl)
-!-srf
+ !-srf
 
 ! deallocate(theta)
  deallocate(tend_th)
@@ -312,7 +301,7 @@
                                  tend_u_phys, &
                                  theta_m, scalars, tend_theta, tend_theta_euler, &
                                  exchange_halo_group, &
-                                 index_cnvcf,index_buoyx,rbuoyxcuten,rcnvcfcuten,rumcl,umcl,vmcl)
+                                 index_cnvcf,index_buoyx,rbuoyxcuten,rcnvcfcuten)
 !==================================================================================================
 
     use mpas_atm_dimensions
@@ -355,9 +344,6 @@
     real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: rthratensw
     real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: rbuoyxcuten
     real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: rcnvcfcuten
-    real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: umcl
-    real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: vmcl
-    real (kind=RKIND), dimension(nVertLevels,nEdges+1), intent(inout) :: rumcl
     real (kind=RKIND), dimension(nVertLevels,nEdges+1), intent(inout) :: tend_u_phys
     real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(in) :: theta_m
     real (kind=RKIND), dimension(num_scalars,nVertLevels,nCells+1), intent(in) :: scalars
@@ -456,29 +442,9 @@
               do k = 1, nVertLevels
                  tend_u(k,i)=tend_u(k,i)+rucuten_Edge(k,i)*mass_edge(k,i)
               enddo
-              enddo
-             ! if (convection _tracer == 1) ! falta
-             !-- calculating the horizontal mean cloud layer momentum at cell edge (rho*u/zz)
-             !-- used in the cold pool gust front 2-d advection
-             
-             if (rk_step == 1 .and. dynamics_substep == 1) then  ! <<<< check this >>>>>>
-               mynum = block % domain % dminfo % my_proc_id
-               !umcl=float(mynum)
-               !print*,'1mynum',mynum,nint(umcl(1,:)) !maxval(umcl),minval(umcl)
-               !print*,'1mynum',mynum,size(umcl)/55,size(rucuten)/55,size(tend_u)/55
-               
-                call exchange_halo_group(block % domain, 'physics:coldpool')
-            
-               !print*,'2mynum',mynum,nint(umcl(1,:))!,maxval(umcl),minval(umcl)
-               call UVMCL_toEdges(mesh,umcl,vmcl,rumcl)
-              !call tend_toEdges(block,mesh,umcl,vmcl,rumcl)
-               do i = 1, nEdgesSolve
-                do k = 1, nVertLevels
-                    rumcl(k,i)=rumcl(k,i)*mass_edge(k,i)
-                enddo
-               enddo
-             end if
+              enddo          
 !srf- the sources and sinks of the scalars below are included in the routine "update_convection_step2" 
+!     so, they are comment out here to avoid double contribution
 !              do i = 1, nCellsSolve
 !              do k = 1, nVertLevels
 !                 tend_scalars(index_cnvcf,k,i) = tend_scalars(index_cnvcf,k,i) + rcnvcfcuten(k,i)*mass(k,i)
@@ -555,9 +521,7 @@
  call mpas_pool_get_array(mesh, 'edgeNormalVectors', edgeNormalVectors)
 
  call mpas_pool_get_array(mesh, 'cellsOnEdge', cellsOnEdge)
- ! print*,'Ux_tend',size(Ux_tend,2), cellsOnEdge(2,1), cellsOnEdge(1,1)
- ! print*,'Uy_tend',size(Uy_tend,2), cellsOnEdge(2,nEdges), cellsOnEdge(1,nEdges)
-
+ 
  do iEdge = 1, nEdges
     cell1 = cellsOnEdge(1,iEdge)
     cell2 = cellsOnEdge(2,iEdge)
@@ -578,67 +542,7 @@
  
  end subroutine tend_toEdges
  !
- !=================================================================================================================
- subroutine UVMCL_toEdges(mesh,UMCL,VMCL,RUMCL)
-  !-- calculating the horizontal mean cloud layer momentum at cell edge (rho*u/zz)
-  !-- used in the cold pool gust front 2-d advection
-  !-- adapted by Saulo Freitas (06MAY2024) for the convection organization parameterization.
-  
-  use mpas_atm_dimensions
-
- !input arguments:
- ! type(block_type),intent(in),target:: block
-  type(mpas_pool_type),intent(in):: mesh
-  real(kind=RKIND),intent(in),dimension(:,:),target:: umcl,vmcl 
-
- !output arguments:
-  real(kind=RKIND),intent(out),dimension(:,:):: rumcl
-
- !local variables:
-  integer:: iCell,iEdge,k,j
-  integer:: cell1, cell2
-  integer,pointer:: nCells,nCellsSolve,nEdges
-  integer,dimension(:,:),pointer:: cellsOnEdge
-
-  real(kind=RKIND), dimension(:,:), pointer :: east, north, edgeNormalVectors
-
-  call mpas_pool_get_dimension(mesh, 'nCells', nCells)
-  call mpas_pool_get_dimension(mesh, 'nCellsSolve', nCellsSolve)
-  call mpas_pool_get_dimension(mesh, 'nEdges', nEdges)
-
-  call mpas_pool_get_array(mesh, 'east', east)
-  call mpas_pool_get_array(mesh, 'north', north)
-  call mpas_pool_get_array(mesh, 'edgeNormalVectors', edgeNormalVectors)
-
-  call mpas_pool_get_array(mesh, 'cellsOnEdge', cellsOnEdge)
-
-  !--srf: rumcl does not vary on vertical, see Freitas et al. (JAMES 2024) for explanation.
-  !--     It is used to transport the scalar 'buoyx' representing the MSE anomalies in the 
-  !--     leading edge of the cold pool.
  
-  do iEdge = 1, nEdges
-     cell1 = cellsOnEdge(1,iEdge)
-     cell2 = cellsOnEdge(2,iEdge)
-                            
-     rumcl(1,iEdge) =   umcl(1,cell1) * 0.5 * (edgeNormalVectors(1,iEdge) * east(1,cell1)   &
-                                          +    edgeNormalVectors(2,iEdge) * east(2,cell1)   &
-                                          +    edgeNormalVectors(3,iEdge) * east(3,cell1))  &
-                      + vmcl(1,cell1) * 0.5 * (edgeNormalVectors(1,iEdge) * north(1,cell1)  &
-                                          +    edgeNormalVectors(2,iEdge) * north(2,cell1)  &
-                                          +    edgeNormalVectors(3,iEdge) * north(3,cell1)) &
-                      + umcl(1,cell2) * 0.5 * (edgeNormalVectors(1,iEdge) * east(1,cell2)   &
-                                          +    edgeNormalVectors(2,iEdge) * east(2,cell2)   &
-                                          +    edgeNormalVectors(3,iEdge) * east(3,cell2))  &
-                      + vmcl(1,cell2) * 0.5 * (edgeNormalVectors(1,iEdge) * north(1,cell2)  &
-                                          +    edgeNormalVectors(2,iEdge) * north(2,cell2)  &
-                                          +    edgeNormalVectors(3,iEdge) * north(3,cell2))
-     !-- As umcl and vmcl do not have dependence on vertical level, rumcl for k=2,3, ... nvertlevels
-     !-- will be the same as at k=1
-     rumcl(2:,iEdge) =  rumcl(1,iEdge)
-  end do
-  
-  end subroutine UVMCL_toEdges
-
 !=================================================================================================================
  end module mpas_atmphys_todynamics
 !=================================================================================================================
