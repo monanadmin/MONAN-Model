@@ -1461,7 +1461,8 @@
  real(kind=RKIND),dimension(:,:),pointer:: zgrid,rh
  real(kind=RKIND),dimension(:,:),pointer:: cnvcf,buoyx
  real(kind=RKIND),dimension(:,:),pointer:: rcnvcfcuten,rbuoyxcuten
- real(kind=RKIND),dimension(:,:),pointer:: rho_edge     ! diag rho_edge
+ real(kind=RKIND),dimension(:,:),pointer:: rho_edge    ! diag rho_edge
+ real(kind=RKIND),dimension(:,:),pointer:: rho_zz      ! state rho at center
 
  real(kind=RKIND),dimension(:,:,:),pointer:: scalars
 
@@ -1659,13 +1660,21 @@
             vmcl(1,i) = vmcl(1,i) + 0.62_RKIND * v_p(i,k_amb_wind,j)
           enddo
           enddo
+          !-- get dry air density divided by d(zeta)/dz"
+          call mpas_pool_get_array(state, 'rho_zz', rho_zz,time_lev)
           !-- copying the value @ level one to levels 2:nvertlevels
           !-- (the 1-d (ncells) arrays umcl,vmcl are converted to 2-d (nvert,ncells) because 
           !-- the current MPAS paralelization does not support exchange of halos of 1-d arrays)
+          !-- convert to mass flux u*rho/zz (momentum)
           do j = jts,jte
           do i = its,ite
-            umcl(2:,i) = umcl(1,i)
-            vmcl(2:,i) = vmcl(1,i)
+            do k = 2, nVertLevels  
+               umcl(k,i) = umcl(1,i)*rho_zz(k,i)
+               vmcl(k,i) = vmcl(1,i)*rho_zz(k,i)
+            enddo
+            !-- do not change this
+            umcl(1,i) = umcl(1,i)*rho_zz(1,i)
+            vmcl(1,i) = vmcl(1,i)*rho_zz(1,i)
           enddo
           enddo
           !
@@ -1674,24 +1683,26 @@
           !-- calculating the horizontal mean cloud layer momentum at cell edge (rho*u/zz)
           !-- used in the cold pool gust front 2-d advection for the convection 
           !---organization parameterization.
-          !-- exchange halos of umcl and vmcl (see src/core_atmosphere/mpas_atm_core.F)
+          !-- exchange halos of rho*umcl and rho*vmcl (see src/core_atmosphere/mpas_atm_core.F)
           call exchange_halo_group(block % domain, 'physics:coldpool')
           !-- array for the horizontal mean cloud layer momentum at cell edge
           call mpas_pool_get_array(diag, 'rumcl' ,rumcl)
           !-- calculate the horizontal mean cloud layer momentum at cell edge
           call UVMCL_toEdges(mesh,UMCL,VMCL,RUMCL)
+          
+          !----------
+          !-- the below does not work; there is no reproducibility using a different
+          !-- number of cores/threads.
+          !
           !-- get rho_zz averaged from cell centers to the cell edge
-          call mpas_pool_get_array(diag , 'rho_edge', rho_edge)
-
-          do i = 1, nEdgesSolve
-             do k = 1, nVertLevels  
-                rumcl(k,i)=rumcl(k,i)*rho_edge(k,i)
-             enddo
-          enddo
+          !call mpas_pool_get_array(diag , 'rho_edge', rho_edge)
+          !do i = 1, nEdgesSolve
+          !   do k = 1, nVertLevels  
+          !      rumcl(k,i)=rumcl(k,i)*rho_edge(k,i)
+          !   enddo
+          !enddo
+          !---------
       endif  !- (convection_tracer == 1)
-
-
-
 
     case default
 
@@ -1741,21 +1752,19 @@
   do iEdge = 1, nEdges
      cell1 = cellsOnEdge(1,iEdge)
      cell2 = cellsOnEdge(2,iEdge)
-     rumcl(1,iEdge) =   umcl(1,cell1) * 0.5 * (edgeNormalVectors(1,iEdge) * east(1,cell1)   &
+     rumcl(:,iEdge) =   umcl(:,cell1) * 0.5 * (edgeNormalVectors(1,iEdge) * east(1,cell1)   &
                                           +    edgeNormalVectors(2,iEdge) * east(2,cell1)   &
                                           +    edgeNormalVectors(3,iEdge) * east(3,cell1))  &
-                      + vmcl(1,cell1) * 0.5 * (edgeNormalVectors(1,iEdge) * north(1,cell1)  &
+                      + vmcl(:,cell1) * 0.5 * (edgeNormalVectors(1,iEdge) * north(1,cell1)  &
                                           +    edgeNormalVectors(2,iEdge) * north(2,cell1)  &
                                           +    edgeNormalVectors(3,iEdge) * north(3,cell1)) &
-                      + umcl(1,cell2) * 0.5 * (edgeNormalVectors(1,iEdge) * east(1,cell2)   &
+                      + umcl(:,cell2) * 0.5 * (edgeNormalVectors(1,iEdge) * east(1,cell2)   &
                                           +    edgeNormalVectors(2,iEdge) * east(2,cell2)   &
                                           +    edgeNormalVectors(3,iEdge) * east(3,cell2))  &
-                      + vmcl(1,cell2) * 0.5 * (edgeNormalVectors(1,iEdge) * north(1,cell2)  &
+                      + vmcl(:,cell2) * 0.5 * (edgeNormalVectors(1,iEdge) * north(1,cell2)  &
                                           +    edgeNormalVectors(2,iEdge) * north(2,cell2)  &
                                           +    edgeNormalVectors(3,iEdge) * north(3,cell2))
-     !-- As umcl and vmcl do not have dependence on vertical level, rumcl for k=2,3, ... nvertlevels
-     !-- will be the same as at k=1
-     rumcl(2:,iEdge) =  rumcl(1,iEdge)
+   
   end do
   
   end subroutine UVMCL_toEdges

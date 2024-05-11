@@ -2439,12 +2439,12 @@
                      description="Cold pool gust front horizontal speed "
                      packages="cu_gf_monan_in"/>
 
-                <var name="umcl" type="real" dimensions="nVertLevels nCells Time" units="m s^{-1}"
-                     description="horizontal mean cloud layer zonal velocity"
+                <var name="umcl" type="real" dimensions="nVertLevels nCells Time" units="kg m^{-2} s^{-1}"
+                     description="horizontal mean cloud layer zonal momentum (rho*u/zz)"
                      packages="cu_gf_monan_in"/>
 
-                <var name="vmcl" type="real" dimensions="nVertLevels nCells Time" units="m s^{-1}"
-                     description="horizontal mean cloud layer meridional velocity"
+                <var name="vmcl" type="real" dimensions="nVertLevels nCells Time" units="kg m^{-2} s^{-1}"
+                     description="horizontal mean cloud layer meridional momentum (rho*u/zz)"
                      packages="cu_gf_monan_in"/>
                
                 <var name="rupmfxcu" type="real" dimensions="nVertLevels nCells Time" units="kg m^{-2} s^{-1}"
