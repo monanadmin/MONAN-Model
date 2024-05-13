@@ -2446,6 +2446,14 @@
                 <var name="vmcl" type="real" dimensions="nVertLevels nCells Time" units="kg m^{-2} s^{-1}"
                      description="horizontal mean cloud layer meridional momentum (rho*u/zz)"
                      packages="cu_gf_monan_in"/>
+
+                <var name="u_gustfront" type="real" dimensions="nCells Time" units="m s^{-1}"
+                     description="zonal gust front speed at surface level"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="v_gustfront" type="real" dimensions="nCells Time" units="m s^{-1}"
+                     description="meridional gust front speed at surface level"
+                     packages="cu_gf_monan_in"/>
                
                 <var name="rupmfxcu" type="real" dimensions="nVertLevels nCells Time" units="kg m^{-2} s^{-1}"
                      description="vertical updraft mass flux from cumulus parameterization"

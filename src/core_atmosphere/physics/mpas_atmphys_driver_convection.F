@@ -1454,7 +1454,7 @@
  real(kind=RKIND),pointer:: bucket_rainc
  real(kind=RKIND),dimension(:),pointer:: cuprec,rainc
  real(kind=RKIND),dimension(:),pointer:: xland
- real(kind=RKIND),dimension(:),pointer:: wlpool,vcpool
+ real(kind=RKIND),dimension(:),pointer:: wlpool,vcpool,u_gustfront,v_gustfront
 
  real(kind=RKIND),dimension(:,:),pointer:: umcl,vmcl
  real(kind=RKIND),dimension(:,:),pointer:: rumcl
@@ -1623,6 +1623,11 @@
           !
           call mpas_pool_get_array(diag_physics,'umcl'  ,umcl )
           call mpas_pool_get_array(diag_physics,'vmcl'  ,vmcl )
+          !
+          !--- gust front speed at surface level (1st model layer)
+          !
+          call mpas_pool_get_array(diag_physics,'u_gustfront'  ,u_gustfront )
+          call mpas_pool_get_array(diag_physics,'v_gustfront'  ,v_gustfront )
 
           do j = jts,jte
           do i = its,ite
@@ -1660,6 +1665,10 @@
             vmcl(1,i) = vmcl(1,i) + 0.62_RKIND * v_p(i,k_amb_wind,j)
           enddo
           enddo
+          !-- save the gust front velocities
+          u_gustfront(:) = umcl(1,:) 
+          v_gustfront(:) = vmcl(1,:)                           
+          !
           !-- get dry air density divided by d(zeta)/dz"
           call mpas_pool_get_array(state, 'rho_zz', rho_zz,time_lev)
           !-- copying the value @ level one to levels 2:nvertlevels

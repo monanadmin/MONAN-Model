@@ -127,9 +127,6 @@
 
  real(kind=RKIND),dimension(:,:),allocatable:: theta,tend_th
 
- real(kind=RKIND),dimension(:,:),pointer:: rumcl
- real(kind=RKIND),dimension(:,:),pointer:: umcl,vmcl
-
 !=================================================================================================================
  call mpas_pool_get_dimension(mesh, 'nCells', nCells)
  call mpas_pool_get_dimension(mesh, 'nCellsSolve', nCellsSolve)
