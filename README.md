@@ -1,4 +1,4 @@
-# MONAN-v0.5.0
+# MONAN-v0.6.0
 
 ## Model for Ocean-laNd-Atmosphere predictioN
 
@@ -15,8 +15,10 @@ VERSION 0.2.0 - Included variables and new isobaric levels.
 VERSION 0.3.0 - Included new levels for existing variables and included new variables.
 VERSION 0.4.0 - Included new variables; update MPAS-v8.0.2; bug fixes.
 VERSION 0.5.0 - Included new variables.
+VERSION 0.5.1 - Bug fix: zgeo variable.
+VERSION 0.6.0 - Update MPAS-V8.1.0.
 
-MPAS-v8.0.2
+MPAS-v8.1.0
 ====
 
 The Model for Prediction Across Scales (MPAS) is a collaborative project for

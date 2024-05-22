@@ -3857,7 +3857,12 @@ module mpas_isobaric_diagnostics
         if(.not.allocated(geoph)    ) allocate(geoph(nVertLevelsP1,nCells)    ) !EGK
         if(.not.allocated(dewpoint) ) allocate(dewpoint(nVertLevels,nCells)   )
        
-        if (need_t_isobaric) then
+        if (need_t_isobaric .or. need_zgeo_15 .or. need_zgeo_20 .or. need_zgeo_30 .or. need_zgeo_50 &
+            .or. need_zgeo_70 .or. need_zgeo_100 .or. need_zgeo_150 .or. need_zgeo_200 &
+            .or. need_zgeo_250 .or. need_zgeo_300 .or. need_zgeo_400 .or. need_zgeo_500 &
+            .or. need_zgeo_600 .or. need_zgeo_700 .or. need_zgeo_825 .or. need_zgeo_850 &
+            .or. need_zgeo_875 .or. need_zgeo_900 .or. need_zgeo_925 .or. need_zgeo_950 &
+            .or. need_zgeo_975 .or. need_zgeo_1000) then
             t_iso_levels(:) = (/1500.0, 2000.0, 3000.0, 5000.0, &
                 7000.0, 10000.0, 15000.0, 20000.0, &
                 25000.0, 30000.0, 40000.0, 50000.0, &
@@ -3947,7 +3952,13 @@ module mpas_isobaric_diagnostics
            enddo
         enddo
        
-        if (NEED_TEMP .or. NEED_RELHUM .or. NEED_SPECHUM .or. NEED_DEWPOINT .or. need_mslp) then
+        if (NEED_TEMP .or. NEED_RELHUM .or. NEED_SPECHUM .or. NEED_DEWPOINT .or. need_mslp &
+           .or. need_zgeo_15 .or. need_zgeo_20 .or. need_zgeo_30 .or. need_zgeo_50 &
+           .or. need_zgeo_70 .or. need_zgeo_100 .or. need_zgeo_150 .or. need_zgeo_200 &
+           .or. need_zgeo_250 .or. need_zgeo_300 .or. need_zgeo_400 .or. need_zgeo_500 &
+           .or. need_zgeo_600 .or. need_zgeo_700 .or. need_zgeo_825 .or. need_zgeo_850 &
+           .or. need_zgeo_875 .or. need_zgeo_900 .or. need_zgeo_925 .or. need_zgeo_950 &
+           .or. need_zgeo_975 .or. need_zgeo_1000) then
            !calculation of temperature at cell centers:
             do iCell = 1,nCells
             do k = 1,nVertLevels

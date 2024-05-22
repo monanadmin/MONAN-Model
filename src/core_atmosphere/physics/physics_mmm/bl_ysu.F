@@ -561,6 +561,7 @@
      hgamt(i)  = 0.
      hgamq(i)  = 0.
      wscale(i) = 0.
+     we(i)     = 0.
      kpbl(i)   = 1
      hpbl(i)   = zq(i,1)
      zl1(i)    = za(i,1)
@@ -783,12 +784,6 @@
        if(kpbl(i).le.1) pblflg(i) = .false.
      endif
    enddo
-
-!..Bug fix (2024Apr06), initializing value of we variable.
-   do i = its,ite
-     we(i) = 0. !EGK - bug fix in debug mode
-   enddo
-
 !
 !     estimate the entrainment parameters
 !
