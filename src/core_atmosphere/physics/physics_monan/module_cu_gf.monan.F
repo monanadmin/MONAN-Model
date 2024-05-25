@@ -1116,8 +1116,8 @@ contains
          !-- diagnostic/debug 2d
          do i=its,itf
             if(do_this_column(i,j) == 0) cycle
-            var2d1(i,j) = cum_ztexec(i) !lightn_dens(i,j)
-            var2d2(i,j) = cum_zqexec(i) 
+            var2d1(i,j) = aa3(i,j) !cum_ztexec(i) !lightn_dens(i,j)
+            var2d2(i,j) = aa1_bl(i,j)! cum_zqexec(i) 
          enddo
 
 !--- temporary : we will overwritten all grid boxes 
@@ -2799,7 +2799,8 @@ contains
          call get_lcl2(cumulus,ave_layer,its,ite,itf,kts,kte,ktf,ierr,zqexec,ztexec,xland &
                       ,po,t_cup,p_cup,z_cup,q_cup,k22,klcl,kpbl,psur,zlcl_sfc)
          call LCL_and_PBL_ctrl_on_entrainment(cumulus,its,ite,itf,kts,kte,ktf,min_entr_rate &
-                                             ,entr_rate,zlcl_sfc,turb_len_scale,AA0_,AA1_,AA1_BL_)
+                                             ,entr_rate,zlcl_sfc,turb_len_scale,entr_rate_input &
+                                             ,AA0_,AA1_,AA1_BL_)
       endif
       !
       !--- determine the entrainment dependent on environmental moist (here relative humidity)
@@ -7805,7 +7806,7 @@ contains
             !- for gate soundings
             !x_add_buoy (i) = float(JL*40)
 
-            x_add_buoy (i) = min (x_add_buoy (i), 0.5*mx_buoy2)
+            x_add_buoy (i) = min (x_add_buoy (i), 1.0*mx_buoy2)
 
             if(x_add_buoy (i) > mx_buoy1 ) then 
                 zqexec(i) = 0.
@@ -8178,12 +8179,13 @@ contains
 
    end subroutine get_lcl2
    !---------------------------------------------------------------------------------------------------
-   subroutine LCL_and_PBL_ctrl_on_entrainment(cumulus,its,ite,itf,kts,kte,ktf,min_entr_rate &
-                                             ,entr_rate,zlcl_sfc,turb_len_scale,AA0_,AA1_,AA1_BL_)
+   subroutine LCL_and_PBL_ctrl_on_entrainment(cumulus,its,ite,itf,kts,kte,ktf,min_entr_rate     &
+                                             ,entr_rate,zlcl_sfc,turb_len_scale,entr_rate_input &
+                                             ,AA0_,AA1_,AA1_BL_)
       implicit none
       character *(*)   ,intent (in)          :: cumulus  
       integer  ,intent (in   )               :: its,ite,itf,kts,kte,ktf
-      real     ,intent (in   )               :: min_entr_rate
+      real     ,intent (in   )               :: min_entr_rate,entr_rate_input
       real     ,intent (in   ), dimension(:) :: zlcl_sfc
       real     ,intent (in   ), dimension(:,:) :: turb_len_scale
       real     ,intent (inout), dimension(:)   :: entr_rate,AA0_,AA1_,AA1_BL_
@@ -8220,7 +8222,7 @@ contains
          endif
 
          if(trim(cumulus)=='deep') then 
-          AA1_BL_(i)= entr_rate(i)/0.8 !1000.*2./ ( 1.0/k_lcl_entr + 1.0/k_tls_entr )
+          AA1_BL_(i)= entr_rate(i)/entr_rate_input
           AA0_(i)   = k_tls_entr*1000.
           AA1_(i)   = k_lcl_entr*1000.
          endif
