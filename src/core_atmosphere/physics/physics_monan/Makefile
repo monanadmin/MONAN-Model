@@ -11,7 +11,8 @@ OBJS = \
 	modGate.o                      \
 	modHenrysLawCts.o              \
 	lib_module_cu_gf.monan.o       \
-	module_cu_gf.monan.o
+	module_cu_gf.monan.o           \
+	module_mp_cldfra_cb.o
 
 physics_monan: $(OBJS)
 	ar -ru ./../libphys.a $(OBJS)
