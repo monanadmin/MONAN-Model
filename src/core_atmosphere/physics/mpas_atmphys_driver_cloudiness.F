@@ -14,6 +14,7 @@
  use mpas_atmphys_constants, only: ep_2
  use mpas_atmphys_vars
  use module_mp_thompson_cldfra3
+ use module_mp_cldfra_cb, only: calc_cldfraction_monan
  
  implicit none
  private
@@ -72,6 +73,9 @@
  if(.not.allocated(qirad_p)  ) allocate(qirad_p(ims:ime,kms:kme,jms:jme)  )
  if(.not.allocated(qsrad_p)  ) allocate(qsrad_p(ims:ime,kms:kme,jms:jme)  )
 
+ if(.not.allocated(zgrid_p)   ) allocate(zgrid_p(ims:ime,kms:kme,jms:jme)  )
+ if(.not.allocated(kpbl_p)    ) allocate(kpbl_p(ims:ime,jms:jme)           )
+ if(.not.allocated(rupmfxcu_p)) allocate(rupmfxcu_p(ims:ime,kms:kme,jms:jme))
  end subroutine allocate_cloudiness
 
 !=================================================================================================================
@@ -85,6 +89,9 @@
  if(allocated(qcrad_p)  ) deallocate(qcrad_p  )
  if(allocated(qirad_p)  ) deallocate(qirad_p  )
  if(allocated(qsrad_p)  ) deallocate(qsrad_p  )
+ if(allocated(zgrid_p)   ) deallocate(zgrid_p  )
+ if(allocated(kpbl_p)    ) deallocate(kpbl_p   )
+ if(allocated(rupmfxcu_p)) deallocate(rupmfxcu_p)
 
  end subroutine deallocate_cloudiness
 
@@ -105,10 +112,14 @@
 
 !local variables and pointers:
  integer:: i,j,k
+ integer,dimension(:),pointer:: kpbl
 
  real(kind=RKIND),pointer:: len_disp
  real(kind=RKIND),dimension(:),pointer:: areaCell,meshDensity
  real(kind=RKIND),dimension(:),pointer:: xland
+ real(kind=RKIND),dimension(:,:),pointer:: zgrid
+ real(kind=RKIND),dimension(:,:),pointer:: rupmfxcu
+ character(len=StrKIND),pointer:: radt_cld_scheme
 
 !-----------------------------------------------------------------------------------------------------------------
 
@@ -140,6 +151,28 @@
     enddo
  enddo
 
+ call mpas_pool_get_config(configs,'config_radt_cld_scheme',radt_cld_scheme)
+ cld_fraction_select: select case (trim(radt_cld_scheme))
+     case("cld_fraction_monan")
+       call mpas_pool_get_array(diag_physics,'kpbl'    ,kpbl      )
+       call mpas_pool_get_array(diag_physics,'rupmfxcu',rupmfxcu  )
+       call mpas_pool_get_array(mesh,'zgrid'           ,zgrid     )
+       do j = jts,jte
+          do i = its,ite
+             kpbl_p(i,j)  = kpbl(i)
+          enddo
+
+          do k = kts,kte
+          do i = its,ite
+             zgrid_p(i,k,j)     = zgrid(k,i)
+             rupmfxcu_p(i,k,j)  = rupmfxcu(k,i)
+          enddo
+          enddo
+       enddo
+     
+     case default
+
+ end select cld_fraction_select
  end subroutine cloudiness_from_MPAS
 
 !=================================================================================================================
@@ -224,6 +257,19 @@
            its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte     &
                       )
       call mpas_timer_stop('cal_cldfra3')
+    case("cld_fraction_monan")
+      call mpas_timer_start('cal_cldfra_monan')
+
+      call calc_cldfraction_monan( &
+           cldfra = cldfrac_p , qv     = qvrad_p    , qc = qcrad_p , qi  = qirad_p , &
+           qs     = qsrad_p   , p      = pres_hyd_p , t  = t_p     , rho = rho_p   , &
+           xland  = xland_p   , gridkm = dx_p       , zgrid = zgrid_p              , &
+           kpbl   = kpbl_p    , gf_mfx = rupmfxcu_p ,                                &
+           ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde   , &
+           ims = ims , ime = ime , jms = jms , jme = jme , kms = kds , kme = kme   , &
+           its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte     &
+                      )
+      call mpas_timer_stop('cal_cldfra_monan')
 
     case default
 

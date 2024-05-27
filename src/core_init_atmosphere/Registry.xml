@@ -976,6 +976,11 @@
 
                         <var name="qr" array_group="moist" units="kg kg^{-1}"
                              description="Rain water mixing ratio"/>
+                        <var name="cnvcf" array_group="convection" units="none"
+                             description="convective cloud fraction"/>
+
+                        <var name="buoyx" array_group="convection" units="J kg^{-1}"
+                             description="buoyancy excess from the cold pool scheme"/>
                 </var_array>
 
                 <!-- Climatology for ocean mixed-layer depth -->

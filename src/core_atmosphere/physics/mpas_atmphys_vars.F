@@ -360,6 +360,32 @@
     rqvften_p,        &!
     rthften_p          !
 
+!... gf monan specific arrays:
+ real(kind=RKIND),dimension(:,:,:),allocatable:: &
+    cnvcf_p,              &
+    buoyx_p,              &
+    rcnvcfcuten_p,        &!
+    rbuoyxcuten_p,        &!
+    rupmfxcu_p,           &!
+    rdnmfxcu_p,           &!
+    v3d1_p
+ 
+ real(kind=RKIND),dimension(:,:),allocatable:: &
+    cape_p,         &!
+    cin_p,          &!
+    rmfxdpcu_p,     &!
+    rmfxmdcu_p,     &
+    rmfxshcu_p,     &
+    rtopdpcu_p,     &
+    rtopmdcu_p,     &
+    rtopshcu_p,     &
+    rbotdpcu_p,     &
+    v2d1_p,         &
+    v2d2_p          !
+ 
+ real(kind=RKIND),dimension(:,:),allocatable:: &
+    wlpool_p,   &!
+    vcpool_p     !
 !=================================================================================================================
 !... variables and arrays related to parameterization of pbl:
 !=================================================================================================================
@@ -711,8 +737,8 @@
     qvrad_p,          &!water vapor mixing ratio local to cloudiness and radiation                         [kg/kg]
     qcrad_p,          &!cloud liquid water mixing ratio local to cloudiness and radiation                  [kg/kg]
     qirad_p,          &!cloud ice mixing ratio local to cloudiness and radiation                           [kg/kg]
-    qsrad_p            !snow mixing ratio local to cloudiness and radiation                                [kg/kg]
-
+    qsrad_p,          &!snow mixing ratio local to cloudiness and radiation                                [kg/kg]
+    zgrid_p
 !=================================================================================================================
 !.. variables and arrays related to land-surface parameterization:
 !=================================================================================================================
