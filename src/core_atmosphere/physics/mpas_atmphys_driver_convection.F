@@ -117,6 +117,9 @@
 ! * since we removed the local variable convection_scheme from mpas_atmphys_vars.F, now defines convection_scheme
 !   as a pointer to config_convection_scheme.
 !   Laura D. Fowler (laura@ucar.edu) / 2917-02-16.
+! * removed f_qv,f_qr,and f_qs in the calls to cu_tiedtke and cu_ntiedtke. removed f_qv and f_qc in the call to
+!   kf_eta_cps.
+!   Laura D. Fowler (laura@ucar.edu) / 2024-02-13.
 !---------  MONAN implementations -------------------------------------------------
 ! * implemented the Grell-Freitas convection parameterization (MONAN version). 
 !   This option is triggered using the option 'cu_gf_monan'.

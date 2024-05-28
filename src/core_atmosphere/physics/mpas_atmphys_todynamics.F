@@ -178,8 +178,8 @@
  call mpas_pool_get_array(tend_physics, 'rthratensw', rthratensw)
 
  call mpas_pool_get_array(tend_physics, 'rcnvcfcuten', rcnvcfcuten)
- 
  call mpas_pool_get_array(tend_physics, 'rbuoyxcuten', rbuoyxcuten)
+
  call mpas_pool_get_array(tend,'u'           , tend_u         )
  call mpas_pool_get_array(tend,'theta_m'     , tend_theta     )
  call mpas_pool_get_array(tend,'theta_euler' ,tend_theta_euler)
@@ -217,6 +217,9 @@
  if (.not. associated(rqvcuten)) allocate(rqvcuten(0,0))
  if (.not. associated(rqccuten)) allocate(rqccuten(0,0))
  if (.not. associated(rqicuten)) allocate(rqicuten(0,0))
+ if (.not. associated(rqrcuten)) allocate(rqrcuten(0,0))
+ if (.not. associated(rqscuten)) allocate(rqscuten(0,0))
+
 !-srf
  if (.not. associated(rbuoyxcuten)) allocate(rbuoyxcuten(0,0))
  if (.not. associated(rcnvcfcuten)) allocate(rcnvcfcuten(0,0))
@@ -257,6 +260,8 @@
  if (size(rqvcuten) == 0) deallocate(rqvcuten)
  if (size(rqccuten) == 0) deallocate(rqccuten)
  if (size(rqicuten) == 0) deallocate(rqicuten)
+ if (size(rqrcuten) == 0) deallocate(rqrcuten)
+ if (size(rqscuten) == 0) deallocate(rqscuten)
  !-srf
  if (size(rbuoyxcuten) == 0) deallocate(rbuoyxcuten)
  if (size(rcnvcfcuten) == 0) deallocate(rcnvcfcuten)
