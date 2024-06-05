@@ -5043,18 +5043,15 @@ module mpas_isobaric_diagnostics
            ! call mpas_log_write('--- end interpolate geoph:')
 
             if(allocated(field_in)) deallocate(field_in)
-            if(.not.allocated(field_in)) allocate(field_in(nCells,nVertLevelsP1))
+            if(.not.allocated(field_in)) allocate(field_in(nCells,nVertLevels))
 
             do iCell = 1, nCells
-            !-srf check this later
-            !do k = 1, nVertLevelsP1   ! orig
-             do k = 1, nVertLevelsP1-1 ! proposed
-                
-               kk = nVertLevelsP1+1-k
+            do k = 1, nVertLevels   ! LFR bugfix          
+               kk = nVertLevels+1-k
                field_in(iCell,kk) = rho(k,iCell)
             enddo
             enddo
-            call interp_tofixed_pressure(nCells,nVertLevelsP1,nIntP,press_in,field_in,press_interp,field_interp)
+            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
             omega_15hPa(1:nCells)   = w_15hPa(1:nCells)  * field_interp(1:nCells,1)  *grav *(-1)
             omega_20hPa(1:nCells)   = w_20hPa(1:nCells)  * field_interp(1:nCells,2)  *grav *(-1)
             omega_30hPa(1:nCells)   = w_30hPa(1:nCells)  * field_interp(1:nCells,3)  *grav *(-1)
