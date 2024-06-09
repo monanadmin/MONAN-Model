@@ -191,6 +191,7 @@
        if(.not.allocated(xlat_p)         ) allocate(xlat_p(ims:ime,jms:jme)             )
        if(.not.allocated(xlon_p)         ) allocate(xlon_p(ims:ime,jms:jme)             )
        if(.not.allocated(rmfxdpcu_p)     ) allocate(rmfxdpcu_p(ims:ime,jms:jme)         )
+       if(.not.allocated(rmfxdncu_p)     ) allocate(rmfxdncu_p(ims:ime,jms:jme)         )
        if(.not.allocated(rmfxmdcu_p)     ) allocate(rmfxmdcu_p(ims:ime,jms:jme)         )
        if(.not.allocated(rmfxshcu_p)     ) allocate(rmfxshcu_p(ims:ime,jms:jme)         )
        if(.not.allocated(rtopdpcu_p)     ) allocate(rtopdpcu_p(ims:ime,jms:jme)         )
@@ -237,6 +238,7 @@
        do i = its,ite
        do j = jts,jte
           rmfxdpcu_p(i,j)   = 0._RKIND
+          rmfxdncu_p(i,j)   = 0._RKIND
           rmfxmdcu_p(i,j)   = 0._RKIND
           rmfxshcu_p(i,j)   = 0._RKIND
           rtopdpcu_p(i,j)   = 0._RKIND
@@ -479,6 +481,7 @@
        if(allocated(rupmfxcu_p)     ) deallocate(rupmfxcu_p     )
        if(allocated(rdnmfxcu_p)     ) deallocate(rdnmfxcu_p     )
        if(allocated(rmfxdpcu_p)     ) deallocate(rmfxdpcu_p     )
+       if(allocated(rmfxdncu_p)     ) deallocate(rmfxdncu_p     )
        if(allocated(v3d1_p)         ) deallocate(v3d1_p         )
     case ("cu_kain_fritsch")
        if(allocated(dx_p)         ) deallocate(dx_p         )
@@ -679,8 +682,9 @@
              rucuten         = rucuten_p              , rvcuten       = rvcuten_p       , &
              rbuoyxcuten     = rbuoyxcuten_p          , rcnvcfcuten   = rcnvcfcuten_p   , &
              rupmfxcu        = rupmfxcu_p             , rdnmfxcu      = rdnmfxcu_p      , &
-
-             rmfxdpcu        = rmfxdpcu_p             , rmfxmdcu      = rmfxmdcu_p      , &
+             
+             rmfxdpcu        = rmfxdpcu_p             , rmfxdncu      = rmfxdncu_p      , &        
+             rmfxmdcu        = rmfxmdcu_p                                               , &
              rmfxshcu        = rmfxshcu_p             , rtopdpcu      = rtopdpcu_p      , &
              rtopmdcu        = rtopmdcu_p             , rtopshcu      = rtopshcu_p      , &
              rbotdpcu        = rbotdpcu_p                                               , &
@@ -1176,7 +1180,7 @@
  real(kind=RKIND),dimension(:,:),pointer:: rthcuten,rqvcuten,rqccuten,rqicuten,rqrcuten,rqscuten
  real(kind=RKIND),dimension(:,:),pointer:: rucuten,rvcuten
  !local pointers specific for gf_monan convection scheme
- real(kind=RKIND),dimension(:),pointer  :: rmfxdpcu,rmfxmdcu,rmfxshcu
+ real(kind=RKIND),dimension(:),pointer  :: rmfxdpcu,rmfxdncu,rmfxmdcu,rmfxshcu
  real(kind=RKIND),dimension(:),pointer  :: rtopdpcu,rtopmdcu,rtopshcu
  real(kind=RKIND),dimension(:),pointer  :: rbotdpcu,v2d1,v2d2
  real(kind=RKIND),dimension(:,:),pointer:: v3d1
@@ -1211,6 +1215,7 @@
  convection_select: select case(convection_scheme)
     case ("cu_gf_monan")
        call mpas_pool_get_array(diag_physics,'rmfxdpcu'    ,rmfxdpcu   )
+       call mpas_pool_get_array(diag_physics,'rmfxdncu'    ,rmfxdncu   )
        call mpas_pool_get_array(diag_physics,'rmfxmdcu'    ,rmfxmdcu   )
        call mpas_pool_get_array(diag_physics,'rmfxshcu'    ,rmfxshcu   )
        call mpas_pool_get_array(diag_physics,'rtopdpcu'    ,rtopdpcu   )
@@ -1246,6 +1251,7 @@
        do j = jts,jte
        do i = its,ite
           rmfxdpcu(i) = rmfxdpcu_p(i,j)  
+          rmfxdncu(i) = rmfxdncu_p(i,j)  
           rmfxmdcu(i) = rmfxmdcu_p(i,j)  
           rmfxshcu(i) = rmfxshcu_p(i,j)  
           rtopdpcu(i) = rtopdpcu_p(i,j)  

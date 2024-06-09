@@ -374,12 +374,14 @@
     cape_p,         &!
     cin_p,          &!
     rmfxdpcu_p,     &!
+    rmfxdncu_p,     &!
     rmfxmdcu_p,     &
     rmfxshcu_p,     &
     rtopdpcu_p,     &
     rtopmdcu_p,     &
     rtopshcu_p,     &
     rbotdpcu_p,     &
+    sgsgustcu_p,    &
     v2d1_p,         &
     v2d2_p          !
  

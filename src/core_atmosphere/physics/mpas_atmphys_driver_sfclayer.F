@@ -146,6 +146,8 @@
  if(.not.allocated(xland_p) ) allocate(xland_p(ims:ime,jms:jme) )
  if(.not.allocated(zol_p)   ) allocate(zol_p(ims:ime,jms:jme)   )
  if(.not.allocated(znt_p)   ) allocate(znt_p(ims:ime,jms:jme)   )
+    
+ if(.not.allocated(sgsgustcu_p)) allocate(sgsgustcu_p(ims:ime,jms:jme) )
 
  if(config_frac_seaice) then
     if(.not.allocated(sst_p)      ) allocate(sst_p(ims:ime,jms:jme)      )
@@ -280,6 +282,9 @@
  if(allocated(zol_p)   ) deallocate(zol_p   )
  if(allocated(znt_p)   ) deallocate(znt_p   )
 
+ if(allocated(sgsgustcu_p)) deallocate(sgsgustcu_p   )
+
+
  if(config_frac_seaice) then
     if(allocated(sst_p)      ) deallocate(sst_p      )
     if(allocated(xice_p)     ) deallocate(xice_p     )
@@ -380,6 +385,10 @@
 
 !local pointers specific to mynn:
  real(kind=RKIND),dimension(:),pointer:: ch,qcg,snowh
+
+!local pointers specific to GF cumulus scheme:
+ real(kind=RKIND),dimension(:),pointer:: rmfxdncu
+ character(len=StrKIND),pointer:: convection_scheme
 
 !-----------------------------------------------------------------------------------------------------------------
 
@@ -588,6 +597,34 @@
     case default
 
  end select sfclayer_select
+
+
+!-srf coupling downdraft mass flux to wind speed
+ call mpas_pool_get_config(configs,'config_convection_scheme',convection_scheme)
+ convection_select: select case(convection_scheme)
+
+    case ("cu_gf_monan")
+       call mpas_pool_get_array(diag_physics,'rmfxdncu'      ,rmfxdncu)
+       !- gustiness parameterization based on Redelsperger et al (2000).
+       !- using the downdraft mass flux from GF cumulus scheme (rmfxdncu)
+       do j = jts,jte
+       do i = its,ite
+         if(xland(i) > 1.5) then !applied only over water 
+           sgsgustcu_p(i,j) = min( 0.1, max(0.0, rmfxdncu(i)) )
+           sgsgustcu_p(i,j) = log(1. + 600.4*sgsgustcu_p(i,j) -4375.*sgsgustcu_p(i,j)**2) 
+         else
+           sgsgustcu_p(i,j) = 0.0_RKIND
+         endif 
+       enddo
+       enddo
+    case default
+       do j = jts,jte
+       do i = its,ite
+         sgsgustcu_p(i,j) = 0.0_RKIND
+       enddo
+       enddo
+
+ end select convection_select
 
  end subroutine sfclayer_from_MPAS
 
@@ -1044,6 +1081,7 @@
                    qcg      = qcg_p      , spp_pbl   = spp_pbl  , isftcflx = isftcflx    , &
                    iz0tlnd  = iz0tlnd    , itimestep = initflag                          , &
                    errmsg   = errmsg     , errflg    = errflg                            , &
+                   sgsgustcu = sgsgustcu_p                                               , & 
                    ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde , &
                    ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme , &
                    its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte   &
@@ -1075,6 +1113,7 @@
                       qcg      = qcg_p      , spp_pbl   = spp_pbl  , isftcflx = isftcflx    , &
                       iz0tlnd  = iz0tlnd    , itimestep = initflag                          , &
                       errmsg   = errmsg     , errflg    = errflg                            , &
+                      sgsgustcu = sgsgustcu_p                                               , &                       
                       ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde , &
                       ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme , &
                       its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte   &

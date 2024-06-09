@@ -3005,6 +3005,10 @@
                      description="updraft mass flux at cloud base from deep cumulus parameterization"
                      packages="cu_gf_monan_in"/>
 
+                <var name="rmfxdncu" type="real" dimensions="nCells Time" units="kg m^{-2} s^{-1}"
+                     description="downdraft mass flux at cloud base from deep cumulus parameterization"
+                     packages="cu_gf_monan_in"/>
+
                 <var name="rmfxmdcu" type="real" dimensions="nCells Time" units="kg m^{-2} s^{-1}"
                      description="updraft mass flux at cloud base from congestus cumulus parameterization"
                      packages="cu_gf_monan_in"/>

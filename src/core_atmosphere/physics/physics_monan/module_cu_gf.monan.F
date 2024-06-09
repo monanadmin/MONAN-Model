@@ -376,7 +376,7 @@ contains
               ,cnvcf                 &
               ,rthblten              & ! tendency of potential temperature due to pbl processes
               ,rqvblten              & ! tendency of water vapor mixing ratio due to pbl processes
-              ,rthratenlw            & !  tendency of potential temperature due to radiation (lw)
+              ,rthratenlw            & ! tendency of potential temperature due to radiation (lw)
               ,rthratensw            & ! tendency of potential temperature due to radiation (sw)
               ,rthdyten              & ! tendency of potential temperature due to dynamics plus filters
               ,rqvdyten              & ! tendency of water vapor mixing ration due to dynamics plus filters
@@ -395,6 +395,7 @@ contains
               ,rdnmfxcu              &
               !
               ,rmfxdpcu              & 
+              ,rmfxdncu              & 
               ,rmfxmdcu              &
               ,rmfxshcu              &
               ,rtopdpcu              &
@@ -450,7 +451,7 @@ contains
       !---intent out arguments
       real,dimension(ims:ime,jms:jme)         ,intent(out):: rmfxdpcu,rmfxmdcu,rmfxshcu &
                                                             ,rtopdpcu,rtopmdcu,rtopshcu &
-                                                            ,rbotdpcu
+                                                            ,rbotdpcu,rmfxdncu
       real,dimension(ims:ime,jms:jme)         ,intent(out):: var2d1,var2d2
 
       real,dimension(ims:ime,kms:kme,jms:jme) ,intent(out):: rupmfxcu,rdnmfxcu
@@ -682,8 +683,8 @@ contains
             !                      !flag  =1 para water
             !<var name="xland" type="real" dimensions="nCells Time" units="unitless"
             ! description="land-ocean mask (1=land including sea-ice ; 2=ocean)"/>
-            if(xland(i,j) < 1.5 ) xlandi(i) = 0.
-            if(xland(i,j) > 1.5 ) xlandi(i) = 1.
+            if(xland(i,j) <  1.5 ) xlandi(i) = 0.
+            if(xland(i,j) >= 1.5 ) xlandi(i) = 1.
 
             psur  (i) = p8w(i,1,j)*1.e-2 ! mbar
             tsur  (i) = temp2m(i,j) 
@@ -1098,9 +1099,10 @@ contains
          !-- output
          do i=its,itf
              if(ierr4d (i,j,deep) == 0 ) then
-               rmfxdpcu(i,j) = xmb4d(i,j,deep)         !-- updraft mass flux @ cloud base (kg/m2/s)
-               rtopdpcu(i,j) = zo(ktop4d (i,j,deep),i) !-- cloud top height above msl (m)
-               rbotdpcu(i,j) = zo(kbcon4d(i,j,deep),i) !-- cloud base height above msl (m)
+               rmfxdpcu(i,j) = xmb4d(i,j,deep)                 !-- updraft mass flux @ cloud base (kg/m2/s)
+               rmfxdncu(i,j) = xmb4d(i,j,deep)*edt4d(i,j,deep) !-- downdraft mass flux @ its initiation level(kg/m2/s)
+               rtopdpcu(i,j) = zo(ktop4d (i,j,deep),i)         !-- cloud top height above msl (m)
+               rbotdpcu(i,j) = zo(kbcon4d(i,j,deep),i)         !-- cloud base height above msl (m)
              endif
              if(ierr4d (i,j,mid ) == 0 ) then
                rmfxmdcu(i,j) = xmb4d(i,j,mid) 
