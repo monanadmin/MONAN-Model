@@ -383,6 +383,7 @@ contains
               !---- output ----
               ,raincv                &
               ,conprr                &
+              ,lightn_dens           &
               ,rthcuten              &
               ,rqvcuten              &
               ,rqccuten              &
@@ -414,7 +415,6 @@ contains
 
 ! --- vars need to be implemented
                            ! ,TRACER                &
-                           ! ,lightn_dens           &
                            ! ,rnlcuten              &
                            ! ,rnicuten              &
                            ! ,rchemcuten            &
@@ -444,7 +444,7 @@ contains
       real, dimension(ims:ime,kms:kme,jms:jme),intent(in):: rqvblten,rthblten,rthratenlw,rthratensw &
                                                            ,rthdyten,rqvdyten
       !-- intent in,out arguments
-      real,dimension(ims:ime,jms:jme)         ,intent(inout):: raincv,conprr,wlpool
+      real,dimension(ims:ime,jms:jme)         ,intent(inout):: raincv,conprr,wlpool,lightn_dens
       real,dimension(ims:ime,kms:kme,jms:jme) ,intent(inout):: rthcuten,rqvcuten,rqccuten,rqicuten &
                                                               ,rucuten,rvcuten,rbuoyxcuten,rcnvcfcuten
 
@@ -466,7 +466,7 @@ contains
       real,    dimension(its:ite,jts:jte) :: aot500 ,sfc_press,col_sat &
                                                     ,stochastic_sig,dx2d
 
-      real,    dimension(its:ite,jts:jte) :: rh_dicycle_fct,lightn_dens
+      real,    dimension(its:ite,jts:jte) :: rh_dicycle_fct
 
       real,    dimension(nmp,kts:kte,its:ite,jts:jte) :: mp_ice,mp_liq,mp_cf
 
@@ -630,9 +630,8 @@ contains
           JCOL = J
           conprr     (:,j) = 0.0
           raincv     (:,j) = 0.0
-          lightn_dens(:,j) = 0.0   !falta
+          lightn_dens(:,j) = 0.0
          
-
          !-- initialization
          ztexec   (:) = 0.0
          zqexec   (:) = 0.0
@@ -1118,8 +1117,8 @@ contains
          !-- diagnostic/debug 2d
          do i=its,itf
             if(do_this_column(i,j) == 0) cycle
-            var2d1(i,j) = aa3(i,j) !cum_ztexec(i) !lightn_dens(i,j)
-            var2d2(i,j) = aa1_bl(i,j)! cum_zqexec(i) 
+            var2d1(i,j) = aa3(i,j) !cum_ztexec(i)
+            !var2d2(i,j) = aa1_bl(i,j)! cum_zqexec(i) 
          enddo
 
 !--- temporary : we will overwritten all grid boxes 
@@ -6787,6 +6786,9 @@ contains
          !--- (to compare with Lopez 2016's results, convert to per year: lightn_dens*365)
          !
          lightn_dens(i) = p_alpha * Q_R *sqrt (max(0.,cape(i))) * min(z_base,1.8)**2
+
+         !--- convert to 1/(km2 sec) 
+         lightn_dens(i) = lightn_dens(i)/86400.
         !
       enddo
    end subroutine cup_up_lightning

@@ -354,7 +354,8 @@
  end subroutine deallocate_sfclayer
 
 !=================================================================================================================
- subroutine sfclayer_from_MPAS(configs,mesh,diag_physics,sfc_input,its,ite)
+ subroutine sfclayer_from_MPAS(configs,mesh,diag_physics,sfc_input,its,ite, &
+                               state,time_lev)
 !=================================================================================================================
 
 !input arguments:
@@ -362,8 +363,10 @@
  type(mpas_pool_type),intent(in):: mesh
  type(mpas_pool_type),intent(in):: sfc_input
  type(mpas_pool_type),intent(inout):: diag_physics
+ type(mpas_pool_type),intent(in):: state
 
  integer,intent(in):: its,ite
+ integer,intent(in):: time_lev
 
 !local variables:
  integer:: i,j,k
@@ -386,10 +389,20 @@
 !local pointers specific to mynn:
  real(kind=RKIND),dimension(:),pointer:: ch,qcg,snowh
 
-!local pointers specific to GF cumulus scheme:
- real(kind=RKIND),dimension(:),pointer:: rmfxdncu
+!----------------------------------------------------------------------------------------------------------------- 
+!-srf: local variables and pointers specific to GF cumulus scheme: 
+ integer,parameter:: couple_gustfront = 2 ! parameter to couple the gustfront speed with the 
+                                                  ! surface layer fluxes    
+ real,parameter :: mx_buoy1 =   250.5 !J/kg
+ real,parameter :: mx_buoy2 = 20004.0 !J/kg 
+ real,parameter :: adjust_scale = 1.0
  character(len=StrKIND),pointer:: convection_scheme
-
+ integer,pointer:: index_buoyx 
+ real(kind=RKIND),dimension(:),pointer:: rmfxdncu,v2d2
+ real(kind=RKIND),dimension(:),pointer:: u_gustfront,v_gustfront
+ real(kind=RKIND),dimension(:,:),pointer:: buoyx
+ real(kind=RKIND),dimension(:,:,:),pointer:: scalars
+ real :: wspd_local, factor1, factor2, gspd_local
 !-----------------------------------------------------------------------------------------------------------------
 
 !input variables:
@@ -598,33 +611,80 @@
 
  end select sfclayer_select
 
-
-!-srf coupling downdraft mass flux to wind speed
- call mpas_pool_get_config(configs,'config_convection_scheme',convection_scheme)
- convection_select: select case(convection_scheme)
+  !--------------------------------------------------------------------------
+  !-srf: coupling gust front speed from downdrafts with surface winds
+  !
+  call mpas_pool_get_config(configs,'config_convection_scheme',convection_scheme)
+  convection_select: select case(convection_scheme)
 
     case ("cu_gf_monan")
        call mpas_pool_get_array(diag_physics,'rmfxdncu'      ,rmfxdncu)
-       !- gustiness parameterization based on Redelsperger et al (2000).
-       !- using the downdraft mass flux from GF cumulus scheme (rmfxdncu)
-       do j = jts,jte
-       do i = its,ite
-         if(xland(i) > 1.5) then !applied only over water 
-           sgsgustcu_p(i,j) = min( 0.1, max(0.0, rmfxdncu(i)) )
-           sgsgustcu_p(i,j) = log(1. + 600.4*sgsgustcu_p(i,j) -4375.*sgsgustcu_p(i,j)**2) 
-         else
-           sgsgustcu_p(i,j) = 0.0_RKIND
-         endif 
-       enddo
-       enddo
-    case default
-       do j = jts,jte
-       do i = its,ite
-         sgsgustcu_p(i,j) = 0.0_RKIND
-       enddo
-       enddo
+       call mpas_pool_get_array(diag_physics,'v2d2'          ,v2d2    )
+       
+       if(couple_gustfront == 1) then  
+         !- gustiness parameterization based on Redelsperger et al (2000).
+         !- using the downdraft mass flux from GF cumulus scheme (rmfxdncu) 
+         do j = jts,jte
+         do i = its,ite
+           if(xland(i) > 1.5) then !applied only over water 
+             sgsgustcu_p(i,j) = min( 0.1, max(0.0, rmfxdncu(i)) )
+             sgsgustcu_p(i,j) = log(1. + 600.4*sgsgustcu_p(i,j) -4375.*sgsgustcu_p(i,j)**2) 
+           else
+             sgsgustcu_p(i,j) = 0.0_RKIND
+           endif 
+         enddo
+         enddo
 
- end select convection_select
+       else if(couple_gustfront == 2) then 
+      !else if(couple_gustfront == 2 .and. convection_tracer == 1) then !for future use
+
+         !--- coupled with the cold pool gustfront scheme
+         call mpas_pool_get_dimension(state,'index_buoyx',index_buoyx)
+         call mpas_pool_get_array(state,'scalars',scalars,time_lev)
+         buoyx => scalars(index_buoyx,:,:)
+         call mpas_pool_get_array(diag_physics,'u_gustfront'  ,u_gustfront )
+         call mpas_pool_get_array(diag_physics,'v_gustfront'  ,v_gustfront )
+     
+         do j = jts,jte
+         do i = its,ite
+             factor1 = min (mx_buoy2,buoyx(kts,i))
+             factor1 = min (factor1,mx_buoy2)/mx_buoy2
+             factor2 = atan((factor1-0.05*mx_buoy1/mx_buoy2)*5.)
+             factor2 = max (0.0,min(factor2,1.0))
+   
+             wspd_local = sqrt(u_p(i,kts,j)  *u_p(i,kts,j)   + v_p(i,kts,j)  *v_p(i,kts,j))
+             gspd_local = sqrt(u_gustfront(i)*u_gustfront(i) + v_gustfront(i)*v_gustfront(i))
+
+             !--- adjust the gustiness speed to the resolved scale
+             gspd_local = max(adjust_scale * gspd_local, wspd_local )
+             !--- combining env + gust pool regions for continuity of the field
+             !--- where there is not cold pool, sgsgustcu_p -> wspd_local
+             !--- where there is     cold pool, sgsgustcu_p -> gspd_local
+             sgsgustcu_p(i,j) = (1.-factor2)*wspd_local + factor2*gspd_local
+             !--- temporary for output only
+             v2d2(i) =  sgsgustcu_p(i,j)
+             
+             !--- subtract from the env wind speed, as the sgsgustcu_p will later be 
+             !--- summed with "wspd" in routine 'sf_mynn_run'. See in this routine the line
+             !--- "wspd(i)=sqrt(wspd(i)*wspd(i)+wstar(i)*wstar(i)+vsgd*vsgd+sgsgustcu(i)*sgsgustcu(i)"
+             !
+             sgsgustcu_p(i,j) = sqrt( max(0.0, (sgsgustcu_p(i,j)**2 - wspd_local**2) ))
+         enddo
+         enddo
+       
+       else ! do nothing
+
+         do j = jts,jte
+         do i = its,ite
+             sgsgustcu_p(i,j) = 0.0_RKIND
+         enddo
+         enddo
+       endif       
+    
+    case default
+
+  end select convection_select
+  !--------------------------------------------------------------------------
 
  end subroutine sfclayer_from_MPAS
 
@@ -873,16 +933,19 @@
  end subroutine init_sfclayer
 
 !=================================================================================================================
- subroutine driver_sfclayer(itimestep,configs,mesh,diag_physics,sfc_input,its,ite)
+ subroutine driver_sfclayer(itimestep,configs,mesh,diag_physics,sfc_input,its,ite, &
+                            state,time_lev)
 !=================================================================================================================
 
 !input and inout arguments:
  type(mpas_pool_type),intent(in):: mesh
  type(mpas_pool_type),intent(in):: configs
  type(mpas_pool_type),intent(in):: sfc_input
+ type(mpas_pool_type),intent(in):: state
 
  integer,intent(in):: its,ite
  integer,intent(in):: itimestep
+ integer,intent(in):: time_lev
 
 !inout arguments:
  type(mpas_pool_type),intent(inout):: diag_physics
@@ -915,7 +978,8 @@
  call mpas_pool_get_array(mesh,'areaCell',areaCell)
 
 !copy all MPAS arrays to rectanguler grid:
- call sfclayer_from_MPAS(configs,mesh,diag_physics,sfc_input,its,ite)
+ call sfclayer_from_MPAS(configs,mesh,diag_physics,sfc_input,its,ite, &
+                         state,time_lev)
 
  dx = sqrt(maxval(areaCell))
 

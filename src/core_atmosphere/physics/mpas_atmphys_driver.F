@@ -276,7 +276,8 @@
 !$OMP PARALLEL DO
        do thread=1,nThreads
           call driver_sfclayer(itimestep,block%configs,mesh,diag_physics,sfc_input, &
-                               cellSolveThreadStart(thread), cellSolveThreadEnd(thread))
+                               cellSolveThreadStart(thread), cellSolveThreadEnd(thread), &
+                               state, time_lev)
        end do
 !$OMP END PARALLEL DO
        call deallocate_sfclayer(block%configs)

@@ -2073,6 +2073,7 @@
                         <var name="nr" array_group="number" units="nb kg^{-1}"
                              description="Rain number concentration"
                              packages="mp_thompson_in"/>
+                             
                         <var name="cnvcf" array_group="convection" units="none"
                              description="Convective cloud fraction"
                              packages="cu_gf_monan_in"/>
@@ -2965,6 +2966,14 @@
                      packages="cu_grell_freitas_in;cu_gf_monan_in"/>
 
                 <!-- ... GF MONAN ONLY: -->
+               <var name="lightn_dens" type="real" dimensions="nCells Time" units="km^{-2} s^{-1}"
+                     description="convective lightning density rate"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="acc_lightn_dens" type="real" dimensions="nCells Time" units="km^{-2}"
+                     description="accumulated convective lightning density""
+                     packages="cu_gf_monan_in"/>
+
                 <var name="wlpool" type="real" dimensions="nCells Time" units="m s^{-1}"
                      description="Max vertical velocity at the leading of the cold pool"
                      packages="cu_gf_monan_in"/>
