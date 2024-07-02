@@ -399,6 +399,7 @@
                 <package name="mp_thompson_in" description="parameterization of Thompson cloud microphysics."/>
                 <package name="mp_wsm6_in" description="parameterization of WSM6 cloud microphysics."/>
                 <package name="cu_grell_freitas_in" description="parameterization of Grell-Freitas convection."/>
+                <package name="cu_gf_monan_in" description="parameterization of Grell-Freitas convection used in MONAN."/>
                 <package name="cu_kain_fritsch_in" description="parameterization of Kain-Fritsch convection."/>
                 <package name="cu_ntiedtke_in" description="parameterization of Tiedtke convection."/>
                 <package name="bl_ysu_in" description="parameterization of YSU Planetary Boundary Layer."/>
@@ -793,6 +794,12 @@
 			<var name="rniblten"/>
 			<var name="rthratensw"/>
 			<var name="rthratenlw"/>
+                        <var name="rcnvcfcuten" packages="cu_gf_monan_in"/>
+                        <var name="rbuoyxcuten" packages="cu_gf_monan_in"/>
+                        <var name="umcl" packages="cu_gf_monan_in"/>
+                        <var name="vmcl" packages="cu_gf_monan_in"/>
+                        <var name="wlpool" packages="cu_gf_monan_in"/>
+                        <var name="vcpool" packages="cu_gf_monan_in"/>
 			<var name="isltyp"/>
 			<var name="ivgtyp"/>
 			<var name="mminlu"/>
@@ -2066,6 +2073,13 @@
                         <var name="nr" array_group="number" units="nb kg^{-1}"
                              description="Rain number concentration"
                              packages="mp_thompson_in"/>
+                        <var name="cnvcf" array_group="convection" units="none"
+                             description="Convective cloud fraction"
+                             packages="cu_gf_monan_in"/>
+
+                        <var name="buoyx" array_group="convection" units="J kg^{-1}"
+                             description="Buoyancy excess from the cold pool scheme"
+                             packages="cu_gf_monan_in"/>
                 </var_array>
 #endif
 
@@ -2308,6 +2322,10 @@
 
                 <var name="kdiff" type="real" dimensions="nVertLevels nCells Time" units="m^2 s^{-1}"
                      description="Smagorinsky horizontal eddy viscosity"/>
+              
+                <var name="rumcl" type="real" dimensions="nVertLevels nEdges Time" units="kg m^{-2} s^{-1}"
+                     description="horizontal mean cloud layer momentum at cell edge (rho*u/zz)"
+                     packages="cu_gf_monan_in"/>
 
                 <var name="surface_pressure" type="real" dimensions="nCells Time" units="Pa"
                      description="Diagnosed surface pressure"/>
@@ -2388,6 +2406,14 @@
                         <var name="tend_nr" name_in_code="nr" array_group="number" units="nb m^{-3} s^{-1}" 
                              description="Tendency of rain number concentration multiplied by dry air density divided by d(zeta)/dz"
                              packages="mp_thompson_in"/>
+
+                       <var name="tend_cnvcf" name_in_code="cnvcf" array_group="convection" units="s^{-1}" 
+                             description="Tendency of convective cloud fraction multiplied by dry air density divided by d(zeta)/dz"
+                             packages="cu_gf_monan_in"/>
+                           
+                       <var name="tend_buoyx" name_in_code="buoyx" array_group="convection" units="J kg^{-1} s^{-1}" 
+                             description="Tendency of buoyancy excess from the cold pool scheme multiplied by dry air density divided by d(zeta)/dz"
+                             packages="cu_gf_monan_in"/>
                 </var_array>
 #endif
         </var_struct>
@@ -2602,7 +2628,7 @@
                 <nml_option name="config_convection_scheme" type="character" default_value="suite" in_defaults="false"
                      units="-"
                      description="configuration for convection schemes"
-                     possible_values="`suite',`cu_kain_fritsch',`cu_tiedtke',`cu_ntiedtke',`cu_grell_freitas',`off'"/>
+                     possible_values="`suite',`cu_kain_fritsch',`cu_tiedtke',`cu_ntiedtke',`cu_grell_freitas',`cu_gf_monan`,`off'"/>
 
                 <nml_option name="config_lsm_scheme" type="character" default_value="suite" in_defaults="false"
                      units="-"
@@ -2694,7 +2720,7 @@
                      description="option to activate heating due to dissipation of TKE"
                      possible_values="0,1"/>
 
-                <nml_option name="config_mynn_edmf" type="integer" default_value="1" in_defaults="false"
+                <nml_option name="config_mynn_edmf" type="integer" default_value="0" in_defaults="false"
                      units="-"
                      description="=1:activate the EDMF option in the MYNN PBL scheme (=0 otherwise)"
                      possible_values="0,1"/>
@@ -2880,19 +2906,19 @@
 
                 <var name="i_rainc" type="integer" dimensions="nCells Time" units="unitless"
                      description="incidence of accumulated convective precipitation greater than config_bucket_rainc"
-                     packages="cu_grell_freitas_in;cu_kain_fritsch_in;cu_ntiedtke_in"/>
+                     packages="cu_grell_freitas_in;cu_kain_fritsch_in;cu_ntiedtke_in;cu_gf_monan_in"/>
 
                 <var name="cuprec" type="real" dimensions="nCells Time" units="mm s^{-1}"
                      description="convective precipitation rate"
-                     packages="cu_grell_freitas_in;cu_kain_fritsch_in;cu_ntiedtke_in"/>
+                     packages="cu_grell_freitas_in;cu_kain_fritsch_in;cu_ntiedtke_in;cu_gf_monan_in"/>
 
                 <var name="rainc" type="real" dimensions="nCells Time" units="mm"
                      description="accumulated convective precipitation"
-                     packages="cu_grell_freitas_in;cu_kain_fritsch_in;cu_ntiedtke_in"/>
+                     packages="cu_grell_freitas_in;cu_kain_fritsch_in;cu_ntiedtke_in;cu_gf_monan_in"/>
 
                 <var name="raincv" type="real" dimensions="nCells Time" units="mm"
                      description="time-step convective precipitation"
-                     packages="cu_grell_freitas_in;cu_kain_fritsch_in;cu_ntiedtke_in"/>
+                     packages="cu_grell_freitas_in;cu_kain_fritsch_in;cu_ntiedtke_in;cu_gf_monan_in"/>
 
 
                 <!-- ... KAIN_FRITSCH ONLY: -->
@@ -2932,12 +2958,84 @@
 
                 <var name="qc_cu" type="real" dimensions="nVertLevels nCells Time" units="kg kg^{-1}"
                      description="in-cloud cloud water mixing ratio in Grell-Freitas cloud model"
-                     packages="cu_grell_freitas_in"/>
+                     packages="cu_grell_freitas_in;cu_gf_monan_in"/>
 
                 <var name="qi_cu" type="real" dimensions="nVertLevels nCells Time" units="kg kg^{-1}"
                      description="in-cloud cloud ice mixing ratio in Grell-Freitas cloud model"
-                     packages="cu_grell_freitas_in"/>
+                     packages="cu_grell_freitas_in;cu_gf_monan_in"/>
 
+                <!-- ... GF MONAN ONLY: -->
+                <var name="wlpool" type="real" dimensions="nCells Time" units="m s^{-1}"
+                     description="Max vertical velocity at the leading of the cold pool"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="vcpool" type="real" dimensions="nCells Time" units="m s^{-1}"
+                     description="Cold pool gust front horizontal speed "
+                     packages="cu_gf_monan_in"/>
+
+                <var name="umcl" type="real" dimensions="nVertLevels nCells Time" units="kg m^{-2} s^{-1}"
+                     description="horizontal mean cloud layer zonal momentum (rho*u/zz)"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="vmcl" type="real" dimensions="nVertLevels nCells Time" units="kg m^{-2} s^{-1}"
+                     description="horizontal mean cloud layer meridional momentum (rho*u/zz)"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="u_gustfront" type="real" dimensions="nCells Time" units="m s^{-1}"
+                     description="zonal gust front speed at surface level"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="v_gustfront" type="real" dimensions="nCells Time" units="m s^{-1}"
+                     description="meridional gust front speed at surface level"
+                     packages="cu_gf_monan_in"/>
+               
+                <var name="rupmfxcu" type="real" dimensions="nVertLevels nCells Time" units="kg m^{-2} s^{-1}"
+                     description="vertical updraft mass flux from cumulus parameterization"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="rdnmfxcu" type="real" dimensions="nVertLevels nCells Time" units="kg m^{-2} s^{-1}"
+                     description="vertical downdraft mass flux from cumulus parameterization"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="v3d1" type="real" dimensions="nVertLevels nCells Time" units="undef"
+                     description="dummy 3d variable 1 for output only"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="rmfxdpcu" type="real" dimensions="nCells Time" units="kg m^{-2} s^{-1}"
+                     description="updraft mass flux at cloud base from deep cumulus parameterization"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="rmfxmdcu" type="real" dimensions="nCells Time" units="kg m^{-2} s^{-1}"
+                     description="updraft mass flux at cloud base from congestus cumulus parameterization"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="rmfxshcu" type="real" dimensions="nCells Time" units="kg m^{-2} s^{-1}"
+                     description="updraft mass flux at cloud base from shallow cumulus parameterization"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="rtopdpcu" type="real" dimensions="nCells Time" units="m"
+                     description="cloud top height above msl from deep cumulus parameterization"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="rbotdpcu" type="real" dimensions="nCells Time" units="m"
+                     description="cloud base height above msl from deep cumulus parameterization"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="rtopmdcu" type="real" dimensions="nCells Time" units="m"
+                     description="cloud top height above msl from congestus cumulus parameterization"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="rtopshcu" type="real" dimensions="nCells Time" units="m"
+                     description="cloud top height above msl from shallow cumulus parameterization"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="v2d1" type="real" dimensions="nCells Time" units="undef"
+                     description="dummy 2d variable 1 for output only"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="v2d2" type="real" dimensions="nCells Time" units="undef"
+                     description="dummy 2d variable 2 for output only"
+                     packages="cu_gf_monan_in"/>
 
                 <!-- ... KAIN_FRITSCH AND GRELL-FREITAS: -->
                 <var name="cubot" type="real" dimensions="nCells Time" units="unitless"
@@ -3660,19 +3758,19 @@
 
                 <var name="rthcuten" type="real" dimensions="nVertLevels nCells Time" units="K s^{-1}"
                      description="tendency of potential temperature due to cumulus convection"
-                     packages="cu_grell_freitas_in;cu_kain_fritsch_in;cu_ntiedtke_in"/>
+                     packages="cu_grell_freitas_in;cu_kain_fritsch_in;cu_ntiedtke_in;cu_gf_monan_in"/>
 
                 <var name="rqvcuten" type="real" dimensions="nVertLevels nCells Time" units="kg kg^{-1} s^{-1}"
                      description="tendency of water vapor mixing ratio due to cumulus convection"
-                     packages="cu_grell_freitas_in;cu_kain_fritsch_in;cu_ntiedtke_in"/>
+                     packages="cu_grell_freitas_in;cu_kain_fritsch_in;cu_ntiedtke_in;cu_gf_monan_in"/>
 
                 <var name="rqccuten" type="real" dimensions="nVertLevels nCells Time" units="kg kg^{-1} s^{-1}"
                      description="tendency of cloud water mixing ratio due to cumulus convection"
-                     packages="cu_grell_freitas_in;cu_kain_fritsch_in;cu_ntiedtke_in"/>
+                     packages="cu_grell_freitas_in;cu_kain_fritsch_in;cu_ntiedtke_in;cu_gf_monan_in"/>
 
                 <var name="rqicuten" type="real" dimensions="nVertLevels nCells Time" units="kg kg^{-1} s^{-1}"
                      description="tendency of cloud ice mixing ratio due to cumulus convection"
-                     packages="cu_grell_freitas_in;cu_kain_fritsch_in;cu_ntiedtke_in"/>
+                     packages="cu_grell_freitas_in;cu_kain_fritsch_in;cu_ntiedtke_in;cu_gf_monan_in"/>
 
 
                 <!-- KAIN_FRITSCH: -->
@@ -3687,15 +3785,23 @@
                 <!-- TIEDTKE AND GRELL -->
                 <var name="rqvdynten" type="real" dimensions="nVertLevels nCells Time" units="kg kg^{-1} s^{-1}"
                      description="tendency of water vapor due to horizontal and vertical advections"
-                     packages="cu_grell_freitas_in;cu_ntiedtke_in"/>
+                     packages="cu_grell_freitas_in;cu_ntiedtke_in;cu_gf_monan_in"/>
 
                 <var name="rucuten" type="real" dimensions="nVertLevels nCells Time" units="m s^{-1} s^{-1}"
                      description="tendency of zonal wind due to cumulus convection"
-                     packages="cu_grell_freitas_in;cu_ntiedtke_in"/>
+                     packages="cu_grell_freitas_in;cu_ntiedtke_in;cu_gf_monan_in"/>
 
                 <var name="rvcuten" type="real" dimensions="nVertLevels nCells Time" units="m s^{-1} s^{-1}"
                      description="tendency of meridional wind due to cumulus convection"
-                     packages="cu_grell_freitas_in;cu_ntiedtke_in"/>
+                     packages="cu_grell_freitas_in;cu_ntiedtke_in;cu_gf_monan_in"/>
+
+                <var name="rcnvcfcuten" type="real" dimensions="nVertLevels nCells Time" units="s^{-1}"
+                     description="tendency of convective cloud fraction from convection parameterization"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="rbuoyxcuten" type="real" dimensions="nVertLevels nCells Time" units="J kg^{-1} s^{-1}"
+                     description="tendency of buoyancy excess at the edge of the cold pool"
+                     packages="cu_gf_monan_in"/>
 
 	        <!-- MGD should we add packages to the field below? -->
 	        <var name="rucuten_Edge" type="real"     dimensions="nVertLevels nEdges Time"/>

@@ -145,6 +145,29 @@
     if (trim(config_sfclayer_scheme)   == 'suite') config_sfclayer_scheme   = 'sf_mynn'
     if (trim(config_lsm_scheme)        == 'suite') config_lsm_scheme        = 'sf_noah'
 
+else if (trim(config_physics_suite) == 'mesoscale_reference_monan') then
+
+    if (trim(config_microp_scheme)     == 'suite') config_microp_scheme     = 'mp_wsm6'
+    if (trim(config_convection_scheme) == 'suite') config_convection_scheme = 'cu_gf_monan'
+    if (trim(config_pbl_scheme)        == 'suite') config_pbl_scheme        = 'bl_mynn'
+    if (trim(config_gwdo_scheme)       == 'suite') config_gwdo_scheme       = 'bl_ysu_gwdo'
+    if (trim(config_radt_lw_scheme)    == 'suite') config_radt_lw_scheme    = 'rrtmg_lw'
+    if (trim(config_radt_sw_scheme)    == 'suite') config_radt_sw_scheme    = 'rrtmg_sw'
+    if (trim(config_radt_cld_scheme)   == 'suite') config_radt_cld_scheme   = 'cld_fraction_monan'
+    if (trim(config_sfclayer_scheme)   == 'suite') config_sfclayer_scheme   = 'sf_mynn'
+    if (trim(config_lsm_scheme)        == 'suite') config_lsm_scheme        = 'sf_noah'
+
+ else if (trim(config_physics_suite) == 'convection_permitting_monan') then
+
+    if (trim(config_microp_scheme)     == 'suite') config_microp_scheme     = 'mp_thompson'
+    if (trim(config_convection_scheme) == 'suite') config_convection_scheme = 'cu_gf_monan'
+    if (trim(config_pbl_scheme)        == 'suite') config_pbl_scheme        = 'bl_mynn'
+    if (trim(config_gwdo_scheme)       == 'suite') config_gwdo_scheme       = 'bl_ysu_gwdo'
+    if (trim(config_radt_lw_scheme)    == 'suite') config_radt_lw_scheme    = 'rrtmg_lw'
+    if (trim(config_radt_sw_scheme)    == 'suite') config_radt_sw_scheme    = 'rrtmg_sw'
+    if (trim(config_radt_cld_scheme)   == 'suite') config_radt_cld_scheme   = 'cld_fraction_monan'
+    if (trim(config_sfclayer_scheme)   == 'suite') config_sfclayer_scheme   = 'sf_mynn'
+    if (trim(config_lsm_scheme)        == 'suite') config_lsm_scheme        = 'sf_noah'
  else if (trim(config_physics_suite) == 'none') then
 
     if (trim(config_microp_scheme)     == 'suite') config_microp_scheme     = 'off'
@@ -180,6 +203,7 @@
 !convection scheme:
  if(.not. (config_convection_scheme .eq. 'off'              .or. &
            config_convection_scheme .eq. 'cu_grell_freitas' .or. &
+           config_convection_scheme .eq. 'cu_gf_monan'      .or. &
            config_convection_scheme .eq. 'cu_kain_fritsch'  .or. &
            config_convection_scheme .eq. 'cu_tiedtke'       .or. &
            config_convection_scheme .eq. 'cu_ntiedtke')) then
@@ -237,7 +261,8 @@
  if(.not. (config_radt_cld_scheme .eq. 'off'           .or. &
            config_radt_cld_scheme .eq. 'cld_incidence' .or. &
            config_radt_cld_scheme .eq. 'cld_fraction'  .or. &
-           config_radt_cld_scheme .eq. 'cld_fraction_thompson')) then
+           config_radt_cld_scheme .eq. 'cld_fraction_thompson' .or. &
+           config_radt_cld_scheme .eq. 'cld_fraction_monan')) then
 
     write(mpas_err_message,'(A,A10)') 'illegal value for calculation of cloud fraction: ', &
           trim(config_radt_cld_scheme)

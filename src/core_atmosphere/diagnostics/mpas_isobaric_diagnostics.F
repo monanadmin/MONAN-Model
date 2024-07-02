@@ -5046,7 +5046,7 @@ module mpas_isobaric_diagnostics
             if(.not.allocated(field_in)) allocate(field_in(nCells,nVertLevels))
 
             do iCell = 1, nCells
-            do k = 1, nVertLevels
+            do k = 1, nVertLevels   ! LFR bugfix          
                kk = nVertLevels+1-k
                field_in(iCell,kk) = rho(k,iCell)
             enddo
