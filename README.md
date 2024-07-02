@@ -10,21 +10,14 @@ The MONAN Model is managed by a scientific committee appointed by INPE's directo
 History
 ====
 
-Version 0.1.0 - Initial version structure (0.1.0) based on the dynamic core of the MPAS 8.0.1 Model.
-
-Version 0.2.0 - Included variables and new isobaric levels.
-
-Version 0.3.0 - Included new levels for existing variables and included new variables.
-
-Version 0.4.0 - Included new variables; update MPAS-v8.0.2; bug fixes.
-
-Version 0.5.0 - Included new variables.
-
-Version 0.5.1 - Bug fix: zgeo variable.
-
-Version 0.6.0 - Update MPAS-V8.1.0.
-
 Version 1.0.0 - Implementing the first physics MONAN package: GF scheme as in BRAMS, new cloud fraction, cold-pool scheme with 2-D transport, and new outputs.
+Version 0.6.0 - Update MPAS-V8.1.0.
+Version 0.5.1 - Bug fix: zgeo variable.
+Version 0.5.0 - Included new variables.
+Version 0.4.0 - Included new variables; update MPAS-v8.0.2; bug fixes.
+Version 0.3.0 - Included new levels for existing variables and included new variables.
+Version 0.2.0 - Included variables and new isobaric levels.
+Version 0.1.0 - Initial version structure (0.1.0) based on the dynamic core of the MPAS 8.0.1 Model.
 
 
 MPAS-v8.1.0
