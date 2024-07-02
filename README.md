@@ -8,16 +8,24 @@ The MONAN Model is managed by a scientific committee appointed by INPE's directo
 
 
 History
-=======
+====
 
 Version 0.1.0 - Initial version structure (0.1.0) based on the dynamic core of the MPAS 8.0.1 Model.
+
 Version 0.2.0 - Included variables and new isobaric levels.
+
 Version 0.3.0 - Included new levels for existing variables and included new variables.
+
 Version 0.4.0 - Included new variables; update MPAS-v8.0.2; bug fixes.
+
 Version 0.5.0 - Included new variables.
+
 Version 0.5.1 - Bug fix: zgeo variable.
+
 Version 0.6.0 - Update MPAS-V8.1.0.
+
 Version 1.0.0 - Implementing the first physics MONAN package: GF scheme as in BRAMS, new cloud fraction, cold-pool scheme with 2-D transport, and new outputs.
+
 
 MPAS-v8.1.0
 ====
@@ -27,7 +35,7 @@ The Model for Prediction Across Scales (MPAS) is a collaborative project for dev
 The MPAS framework facilitates the rapid development and prototyping of models by providing infrastructure typically required by model developers, including high-level data types, communication routines, and I/O routines. By using MPAS, developers can leverage pre-existing code and focus more on development of their model.
 
 Building
-========
+====
 
 This README is provided as a brief introduction to the MPAS framework. It does not provide details about each specific model, nor does it provide building instructions.
 
