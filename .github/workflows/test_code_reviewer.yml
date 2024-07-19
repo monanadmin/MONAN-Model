@@ -39,5 +39,5 @@ jobs:
           echo " ========= Now in"$(pwd)
           for file in $(git diff --name-only HEAD~1 HEAD | grep '\.F$'); do
             echo " ========= Executing codereviewer for file "$file
-            python src/CodeReviewer.py $file
+            python codereviewer/src/CodeReviewer.py $file
           done
