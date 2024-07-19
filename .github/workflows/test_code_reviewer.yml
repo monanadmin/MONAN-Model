@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - test_code_reviewer
+      - develop
 
 jobs:
   run-python-script:
