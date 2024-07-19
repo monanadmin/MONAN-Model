@@ -12,6 +12,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 2  # Fetch enough history to compare with the previous commit
+
 
       - name: Set up Python
         uses: actions/setup-python@v5 
