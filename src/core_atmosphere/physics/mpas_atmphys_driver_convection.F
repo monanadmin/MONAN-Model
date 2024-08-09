@@ -1505,6 +1505,7 @@
     case ("cu_gf_monan")
 
       !--- update the accumulated lightning density at the end of each dynamic time-step:
+      !--- if(lightning_diag == 1) then -- for future
       call mpas_pool_get_array(diag_physics,'lightn_dens'      ,lightn_dens)
       call mpas_pool_get_array(diag_physics,'acc_lightn_dens'  ,acc_lightn_dens)
       do i = its, ite

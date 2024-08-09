@@ -4420,6 +4420,7 @@ contains
             elseif (autoconv == 4 ) then
               !NC=300.e+6 over the land, NC=50.e+6 over the oceans
                Nc = n_cldrop *1.e+6 
+              !Nc = 50.e+6*xland(i) + 300.e+6*(1.0-xland(i))
                min_liq  = 4./3.*c_pi*rhowater*r0**3*Nc/rhoair0  ! 0.419e-3 -- .61e-3
               
               if(clw_all(k,i) <= min_liq) then !=> more heating at upper levels, more detrained ice

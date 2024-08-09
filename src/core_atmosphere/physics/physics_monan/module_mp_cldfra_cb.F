@@ -127,7 +127,7 @@
       real :: ZLL, DZZ, ZZZ ! length scales
       real :: ZAH, ZA, ZB, ZSBAR, ZQ1, ZSIGMA, ZDRW, ZDTL ! related to computation of Sig_s
       real :: ZSIG_CONV,  ZSIGMA_NOCONV,  ZQ1_NOCONV      ! convective part of Sig_s
-      real, parameter :: zq1_tuning = 1.
+      real, parameter :: zq1_tuning = 0.0 ! -0.25 ! 1.0
       !
       !*       0.2  Definition of constants :
       !

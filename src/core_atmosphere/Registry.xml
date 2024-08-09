@@ -2971,7 +2971,7 @@
                      packages="cu_gf_monan_in"/>
 
                 <var name="acc_lightn_dens" type="real" dimensions="nCells Time" units="km^{-2}"
-                     description="accumulated convective lightning density""
+                     description="accumulated convective lightning density"
                      packages="cu_gf_monan_in"/>
 
                 <var name="wlpool" type="real" dimensions="nCells Time" units="m s^{-1}"
