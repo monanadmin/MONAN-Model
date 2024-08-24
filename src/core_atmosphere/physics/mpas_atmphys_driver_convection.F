@@ -24,8 +24,6 @@
                             , readGFConvParNML                    &
                             , modConvParGF_initialized            &
                             , initModConvParGF                    &
-                            , use_pass_cloudvol                   &
-                            , convection_tracer                   &
                             , tau_ocea_cp, tau_land_cp            &
                             , mx_buoy1, mx_buoy2                  &
                             , satur_spec_hum
@@ -546,6 +544,7 @@
  integer:: iCell
 
 !local var for gf_monan
+ integer, pointer :: config_gf_cporg,config_gf_pcvol,config_gf_gustf
  integer :: mynum, init_stat
 !-----------------------------------------------------------------------------------------------------------------
 
@@ -565,11 +564,14 @@
        call kf_lutab(svp1,svp2,svp3,svpt0)
 
     case ("cu_gf_monan")
+       call mpas_pool_get_config(configs,'config_gf_gustf',config_gf_gustf)
+       call mpas_pool_get_config(configs,'config_gf_cporg',config_gf_cporg)
+       call mpas_pool_get_config(configs,'config_gf_pcvol',config_gf_pcvol)
        modConvParGF_initialized = .false.
        init_stat = initModConvParGF()
        mynum = dminfo % my_proc_id
        !print*," mynum", dminfo % my_proc_id
-       call readGFConvParNML(mynum,IO_NODE)
+       call readGFConvParNML(mynum,IO_NODE,config_gf_cporg,config_gf_pcvol,config_gf_gustf)
     case default
 
  end select convection_select
@@ -1446,6 +1448,7 @@
 
 !local pointers:
  integer,pointer:: index_cnvcf, index_buoyx
+ integer,pointer:: config_gf_cporg, config_gf_pcvol
  integer,dimension(:),pointer:: i_rainc
  integer,pointer:: nEdgesSolve,nCells,nCellsSolve,nEdges
 
@@ -1502,8 +1505,7 @@
  call mpas_pool_get_config(configs,'config_convection_scheme',convection_scheme)
 
  convection_select: select case(convection_scheme)
-    case ("cu_gf_monan")
-
+    case ("cu_gf_monan")      
       !--- update the accumulated lightning density at the end of each dynamic time-step:
       !--- if(lightning_diag == 1) then -- for future
       call mpas_pool_get_array(diag_physics,'lightn_dens'      ,lightn_dens)
@@ -1512,7 +1514,10 @@
         acc_lightn_dens(i) = acc_lightn_dens(i) + lightn_dens(i) * dt_dyn
       enddo
 
-      if(use_pass_cloudvol > 0) then 
+      call mpas_pool_get_config(configs,'config_gf_pcvol',config_gf_pcvol)
+      call mpas_pool_get_config(configs,'config_gf_cporg',config_gf_cporg)
+
+      if(config_gf_pcvol > 0) then 
           !-- get cnvcf scalar
           call mpas_pool_get_dimension(state,'index_cnvcf',index_cnvcf)
           call mpas_pool_get_array(state,'scalars',scalars,time_lev)
@@ -1559,7 +1564,7 @@
 
       endif 
       
-      if(convection_tracer == 1) then
+      if(config_gf_cporg == 1) then
           call mpas_pool_get_dimension(state,'index_buoyx',index_buoyx)
           call mpas_pool_get_array(state,'scalars',scalars,time_lev)
           buoyx => scalars(index_buoyx,:,:)
@@ -1719,7 +1724,7 @@
           !   enddo
           !enddo
           !---------
-      endif  !- (convection_tracer == 1)
+      endif  !- (config_gf_cporg == 1)
 
     case default
 

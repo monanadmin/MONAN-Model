@@ -7214,10 +7214,10 @@ contains
 
    end subroutine cloud_dissipation
    !------------------------------------------------------------------------------------
-   subroutine readGFConvParNML(mynum, IO_NODE)
+   subroutine readGFConvParNML(mynum, IO_NODE,config_gf_cporg,config_gf_pcvol,config_gf_gustf)
       implicit none
       integer,intent(in) :: mynum
-      integer,intent(in), optional :: IO_NODE
+      integer,intent(in), optional :: IO_NODE,config_gf_cporg,config_gf_pcvol,config_gf_gustf
       integer :: nlunit = 4
       character (len = 64) :: fn_nml = 'GF_ConvPar_nml'
       integer :: local_io_node
@@ -7249,15 +7249,37 @@ contains
 
       inquire (file = trim (fn_nml), exist = exists)
       if (.not. exists) then
-         write (6, *) 'GF_convpar_nml :: namelist file: ', trim (fn_nml), ' does not exist'
-         stop 31415
+         if(mynum==local_io_node) then
+            write (6, *) 'GF MONAN namelist file: ', trim (fn_nml), ' does not exist'
+            write (6, *) 'Model will continue using the default configuration'
+         endif
       else
          open (nlunit,file=fn_nml,status='old',form='formatted')
          read (nlunit,nml=GF_NML)
          close(nlunit)
       endif
 
-
+      if(present(config_gf_cporg)) then
+         if(config_gf_cporg == 0) then
+            convection_tracer = 0
+            add_coldpool_clos = 0
+            add_coldpool_trig = 0
+            use_memory        = 0
+         !else
+         !   convection_tracer = 1
+         !   add_coldpool_clos = 2
+         !   add_coldpool_trig = 2
+         !   use_memory        = 222
+         endif
+      endif
+      if(present(config_gf_pcvol)) then
+         if(config_gf_pcvol == 0) then
+            use_pass_cloudvol = 0
+            use_lcl_ctrl_entr = 0
+         !else
+         !
+         endif
+      endif
       if(mynum==local_io_node) then
          !- print the namelist
          print*,"           "
@@ -7284,11 +7306,11 @@ contains
          print*, 'add_coldpool_clos  ' , add_coldpool_clos
          print*, 'add_coldpool_trig  ' , add_coldpool_trig
          print*, 'add_coldpool_diff  ' , add_coldpool_diff
+         print*, 'use_memory         ' , use_memory
          print*, 'tau_ocea_cp        ' , tau_ocea_cp
          print*, 'tau_land_cp        ' , tau_land_cp
          print*, 'mx_buoy1 - kJ/kg   ' , mx_buoy1*1.e-3
          print*, 'mx_buoy2 - kJ/kg   ' , mx_buoy2*1.e-3
-         print*, 'use_memory         ' , use_memory
          print*, 'use_pass_cloudvol  ' , use_pass_cloudvol
          print*, 'use_lcl_ctrl_entr  ' , use_lcl_ctrl_entr
          print*, 'use_rhu_ctrl_entr  ' , use_rhu_ctrl_entr
@@ -9752,16 +9774,17 @@ contains
       endif
 
       !-- inicializa as variáveis do módulo
-      icumulus_gf      = (/1, 1, 1/)
+      icumulus_gf      = (/1, 1, 0/)
       closure_choice   = (/10,10, 3/) 
-      cum_entr_rate    = (/        &
-                           6.3e-4 & !deep
-                          ,1.0e-3 & !shallow
-                          ,5.0e-4 & !mid
+      cum_entr_rate    = (/       &
+                           6.0e-4 & !deep
+                          ,2.0e-3 & !shallow
+                          ,1.0e-3 & !mid
                          /)
       use_lcl_ctrl_entr = 0
-      use_rhu_ctrl_entr = 0
       use_pass_cloudvol = 0
+      use_rhu_ctrl_entr = 1
+
       use_tracer_transp = 0 
       use_tracer_scaven = 2 
       use_tracer_evap   = 1 
@@ -9771,10 +9794,10 @@ contains
       alp1              = 1.0 
       vert_discr        = 1 
 
-      convection_tracer = 0 
-      use_memory        = 0 
-      add_coldpool_clos = 0
-      add_coldpool_trig = 0
+      convection_tracer = 1 
+      use_memory        = 222 
+      add_coldpool_clos = 2
+      add_coldpool_trig = 2
       add_coldpool_prop = 3 
       add_coldpool_diff = 3 
       tau_ocea_cp       = 7200. 
@@ -9793,21 +9816,21 @@ contains
       downdraft         = 1   
       use_rebcb         = 1 
       irainevap         = 0
-      cum_max_edt_land  = (/0.90, 0.00, 0.20/)
-      cum_max_edt_ocean = (/0.90, 0.00, 0.20/)
+      cum_max_edt_land  = (/0.50, 0.00, 0.20/)
+      cum_max_edt_ocean = (/0.50, 0.00, 0.20/)
       cum_use_excess    = (/2, 1, 1/)
       cum_ave_layer     = (/50., 25., 25./)
       cum_min_cloud_depth=(/200., 100., 150./)
       sgs_w_timescale   = 1 
       tau_deep          = 3600.0  
       tau_mid           = 1200.0  
-      lightning_diag    = 0 
+      lightning_diag    = 1
       liq_ice_number_conc=0
       apply_sub_mp      = 0 
       use_wetbulb       = 0 
       overshoot         = 0.0
 
-      autoconv          = 1     
+      autoconv          = 4     
       c0_deep           = 1.0e-3
       c0_mid            = 1.5e-3
       c0_shal           = 0.0    
@@ -9821,10 +9844,12 @@ contains
       max_tq_tend       = 500.0   
       use_smooth_prof   = 1      
       use_smooth_tend   = 1      
-      cum_hei_down_land = (/0.40, 0.00, 0.35/)
-      cum_hei_down_ocean= (/0.35, 0.00, 0.35/)
-      cum_hei_updf_land = (/0.55, 0.10, 0.55/)
-      cum_hei_updf_ocean= (/0.55, 0.10, 0.55/)
+
+      cum_hei_updf_land = (/0.55, 0.1, 0.55/)
+      cum_hei_updf_ocean= (/0.55, 0.1, 0.55/)
+      cum_hei_down_land = (/0.40, 0.0, 0.35/)
+      cum_hei_down_ocean= (/0.35, 0.0, 0.35/) 
+
       cum_fadj_massflx  = (/1.00, 1.00, 1.00/)
       moist_trigger     = 0   
       frac_modis        = 1   

@@ -208,8 +208,95 @@ module atm_core_interface
       end if
 #endif
 
+      !
+      ! Packages for the GF-MONAN scheme
+      !
+      call setup_monan_packages(configs, packages)
+
    end function atm_setup_packages
 
+   !  function setup_monan_packages
+   !
+   !> \brief   Set up packages specific to the GF-MONAN scheme
+   !> \author  ...
+   !> \date    16 August 2024
+   !> \details
+   !>  ...
+   !
+   !-----------------------------------------------------------------------
+   subroutine setup_monan_packages(configs, packages)
+
+      implicit none
+
+      type (mpas_pool_type), intent(inout) :: configs
+      type (mpas_pool_type), intent(inout) :: packages
+
+      character(len=StrKIND), pointer :: config_convection_scheme
+      integer, pointer :: config_gf_pcvol, &
+                          config_gf_cporg, &
+                          config_gf_gustf
+
+      logical, pointer :: gf_monan_gustf, &
+                          gf_monan_cporg, &
+                          gf_monan_pcvol
+
+
+      !
+      ! Retrieve namelist options related to GF-MONAN
+      !
+      nullify(config_convection_scheme)
+      nullify(config_gf_pcvol)
+      nullify(config_gf_cporg)
+      nullify(config_gf_gustf)
+      call mpas_pool_get_config(configs, 'config_convection_scheme', config_convection_scheme)
+      call mpas_pool_get_config(configs, 'config_gf_pcvol', config_gf_pcvol)
+      call mpas_pool_get_config(configs, 'config_gf_cporg', config_gf_cporg)
+      call mpas_pool_get_config(configs, 'config_gf_gustf', config_gf_gustf)
+
+      !
+      ! Retrieve pointers to packages
+      ! NB: the name of the package in the 'packages' pool ends with 'Active'
+      !
+      nullify(gf_monan_gustf)
+      nullify(gf_monan_cporg)
+      nullify(gf_monan_pcvol)
+      call mpas_pool_get_package(packages, 'gf_monan_pcvolActive', gf_monan_pcvol)
+      call mpas_pool_get_package(packages, 'gf_monan_cporgActive', gf_monan_cporg)
+      call mpas_pool_get_package(packages, 'gf_monan_gustfActive', gf_monan_gustf)
+
+      gf_monan_pcvol = .false.
+      gf_monan_cporg = .false.
+      gf_monan_gustf = .false.
+      if (trim(config_convection_scheme) == 'cu_gf_monan') then
+
+         call mpas_log_write('')
+         call mpas_log_write('Options for the GF-MONAN scheme:')
+
+         if (config_gf_pcvol == 1) then
+            gf_monan_pcvol = .true.
+            call mpas_log_write('  Option gf_monan_pcvol: Active')
+         else
+            call mpas_log_write('  Option gf_monan_pcvol: Inactive')
+         end if
+
+         if (config_gf_cporg == 1) then
+            gf_monan_cporg = .true.
+            call mpas_log_write('  Option gf_monan_cporg: Active')
+         else
+            call mpas_log_write('  Option gf_monan_cporg: Inactive')
+         end if
+
+         if (config_gf_gustf == 1) then
+            gf_monan_gustf = .true.
+            call mpas_log_write('  Option gf_monan_gustf: Active')
+         else
+            call mpas_log_write('  Option gf_monan_gustf: Inactive')
+         end if
+
+         call mpas_log_write('')
+      end if
+
+   end subroutine setup_monan_packages
 
    !***********************************************************************
    !

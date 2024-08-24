@@ -409,6 +409,10 @@
                 <package name="limited_area" description="Limited-area simulations, which have lateral boundaries"/>
                 <package name="jedi_da" description="Data Assimilation in JEDI framework"/>
                 <package name="no_invariant_stream" description="No separate invariant I/O stream is active"/>
+                <!-- GF-MONAN packages for sub-options -->
+                <package name="gf_monan_gustf" description="GF-MONAN gust front effects on surface fluxes"/>
+                <package name="gf_monan_cporg" description="GF-MONAN cold pool edge effects on convection organization"/>
+                <package name="gf_monan_pcvol" description="GF-MONAN passive Cloud Volume"/>
         </packages>
 
 
@@ -614,7 +618,7 @@
 			<var name="re_snow" packages="mp_thompson_in;mp_wsm6_in"/>
 			<var name="nt_c" packages="mp_thompson_in"/>
 			<var name="mu_c" packages="mp_thompson_in"/>
-                        <var name="tend_sfc_pressure"/>
+               <var name="tend_sfc_pressure"/>
 			<var name="rt_diabatic_tend"/>
 			<var name="nsteps_accum"/>
 			<var name="ndays_accum"/>
@@ -637,32 +641,32 @@
 			<var name="cubot"/>
 			<var name="cutop"/>
 			<var name="w0avg"/>
-                        <var name="qcg"/>
-                        <var name="sh3d"/>
-                        <var name="sm3d"/>
-                        <var name="qke"/>
-                        <var name="qke_adv"/>
-                        <var name="cov"/>
-                        <var name="qsq"/>
-                        <var name="tsq"/>
-                        <var name="tke_pbl"/>
-                        <var name="wstar"/>
-                        <var name="delta"/>
-                        <var name="el_pbl"/>
-                        <var name="edmf_a"/>
-                        <var name="edmf_w"/>
-                        <var name="edmf_qt"/>
-                        <var name="edmf_qc"/>
-                        <var name="edmf_thl"/>
-                        <var name="edmf_ent"/>
-                        <var name="sub_thl"/>
-                        <var name="sub_qv"/>
-                        <var name="det_thl"/>
-                        <var name="det_qv"/>
-                        <var name="cldfrac_bl"/>
-                        <var name="qc_bl"/>
-                        <var name="qi_bl"/>
-                        <var name="ch"/>
+               <var name="qcg"/>
+               <var name="sh3d"/>
+               <var name="sm3d"/>
+               <var name="qke"/>
+               <var name="qke_adv"/>
+               <var name="cov"/>
+               <var name="qsq"/>
+               <var name="tsq"/>
+               <var name="tke_pbl"/>
+               <var name="wstar"/>
+               <var name="delta"/>
+               <var name="el_pbl"/>
+               <var name="edmf_a"/>
+               <var name="edmf_w"/>
+               <var name="edmf_qt"/>
+               <var name="edmf_qc"/>
+               <var name="edmf_thl"/>
+               <var name="edmf_ent"/>
+               <var name="sub_thl"/>
+               <var name="sub_qv"/>
+               <var name="det_thl"/>
+               <var name="det_qv"/>
+               <var name="cldfrac_bl"/>
+               <var name="qc_bl"/>
+               <var name="qi_bl"/>
+               <var name="ch"/>
 			<var name="kpbl"/>
 			<var name="hpbl"/>
 			<var name="hfx"/>
@@ -794,12 +798,12 @@
 			<var name="rniblten"/>
 			<var name="rthratensw"/>
 			<var name="rthratenlw"/>
-                        <var name="rcnvcfcuten" packages="cu_gf_monan_in"/>
-                        <var name="rbuoyxcuten" packages="cu_gf_monan_in"/>
-                        <var name="umcl" packages="cu_gf_monan_in"/>
-                        <var name="vmcl" packages="cu_gf_monan_in"/>
-                        <var name="wlpool" packages="cu_gf_monan_in"/>
-                        <var name="vcpool" packages="cu_gf_monan_in"/>
+               <var name="rcnvcfcuten" packages="cu_gf_monan_in"/>
+               <var name="rbuoyxcuten" packages="cu_gf_monan_in"/>
+               <var name="umcl" packages="cu_gf_monan_in"/>
+               <var name="vmcl" packages="cu_gf_monan_in"/>
+               <var name="wlpool" packages="cu_gf_monan_in"/>
+               <var name="vcpool" packages="cu_gf_monan_in"/>
 			<var name="isltyp"/>
 			<var name="ivgtyp"/>
 			<var name="mminlu"/>
@@ -2080,7 +2084,7 @@
 
                         <var name="buoyx" array_group="convection" units="J kg^{-1}"
                              description="Buoyancy excess from the cold pool scheme"
-                             packages="cu_gf_monan_in"/>
+                             packages="cu_gf_monan_in;gf_monan_cporg"/>
                 </var_array>
 #endif
 
@@ -2414,7 +2418,7 @@
                            
                        <var name="tend_buoyx" name_in_code="buoyx" array_group="convection" units="J kg^{-1} s^{-1}" 
                              description="Tendency of buoyancy excess from the cold pool scheme multiplied by dry air density divided by d(zeta)/dz"
-                             packages="cu_gf_monan_in"/>
+                             packages="cu_gf_monan_in;gf_monan_cporg"/>
                 </var_array>
 #endif
         </var_struct>
@@ -2794,6 +2798,24 @@
                      units="s"
                      description="Relaxation time to initial values in 1-d OML"
                      possible_values="Non-negative real values"/>
+        </nml_record>
+
+        <nml_record name="gf_monan" in_defaults="true">
+                <nml_option name="config_gf_pcvol" type="integer" default_value="0" in_defaults="false"
+                     units="-"
+                     description="Option for activating the passive cloud volume approach in Grell-Freitas MONAN convection scheme"
+                     possible_values="0,1,2,3,12"/>
+
+                <nml_option name="config_gf_cporg" type="integer" default_value="0" in_defaults="false"
+                     units="-"
+                     description="Option for activating the cold pool parameterization in Grell-Freitas MONAN convection scheme"
+                     possible_values="0,1"/>
+
+                <nml_option name="config_gf_gustf" type="integer" default_value="0" in_defaults="false"
+                     units="-"
+                     description="Option for coupling the Grell-Freitas MONAN cold pool gust front speed with the surface layer scheme, it needs config_gf_cporg greater than zero"
+                     possible_values="0,1,2"/>
+
         </nml_record>
 
         <var_struct name="diag_physics" time_levs="1">

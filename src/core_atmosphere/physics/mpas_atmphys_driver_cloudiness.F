@@ -120,6 +120,7 @@
  real(kind=RKIND),dimension(:,:),pointer:: zgrid
  real(kind=RKIND),dimension(:,:),pointer:: rupmfxcu
  character(len=StrKIND),pointer:: radt_cld_scheme
+ character(len=StrKIND),pointer:: config_convection_scheme
 
 !-----------------------------------------------------------------------------------------------------------------
 
@@ -155,21 +156,36 @@
  cld_fraction_select: select case (trim(radt_cld_scheme))
      case("cld_fraction_monan")
        call mpas_pool_get_array(diag_physics,'kpbl'    ,kpbl      )
-       call mpas_pool_get_array(diag_physics,'rupmfxcu',rupmfxcu  )
        call mpas_pool_get_array(mesh,'zgrid'           ,zgrid     )
        do j = jts,jte
           do i = its,ite
              kpbl_p(i,j)  = kpbl(i)
           enddo
-
           do k = kts,kte
           do i = its,ite
              zgrid_p(i,k,j)     = zgrid(k,i)
-             rupmfxcu_p(i,k,j)  = rupmfxcu(k,i)
           enddo
           enddo
        enddo
-     
+       call mpas_pool_get_config(configs, 'config_convection_scheme', config_convection_scheme)
+       if(trim(config_convection_scheme) == 'cu_gf_monan') then
+              call mpas_pool_get_array(diag_physics,'rupmfxcu',rupmfxcu  )
+              do j = jts,jte
+              do k = kts,kte
+              do i = its,ite
+                 rupmfxcu_p(i,k,j)  = rupmfxcu(k,i)
+              enddo
+              enddo
+              enddo
+       else
+              do j = jts,jte
+              do k = kts,kte
+              do i = its,ite
+                 rupmfxcu_p(i,k,j)  = 0.0_RKIND
+              enddo
+              enddo
+              enddo  
+       endif
      case default
 
  end select cld_fraction_select

@@ -391,13 +391,14 @@
 
 !----------------------------------------------------------------------------------------------------------------- 
 !-srf: local variables and pointers specific to GF cumulus scheme: 
- integer,parameter:: couple_gustfront = 2 ! parameter to couple the gustfront speed with the 
-                                                  ! surface layer fluxes    
  real,parameter :: mx_buoy1 =   250.5 !J/kg
  real,parameter :: mx_buoy2 = 20004.0 !J/kg 
  real,parameter :: adjust_scale = 1.0
  character(len=StrKIND),pointer:: convection_scheme
  integer,pointer:: index_buoyx 
+ integer,pointer:: config_gf_gustf ! parameter to couple the gustfront speed with the 
+                                    ! surface layer fluxes    
+ integer,pointer:: config_gf_cporg
  real(kind=RKIND),dimension(:),pointer:: rmfxdncu,v2d2
  real(kind=RKIND),dimension(:),pointer:: u_gustfront,v_gustfront
  real(kind=RKIND),dimension(:,:),pointer:: buoyx
@@ -618,26 +619,12 @@
   convection_select: select case(convection_scheme)
 
     case ("cu_gf_monan")
-       call mpas_pool_get_array(diag_physics,'rmfxdncu'      ,rmfxdncu)
-       call mpas_pool_get_array(diag_physics,'v2d2'          ,v2d2    )
-       
-       if(couple_gustfront == 1) then  
-         !- gustiness parameterization based on Redelsperger et al (2000).
-         !- using the downdraft mass flux from GF cumulus scheme (rmfxdncu) 
-         do j = jts,jte
-         do i = its,ite
-           if(xland(i) > 1.5) then !applied only over water 
-             sgsgustcu_p(i,j) = min( 0.1, max(0.0, rmfxdncu(i)) )
-             sgsgustcu_p(i,j) = log(1. + 600.4*sgsgustcu_p(i,j) -4375.*sgsgustcu_p(i,j)**2) 
-           else
-             sgsgustcu_p(i,j) = 0.0_RKIND
-           endif 
-         enddo
-         enddo
+       call mpas_pool_get_config(configs,'config_gf_gustf',config_gf_gustf)
+       call mpas_pool_get_config(configs,'config_gf_cporg',config_gf_cporg)
 
-       else if(couple_gustfront == 2) then 
-      !else if(couple_gustfront == 2 .and. convection_tracer == 1) then !for future use
+       call mpas_pool_get_array(diag_physics,'v2d2'       ,v2d2    )
 
+       if(config_gf_gustf == 1 .and. config_gf_cporg == 1) then 
          !--- coupled with the cold pool gustfront scheme
          call mpas_pool_get_dimension(state,'index_buoyx',index_buoyx)
          call mpas_pool_get_array(state,'scalars',scalars,time_lev)
@@ -671,7 +658,24 @@
              sgsgustcu_p(i,j) = sqrt( max(0.0, (sgsgustcu_p(i,j)**2 - wspd_local**2) ))
          enddo
          enddo
-       
+
+       else if(config_gf_gustf == 2) then  
+         !- gustiness parameterization based on Redelsperger et al (2000).
+         !- using the downdraft mass flux from GF cumulus scheme (rmfxdncu) 
+         call mpas_pool_get_array(diag_physics,'rmfxdncu'   ,rmfxdncu)
+         do j = jts,jte
+         do i = its,ite
+           if(xland(i) > 1.5) then !applied only over water 
+             sgsgustcu_p(i,j) = min( 0.1, max(0.0, rmfxdncu(i)) )
+             sgsgustcu_p(i,j) = log(1. + 600.4*sgsgustcu_p(i,j) -4375.*sgsgustcu_p(i,j)**2) 
+           else
+             sgsgustcu_p(i,j) = 0.0_RKIND
+           endif 
+            !--- temporary for output only
+            v2d2(i) =  sgsgustcu_p(i,j)
+         enddo
+         enddo
+
        else ! do nothing
 
          do j = jts,jte
