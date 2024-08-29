@@ -1,6 +1,6 @@
 &GF_NML  
 
-  icumulus_gf      = 1,1,0, != trimodal plume (deep ,shallow ,congestus)
+  icumulus_gf      = 1,0,0, != trimodal plume (deep ,shallow ,congestus)
   
   closure_choice   = 10,10,3, != closure for the mass flux at the cloud base
   
@@ -11,7 +11,7 @@
                                    != 2 adds Qadv closure (Becker et al 2021) 
   cum_t_star = 4., -99., -99., != scale temperature for 
                                    !diurnal cycle closure, 
-  
+  use_sub3d        = 1
   use_scale_dep    = 1,     != 0/1: turn ON/OFF the scale dependence approach
   sig_factor       = 0.22,  != exponential factor for the sigma determination (orig = 0.1)
 
