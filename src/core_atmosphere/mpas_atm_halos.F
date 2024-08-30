@@ -179,7 +179,7 @@ module mpas_atm_halos
          call mpas_dmpar_exch_group_add_field(domain, 'physics:coldpool' , 'vmcl', timeLevel=1, haloLayers=(/1,2/))
          
          call mpas_dmpar_exch_group_create(domain, 'physics:sub3d_cuten')
-         !call mpas_dmpar_exch_group_add_field(domain, 'physics:sub3d_cuten', 'sigma_deep'   ,  timeLevel=1, haloLayers=(/1/))
+         call mpas_dmpar_exch_group_add_field(domain, 'physics:sub3d_cuten', 'sigma_deep'   ,  timeLevel=1, haloLayers=(/1/))
          call mpas_dmpar_exch_group_add_field(domain, 'physics:sub3d_cuten', 'sub3d_rucuten',  timeLevel=1, haloLayers=(/1/))
          call mpas_dmpar_exch_group_add_field(domain, 'physics:sub3d_cuten', 'sub3d_rvcuten',  timeLevel=1, haloLayers=(/1/))
          call mpas_dmpar_exch_group_add_field(domain, 'physics:sub3d_cuten', 'sub3d_rthcuten', timeLevel=1, haloLayers=(/1/))
@@ -325,7 +325,7 @@ module mpas_atm_halos
          call mpas_halo_exch_group_complete(domain,  'physics:coldpool')
          
          call mpas_halo_exch_group_create(domain, 'physics:sub3d_cuten')
-         !call mpas_halo_exch_group_add_field(domain, 'physics:sub3d_cuten', 'sigma_deep'   ,  timeLevel=1, haloLayers=(/1/))
+         call mpas_halo_exch_group_add_field(domain, 'physics:sub3d_cuten', 'sigma_deep'   ,  timeLevel=1, haloLayers=(/1/))
          call mpas_halo_exch_group_add_field(domain, 'physics:sub3d_cuten', 'sub3d_rucuten',  timeLevel=1, haloLayers=(/1/))
          call mpas_halo_exch_group_add_field(domain, 'physics:sub3d_cuten', 'sub3d_rvcuten',  timeLevel=1, haloLayers=(/1/))
          call mpas_halo_exch_group_add_field(domain, 'physics:sub3d_cuten', 'sub3d_rthcuten', timeLevel=1, haloLayers=(/1/))

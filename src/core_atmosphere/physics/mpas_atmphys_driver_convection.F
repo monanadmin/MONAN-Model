@@ -1369,10 +1369,7 @@
             enddo
 
             !--- part 2: broadcast the subsidence tendencies
-            
-            !--- MISSING EXCHANGE OF SIGMA_DEEP (ask M. Duda)
-            !---> CRITICAL ERROR: Unsupported dimensionality for real field sigma_deep
-
+            !
             call exchange_halo_group(block % domain, 'physics:sub3d_cuten')
 
             !-- part 3: spread the subsidence tendencies to the 1st neighboors
