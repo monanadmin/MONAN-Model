@@ -412,7 +412,9 @@
                 <!-- GF-MONAN packages for sub-options -->
                 <package name="gf_monan_gustf" description="GF-MONAN gust front effects on surface fluxes"/>
                 <package name="gf_monan_cporg" description="GF-MONAN cold pool edge effects on convection organization"/>
-                <package name="gf_monan_pcvol" description="GF-MONAN passive Cloud Volume"/>
+                <package name="gf_monan_pcvol" description="GF-MONAN passive cloud volume"/>
+                <package name="gf_monan_sub3d" description="GF-MONAN 3d lateral spreading of the env subsidence"/>
+
         </packages>
 
 
@@ -804,6 +806,11 @@
                <var name="vmcl" packages="cu_gf_monan_in"/>
                <var name="wlpool" packages="cu_gf_monan_in"/>
                <var name="vcpool" packages="cu_gf_monan_in"/>
+               <var name="sub3d_rthcuten" packages="cu_gf_monan_in"/>
+               <var name="sub3d_rqvcuten" packages="cu_gf_monan_in"/>
+               <var name="sub3d_rucuten" packages="cu_gf_monan_in"/>
+               <var name="sub3d_rvcuten" packages="cu_gf_monan_in"/>
+               <var name="sigma_deep" packages="cu_gf_monan_in"/>
 			<var name="isltyp"/>
 			<var name="ivgtyp"/>
 			<var name="mminlu"/>
@@ -2815,6 +2822,11 @@
                      units="-"
                      description="Option for coupling the Grell-Freitas MONAN cold pool gust front speed with the surface layer scheme, it needs config_gf_cporg greater than zero"
                      possible_values="0,1,2"/>
+                
+                <nml_option name="config_gf_sub3d" type="integer" default_value="0" in_defaults="false"
+                     units="-"
+                     description="Option for the lateral subsidence spread for the Grell-Freitas scheme"
+                     possible_values="0,1,2"/>
 
         </nml_record>
 
@@ -3030,6 +3042,10 @@
 
                 <var name="v3d1" type="real" dimensions="nVertLevels nCells Time" units="undef"
                      description="dummy 3d variable 1 for output only"
+                     packages="cu_gf_monan_in"/>
+
+                <var name="sigma_deep" type="real" dimensions="nCells Time" units="-"
+                     description="scale-aware parameter for deep convection"
                      packages="cu_gf_monan_in"/>
 
                 <var name="rmfxdpcu" type="real" dimensions="nCells Time" units="kg m^{-2} s^{-1}"
@@ -3837,6 +3853,22 @@
                 <var name="rbuoyxcuten" type="real" dimensions="nVertLevels nCells Time" units="J kg^{-1} s^{-1}"
                      description="tendency of buoyancy excess at the edge of the cold pool"
                      packages="cu_gf_monan_in"/>
+
+                <var name="sub3d_rthcuten" type="real" dimensions="nVertLevels nCells Time" units="K s^{-1}"
+                     description="tendency of potential temperature due to the subsidence created by cumulus convection"
+                     packages="cu_grell_freitas_in;cu_gf_monan_in;gf_monan_sub3d"/>
+
+                <var name="sub3d_rqvcuten" type="real" dimensions="nVertLevels nCells Time" units="kg kg^{-1} s^{-1}"
+                     description="tendency of water vapor mixing ratio due to the subsidence created by cumulus convection"
+                     packages="cu_grell_freitas_in;cu_gf_monan_in;gf_monan_sub3d"/>
+                
+                <var name="sub3d_rucuten" type="real" dimensions="nVertLevels nCells Time" units="m s^{-1} s^{-1}"
+                     description="tendency of zonal wind due to the subsidence created by cumulus convection"
+                     packages="cu_grell_freitas_in;cu_gf_monan_in;gf_monan_sub3d"/>
+
+                <var name="sub3d_rvcuten" type="real" dimensions="nVertLevels nCells Time" units="m s^{-1} s^{-1}"
+                     description="tendency of meridional wind due to the subsidence created by cumulus convection"
+                     packages="cu_grell_freitas_in;cu_gf_monan_in;gf_monan_sub3d"/>
 
 	        <!-- MGD should we add packages to the field below? -->
 	        <var name="rucuten_Edge" type="real"     dimensions="nVertLevels nEdges Time"/>

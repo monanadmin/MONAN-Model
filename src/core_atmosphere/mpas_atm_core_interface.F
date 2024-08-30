@@ -234,11 +234,13 @@ module atm_core_interface
       character(len=StrKIND), pointer :: config_convection_scheme
       integer, pointer :: config_gf_pcvol, &
                           config_gf_cporg, &
-                          config_gf_gustf
+                          config_gf_gustf, &
+                          config_gf_sub3d
 
       logical, pointer :: gf_monan_gustf, &
                           gf_monan_cporg, &
-                          gf_monan_pcvol
+                          gf_monan_pcvol, &
+                          gf_monan_sub3d
 
 
       !
@@ -248,10 +250,12 @@ module atm_core_interface
       nullify(config_gf_pcvol)
       nullify(config_gf_cporg)
       nullify(config_gf_gustf)
+      nullify(config_gf_sub3d)
       call mpas_pool_get_config(configs, 'config_convection_scheme', config_convection_scheme)
       call mpas_pool_get_config(configs, 'config_gf_pcvol', config_gf_pcvol)
       call mpas_pool_get_config(configs, 'config_gf_cporg', config_gf_cporg)
       call mpas_pool_get_config(configs, 'config_gf_gustf', config_gf_gustf)
+      call mpas_pool_get_config(configs, 'config_gf_sub3d', config_gf_sub3d)
 
       !
       ! Retrieve pointers to packages
@@ -260,13 +264,16 @@ module atm_core_interface
       nullify(gf_monan_gustf)
       nullify(gf_monan_cporg)
       nullify(gf_monan_pcvol)
+      nullify(gf_monan_sub3d)
       call mpas_pool_get_package(packages, 'gf_monan_pcvolActive', gf_monan_pcvol)
       call mpas_pool_get_package(packages, 'gf_monan_cporgActive', gf_monan_cporg)
       call mpas_pool_get_package(packages, 'gf_monan_gustfActive', gf_monan_gustf)
+      call mpas_pool_get_package(packages, 'gf_monan_sub3dActive', gf_monan_sub3d)
 
       gf_monan_pcvol = .false.
       gf_monan_cporg = .false.
       gf_monan_gustf = .false.
+      gf_monan_sub3d = .false.
       if (trim(config_convection_scheme) == 'cu_gf_monan') then
 
          call mpas_log_write('')
@@ -291,6 +298,13 @@ module atm_core_interface
             call mpas_log_write('  Option gf_monan_gustf: Active')
          else
             call mpas_log_write('  Option gf_monan_gustf: Inactive')
+         end if
+
+        if (config_gf_sub3d == 1) then
+            gf_monan_sub3d = .true.
+            call mpas_log_write('  Option gf_monan_sub3d: Active')
+         else
+            call mpas_log_write('  Option gf_monan_sub3d: Inactive')
          end if
 
          call mpas_log_write('')

@@ -373,6 +373,8 @@
  real(kind=RKIND),dimension(:,:),allocatable:: &
     cape_p,         &!
     cin_p,          &!
+    v2d1_p,         &
+    v2d2_p,         &
     rmfxdpcu_p,     &!
     rmfxdncu_p,     &!
     rmfxmdcu_p,     &
@@ -382,13 +384,19 @@
     rtopshcu_p,     &
     rbotdpcu_p,     &
     sgsgustcu_p,    &
-    v2d1_p,         &
-    v2d2_p          !
+    sigma_deep_p
  
  real(kind=RKIND),dimension(:,:),allocatable:: &
     wlpool_p,     &!
     vcpool_p,     &!
     lightn_dens_p 
+
+ real(kind=RKIND),dimension(:,:,:),allocatable:: &
+    sub3d_rthcuten_p,        &!
+    sub3d_rqvcuten_p,        &!
+    sub3d_rucuten_p,         &!
+    sub3d_rvcuten_p           !
+
 !=================================================================================================================
 !... variables and arrays related to parameterization of pbl:
 !=================================================================================================================

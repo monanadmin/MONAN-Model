@@ -109,7 +109,7 @@ module module_cu_gf_monan
       ,add_coldpool_clos,add_coldpool_trig,mx_buoy1, mx_buoy2, cum_t_star&
       ,add_coldpool_diff,n_cldrop,use_gustiness, use_random_num          &
       ,dcape_threshold,modConvParGF_initialized,use_pass_cloudvol        &
-      ,use_lcl_ctrl_entr,use_rhu_ctrl_entr,cum_min_cloud_depth
+      ,use_lcl_ctrl_entr,use_rhu_ctrl_entr,cum_min_cloud_depth,use_sub3d 
 
    public convParGFDriver,makeDropletNumber,makeIceNumber,FractLiqF      &
       ,coldPoolStart,readGFConvParNML,initModConvParGF,cu_gf_monan_driver&
@@ -152,6 +152,7 @@ module module_cu_gf_monan
                                                 !,1.0e-3  & !shallow
                                                 !,5.0e-4  & !mid
                                                 !/)
+
    integer :: use_lcl_ctrl_entr != 0/1     - default 0
 
    integer :: use_rhu_ctrl_entr != 0/1     - default 1
@@ -279,6 +280,7 @@ module module_cu_gf_monan
    real    :: sig_factor            != exponential factor for the sigma determination (orig = 0.1)
    real    :: N_cldrop              != cloud drop number concentration (cm\u02c6-3)
 
+   integer :: use_sub3d             !=0,1,2 : > 0 activates the 3d subsidence lateral spreading
 
    !------------------- internal variables  --------------------------------------
 
@@ -384,6 +386,7 @@ contains
               ,raincv                &
               ,conprr                &
               ,lightn_dens           &
+              ,sigma_deep            &
               ,rthcuten              &
               ,rqvcuten              &
               ,rqccuten              &
@@ -392,6 +395,12 @@ contains
               ,rvcuten               &
               ,rbuoyxcuten           &
               ,rcnvcfcuten           &
+
+              ,sub3d_rthcuten        &
+              ,sub3d_rqvcuten        &
+              ,sub3d_rucuten         &
+              ,sub3d_rvcuten         &
+
               ,rupmfxcu              &
               ,rdnmfxcu              &
               !
@@ -444,10 +453,14 @@ contains
       real, dimension(ims:ime,kms:kme,jms:jme),intent(in):: rqvblten,rthblten,rthratenlw,rthratensw &
                                                            ,rthdyten,rqvdyten
       !-- intent in,out arguments
-      real,dimension(ims:ime,jms:jme)         ,intent(inout):: raincv,conprr,wlpool,lightn_dens
+      real,dimension(ims:ime,jms:jme)         ,intent(inout):: raincv,conprr,wlpool,lightn_dens,sigma_deep
       real,dimension(ims:ime,kms:kme,jms:jme) ,intent(inout):: rthcuten,rqvcuten,rqccuten,rqicuten &
                                                               ,rucuten,rvcuten,rbuoyxcuten,rcnvcfcuten
 
+       real,dimension(ims:ime,kms:kme,jms:jme) ,intent(inout):: sub3d_rthcuten        &
+                                                               ,sub3d_rqvcuten        &
+                                                               ,sub3d_rucuten         &
+                                                               ,sub3d_rvcuten
       !---intent out arguments
       real,dimension(ims:ime,jms:jme)         ,intent(out):: rmfxdpcu,rmfxmdcu,rmfxshcu &
                                                             ,rtopdpcu,rtopmdcu,rtopshcu &
@@ -529,6 +542,7 @@ contains
       
       real,   dimension (kts:kte,its:ite,maxiens) ::  outt,outq,outqc,outu,outv,outbuoy &
                                                      ,outnliq,outnice
+      real,   dimension (kts:kte,its:ite,maxiens) ::  subten_Q,subten_T,subten_U,subten_v
 
       real,   dimension (mtp,kts:kte,its:ite)         :: se_chem
       real,   dimension (mtp,kts:kte,its:ite,maxiens) :: out_chem
@@ -631,6 +645,7 @@ contains
           conprr     (:,j) = 0.0
           raincv     (:,j) = 0.0
           lightn_dens(:,j) = 0.0
+          sigma_deep (:,j) = 0.0
          
          !-- initialization
          ztexec   (:) = 0.0
@@ -653,12 +668,17 @@ contains
          outnice(:,:,:) = 0.0  !falta
          outnliq(:,:,:) = 0.0  !falta
          outbuoy(:,:,:) = 0.0  
-
+         if(use_sub3d > 0) then 
+            subten_Q(:,:,:) = 0.0
+            subten_T(:,:,:) = 0.0
+            subten_U(:,:,:) = 0.0
+            subten_V(:,:,:) = 0.0
+         endif 
          if(APPLY_SUB_MP == 1) then
-            !- tendencies (w/ nmp and maxiens)
-               outmpqi(:,:,:,:) = 0.0
-               outmpql(:,:,:,:) = 0.0
-               outmpcf(:,:,:,:) = 0.0
+           !- tendencies (w/ nmp and maxiens)
+            outmpqi(:,:,:,:) = 0.0
+            outmpql(:,:,:,:) = 0.0
+            outmpcf(:,:,:,:) = 0.0
          endif
 
          if(USE_TRACER_TRANSP == 1) then
@@ -1032,6 +1052,10 @@ contains
                         ,outqc                (:,:,plume) &
                         ,outu                 (:,:,plume) &
                         ,outv                 (:,:,plume) &
+                        ,subten_Q             (:,:,plume) &
+                        ,subten_T             (:,:,plume) &
+                        ,subten_U             (:,:,plume) &
+                        ,subten_V             (:,:,plume) &
                         ,outnliq              (:,:,plume) &
                         ,outnice              (:,:,plume) &
                         ,outbuoy              (:,:,plume) &
@@ -1098,10 +1122,11 @@ contains
          !-- output
          do i=its,itf
              if(ierr4d (i,j,deep) == 0 ) then
-               rmfxdpcu(i,j) = xmb4d(i,j,deep)                 !-- updraft mass flux @ cloud base (kg/m2/s)
-               rmfxdncu(i,j) = xmb4d(i,j,deep)*edt4d(i,j,deep) !-- downdraft mass flux @ its initiation level(kg/m2/s)
-               rtopdpcu(i,j) = zo(ktop4d (i,j,deep),i)         !-- cloud top height above msl (m)
-               rbotdpcu(i,j) = zo(kbcon4d(i,j,deep),i)         !-- cloud base height above msl (m)
+               rmfxdpcu(i,j)   = xmb4d(i,j,deep)                 !-- updraft mass flux @ cloud base (kg/m2/s)
+               rmfxdncu(i,j)   = xmb4d(i,j,deep)*edt4d(i,j,deep) !-- downdraft mass flux @ its initiation level(kg/m2/s)
+               rtopdpcu(i,j)   = zo(ktop4d (i,j,deep),i)         !-- cloud top height above msl (m)
+               rbotdpcu(i,j)   = zo(kbcon4d(i,j,deep),i)         !-- cloud base height above msl (m)
+               sigma_deep(i,j) = sigma4d(i,j,deep)
              endif
              if(ierr4d (i,j,mid ) == 0 ) then
                rmfxmdcu(i,j) = xmb4d(i,j,mid) 
@@ -1213,6 +1238,9 @@ contains
 
             enddo
          enddo
+         print*,'max1 TH',maxval(rthcuten)*86400,minval(rthcuten)*86400
+         print*,'max1 QV',maxval(rqvcuten)*86400*2.5e+3,minval(rqvcuten)*86400*2.5e+3
+
          ! print*,'outs---',maxval(fixout_qv),maxval(conprr(:,jts))*3600,maxval(abs(outt (:,:,deep)))*86400,&
          !                  maxval(abs(rthcuten(:,:,jts)))*86400.,maxval(abs(rqvcuten(:,:,jts)))*86400.*2.5e+6/1004.
  
@@ -1242,6 +1270,31 @@ contains
                                                    outbuoy(k,i,deep) ) *fixout_qv(i))
                enddo
             enddo
+         endif
+
+         if(use_sub3d > 0) then
+            do i = its,itf
+               if(do_this_column(i,j) == 0) cycle
+               do k = kts,kte
+                  temp2theta = 1./pi(i,k,j)
+                  sub3d_rthcuten(i,k,j) = subten_T (k,i,deep) *fixout_qv(i) * temp2theta
+                  sub3d_rqvcuten(i,k,j) = subten_Q (k,i,deep) *fixout_qv(i)
+                  sub3d_rucuten (i,k,j) = subten_U (k,i,deep) *fixout_qv(i)
+                  sub3d_rvcuten (i,k,j) = subten_V (k,i,deep) *fixout_qv(i)
+               
+!---temporary setting -- must be removed once the subsidence tendencies are correct
+                  !sub3d_rthcuten(i,k,j) = rthcuten (i,k,j) * 0.1
+                  !sub3d_rqvcuten(i,k,j) = rqvcuten (i,k,j) * 0.1
+                  !sub3d_rucuten (i,k,j) = rucuten (i,k,j)  * 0.1
+                  !sub3d_rvcuten (i,k,j) = rvcuten (i,k,j)  * 0.1
+!---temporary setting -- 
+
+
+               enddo
+            enddo
+         print*,'max 2TH',maxval(sub3d_rthcuten)*86400,minval(sub3d_rthcuten)*86400
+         print*,'max 2QV',maxval(sub3d_rqvcuten)*86400*2.5e+3,minval(sub3d_rqvcuten)*86400*2.5e+3
+
          endif
 
          !--'convective_cloud_area_fraction', adimensional: Tiedtke formulation  
@@ -1651,6 +1704,7 @@ contains
 
       real,   dimension (kts:kte,its:ite,maxiens) ::  outt,outq,outqc,outu,outv,outbuoy &
                                                      ,outnliq,outnice
+      real,   dimension (kts:kte,its:ite,maxiens) ::  subten_Q,subten_T,subten_U,subten_v
 
       real,   dimension (mtp,kts:kte,its:ite)         :: se_chem
       real,   dimension (mtp,kts:kte,its:ite,maxiens) :: out_chem
@@ -2175,6 +2229,10 @@ contains
                         ,outqc                (:,:,plume) &
                         ,outu                 (:,:,plume) &
                         ,outv                 (:,:,plume) &
+                        ,subten_Q             (:,:,plume) &
+                        ,subten_T             (:,:,plume) &
+                        ,subten_U             (:,:,plume) &
+                        ,subten_V             (:,:,plume) &
                         ,outnliq              (:,:,plume) &
                         ,outnice              (:,:,plume) &
                         ,outbuoy              (:,:,plume) &
@@ -2451,6 +2509,10 @@ contains
                      ,outqc             &
                      ,outu              &
                      ,outv              &
+                     ,subten_Q          &
+                     ,subten_T          &
+                     ,subten_U          &
+                     ,subten_V          &
                      ,outnliq           &
                      ,outnice           &
                      ,outbuoy           &
@@ -2509,7 +2571,8 @@ contains
       ! pre    = output precip
       real,    dimension (:,:)  ,intent (inout)  :: outu,outv,outt,outq,outqc&
                                                    ,outbuoy,outnliq ,outnice &
-                                                   ,revsu_gf,prfil_gf,var3d_agf ,var3d_bgf
+                                                   ,revsu_gf,prfil_gf,var3d_agf ,var3d_bgf &
+                                                   ,subten_Q,subten_T,subten_U,subten_v
 
       real,    dimension (:)    ,intent (out  )  :: pre,sig,lightn_dens,var2d
       !
@@ -2676,7 +2739,7 @@ contains
          ,xqes_cup,xq_cup,xhe_cup,xhes_cup,xz_cup,xt_cup,hcot,evap_bcb,dby,hc,clw_all &                   
          ,dbyo,qco,qrcdo,hcdo,qcdo,dbydo,hco,xdby,xhc,cupclw,pwo_eff                  &
          ,cd,cdd,dellah,dellaq,dellat,dellaqc,dsubq,dsubh,dellabuoy,u_cup,v_cup       &
-         ,uc,vc,ucd,vcd,dellu,dellv,subten_H,subten_Q,subten_T,vvel2d,tempco,tempcdo  &
+         ,uc,vc,ucd,vcd,dellu,dellv,subten_H,vvel2d,tempco,tempcdo  &
          ,p_liq_ice,melting_layer,melting ,up_massentru,up_massdetru,dd_massentru     &
          ,dd_massdetru, prec_flx,evap_flx,qrs,zenv,Tpert
 
@@ -3190,7 +3253,8 @@ contains
       !
       if(USE_SMOOTH_TEND > 0) &
          call smooth_tend(use_smooth_tend,itf,ktf, its,ite, kts,kte,ierr,ktop &
-                         ,po_cup,dellu, dellv, dellah, dellat, dellaq,dellaqc)
+                         ,po_cup,dellu, dellv, dellah, dellat, dellaq,dellaqc &
+                         ,subten_Q, subten_H, subten_U, subten_V)
       !
       !
       !--- using dellas, calculate changed environmental profiles
@@ -3295,13 +3359,14 @@ contains
       !
       !--- get the feedback to the 'large-scale' fields
       !
-      call cup_output_ens(cumulus,xff_shal,xff_mid,xf_ens,ierr,edto,dellat,dellaq     &
-                         ,dellaqc,outt, outq,outqc,zuo,pre,pwo,pwdo,pwo_eff,xmb       &
-                         ,ktop,maxens2,maxens,pr_ens,maxens3,ensdim,sig,xland1        &
-                         ,ichoice,itf,ktf,its,ite, kts,kte                    &
-                         ,xf_dicycle,outu,outv,dellu,dellv,dtime,po_cup,kbcon         &
-                         ,dellabuoy,outbuoy,dellampqi,outmpqi,dellampql,outmpql       &
-                         ,dellampcf,outmpcf,nmp,rh_dicycle_fct,xf_coldpool,wlpool_bcon)
+      call cup_output_ens(cumulus,xff_shal,xff_mid,xf_ens,ierr,edto,dellat,dellaq      &
+                         ,dellaqc,outt, outq,outqc,zuo,pre,pwo,pwdo,pwo_eff,xmb        &
+                         ,ktop,maxens2,maxens,pr_ens,maxens3,ensdim,sig,xland1         &
+                         ,ichoice,itf,ktf,its,ite, kts,kte                             &
+                         ,xf_dicycle,outu,outv,dellu,dellv,dtime,po_cup,kbcon          &
+                         ,dellabuoy,outbuoy,dellampqi,outmpqi,dellampql,outmpql        &
+                         ,dellampcf,outmpcf,nmp,rh_dicycle_fct,xf_coldpool,wlpool_bcon &
+                         ,subten_T,subten_Q,subten_U,subten_V                          )
       !
       !--- get the net precipitation flux (after downdraft evaporation)
       !
@@ -3346,7 +3411,6 @@ contains
       if(use_pass_cloudvol == 3) then
          do vtp_index = get_num_elements(vec_ok),1,-1
                i = get_data_value(vec_ok,vtp_index)
-
                !--- estimation of the fractional area of updraft that will remains 
                !--- in the ambient
                do k=kbcon(i),ktop(i)
@@ -3356,7 +3420,6 @@ contains
          enddo
          !print*,'clfrac',trim(cumulus),maxval(clfrac),minval(clfrac)
       endif
-
       !
       !--- convert mass fluxes, etc...
       !
@@ -3373,11 +3436,17 @@ contains
          dd_massentro(:,i) = xmb(i)*dd_massentro(:,i)
          dd_massdetro(:,i) = xmb(i)*dd_massdetro(:,i)
          zenv        (:,i) = xmb(i)*zenv        (:,i)
+      end do
+      if(use_sub3d > 0) then
+        do vtp_index = get_num_elements(vec_ok),1,-1
+         i = get_data_value(vec_ok,vtp_index)
          subten_Q    (:,i) = xmb(i)*subten_Q    (:,i)
          subten_H    (:,i) = xmb(i)*subten_H    (:,i)
          subten_T    (:,i) = xmb(i)*subten_T    (:,i)
-      end do
-
+         subten_U    (:,i) = xmb(i)*subten_U    (:,i)
+         subten_V    (:,i) = xmb(i)*subten_V    (:,i)
+        end do
+      endif 
       !
       !--- outputs a model sounding for the stand-alone code (part 2)
       !
@@ -5599,13 +5668,14 @@ contains
 
    end subroutine cup_up_vvel
    !------------------------------------------------------------------------------------
-   subroutine cup_output_ens(cumulus,xff_shal,xff_mid,xf_ens,ierr,edto,dellat,dellaq,dellaqc&
-                            ,outtem,outq,outqc,zu,pre,pwo,pwdo,pwo_eff,xmb,ktop        &
-                            ,nx,nx2,pr_ens, maxens3,ensdim,sig,xland1                  &
-                            ,ichoice,itf,ktf,its,ite, kts,kte                  &
-                            ,xf_dicycle,outu,outv,dellu,dellv,dtime,po_cup,kbcon       &
-                            ,dellabuoy,outbuoy, dellampqi,outmpqi,dellampql,outmpql    &
-                            ,dellampcf,outmpcf ,nmp, rh_dicycle_fct,xf_coldpool,wlpool_bcon)
+   subroutine cup_output_ens(cumulus,xff_shal,xff_mid,xf_ens,ierr,edto,dellat,dellaq,dellaqc &
+                            ,outtem,outq,outqc,zu,pre,pwo,pwdo,pwo_eff,xmb,ktop              & 
+                            ,nx,nx2,pr_ens, maxens3,ensdim,sig,xland1                        &
+                            ,ichoice,itf,ktf,its,ite, kts,kte                                &
+                            ,xf_dicycle,outu,outv,dellu,dellv,dtime,po_cup,kbcon             &
+                            ,dellabuoy,outbuoy, dellampqi,outmpqi,dellampql,outmpql          &
+                            ,dellampcf,outmpcf ,nmp, rh_dicycle_fct,xf_coldpool,wlpool_bcon  &
+                            ,subten_T,subten_Q,subten_U,subten_V                             )
       implicit none
       !
       integer   ,intent (in   )            :: ichoice,itf,ktf,its,ite, kts,kte
@@ -5626,7 +5696,9 @@ contains
       !
       character *(*)            ,intent (in   ) :: cumulus
       real,    dimension (:,:)  ,intent (inout) :: xf_ens,pr_ens
-      real,    dimension (:,:)  ,intent (out  ) :: outtem,outq,outqc,outu,outv,outbuoy
+      real,    dimension (:,:)  ,intent (out  ) :: outtem,outq,outqc,outu,outv,outbuoy &
+                                                  ,subten_T,subten_Q,subten_U,subten_V
+
       real,    dimension (:,:,:),intent (out  ) :: outmpqi,outmpql,outmpcf
       
       real,    dimension (:,:)  ,intent (in   ) :: zu,po_cup,pwo,pwdo
@@ -5757,23 +5829,25 @@ contains
             xmb (i)=0.
          endif
       enddo
-      !-apply the scale-dependence Arakawa's approach
-      do vtp_index = get_num_elements(vec_ok),1,-1
-         i = get_data_value(vec_ok,vtp_index)
-         !- scale dependence
-         xmb(i)=sig(i)*xmb(i)
+      
+      if(use_sub3d == 0) then 
+         !-apply the scale-dependence Arakawa's approach
+         do vtp_index = get_num_elements(vec_ok),1,-1
+           i = get_data_value(vec_ok,vtp_index)
+           !- scale dependence
+           xmb(i)=sig(i)*xmb(i)
 
-         !- apply the adjust factor for tunning
-         !xmb(i) = FADJ_MASSFLX * xmb(i)
+           !- apply the adjust factor for tunning
+           !xmb(i) = FADJ_MASSFLX * xmb(i)
 
-         if(xmb(i) == 0. ) then 
-           ierr(i)=14 ; is_removed = remove(vec_ok, i)
-         endif 
-         if(xmb(i) > 100.) then 
-           ierr(i)=15 ; is_removed = remove(vec_ok, i)
-         endif 
-      enddo
-
+           if(xmb(i) == 0. ) then 
+              ierr(i)=14 ; is_removed = remove(vec_ok, i)
+           endif 
+           if(xmb(i) > 100.) then 
+             ierr(i)=15 ; is_removed = remove(vec_ok, i)
+           endif 
+        enddo
+      endif 
       !--- sanity check for mass flux
       !
       do vtp_index = get_num_elements(vec_ok),1,-1
@@ -5807,9 +5881,10 @@ contains
               dp         = (po_cup(k,i)-po_cup(k+1,i))
               tend1d(1)  = tend1d(1)  +  dp*xmb(i) * 86400.*(dellat(k,i))
  
-              if(xmb(i) * 86400.*abs(dellat(k,i)) > MAX_TQ_TEND ) & 
-                 dellat(k,i)=MAX_TQ_TEND/(xmb(i)*86400)*sign(1., dellat(k,i))
-
+              if(xmb(i) * 86400.*abs(dellat(k,i)) > MAX_TQ_TEND ) then  
+                 dellat  (k,i)=MAX_TQ_TEND/(xmb(i)*86400)*sign(1., dellat  (k,i))
+                 subten_T(k,i)=MAX_TQ_TEND/(xmb(i)*86400)*sign(1., subten_T(k,i))
+              endif
               tend1d(2)  = tend1d(2)  +  dp*xmb(i) * 86400.*(dellat(k,i))         
            enddo
       
@@ -5817,9 +5892,10 @@ contains
               dp         = (po_cup(k,i)-po_cup(k+1,i))
               tend1d(3)  = tend1d(3)  +  dp*xmb(i) * 86400.*(dellaq(k,i))*(c_alvl/c_cp)
 
-              if(xmb(i) * 86400.*abs(dellaq(k,i))*(c_alvl/c_cp)  > MAX_TQ_TEND ) &    
-                 dellaq(k,i)=MAX_TQ_TEND/(xmb(i)*86400*(c_alvl/c_cp))*sign(1., dellaq(k,i))
-            
+              if(xmb(i) * 86400.*abs(dellaq(k,i))*(c_alvl/c_cp)  > MAX_TQ_TEND ) then     
+                 dellaq  (k,i)=MAX_TQ_TEND/(xmb(i)*86400*(c_alvl/c_cp))*sign(1., dellaq  (k,i))
+                 subten_Q(k,i)=MAX_TQ_TEND/(xmb(i)*86400*(c_alvl/c_cp))*sign(1., subten_Q(k,i))
+              endif
               tend1d(4)  = tend1d(4)  +  dp*xmb(i) * 86400.*(dellaq(k,i))*(c_alvl/c_cp)
            enddo
            xfixT = tend1d(1)/(1.e-6+tend1d(2))
@@ -7214,10 +7290,12 @@ contains
 
    end subroutine cloud_dissipation
    !------------------------------------------------------------------------------------
-   subroutine readGFConvParNML(mynum, IO_NODE,config_gf_cporg,config_gf_pcvol,config_gf_gustf)
+   subroutine readGFConvParNML(mynum, IO_NODE,config_gf_cporg,config_gf_pcvol,config_gf_gustf &
+                              ,config_gf_sub3d)
       implicit none
       integer,intent(in) :: mynum
-      integer,intent(in), optional :: IO_NODE,config_gf_cporg,config_gf_pcvol,config_gf_gustf
+      integer,intent(in), optional :: IO_NODE,config_gf_cporg,config_gf_pcvol,config_gf_gustf &
+                                    , config_gf_sub3d
       integer :: nlunit = 4
       character (len = 64) :: fn_nml = 'GF_ConvPar_nml'
       integer :: local_io_node
@@ -7239,7 +7317,8 @@ contains
          ,rh_dicycle,cum_t_star, convection_tracer, tau_ocea_cp, tau_land_cp      &
          ,use_memory, add_coldpool_prop ,mx_buoy1, mx_buoy2,max_tq_tend           &
          ,add_coldpool_clos,add_coldpool_trig,add_coldpool_diff,n_cldrop,output_sound&
-         ,use_pass_cloudvol,use_lcl_ctrl_entr,use_rhu_ctrl_entr,cum_min_cloud_depth
+         ,use_pass_cloudvol,use_lcl_ctrl_entr,use_rhu_ctrl_entr,cum_min_cloud_depth& 
+         ,use_sub3d
 
       if(present(IO_NODE)) then 
          local_io_node = IO_NODE
@@ -7280,6 +7359,13 @@ contains
          !
          endif
       endif
+      
+      if(present(config_gf_sub3d)) then
+         if(config_gf_sub3d == 0) then
+            use_sub3d = 0
+         endif
+      endif
+
       if(mynum==local_io_node) then
          !- print the namelist
          print*,"           "
@@ -7289,6 +7375,7 @@ contains
          print*, 'cum_entr           ' , real(cum_entr_rate      ,4)
          print*, 'cum_min_cloud_depth' , real(cum_min_cloud_depth,4)
          print*, 'closure_choice     ' , closure_choice
+         print*, 'use_sub3d          ' , use_sub3d
          print*, 'use_scale_dep      ' , use_scale_dep
          print*, 'sig_factor         ' , real(sig_factor         ,4)
          print*, 'dicycle            ' , dicycle
@@ -9036,19 +9123,21 @@ contains
    end subroutine check_mass_conserv
    !----------------------------------------------------------------------
    subroutine smooth_tend(use_smooth_tend,itf,ktf, its,ite, kts, kte, ierr, ktop &
-                         ,po_cup ,dellu, dellv, dellah, dellat, dellaq, dellaqc)
+                         ,po_cup ,dellu, dellv, dellah, dellat, dellaq, dellaqc  &
+                         ,subten_Q, subten_H, subten_U, subten_V)
       implicit none
       integer  ,intent (in )                   :: itf,ktf, its,ite, kts,kte
       integer  ,intent (in )                   :: use_smooth_tend
       integer  ,intent (in )  , dimension(:)   :: ierr,ktop
       real     ,intent (in )  , dimension(:,:) :: po_cup
       real     ,intent (inout), dimension(:,:) :: dellu, dellv, dellah, dellat &
-                                                , dellaq, dellaqc
+                                                , dellaq, dellaqc              &
+                                                , subten_Q, subten_H, subten_U, subten_V
       !-- local vars
       integer :: i,k,kk,vtp_index
       real    :: dp, rcount
-      real,    dimension (kts:kte,8)       ::  tend2d
-      real,    dimension (8)               ::  tend1d
+      real,    dimension (kts:kte,5)       ::  tend2d
+      real,    dimension (5)               ::  tend1d
 
       do vtp_index = get_num_elements(vec_ok),1,-1
                i = get_data_value(vec_ok,vtp_index)
@@ -9077,6 +9166,35 @@ contains
                   dellv   (k,i) = tend2d(k,5)
                end do
       end do
+      
+      if(use_sub3d > 0) then
+         do vtp_index = get_num_elements(vec_ok),1,-1
+               i = get_data_value(vec_ok,vtp_index)
+               tend2d = 0.
+ 
+               do k=kts,ktop(i)
+                  rcount = 1.e-8
+                  tend1d = 0.
+                  do kk= max(kts,k-use_smooth_tend),min(ktop(i),k+use_smooth_tend)
+                     dp         = (po_cup(kk,i)-po_cup(kk+1,i))
+                     rcount     = rcount     +  dp
+                     tend1d(1)  = tend1d(1)  +  dp* subten_q(kk,i)
+                     tend1d(2)  = tend1d(2)  +  dp* subten_h(kk,i)
+                     tend1d(3)  = tend1d(3)  +  dp* subten_u(kk,i)
+                     tend1d(4)  = tend1d(4)  +  dp* subten_v(kk,i)
+                 end do
+                  tend2d(k,1:4)  = tend1d(1:4) /rcount
+               end do
+               !--- get the final/smoother tendencies
+               do k=kts,ktop(i)
+                  subten_q(k,i) = tend2d(k,1)
+                  subten_h(k,i) = tend2d(k,2)
+                  subten_u(k,i) = tend2d(k,3)
+                  subten_v(k,i) = tend2d(k,4)
+               end do
+         end do
+      endif 
+
    end  subroutine smooth_tend
    !----------------------------------------------------------------------
    subroutine get_env_change(coupl_mphysics,itf,ktf, its,ite, kts,kte,ierr &
@@ -9132,6 +9250,8 @@ contains
 
             enddo
       enddo
+
+      !print*,'XXXXXXX',86400*maxval(abs(subten_t)),86400*c_alvl*maxval(abs(subten_Q))
       !do vtp_index = get_num_elements(vec_ok),1,-1
       !      i = get_data_value(vec_ok,vtp_index)
       !      xhe(ktf,i)=heo(ktf,i)
@@ -9186,9 +9306,9 @@ contains
       dellaq    =0.
       dellaqc   =0.
       dellabuoy =0.
-      subten_H  =0.
-      subten_Q  =0.
-      subten_T  =0.
+      !subten_H  =0.
+      !subten_Q  =0.
+      !subten_T  =0.
 
       !
       !----------------------------------------------  cloud level ktop
@@ -9547,7 +9667,7 @@ contains
 
             !- check H and water conservation liq+condensed (including rainfall)
             trash  = 0.
-            trash2 = 0.0
+            trash2 = 0.
             do k=kts,ktop(i)
                dp     = 100.*(po_cup(k,i)-po_cup(k+1,i))
                G_rain =  0.5*(pwo (k,i)+pwo (k+1,i))*c_grav/dp
@@ -9806,6 +9926,7 @@ contains
       mx_buoy2          = 20004.0 ! J/kg (real(c_cp)*10.+real(c_alvl)*4.e-3) 
       use_gustiness     = 0    
      
+      use_sub3d         = 0
       use_scale_dep     = 1 
       sig_factor        = 0.22 
       
