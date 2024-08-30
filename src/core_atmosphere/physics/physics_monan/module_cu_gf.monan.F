@@ -1238,8 +1238,8 @@ contains
 
             enddo
          enddo
-         print*,'max1 TH',maxval(rthcuten)*86400,minval(rthcuten)*86400
-         print*,'max1 QV',maxval(rqvcuten)*86400*2.5e+3,minval(rqvcuten)*86400*2.5e+3
+         !print*,'max1 TH',maxval(rthcuten)*86400,minval(rthcuten)*86400
+         !print*,'max1 QV',maxval(rqvcuten)*86400*2.5e+3,minval(rqvcuten)*86400*2.5e+3
 
          ! print*,'outs---',maxval(fixout_qv),maxval(conprr(:,jts))*3600,maxval(abs(outt (:,:,deep)))*86400,&
          !                  maxval(abs(rthcuten(:,:,jts)))*86400.,maxval(abs(rqvcuten(:,:,jts)))*86400.*2.5e+6/1004.
@@ -1292,8 +1292,8 @@ contains
 
                enddo
             enddo
-         print*,'max 2TH',maxval(sub3d_rthcuten)*86400,minval(sub3d_rthcuten)*86400
-         print*,'max 2QV',maxval(sub3d_rqvcuten)*86400*2.5e+3,minval(sub3d_rqvcuten)*86400*2.5e+3
+         !print*,'max 2TH',maxval(sub3d_rthcuten)*86400,minval(sub3d_rthcuten)*86400
+         !print*,'max 2QV',maxval(sub3d_rqvcuten)*86400*2.5e+3,minval(sub3d_rqvcuten)*86400*2.5e+3
 
          endif
 
@@ -7363,6 +7363,11 @@ contains
       if(present(config_gf_sub3d)) then
          if(config_gf_sub3d == 0) then
             use_sub3d = 0
+         endif
+         if(config_gf_sub3d > 0) then
+            if(icumulus_gf(shal) == 1 .or. icumulus_gf(mid) == 1) then
+              stop "only deep plume is allowed with sub3d"
+            endif 
          endif
       endif
 
