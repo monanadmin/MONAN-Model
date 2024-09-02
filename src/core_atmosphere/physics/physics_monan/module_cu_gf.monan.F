@@ -9690,6 +9690,9 @@ contains
 
       endif ! vertical discretization formulation
       
+      !-- formulation for the subsidence tendency
+      !-- del X / del t = detr_up zu_up (X_c_up - X_env) +  detr_dn zu_dn (X_c_dn - X_env) + zu_env * del X_env / del z
+      !-- subten = zu_env * del X_env / del z
       if( use_sub3d > 0) then
           do vtp_index = get_num_elements(vec_ok),1,-1
              i = get_data_value(vec_ok,vtp_index)

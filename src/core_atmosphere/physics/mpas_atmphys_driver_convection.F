@@ -1368,26 +1368,23 @@
             enddo
             enddo
 
-            !--- part 2: broadcast the subsidence tendencies
-            !
+            !-- part 2: broadcast the subsidence tendencies
             call exchange_halo_group(block % domain, 'physics:sub3d_cuten')
 
             !-- part 3: spread the subsidence tendencies to the 1st neighboors
             call mpas_pool_get_array(mesh, 'cellsOnCell', cellsOnCell)
             call mpas_pool_get_array(mesh, 'nEdgesOnCell', nEdgesOnCell)
 
-!print*,'max',maxval(sub3d_rthcuten)*1.e+5,maxval(sub3d_rqvcuten)*1.e+8,maxval(sub3d_rucuten)*1.e+7,maxval(sub3d_rvcuten)*1.e+7
-!print*,'min',minval(sub3d_rthcuten)*1.e+5,minval(sub3d_rqvcuten)*1.e+8,minval(sub3d_rucuten)*1.e+7,minval(sub3d_rvcuten)*1.e+7
             do iCell = 1, nCellsSolve
               do k = 1, nVertLevels
                  rthcuten(k,iCell) = rthcuten(k,iCell) + sigma_deep(iCell) * sub3d_rthcuten(k,iCell)
                  rqvcuten(k,iCell) = rqvcuten(k,iCell) + sigma_deep(iCell) * sub3d_rqvcuten(k,iCell)
                  rucuten(k,iCell)  = rucuten(k,iCell)  + sigma_deep(iCell) * sub3d_rucuten(k,iCell)
                  rvcuten(k,iCell)  = rvcuten(k,iCell)  + sigma_deep(iCell) * sub3d_rvcuten(k,iCell)
- !               if(sigma_deep(iCell)>0.) print*,'sig=',icell,k,sigma_deep(iCell), rthcuten(k,iCell)*86400,sub3d_rthcuten(k,iCell)*86400
- 
+                 
+                 !-- loop over the neighbours of the grid cell 'iCell'
                  do i = 1, nEdgesOnCell(iCell)
-                   ineighbour = cellsOnCell(i,iCell)  
+                   ineighbour = cellsOnCell(i,iCell)
                    rthcuten(k,iCell) = rthcuten(k,iCell) + &
                                        (1._RKIND - sigma_deep(ineighbour))*sub3d_rthcuten(k,ineighbour)/ &
                                        real(nEdgesOnCell(ineighbour),RKIND)  
@@ -1399,8 +1396,7 @@
                                        real(nEdgesOnCell(ineighbour),RKIND)  
                    rvcuten(k,iCell) = rvcuten(k,iCell) + &
                                        (1._RKIND - sigma_deep(ineighbour))*sub3d_rvcuten(k,ineighbour)/ &
-                                       real(nEdgesOnCell(ineighbour),RKIND)  
-                       
+                                       real(nEdgesOnCell(ineighbour),RKIND)
                  enddo
               enddo
             enddo
