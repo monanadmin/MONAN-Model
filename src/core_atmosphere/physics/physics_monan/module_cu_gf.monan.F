@@ -1136,7 +1136,7 @@ contains
                rmfxshcu(i,j) = xmb4d(i,j,shal) 
                rtopshcu(i,j) = zo(ktop4d(i,j,shal),i)
              endif
-             if(rtopdpcu(i,j)<1000. .and. rtopdpcu(i,j)>10. ) print*,'top',i,mynum,rtopdpcu(i,j),rbotdpcu(i,j)
+             !if(rtopdpcu(i,j)<1000. .and. rtopdpcu(i,j)>10. ) print*,'top',i,mynum,rtopdpcu(i,j),rbotdpcu(i,j)
          enddo
 
          !-- diagnostic/debug 2d
@@ -1166,7 +1166,7 @@ contains
 
                if( abs(temp_tendqv(zmax,i) * dt) <  p_mintracer) then
                   fixout_qv(i)= 0.999999
-                !fixout_qv(i)= 0.
+                 !fixout_qv(i)= 0.
                else
                   fixout_qv(i)= ( (p_smaller_qv - qv_curr(zmax,i))) / (temp_tendqv(zmax,i) *dt)
                endif
@@ -1283,10 +1283,10 @@ contains
                   sub3d_rvcuten (i,k,j) = subten_V (k,i,deep) *fixout_qv(i)
                
 !---temporary setting -- must be removed once the subsidence tendencies are correct
-                  !sub3d_rthcuten(i,k,j) = rthcuten (i,k,j) * 0.1
-                  !sub3d_rqvcuten(i,k,j) = rqvcuten (i,k,j) * 0.1
-                  !sub3d_rucuten (i,k,j) = rucuten (i,k,j)  * 0.1
-                  !sub3d_rvcuten (i,k,j) = rvcuten (i,k,j)  * 0.1
+                  !sub3d_rthcuten(i,k,j) = 2.e-5 !rthcuten (i,k,j) * 0.1
+                  !sub3d_rqvcuten(i,k,j) = 3.e-8 !rqvcuten (i,k,j) * 0.1
+                  !sub3d_rucuten (i,k,j) = 4.e-7 !rucuten (i,k,j)  * 0.1
+                  !sub3d_rvcuten (i,k,j) = 5.e-7 !rvcuten (i,k,j)  * 0.1
 !---temporary setting -- 
 
 
@@ -3239,7 +3239,7 @@ contains
                      ,qrcdo,qo_cup,qcdo,pwo,pwdo,p_liq_ice,melting,dbydo,us,vs         &
                      ,uc,vc,u_cup,v_cup,ucd,vcd,zuo,zdo,zenv,dd_massdetro,dd_massentro &
                      ,up_massentro,up_massdetro,dellu, dellv, dellah, dellat, dellaq   &
-                     ,dellaqc, dellabuoy, subten_H, subten_Q, subten_T)
+                     ,dellaqc, dellabuoy, subten_H, subten_Q, subten_T, subten_U, subten_V)
 
       !
       !--- apply environmental subsidence on grid-scale ice and liq water contents, and cloud fraction (Upwind scheme)
@@ -7365,6 +7365,7 @@ contains
             use_sub3d = 0
          endif
          if(config_gf_sub3d > 0) then
+            use_scale_dep = 1
             if(icumulus_gf(shal) == 1 .or. icumulus_gf(mid) == 1) then
               stop "only deep plume is allowed with sub3d"
             endif 
@@ -9273,8 +9274,8 @@ contains
                         ,us,vs,uc,vc,u_cup,v_cup,ucd,vcd                          &
                         ,zuo,zdo,zenv,dd_massdetro,dd_massentro                   &
                         ,up_massentro,up_massdetro                                &
-                        ,dellu, dellv, dellah, dellat, dellaq                     &
-                        ,dellaqc, dellabuoy, subten_H, subten_Q, subten_T)
+                        ,dellu, dellv, dellah, dellat, dellaq ,dellaqc, dellabuoy &
+                        ,subten_H, subten_Q, subten_T, subten_U, subten_V         )
 
       implicit none
       
@@ -9290,8 +9291,9 @@ contains
                                                ,zuo,zdo,zenv,dd_massdetro,dd_massentro        &
                                                ,up_massentro,up_massdetro   
       
-      real     ,intent (out ), dimension(:,:) :: dellu, dellv, dellah, dellat, dellaq         &
-                                               , dellaqc, dellabuoy, subten_H, subten_Q, subten_T
+      real     ,intent (out ), dimension(:,:) :: dellu, dellv, dellah, dellat, dellaq, dellaqc &
+                                                ,dellabuoy, subten_H, subten_Q, subten_T       &
+                                                ,subten_U, subten_V 
 
       !-- local vars
       integer :: i,k,vtp_index
@@ -9311,10 +9313,8 @@ contains
       dellaq    =0.
       dellaqc   =0.
       dellabuoy =0.
-      !subten_H  =0.
-      !subten_Q  =0.
-      !subten_T  =0.
-
+      subten_H  =0.
+      
       !
       !----------------------------------------------  cloud level ktop
       !
@@ -9659,11 +9659,9 @@ contains
                enddo
                call fct1d3 (ktop(i),kte,dtime_max,po_cup(:,i),qo(:,i),massflx(:,i),trcflx_in(:,1),sub_tend(:,1))
             endif
-
             !--- add the contribuition from the environ subsidence
             dellaq(kts:ktop(i),i) = dellaq(kts:ktop(i),i) + sub_tend(kts:ktop(i),1)
-
-             !--- for output only
+            !--- for output only
             subten_Q (kts:ktop(i),i) = sub_tend(kts:ktop(i),1)
 
             !     do k=kts,ktop(i)
@@ -9691,6 +9689,26 @@ contains
          enddo
 
       endif ! vertical discretization formulation
+      
+      if( use_sub3d > 0) then
+          do vtp_index = get_num_elements(vec_ok),1,-1
+             i = get_data_value(vec_ok,vtp_index)
+             !
+             do k=kts,ktop(i)
+                dp=100.*(po_cup(k,i)-po_cup(k+1,i))
+                subten_Q(k,i) = - ( 0.5*(zuo(k+1,i) + zuo(k,i))*(-qo_cup (k+1,i) + qo_cup (k,i)))*c_grav/dp       &
+                                 +( 0.5*(zdo(k+1,i) + zdo(k,i))*(-qo_cup (k+1,i) + qo_cup (k,i)))*c_grav/dp*edto(i)
+                subten_H(k,i) = - ( 0.5*(zuo(k+1,i) + zuo(k,i))*(-heo_cup(k+1,i) + heo_cup(k,i)))*c_grav/dp       &
+                                 +( 0.5*(zdo(k+1,i) + zdo(k,i))*(-heo_cup(k+1,i) + heo_cup(k,i)))*c_grav/dp*edto(i)
+
+                subten_U(k,i) = - ( 0.5*(zuo(k+1,i) + zuo(k,i))*(-u_cup(k+1,i) + u_cup(k,i)))*c_grav/dp       &
+                                 +( 0.5*(zdo(k+1,i) + zdo(k,i))*(-u_cup(k+1,i) + u_cup(k,i)))*c_grav/dp*edto(i)
+                subten_V(k,i) = - ( 0.5*(zuo(k+1,i) + zuo(k,i))*(-v_cup(k+1,i) + v_cup(k,i)))*c_grav/dp       &
+                                 +( 0.5*(zdo(k+1,i) + zdo(k,i))*(-v_cup(k+1,i) + v_cup(k,i)))*c_grav/dp*edto(i)
+
+            enddo
+          enddo
+      endif
 
    end subroutine get_dellas
   !---------------------------------------------------------------------------------------------------

@@ -1376,6 +1376,8 @@
             call mpas_pool_get_array(mesh, 'cellsOnCell', cellsOnCell)
             call mpas_pool_get_array(mesh, 'nEdgesOnCell', nEdgesOnCell)
 
+!print*,'max',maxval(sub3d_rthcuten)*1.e+5,maxval(sub3d_rqvcuten)*1.e+8,maxval(sub3d_rucuten)*1.e+7,maxval(sub3d_rvcuten)*1.e+7
+!print*,'min',minval(sub3d_rthcuten)*1.e+5,minval(sub3d_rqvcuten)*1.e+8,minval(sub3d_rucuten)*1.e+7,minval(sub3d_rvcuten)*1.e+7
             do iCell = 1, nCellsSolve
               do k = 1, nVertLevels
                  rthcuten(k,iCell) = rthcuten(k,iCell) + sigma_deep(iCell) * sub3d_rthcuten(k,iCell)
