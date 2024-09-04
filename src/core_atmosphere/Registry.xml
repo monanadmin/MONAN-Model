@@ -2087,11 +2087,11 @@
                              
                         <var name="cnvcf" array_group="convection" units="none"
                              description="Convective cloud fraction"
-                             packages="cu_gf_monan_in"/>
+                             packages="gf_monan_pcvol"/>
 
                         <var name="buoyx" array_group="convection" units="J kg^{-1}"
                              description="Buoyancy excess from the cold pool scheme"
-                             packages="cu_gf_monan_in;gf_monan_cporg"/>
+                             packages="gf_monan_cporg"/>
                 </var_array>
 #endif
 
@@ -2421,11 +2421,11 @@
 
                        <var name="tend_cnvcf" name_in_code="cnvcf" array_group="convection" units="s^{-1}" 
                              description="Tendency of convective cloud fraction multiplied by dry air density divided by d(zeta)/dz"
-                             packages="cu_gf_monan_in"/>
+                             packages="gf_monan_pcvol"/>
                            
                        <var name="tend_buoyx" name_in_code="buoyx" array_group="convection" units="J kg^{-1} s^{-1}" 
                              description="Tendency of buoyancy excess from the cold pool scheme multiplied by dry air density divided by d(zeta)/dz"
-                             packages="cu_gf_monan_in;gf_monan_cporg"/>
+                             packages="gf_monan_cporg"/>
                 </var_array>
 #endif
         </var_struct>
@@ -2826,7 +2826,7 @@
                 <nml_option name="config_gf_sub3d" type="integer" default_value="0" in_defaults="false"
                      units="-"
                      description="Option for the lateral subsidence spread for the Grell-Freitas scheme"
-                     possible_values="0,1,2"/>
+                     possible_values="0,1"/>
 
         </nml_record>
 
