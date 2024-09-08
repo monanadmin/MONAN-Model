@@ -3180,6 +3180,7 @@ contains
             !- time-scale cape removal from Bechtold et al. 2008
             tau_ecmwf(i)=( zo_cup(ktop(i),i)- zo_cup(kbcon(i),i) ) / wmean(i)
             tau_ecmwf(i)= min(10800., max(600.,tau_ecmwf(i)))
+
          enddo
       endif
 
@@ -4489,7 +4490,7 @@ contains
             elseif (autoconv == 4 ) then
               !NC=300.e+6 over the land, NC=50.e+6 over the oceans
                Nc = n_cldrop *1.e+6 
-              !Nc = 50.e+6*xland(i) + 300.e+6*(1.0-xland(i))
+               Nc = Nc*xland(i) + 3.*Nc*(1.0-xland(i))
                min_liq  = 4./3.*c_pi*rhowater*r0**3*Nc/rhoair0  ! 0.419e-3 -- .61e-3
               
               if(clw_all(k,i) <= min_liq) then !=> more heating at upper levels, more detrained ice
@@ -4498,7 +4499,7 @@ contains
                   pw(k,i) = 0.
               
               else
-                  w_upd = min(15.,max(vvel2d(k,i),2.))
+                  w_upd = min(15.,max(vvel2d(k,i),4.))
                  
                   cx0 = .104*9.8*peaut/(Nc*rhowater)**(1./3.)/xmyu*rhoair0**(4./3.)! 7.03
 
@@ -8183,7 +8184,7 @@ contains
       real   ,intent(out)           :: x_aver
       !-- local vars
       integer                       :: i,local_order_aver,order_aver, i_beg,i_end,ic
-      real,    parameter            :: frac_ave_layer_ocean= 0.3
+      real,    parameter            :: frac_ave_layer_ocean= 1.0
       real                          :: count,dp,dp_layer,effec_frac,x_ave_layer
 
       if(ave_from_surface) then
@@ -9965,10 +9966,10 @@ contains
       irainevap         = 0
       cum_max_edt_land  = (/0.50, 0.00, 0.20/)
       cum_max_edt_ocean = (/0.50, 0.00, 0.20/)
-      cum_use_excess    = (/2, 1, 1/)
+      cum_use_excess    = (/1, 1, 1/)
       cum_ave_layer     = (/50., 25., 25./)
-      cum_min_cloud_depth=(/200., 100., 150./)
-      sgs_w_timescale   = 1 
+      cum_min_cloud_depth=(/300., 50., 150./)
+      sgs_w_timescale   = 0 
       tau_deep          = 3600.0  
       tau_mid           = 1200.0  
       lightning_diag    = 1
@@ -9981,8 +9982,8 @@ contains
       c0_deep           = 1.0e-3
       c0_mid            = 1.5e-3
       c0_shal           = 0.0    
-      qrc_crit          = 6.e-4 
-      n_cldrop          = 50.0  
+      qrc_crit          = 1.e-3 
+      n_cldrop          = 100.0  
 
       use_momentum_transp = 1   
       lambau_deep       = 0.0 
