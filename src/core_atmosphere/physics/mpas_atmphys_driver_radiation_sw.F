@@ -416,9 +416,6 @@
     swupbc_p(i,j)   = 0.0_RKIND
     swupt_p(i,j)    = 0.0_RKIND
     swuptc_p(i,j)   = 0.0_RKIND
-    swddir_p(i,j)   = 0.0_RKIND
-    swddni_p(i,j)   = 0.0_RKIND
-    swddif_p(i,j)   = 0.0_RKIND
  enddo
 
  do k = kts,kte
@@ -427,6 +424,22 @@
  enddo
  enddo
  enddo
+
+ !srf
+ !At line 419 of file mpas_atmphys_driver_radiation_sw.F
+ !Fortran runtime error: Index '1' of dimension 2 of array 'swddir_p' above upper bound of 0
+ radiation_sw_select0: select case (trim(radt_sw_scheme))
+    case("rrtmg_sw")
+       do j = jts,jte
+       do i = its,ite
+          swddir_p(i,j)   = 0.0_RKIND
+          swddni_p(i,j)   = 0.0_RKIND
+          swddif_p(i,j)   = 0.0_RKIND
+       enddo
+       enddo
+    case default
+ end select radiation_sw_select0
+
 
  radiation_sw_select: select case (trim(radt_sw_scheme))
 
@@ -594,10 +607,11 @@
  end subroutine radiation_sw_from_MPAS
 
 !=================================================================================================================
- subroutine radiation_sw_to_MPAS(diag_physics,tend_physics,its,ite)
+ subroutine radiation_sw_to_MPAS(configs,diag_physics,tend_physics,its,ite)
 !=================================================================================================================
 
 !input arguments:
+ type(mpas_pool_type),intent(in):: configs
  type(mpas_pool_type),intent(inout):: diag_physics
  type(mpas_pool_type),intent(inout):: tend_physics
 
@@ -611,7 +625,7 @@
                                            swupb,swupbc,swupt,swuptc,swddir,swddni,  &
                                            swddif
  real(kind=RKIND),dimension(:,:),pointer:: rthratensw
-
+ character(len=StrKIND),pointer:: radt_sw_scheme
 !-----------------------------------------------------------------------------------------------------------------
 !call mpas_log_write(' ')
 !call mpas_log_write('--- enter subroutine radiation_sw_to_MPAS:')
@@ -646,9 +660,6 @@
     swupbc(i) = swupbc_p(i,j)
     swupt(i)  = swupt_p(i,j)
     swuptc(i) = swuptc_p(i,j)
-    swddir(i) = swddir_p(i,j)
-    swddni(i) = swddni_p(i,j)
-    swddif(i) = swddif_p(i,j)
  enddo
 
  do k = kts,kte
@@ -658,6 +669,24 @@
  enddo
 
  enddo
+
+
+ !srf
+ !At line 662 of file mpas_atmphys_driver_radiation_sw.F
+ !Fortran runtime error: Index '1' of dimension 2 of array 'swddir_p' above upper bound of 0
+ call mpas_pool_get_config(configs,'config_radt_sw_scheme',radt_sw_scheme      )
+
+ radiation_sw_select: select case (trim(radt_sw_scheme))
+    case("rrtmg_sw")
+       do j = jts,jte
+       do i = its,ite
+         swddir(i) = swddir_p(i,j)
+         swddni(i) = swddni_p(i,j)
+         swddif(i) = swddif_p(i,j)
+       enddo
+       enddo
+    case default
+ end select radiation_sw_select
 
 !call mpas_log_write('--- enter subroutine radiation_sw_to_MPAS:')
 !call mpas_log_write(' ')
@@ -854,7 +883,7 @@
  end select radiation_sw_select
 
 !copy local arrays to MPAS grid:
- call radiation_sw_to_MPAS(diag_physics,tend_physics,its,ite)
+ call radiation_sw_to_MPAS(configs,diag_physics,tend_physics,its,ite)
 
 !call mpas_log_write('--- end subroutine driver_radiation_sw.')
 
