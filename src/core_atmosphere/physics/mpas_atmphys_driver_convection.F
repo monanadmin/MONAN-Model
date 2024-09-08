@@ -1628,7 +1628,6 @@
  call mpas_pool_get_config(configs,'config_convection_scheme',convection_scheme)
 
  convection_select: select case(convection_scheme)
- 
     case ("cu_gf_monan")      
       !--- update the accumulated lightning density at the end of each dynamic time-step:
       !--- if(lightning_diag == 1) then -- for future

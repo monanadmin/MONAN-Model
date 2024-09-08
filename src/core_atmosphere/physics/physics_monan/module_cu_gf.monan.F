@@ -7345,11 +7345,11 @@ contains
             add_coldpool_clos = 0
             add_coldpool_trig = 0
             use_memory        = 0
-         !else
-         !   convection_tracer = 1
-         !   add_coldpool_clos = 2
-         !   add_coldpool_trig = 2
-         !   use_memory        = 222
+         else
+            convection_tracer = 1
+            add_coldpool_clos = 2
+            add_coldpool_trig = 2
+            use_memory        = 222
          endif
       endif
       if(present(config_gf_pcvol)) then
@@ -7396,10 +7396,8 @@ contains
          print*, 'tau_deep,tau_mid   ' , real(tau_deep,4),real(tau_mid,4)
          print*, 'sgs_w_timescale    ' , sgs_w_timescale
          print*, 'convection_tracer  ' , convection_tracer
-         print*, 'add_coldpool_prop  ' , add_coldpool_prop
          print*, 'add_coldpool_clos  ' , add_coldpool_clos
          print*, 'add_coldpool_trig  ' , add_coldpool_trig
-         print*, 'add_coldpool_diff  ' , add_coldpool_diff
          print*, 'use_memory         ' , use_memory
          print*, 'tau_ocea_cp        ' , tau_ocea_cp
          print*, 'tau_land_cp        ' , tau_land_cp
@@ -7467,6 +7465,8 @@ contains
          print*, 'vert_discr         ' , vert_discr
          print*, 'max_tq_tend        ' , real(max_tq_tend,4)
          print*, 'cum_fadj_massflx   ' , real(cum_fadj_massflx     ,4)
+         print*, 'add_coldpool_prop  ' , add_coldpool_prop
+         print*, 'add_coldpool_diff  ' , add_coldpool_diff
          print*,"========================================================================"
          !call flush(6)
       endif
