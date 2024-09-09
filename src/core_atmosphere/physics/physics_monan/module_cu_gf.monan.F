@@ -8184,7 +8184,7 @@ contains
       real   ,intent(out)           :: x_aver
       !-- local vars
       integer                       :: i,local_order_aver,order_aver, i_beg,i_end,ic
-      real,    parameter            :: frac_ave_layer_ocean= 1.0
+      real,    parameter            :: frac_ave_layer_ocean= 0.3
       real                          :: count,dp,dp_layer,effec_frac,x_ave_layer
 
       if(ave_from_surface) then
