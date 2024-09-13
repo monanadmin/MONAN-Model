@@ -4806,16 +4806,12 @@ contains
       !-- local vars
       integer :: i,k, turn, ismooth1,ismooth2, vtp_index
       real :: dz, mass1,mass2,dp,rho,zuo_ave
-      logical  :: SMOOTH
       integer, parameter :: MASS_U_OPTION = 1
-      integer, parameter :: SMOOTH_DEPTH  = 2 ! -- increasing this parameter,
-                                              ! -- strongly damps the heat/drying rates, precip ...
+      
       integer ::  incr1=1, incr2=1, nlay, k_ent
 
-      !---
-      SMOOTH = .false.
-      if(USE_SMOOTH_PROF == 1)  SMOOTH = .true.
-      
+      !-- USE_SMOOTH_PROF: increasing this parameter, strongly damps the heat/drying rates, precip ...
+   
       up_massentro(:,:)=0.
       up_massdetro(:,:)=0.
       if(present(up_massentru) .and. present(up_massdetru))then
@@ -4868,11 +4864,11 @@ contains
          entr_rate_2d(ktop(i):kte,i)=0.
 
          !=================
-         if(SMOOTH .and. draft /= 'shallow' ) then
+         if(USE_SMOOTH_PROF > 0 .and. draft /= 'shallow' ) then
             !---smoothing the transition zone (from maxloc(zu)-1 to maxloc(zu)+1)
 
-            ismooth1 = max(kts+2, maxloc(zuo(:,i),1) - SMOOTH_DEPTH)
-            ismooth2 = min(ktf-2, maxloc(zuo(:,i),1) + SMOOTH_DEPTH)
+            ismooth1 = max(kts+2, maxloc(zuo(:,i),1) - USE_SMOOTH_PROF)
+            ismooth2 = min(ktf-2, maxloc(zuo(:,i),1) + USE_SMOOTH_PROF)
             !if(draft == 'shallow') ismooth1 = max(ismooth1,max(kbcon(i),kpbl(i))+nlay)+1
 
             do k=ismooth1,ismooth2
@@ -5085,7 +5081,6 @@ contains
       real :: wgty,dp_layer,slope,adj_cp_entr
      
       DO_SMOOTH = .true.
-      !if(USE_SMOOTH_PROF == 1)  DO_SMOOTH = .true.
 
       !-- fill zu with zeros
       zul=0.0
