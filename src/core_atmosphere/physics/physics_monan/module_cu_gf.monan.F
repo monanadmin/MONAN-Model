@@ -538,7 +538,7 @@ contains
                                              ,temp_new_adv,qv_new_adv,dhdt             &
                                              ,cnvcf2d,turb_len_scale2d,buoyx2d         &
                                              ,revsu_gf_2d,prfil_gf_2d,qv_curr          &
-                                             ,var3d1_2d,var3d_bgf_2d            
+                                             ,var3d1_2d,var3d_bgf_2d,piexner            
       
       real,   dimension (kts:kte,its:ite,maxiens) ::  outt,outq,outqc,outu,outv,outbuoy &
                                                      ,outnliq,outnice
@@ -563,7 +563,7 @@ contains
 
       integer :: i,j,k,kr,n,itf,jtf,ktf,ispc,zmax,status
 
-      real :: dp,dq,exner, dtdt,pten,pqen,paph,zrho,pahfs,pqhfl,zkhvfl,pgeoh
+      real :: dp,dq, dtdt,pten,pqen,paph,zrho,pahfs,pqhfl,zkhvfl,pgeoh
       real :: fixouts,dt_inv,temp2theta,theta2temp,total_dp
       integer :: jlx,kk,plume,ii_plume, l_unit,irec,rec_size,iloc,kloc
       character(len=6)  :: c_itimestep
@@ -727,6 +727,7 @@ contains
                temp_old(k,i)  = temp(i,k,j) ! K
                qv_old  (k,i)  = rvap(i,k,j) ! kg/kg @ begin of the timestep
                qv_curr (k,i)  = rvap(i,k,j) ! kg/kg check this ! current (after dynamics + physical processes called before GF)
+               piexner (k,i)  = pi(i,k,j)   ! Exner function
                !- air density
                rhoi    (k,i)  = rho(i,k,j)  
                !- horiz wind velocities
@@ -1032,6 +1033,7 @@ contains
                         ,qv_new_ADV                       &
                         ,zo                               &
                         ,po                               &
+                        ,piexner                          &
                         ,tsur                             &
                         ,psur                             &
                         ,us                               &
@@ -1700,7 +1702,8 @@ contains
                                              ,temp_new_bl,qv_new_bl,dm2d,temp_tendqv,qv_curr   &
                                              ,buoy_exc2d,revsu_gf_2d,prfil_gf_2d,var3d_agf_2d  &
                                              ,var3d_bgf_2d,temp_new,qv_new                     &
-                                             ,temp_new_adv,qv_new_adv,cnvcf2d,turb_len_scale2d
+                                             ,temp_new_adv,qv_new_adv,cnvcf2d,turb_len_scale2d &
+                                             ,piexner 
 
       real,   dimension (kts:kte,its:ite,maxiens) ::  outt,outq,outqc,outu,outv,outbuoy &
                                                      ,outnliq,outnice
@@ -1724,7 +1727,7 @@ contains
 
       integer :: i,j,k,kr,n,itf,jtf,ktf,ispc,zmax,status
 
-      real :: dp,dq,exner, dtdt,pten,pqen,paph,zrho,pahfs,pqhfl,zkhvfl,pgeoh
+      real :: dp,dq, dtdt,pten,pqen,paph,zrho,pahfs,pqhfl,zkhvfl,pgeoh
       real :: fixouts,dt_inv
 
       real,   dimension(mxp,myp,-1:5) :: dummy_precip
@@ -1814,7 +1817,7 @@ contains
                zo      (k,i)  = zt(kr,i,j)*rtgt(i,j)+topt(i,j)
                po      (k,i)  = press(kr,i,j)*1.e-2 !mbar
                temp_old(k,i)  = temp(kr,i,j)
-
+               piexner (k,i)  = 1. ! for brams, change this later for the real exner function
                qv_old  (k,i)  = rvap     (kr,i,j) ! @ begin of the timestep
                qv_curr (k,i)  = curr_rvap(kr,i,j) ! current (after dynamics + physical processes called before GF)
 
@@ -2209,6 +2212,7 @@ contains
                         ,qv_new_ADV                       &
                         ,zo                               &
                         ,po                               &
+                        ,piexner                          &
                         ,tsur                             &
                         ,psur                             &
                         ,us                               &
@@ -2489,6 +2493,7 @@ contains
                      ,qo_adv            &
                      ,zo                &
                      ,po                &
+                     ,piexner           &
                      ,tsur              &
                      ,psur              &
                      ,us                &
@@ -2578,7 +2583,7 @@ contains
       !
       ! basic environmental input
       !
-      real,    dimension (:,:)  ,intent (inout)  :: dhdt,rho,t,po,us,vs,tn,dm2d &
+      real,    dimension (:,:)  ,intent (inout)  :: dhdt,rho,t,po,piexner,us,vs,tn,dm2d &
                                                    ,buoy_exc,tn_bl,tn_adv,cnvcf,turb_len_scale
       
       real,    dimension (:,:,:),intent (inout)  :: omeg
@@ -3367,7 +3372,7 @@ contains
                          ,xf_dicycle,outu,outv,dellu,dellv,dtime,po_cup,kbcon          &
                          ,dellabuoy,outbuoy,dellampqi,outmpqi,dellampql,outmpql        &
                          ,dellampcf,outmpcf,nmp,rh_dicycle_fct,xf_coldpool,wlpool_bcon &
-                         ,subten_T,subten_Q,subten_U,subten_V                          )
+                         ,subten_T,subten_Q,subten_U,subten_V,piexner                  )
       !
       !--- get the net precipitation flux (after downdraft evaporation)
       !
@@ -5676,7 +5681,7 @@ contains
                             ,xf_dicycle,outu,outv,dellu,dellv,dtime,po_cup,kbcon             &
                             ,dellabuoy,outbuoy, dellampqi,outmpqi,dellampql,outmpql          &
                             ,dellampcf,outmpcf ,nmp, rh_dicycle_fct,xf_coldpool,wlpool_bcon  &
-                            ,subten_T,subten_Q,subten_U,subten_V                             )
+                            ,subten_T,subten_Q,subten_U,subten_V,piexner                     )
       implicit none
       !
       integer   ,intent (in   )            :: ichoice,itf,ktf,its,ite, kts,kte
@@ -5702,7 +5707,7 @@ contains
 
       real,    dimension (:,:,:),intent (out  ) :: outmpqi,outmpql,outmpcf
       
-      real,    dimension (:,:)  ,intent (in   ) :: zu,po_cup,pwo,pwdo
+      real,    dimension (:,:)  ,intent (in   ) :: zu,po_cup,pwo,pwdo,piexner
       real,    dimension (:)    ,intent (in   ) :: sig, rh_dicycle_fct,wlpool_bcon,edto
     
       real,    dimension (:,:)  ,intent (in   ) :: xff_mid
@@ -5724,7 +5729,7 @@ contains
       integer                          :: i,k,n,ncount,zmax,kk,kqmx,ktmx,vtp_index
       real                             :: outtes,ddtes,dtt,dtq,dtqc &
                                          ,dtpw,prerate,fixouts,dp   &
-                                         ,xfixQ,xfixT,dtts,dtqs,fsum, rcount
+                                         ,xfixQ,xfixT,dtts,dtqs,fsum, rcount,temp2theta
       real,    dimension (its:ite)     :: xmb_ave,xmbmax
       real,    dimension (8)           :: tend1d
       !
@@ -5880,13 +5885,14 @@ contains
            tend1d=0.
            do k=kts,ktop(i)
               dp         = (po_cup(k,i)-po_cup(k+1,i))
-              tend1d(1)  = tend1d(1)  +  dp*xmb(i) * 86400.*(dellat(k,i))
+              temp2theta = 1./piexner(k,i)
+              tend1d(1)  = tend1d(1)  +  dp*xmb(i) * 86400.*(dellat(k,i))*temp2theta
  
-              if(xmb(i) * 86400.*abs(dellat(k,i)) > MAX_TQ_TEND ) then  
+              if(xmb(i) * 86400.*abs(dellat(k,i))*temp2theta > MAX_TQ_TEND ) then  
                  dellat  (k,i)=MAX_TQ_TEND/(xmb(i)*86400)*sign(1., dellat  (k,i))
                  subten_T(k,i)=MAX_TQ_TEND/(xmb(i)*86400)*sign(1., subten_T(k,i))
               endif
-              tend1d(2)  = tend1d(2)  +  dp*xmb(i) * 86400.*(dellat(k,i))         
+              tend1d(2)  = tend1d(2)  +  dp*xmb(i) * 86400.*(dellat(k,i))*temp2theta         
            enddo
       
            do k=kts,ktop(i)
