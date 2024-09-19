@@ -23,8 +23,10 @@
  use mpas_atmphys_constants
  use mpas_atmphys_interface
  use mpas_atmphys_update
- use mpas_atmphys_vars, only: l_camlw,l_conv,l_radtlw,l_radtsw
+ use mpas_atmphys_vars, only: l_camlw,l_conv,l_radtlw,l_radtsw,kts,kte,dt_pbl
  use mpas_timer
+
+ use module_pbl_scalars, only: driver_pbl_scalars
 
  implicit none
  private
@@ -113,7 +115,8 @@
 ! * modified call to driver_cloudiness to accomodate the calculation of the cloud fraction with the Thompson
 !   cloud microphysics scheme.
 !   Laura D. Fowler (laura@ucar.edu) / 2016-06-04.
-
+! * Added call to boundary layer mixing for 'extras' scalars (see routine driver_pbl_scalars)
+!   Saulo R. Freitas (saulo.freitas@inpe.br) / 2024-09-19
 
  contains
 
@@ -314,6 +317,9 @@
        do thread=1,nThreads
           call driver_pbl(itimestep,block%configs,mesh,sfc_input,diag_physics,tend_physics, &
                           cellSolveThreadStart(thread),cellSolveThreadEnd(thread))
+
+          call driver_pbl_scalars(itimestep,diag_physics,block%configs,state,mesh,time_lev, &
+                                  cellSolveThreadStart(thread),cellSolveThreadEnd(thread),kts,kte,dt_pbl)
        end do
 !$OMP END PARALLEL DO
        call deallocate_pbl(block%configs)
