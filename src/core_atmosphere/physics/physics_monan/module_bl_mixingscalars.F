@@ -133,6 +133,8 @@ module module_pbl_scalars
 
       enddo ! loop i
 
+      if(allocated(local_scalars)) deallocate(local_scalars)
+
    end subroutine driver_pbl_scalars
 !-----------------------------------------------------------------------------
 
