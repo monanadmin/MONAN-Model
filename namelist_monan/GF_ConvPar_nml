@@ -65,7 +65,8 @@
 
   use_random_num    = 0., != stochastic pertubation for the height of maximum Zu
   use_smooth_prof   = 1,  != 1 makes the normalized mass flux, entr and detraiment profiles smoother
-  
+  use_smooth_tend   = 1,
+  overshoot         = 0., != real value ~0.0 to 0.2
   use_linear_subcl_mf = 1,  !-- for shallow convection only
   beta_sh             = 2.2,!-- for shallow convection only
 !----
@@ -107,9 +108,7 @@
 
 !--- do not change below
   downdraft         = 1,
-  use_smooth_tend   = 1, 
   frac_modis        = 1, 
-  overshoot         = 0,
   use_wetbulb       = 0,
   vert_discr        = 1, 
   clev_grid         = 1, 
