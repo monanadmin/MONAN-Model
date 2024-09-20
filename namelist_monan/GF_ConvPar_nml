@@ -31,7 +31,7 @@
   mx_buoy2          = 20004.0,     ! J/kg
 
 
-  sgs_w_timescale   = 0,     != 0/1: uses vertical velocity for determination of tau_ecmwf
+  sgs_w_timescale   = 1,     != 0/1: uses vertical velocity for determination of tau_ecmwf
   tau_deep          = 3600., != timescales for instability removal, only for sgs_w_timescale = 0
   tau_mid           = 1200., 
 
@@ -53,7 +53,7 @@
 
 !---- boundary condition specification
   cum_use_excess    = 1,1,1,
-  cum_ave_layer     = 50.,25.,25.,!- (deep ,shallow ,congestus)
+  cum_ave_layer     = 30.,15.,15.,!- (deep ,shallow ,congestus)
 !----
 
 !---- for mass flux profiles - (deep ,shallow ,congestus)
@@ -65,8 +65,8 @@
 
   use_random_num    = 0., != stochastic pertubation for the height of maximum Zu
   use_smooth_prof   = 1,  != 1 makes the normalized mass flux, entr and detraiment profiles smoother
-  use_smooth_tend   = 1,
-  overshoot         = 0., != real value ~0.0 to 0.2
+  use_smooth_tend   = 1,  != integer number of layers for smoothing the tendencies
+  overshoot         = 0,  != real value ~0.0 to 0.2
   use_linear_subcl_mf = 1,  !-- for shallow convection only
   beta_sh             = 2.2,!-- for shallow convection only
 !----
@@ -112,7 +112,7 @@
   use_wetbulb       = 0,
   vert_discr        = 1, 
   clev_grid         = 1, 
-  max_tq_tend       = 500., 
+  max_tq_tend       = 100., 
   output_sound      = 0,
   use_cloud_dissipation = 0.,
 !-----

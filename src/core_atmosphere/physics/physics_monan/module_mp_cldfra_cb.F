@@ -281,8 +281,9 @@
             ZQ1   = ZSBAR / ZSIGMA - zq1_tuning
 
             !- total cloud fraction
-            CLDFRA(I,K,J) = MAX( 0., MIN(1.,0.5+0.36*ATAN(1.55*ZQ1)) )
-
+            !- we will not allow cloud fraction above 90% to avoid excessive reduction of SW at surface over Amz
+            CLDFRA(I,K,J) = 0.9 * MAX( 0., MIN(1.,0.5+0.36*ATAN(1.55*ZQ1)) )
+      !
       !    if(ONLY_CONVECTIVE_CLOUD_FRACTION) then
       !       !- get cloud fraction associated with ONLY the sub-grid scale convective part
       !       !- this sigma does not include the sub-grid scale convective part

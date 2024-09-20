@@ -4504,7 +4504,7 @@ contains
                   pw(k,i) = 0.
               
               else
-                  w_upd = min(15.,max(vvel2d(k,i),4.))
+                  w_upd = min(10.,max(vvel2d(k,i),2.))
                  
                   cx0 = .104*9.8*peaut/(Nc*rhowater)**(1./3.)/xmyu*rhoair0**(4./3.)! 7.03
 
@@ -9968,9 +9968,9 @@ contains
       cum_max_edt_land  = (/0.50, 0.00, 0.20/)
       cum_max_edt_ocean = (/0.50, 0.00, 0.20/)
       cum_use_excess    = (/1, 1, 1/)
-      cum_ave_layer     = (/50., 25., 25./)
+      cum_ave_layer     = (/30., 15., 15./)
       cum_min_cloud_depth=(/300., 50., 150./)
-      sgs_w_timescale   = 0 
+      sgs_w_timescale   = 1 
       tau_deep          = 3600.0  
       tau_mid           = 1200.0  
       lightning_diag    = 1
@@ -9990,7 +9990,7 @@ contains
       lambau_deep       = 0.0 
       lambau_shdn       = 2.0 
       
-      max_tq_tend       = 500.0   
+      max_tq_tend       = 100.0   
       use_smooth_prof   = 1      
       use_smooth_tend   = 1      
 
