@@ -909,7 +909,7 @@
  real(kind=RKIND),dimension(:),pointer  :: xmb_total,xmb_shallow
  real(kind=RKIND),dimension(:),pointer  :: latCell,lonCell
  real(kind=RKIND),dimension(:,:),pointer:: zgrid
- real(kind=RKIND),dimension(:,:),pointer:: qc_cu,qi_cu,tke_pbl,el_pbl
+ real(kind=RKIND),dimension(:,:),pointer:: qc_cu,qi_cu,tke_pbl,el_pbl,qke
  real(kind=RKIND),dimension(:,:),pointer:: w0avg
  real(kind=RKIND),dimension(:,:),pointer:: rthcuten,rqvcuten,rqccuten,rqicuten,rqrcuten,rqscuten 
  real(kind=RKIND),dimension(:,:),pointer:: rthblten,rthdynten,rthratenlw,rthratensw
@@ -1015,17 +1015,21 @@
          
          call mpas_pool_get_config(configs, 'config_pbl_scheme', config_pbl_scheme)
          if (trim(config_pbl_scheme) == "bl_mynn") then
-               call mpas_pool_get_array(diag_physics,'tke_pbl'   ,tke_pbl )
+               !call mpas_pool_get_array(diag_physics,'tke_pbl'   ,tke_pbl )
+               call mpas_pool_get_array(diag_physics,'qke'       ,qke )
                call mpas_pool_get_array(diag_physics,'el_pbl'    ,el_pbl  )
                do j = jts,jte
                do i = its,ite               
                   do k = kts,kte
-                     tkepbl_p(i,k,j) = tke_pbl(k,i)
+                     !--- srf: for some reason, in this MPAS version "tke_pbl" is always zero
+                     !--- using 'QKE' which is defined as 2 * TKE 
+                     !tkepbl_p(i,k,j) = tke_pbl(k,i)
+                     tkepbl_p(i,k,j) = 0.5*qke(k,i)
                      elpbl_p(i,k,j)  = el_pbl(k,i)                    
                   enddo
                enddo
                enddo
- end if
+         end if
 
     case ("cu_grell_freitas")
        call mpas_pool_get_config(configs,'config_len_disp',len_disp)
