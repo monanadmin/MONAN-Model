@@ -6,12 +6,12 @@
   
   cum_entr_rate     = 6.0e-4, 2.e-3, 1.e-3, != initial gross entrainment rate for 
                                             != deep, shallow, congestus
-  cum_min_cloud_depth = 300.,50.,150.,      != minimum cloud depth (mbar)
+  cum_min_cloud_depth = 200.,50.,150.,      != minimum cloud depth (mbar)
 
   dicycle           = 1,                    != 0/1/2:  diurnal cycle closure, default = 1
                                             != 2 adds Qadv closure (Becker et al 2021) 
-  cum_t_star        = 4., -99., -99.,       != scale temperature for 
-                                            !diurnal cycle closure, 
+  cum_t_star        = 4., -99., -99.,       != scale temperature for diurnal cycle closure
+
   use_sub3d         = 0,
   use_scale_dep     = 1,            != 0/1: turn ON/OFF the scale dependence approach
   sig_factor        = 0.22,         != exponential factor for the sigma determination (orig = 0.1)
@@ -112,7 +112,7 @@
   use_wetbulb       = 0,
   vert_discr        = 1, 
   clev_grid         = 1, 
-  max_tq_tend       = 100., 
+  max_tq_tend       = 200., 
   output_sound      = 0,
   use_cloud_dissipation = 0.,
 !-----
