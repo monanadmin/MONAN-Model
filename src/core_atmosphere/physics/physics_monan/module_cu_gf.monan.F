@@ -5883,24 +5883,24 @@ contains
            do k=kts,ktop(i)
               dp         = (po_cup(k,i)-po_cup(k+1,i))
               temp2theta = 1./piexner(k,i)
-              tend1d(1)  = tend1d(1)  +  dp*xmb(i) * 86400.*(dellat(k,i))*temp2theta
+              tend1d(1)  = tend1d(1)  +  abs(dp*xmb(i) * 86400.*(dellat(k,i))*temp2theta)
  
               if(xmb(i) * 86400.*abs(dellat(k,i))*temp2theta > MAX_TQ_TEND ) then  
                  dellat  (k,i)=MAX_TQ_TEND/(xmb(i)*86400)*sign(1., dellat  (k,i))
                  subten_T(k,i)=MAX_TQ_TEND/(xmb(i)*86400)*sign(1., subten_T(k,i))
               endif
-              tend1d(2)  = tend1d(2)  +  dp*xmb(i) * 86400.*(dellat(k,i))*temp2theta         
+              tend1d(2)  = tend1d(2)  +  abs(dp*xmb(i) * 86400.*(dellat(k,i))*temp2theta)
            enddo
       
            do k=kts,ktop(i)
               dp         = (po_cup(k,i)-po_cup(k+1,i))
-              tend1d(3)  = tend1d(3)  +  dp*xmb(i) * 86400.*(dellaq(k,i))*(c_alvl/c_cp)
+              tend1d(3)  = tend1d(3)  +  abs(dp*xmb(i) * 86400.*(dellaq(k,i))*(c_alvl/c_cp))
 
               if(xmb(i) * 86400.*abs(dellaq(k,i))*(c_alvl/c_cp)  > MAX_TQ_TEND ) then     
                  dellaq  (k,i)=MAX_TQ_TEND/(xmb(i)*86400*(c_alvl/c_cp))*sign(1., dellaq  (k,i))
                  subten_Q(k,i)=MAX_TQ_TEND/(xmb(i)*86400*(c_alvl/c_cp))*sign(1., subten_Q(k,i))
               endif
-              tend1d(4)  = tend1d(4)  +  dp*xmb(i) * 86400.*(dellaq(k,i))*(c_alvl/c_cp)
+              tend1d(4)  = tend1d(4)  +  abs(dp*xmb(i) * 86400.*(dellaq(k,i))*(c_alvl/c_cp))
            enddo
            xfixT = tend1d(1)/(1.e-6+tend1d(2))
            xfixQ = tend1d(3)/(1.e-6+tend1d(4))
