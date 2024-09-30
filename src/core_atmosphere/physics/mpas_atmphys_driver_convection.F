@@ -1703,7 +1703,7 @@
              !<var name="xland" type="real" dimensions="nCells Time" units="unitless"
              !description="land-ocean mask (1=land including sea-ice ; 2=ocean)"/>
              if(xland(i) < 1.5_RKIND ) tau_cp = tau_land_cp
-             if(xland(i) > 1.5_RKIND ) tau_cp = tau_ocea_cp
+             if(xland(i) >= 1.5_RKIND) tau_cp = tau_ocea_cp
 
               do k = kts,kte                
                 !---- sink term for the buoyancy excess
