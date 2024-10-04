@@ -122,7 +122,7 @@ module module_pbl_scalars
 
           !---call to subroutine to apply dry PBL mixing
           !--- original routine
-          !call mix_scalars    (kts,kte,dt_pbl,dz,rho,dfh,nscalars,local_scalars)
+!         call mix_scalars    (kts,kte,dt_pbl,dz,rho,dfh,nscalars,local_scalars)
           !--- optimized routine
           call mix_scalars_opt(kts,kte,dt_pbl,dz,rho,dfh,nscalars,local_scalars)
 
@@ -146,7 +146,7 @@ module module_pbl_scalars
      real(kind_phys), dimension(:), intent(in) :: dfh,dz,rho
      real(kind_phys), dimension(:,:), intent(inout) :: local_scalars
 
-     !--- local vars
+!--- local vars
      integer                               :: k,isc
      real(kind_phys)                       :: dztop
      real(kind_phys), dimension(kts:kte)   :: dtz
@@ -212,7 +212,7 @@ module module_pbl_scalars
      real(kind_phys), dimension(:), intent(in) :: dfh,dz,rho
      real(kind_phys), dimension(:,:), intent(inout) :: local_scalars
 
-     !--- local vars
+!--- local vars
      integer                               :: k,isc
      real(kind_phys)                       :: dztop
      real(kind_phys), dimension(kts:kte)   :: dtz
