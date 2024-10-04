@@ -15,6 +15,7 @@ module module_pbl_scalars
    !================================================================================================================= 
    subroutine driver_pbl_scalars (itimestep,diag_physics,configs,state,mesh,time_lev,its,ite,kts,kte,dt_pbl)
    !=================================================================================================================     
+      implicit none
       !--- input arguments
       type(mpas_pool_type),intent(in) :: configs
       type(mpas_pool_type),intent(in) :: diag_physics
@@ -26,7 +27,7 @@ module module_pbl_scalars
       
       !--- local vars
       integer, parameter :: max_nscalars = 100
-      integer :: i,j,k,initflag,nscalars,isc
+      integer :: i,j,k,init_flag,nscalars,isc
       integer, dimension(max_nscalars) :: index_scalar
       real(kind=kind_phys):: dzk
       real(kind=kind_phys),dimension(kts:kte):: dz,rho,dfh
@@ -58,8 +59,8 @@ module module_pbl_scalars
       errflg = 0
 
       call mpas_pool_get_config(configs,'config_do_restart'  ,config_do_restart  )
-      initflag = 1
-      if(config_do_restart .or. itimestep > 1) initflag = 0
+      init_flag = 1
+      if(config_do_restart .or. itimestep > 1) init_flag = 0
 
       !--- determine the number and which scalars will be mixed 
       nscalars = 0
@@ -121,7 +122,7 @@ module module_pbl_scalars
 
           !---call to subroutine to apply dry PBL mixing
           !--- original routine
-!         call mix_scalars    (kts,kte,dt_pbl,dz,rho,dfh,nscalars,local_scalars)
+          !call mix_scalars    (kts,kte,dt_pbl,dz,rho,dfh,nscalars,local_scalars)
           !--- optimized routine
           call mix_scalars_opt(kts,kte,dt_pbl,dz,rho,dfh,nscalars,local_scalars)
 
@@ -139,12 +140,13 @@ module module_pbl_scalars
 !-----------------------------------------------------------------------------
 
    subroutine mix_scalars(kts,kte,delt,dz,rho,dfh,nscalars,local_scalars)
+     implicit none
      integer, intent(in) :: kts,kte,nscalars
      real(kind_phys), intent(in) :: delt
-     real(kind_phys), dimension(kts:kte), intent(in) :: dfh,dz,rho
-     real(kind_phys), dimension(kts:kte,nscalars), intent(inout) :: local_scalars
+     real(kind_phys), dimension(:), intent(in) :: dfh,dz,rho
+     real(kind_phys), dimension(:,:), intent(inout) :: local_scalars
 
-!--- local vars
+     !--- local vars
      integer                               :: k,isc
      real(kind_phys)                       :: dztop
      real(kind_phys), dimension(kts:kte)   :: dtz
@@ -204,12 +206,13 @@ module module_pbl_scalars
    end subroutine mix_scalars
 !-----------------------------------------------------------------------------
    subroutine mix_scalars_opt(kts,kte,delt,dz,rho,dfh,nscalars,local_scalars)
+     implicit none
      integer, intent(in) :: kts,kte,nscalars
      real(kind_phys), intent(in) :: delt
-     real(kind_phys), dimension(kts:kte), intent(in) :: dfh,dz,rho
-     real(kind_phys), dimension(kts:kte,nscalars), intent(inout) :: local_scalars
+     real(kind_phys), dimension(:), intent(in) :: dfh,dz,rho
+     real(kind_phys), dimension(:,:), intent(inout) :: local_scalars
 
-!--- local vars
+     !--- local vars
      integer                               :: k,isc
      real(kind_phys)                       :: dztop
      real(kind_phys), dimension(kts:kte)   :: dtz
@@ -278,26 +281,24 @@ module module_pbl_scalars
        ! Output                                                                                           
        !  x     results                                                                                   
        !ccccccccccccccccccccccccccccccc                                                                   
+        implicit none
         integer,intent(in)   :: kte
         integer, parameter   :: kts=1
-        real(kind_phys), dimension(kte) :: a,b,c,d
-        real(kind_phys), dimension(kte), intent(out) :: x
-        integer :: in
+        real(kind_phys), dimension(:) :: a,b,c,d
+        real(kind_phys), dimension(:), intent(out) :: x
+        integer :: ind
 
-!       integer kms,kme,kts,kte,in
-!       real(kind_phys)a(kms:kme,3),c(kms:kme),x(kms:kme)
-
-        do in=kte-1,kts,-1
-         d(in)=d(in)-c(in)*d(in+1)/b(in+1)
-         b(in)=b(in)-c(in)*a(in+1)/b(in+1)
+        do ind=kte-1,kts,-1
+         d(ind)=d(ind)-c(ind)*d(ind+1)/b(ind+1)
+         b(ind)=b(ind)-c(ind)*a(ind+1)/b(ind+1)
         enddo
 
-        do in=kts+1,kte
-         d(in)=d(in)-a(in)*d(in-1)/b(in-1)
+        do ind=kts+1,kte
+         d(ind)=d(ind)-a(ind)*d(ind-1)/b(ind-1)
         enddo
 
-        do in=kts,kte
-         x(in)=d(in)/b(in)
+        do ind=kts,kte
+         x(ind)=d(ind)/b(ind)
         enddo
 
    end subroutine tridiag3
