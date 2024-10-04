@@ -127,7 +127,7 @@
       real :: ZLL, DZZ, ZZZ ! length scales
       real :: ZAH, ZA, ZB, ZSBAR, ZQ1, ZSIGMA, ZDRW, ZDTL ! related to computation of Sig_s
       real :: ZSIG_CONV,  ZSIGMA_NOCONV,  ZQ1_NOCONV      ! convective part of Sig_s
-      real, parameter :: zq1_tuning = 1.
+      real, parameter :: zq1_tuning = 0.0 ! -0.25 ! 1.0
       !
       !*       0.2  Definition of constants :
       !
@@ -281,8 +281,9 @@
             ZQ1   = ZSBAR / ZSIGMA - zq1_tuning
 
             !- total cloud fraction
-            CLDFRA(I,K,J) = MAX( 0., MIN(1.,0.5+0.36*ATAN(1.55*ZQ1)) )
-
+            !- we will not allow cloud fraction above 90% to avoid excessive reduction of SW at surface over Amz
+            CLDFRA(I,K,J) = 0.9 * MAX( 0., MIN(1.,0.5+0.36*ATAN(1.55*ZQ1)) )
+      !
       !    if(ONLY_CONVECTIVE_CLOUD_FRACTION) then
       !       !- get cloud fraction associated with ONLY the sub-grid scale convective part
       !       !- this sigma does not include the sub-grid scale convective part

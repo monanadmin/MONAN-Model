@@ -236,6 +236,8 @@
  integer,pointer:: index_qv,index_qc,index_qr,index_qi,index_qs,index_qg
  integer,pointer:: index_ni
  integer,pointer:: index_cnvcf, index_buoyx
+ integer,pointer:: config_gf_cporg, config_gf_pcvol
+
 
  real(kind=RKIND),dimension(:),pointer    :: latCell,lonCell
  real(kind=RKIND),dimension(:),pointer    :: fzm,fzp,rdzw
@@ -358,19 +360,30 @@
  call mpas_pool_get_config(configs,'config_convection_scheme',convection_scheme)
  convection_select: select case(trim(convection_scheme))
     case("cu_gf_monan")
-       call mpas_pool_get_dimension(state,'index_cnvcf',index_cnvcf)
-       call mpas_pool_get_dimension(state,'index_buoyx',index_buoyx)
-       cnvcf => scalars(index_cnvcf,:,:)
-       buoyx => scalars(index_buoyx,:,:)
-       do j = jts, jte
-       do k = kts, kte
-       do i = its, ite
-          cnvcf_p(i,k,j) = min(1.,max(0.,cnvcf(k,i)))
-          buoyx_p(i,k,j) = max(0.,buoyx(k,i))
-       enddo
-       enddo
-       enddo
-
+       call mpas_pool_get_config(configs,'config_gf_pcvol',config_gf_pcvol)
+       call mpas_pool_get_config(configs,'config_gf_cporg',config_gf_cporg)
+       if(config_gf_cporg == 1) then 
+         call mpas_pool_get_dimension(state,'index_buoyx',index_buoyx)
+         buoyx => scalars(index_buoyx,:,:)
+         do j = jts, jte
+         do k = kts, kte
+         do i = its, ite
+            buoyx_p(i,k,j) = max(0.,buoyx(k,i))
+         enddo
+         enddo
+         enddo
+       end if
+       if(config_gf_pcvol > 0) then 
+         call mpas_pool_get_dimension(state,'index_cnvcf',index_cnvcf)
+         cnvcf => scalars(index_cnvcf,:,:)
+         do j = jts, jte
+         do k = kts, kte
+         do i = its, ite
+            cnvcf_p(i,k,j) = min(1.,max(0.,cnvcf(k,i)))
+         enddo
+         enddo
+         enddo
+       endif
     case default
  end select convection_select
 

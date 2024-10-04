@@ -138,7 +138,8 @@
                      svp3,svpt0,ep1,ep2,karman,ch,qcg,   &
                      itimestep,wstar,qstar,ustm,ck,cka,  &
                      cd,cda,spp_pbl,rstoch1d,isftcflx,   &
-                     iz0tlnd,its,ite,errmsg,errflg       &
+                     iz0tlnd,its,ite,errmsg,errflg,      &
+                     sgsgustcu                           &
                         )
  implicit none
 !=================================================================================================================
@@ -191,6 +192,8 @@
  real(kind=kind_phys),intent(in),dimension(its:ite)::         &
                                                     rstoch1d
 
+ real(kind=kind_phys),intent(in),dimension(its:ite)::         &
+                                                    sgsgustcu
 
  real(kind=kind_phys),intent(inout),dimension(its:ite)::      &
                                                       regime, &
@@ -368,7 +371,16 @@
     ! (for 13 km ~ 0.37 m/s; for 3 km == 0 m/s)
     !--------------------------------------------------------
     vsgd = 0.32 * (max(dx(i)/5000.-1.,0.))**.33
-    wspd(i)=sqrt(wspd(i)*wspd(i)+wstar(i)*wstar(i)+vsgd*vsgd)
+
+    !-srf: orig version MPAS 8.1
+    !wspd(i)=sqrt(wspd(i)*wspd(i)+wstar(i)*wstar(i)+vsgd*vsgd)
+    !
+    !--------------------------------------------------------
+    !-srf:  adding sgs gustiness from convection scheme, currently only GF monan 
+    !--------------------------------------------------------
+    wspd(i)=sqrt(wspd(i)*wspd(i)+wstar(i)*wstar(i)+vsgd*vsgd+sgsgustcu(i)*sgsgustcu(i))
+    !
+    !
     wspd(i)=max(wspd(i),wmin)
 
     !--------------------------------------------------------
