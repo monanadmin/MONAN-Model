@@ -1,4 +1,4 @@
-# MONAN-v1.0.0
+# MONAN-v1.1.0
 
 ## Model for Ocean-laNd-Atmosphere predictioN
 
@@ -10,6 +10,7 @@ The MONAN Model is managed by a scientific committee appointed by INPE's directo
 History
 ====
 
+- Version 1.1.0 - Bug correction for CAMRAD and TKE MYNN, GF further tuning for operation and introduces the option of 3d lateral subsidence spread for use the grey zone scales.
 - Version 1.0.0 - Implementing the first physics MONAN package: GF scheme as in BRAMS, new cloud fraction, cold-pool scheme with 2-D transport, and new outputs.
 - Version 0.6.0 - Update MPAS-V8.1.0.
 - Version 0.5.1 - Bug fix: zgeo variable.
