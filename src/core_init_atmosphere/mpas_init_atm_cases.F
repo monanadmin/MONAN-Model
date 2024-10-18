@@ -242,8 +242,12 @@ module init_atm_cases
                   write(mminlu,'(a)') 'USGS'
             end if
 
+            ! TODO - pointer tend_physics removed from parameters because is not utilized 
+            ! error in call below when calling this function using debug flags:
+            ! - pointer tend_physics not associated 
+
             call init_atm_case_gfs(block_ptr, mesh, nCells, nEdges, nVertLevels, fg, state, &
-                                   diag, diag_physics, tend_physics, block_ptr % dimensions, block_ptr % configs)
+                                   diag, diag_physics, block_ptr % dimensions, block_ptr % configs)
             
             if (config_met_interp) then
                call physics_initialize_real(mesh, fg, domain % dminfo, block_ptr % dimensions, block_ptr % configs)
@@ -2608,7 +2612,7 @@ module init_atm_cases
    end subroutine init_atm_case_mtn_wave
 
 
-   subroutine init_atm_case_gfs(block, mesh, nCells, nEdges, nVertLevels, fg, state, diag, diag_physics, tend_physics, dims, configs)
+   subroutine init_atm_case_gfs(block, mesh, nCells, nEdges, nVertLevels, fg, state, diag, diag_physics, dims, configs)
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    ! Real-data test case using GFS data
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2631,7 +2635,11 @@ module init_atm_cases
       type (mpas_pool_type), intent(inout) :: state
       type (mpas_pool_type), intent(inout) :: diag
       type (mpas_pool_type), intent(inout):: diag_physics
-      type (mpas_pool_type), intent(inout):: tend_physics
+      
+      ! TODO - pointer removed because is not utilized - error when calling this function using debug flags:
+      ! pointer tend_physics not associated when this function is called (check calls)
+      ! type (mpas_pool_type), intent(inout):: tend_physics
+
       type (mpas_pool_type), intent(inout):: dims
       type (mpas_pool_type), intent(inout):: configs
 
