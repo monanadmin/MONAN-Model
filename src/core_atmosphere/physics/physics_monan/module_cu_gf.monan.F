@@ -1223,8 +1223,9 @@ contains
                rdnmfxcu (i,k,j) = zdn5d(k,i,j,shal) + zdn5d(k,i,j,mid) + zdn5d(k,i,j,deep)
                
                !- var output for diagnostic/debug
-               var3d1   (i,k,j) = var3d1_2d(k,i)
+               !var3d1   (i,k,j) = var3d1_2d(k,i)
 
+               var3d1   (i,k,j) = outt (k,i,shal) * fixout_qv(i) * temp2theta
 
                !--- keep this for potential later use --------------------------------------
                !-- in updraft liq water content ( check the array config clwup5d(kts:kte,its:ite,jts:jte,maxiens) )
@@ -5809,7 +5810,7 @@ contains
          enddo
       endif
       !- apply the mean tropospheric RH control on diurnal cycle (Tian GRL 2022)
-       if(cumulus == 'deep' .and. rh_dicycle == 1) then
+      if(cumulus == 'deep' .and. rh_dicycle == 1) then
          do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
             xf_dicycle(i) =  xf_dicycle(i) * rh_dicycle_fct(i)
