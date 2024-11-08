@@ -103,7 +103,7 @@ module module_cu_gf_monan
       ,nmp, lsmp, cnmp,moist_trigger,frac_modis,max_tq_tend              &
       ,cum_fadj_massflx, cum_use_excess, cum_ave_layer, adv_trigger      &
       ,use_smooth_prof, output_sound,use_cloud_dissipation               &
-      ,use_smooth_tend,beta_sh,c0_shal                                   &
+      ,cum_use_smooth_tend,beta_sh,c0_shal                                   &
       ,use_linear_subcl_mf,cap_maxs,liq_ice_number_conc                  &
       ,sig_factor,lcl_trigger, rh_dicycle, add_coldpool_prop             &
       ,add_coldpool_clos,add_coldpool_trig,mx_buoy1, mx_buoy2, cum_t_star&
@@ -232,9 +232,11 @@ module module_cu_gf_monan
 
    integer :: use_smooth_prof      != 1 makes the normalized mass flux, entr and detrainment profiles smoother
 
-   integer :: use_smooth_tend      != 0 => off, > 0 produces smoother tendencies (e.g.: for 1=> makes average between k-1,k,k+1)
-   !---                                      deep, shallow, congestus
    integer :: irainevap           
+
+   integer, dimension(maxiens) :: cum_use_smooth_tend  ! = 0 => off, (deep, shallow, congestus)
+                                                       ! > 0 => produces smoother tendencies 
+                                                       !    (e.g.: for 1 => makes average between k-1,k,k+1) 
 
    real,   dimension(maxiens) :: cum_hei_down_land != [0.2,0.8] height of the max z downdraft , default = 0.50
    real,   dimension(maxiens) :: cum_hei_down_ocean!= [0.2,0.8] height of the max z downdraft , default = 0.50
@@ -286,20 +288,21 @@ module module_cu_gf_monan
 
    integer, parameter :: ON = 1, OFF = 0 !=  ON/OFF integer paremeters
 
-   real    ::  HEI_DOWN_LAND     != [0.2,0.8] height of the max Z Downdraft , default = 0.50
-   real    ::  HEI_DOWN_OCEAN    != [0.2,0.8] height of the max Z Downdraft , default = 0.50
-   real    ::  HEI_UPDF_LAND     != [0.2,0.8] height of the max Z Updraft   , default = 0.35
-   real    ::  HEI_UPDF_OCEAN    != [0.2,0.8] height of the max Z Updraft   , default = 0.35
-   real    ::  MAX_EDT_LAND      != default= 0.9 - maximum evap fraction allowed over the land
-   real    ::  MAX_EDT_OCEAN     != default= 0.9 - maximum evap fraction allowed over the ocean
-   real    ::  FADJ_MASSFLX      != default= 1.0 - multiplicative factor for the mass flux at cloud base
-   real    ::  T_star            != Scale Temperature for the DC closure
-   real    ::  AVE_LAYER         != layer depth for average the properties of source air parcels (mbar)
+   real    ::  hei_down_land     != [0.2,0.8] height of the max z downdraft , default = 0.50
+   real    ::  hei_down_ocean    != [0.2,0.8] height of the max z downdraft , default = 0.50
+   real    ::  hei_updf_land     != [0.2,0.8] height of the max z updraft   , default = 0.35
+   real    ::  hei_updf_ocean    != [0.2,0.8] height of the max z updraft   , default = 0.35
+   real    ::  max_edt_land      != default= 0.9 - maximum evap fraction allowed over the land
+   real    ::  max_edt_ocean     != default= 0.9 - maximum evap fraction allowed over the ocean
+   real    ::  fadj_massflx      != default= 1.0 - multiplicative factor for the mass flux at cloud base
+   real    ::  t_star            != scale temperature for the dc closure
+   real    ::  ave_layer         != layer depth for average the properties of source air parcels (mbar)
    real    ::  c0                != autoconversion constant
    real    ::  min_cloud_depth   != minimum cloud depth for activate convection
-   integer ::  USE_EXCESS        != default= 1   - use T,Q excess sub-grid scale variability
+   integer ::  use_excess        != default= 1   - use t,q excess sub-grid scale variability
+   integer ::  use_smooth_tend   != default  1,1,1,
 
-   !-- General internal controls for the diverse options in GF
+   !-- general internal controls for the diverse options in gf
 
    logical, parameter :: coupl_mphysics = .true.  != coupling with cloud microphysics (do not change to false)
 
@@ -310,6 +313,8 @@ module module_cu_gf_monan
    integer, parameter :: aeroevap = 1             !=rainfall evaporation (1) orig  - (2) mix orig+new - (3) new
 
    logical :: ave_from_surface = .false.          != 
+   
+   logical, parameter :: USE_INV_LAYERS=.false. 
    !
    !- proportionality constant to estimate pressure
    !- gradient of updraft (Zhang and Wu, 2003, JAS) => REAL, PARAMETER ::    pgcon=-0.55
@@ -982,6 +987,7 @@ contains
 
             if(icumulus_gf(plume) /= ON ) cycle
 
+            use_smooth_tend=  cum_use_smooth_tend(plume)
             min_cloud_depth=  cum_min_cloud_depth(plume)
             hei_down_land  =  cum_hei_down_land  (plume)
             hei_down_ocean =  cum_hei_down_ocean (plume)
@@ -1471,6 +1477,7 @@ contains
       endif
 
    end subroutine cu_gf_monan_driver
+   !---------------------------------------------------------------------------------------------------
    !---------------------------------------------------------------------------------------------------
    !--- brams driver 
    !---------------------------------------------------------------------------------------------------
@@ -2034,7 +2041,8 @@ contains
             endif
 
             if(icumulus_gf(plume) /= ON ) cycle
-
+            
+            use_smooth_tend=  cum_use_smooth_tend(plume)
             hei_down_land  =  cum_hei_down_land  (plume)
             hei_down_ocean =  cum_hei_down_ocean (plume)
             hei_updf_land  =  cum_hei_updf_land  (plume)
@@ -2452,10 +2460,8 @@ contains
   !enddo
 
       enddo
-
-
-
    end subroutine convParGFDriver
+   !---------------------------------------------------------------------------------------------!
    !---------------------------------------------------------------------------------------------------
 
    subroutine CUP_GF (its,ite,kts,kte ,itf,ktf, mtp, nmp &
@@ -2564,9 +2570,6 @@ contains
                      ,var3d_bgf         &
                      )
       implicit none
-
-      !-local settings
-      logical, parameter:: USE_INV_LAYERS=.true. 
 
       character*(*),intent(in) :: cumulus
       integer      ,intent(in) :: itf,ktf,its,ite,kts,kte,ichoice,use_excess,mtp, nmp
@@ -2949,7 +2952,7 @@ contains
       !
       !--- option for using the inversion layers as a barrier for the convection development
       !
-      call get_cloud_top_by_inv_layers(cumulus,USE_INV_LAYERS,its,ite,itf,kts,kte,ktf &
+      call get_cloud_top_by_inv_layers(cumulus,its,ite,itf,kts,kte,ktf &
                                       ,ierr,ierrc,psur,po_cup,tn_cup,zo_cup,mid,shal,kbcon,ktop)
       !
       !--- determine the normalized mass flux profile for updraft
@@ -3187,6 +3190,7 @@ contains
             !- time-scale cape removal from Bechtold et al. 2008
             tau_ecmwf(i)=( zo_cup(ktop(i),i)- zo_cup(kbcon(i),i) ) / wmean(i)
             tau_ecmwf(i)= min(10800., max(600.,tau_ecmwf(i)))
+           !tau_ecmwf(i)= min(10800., max(1800.,tau_ecmwf(i)))
             
          enddo
       endif
@@ -3259,10 +3263,9 @@ contains
       !
       !--- make the smoothness procedure
       !
-      if(USE_SMOOTH_TEND > 0) &
-         call smooth_tend(use_smooth_tend,itf,ktf, its,ite, kts,kte,ierr,ktop &
-                         ,po_cup,dellu, dellv, dellah, dellat, dellaq,dellaqc &
-                         ,subten_Q, subten_H, subten_U, subten_V)
+      if(use_smooth_tend > 0) &
+         call smooth_tend(cumulus,itf,ktf, its,ite, kts,kte,ierr,ktop,po_cup,dellu, dellv, dellah &
+                         ,dellat, dellaq,dellaqc,subten_Q, subten_H, subten_U, subten_V)
       !
       !
       !--- using dellas, calculate changed environmental profiles
@@ -7307,25 +7310,24 @@ contains
       character (len = 64) :: fn_nml = 'GF_ConvPar_nml'
       integer :: local_io_node
       logical :: exists
-      namelist /GF_NML/ icumulus_gf, closure_choice,use_scale_dep,dicycle     &
-         ,use_tracer_transp, use_tracer_scaven,use_flux_form, use_tracer_evap &
-         ,downdraft,use_fct  &
-         ,use_rebcb, vert_discr, clev_grid,apply_sub_mp, alp1         &
-         ,sgs_w_timescale, lightning_diag,autoconv, overshoot,use_wetbulb &
-         ,c0_deep, qrc_crit,lambau_deep,lambau_shdn,c0_mid                     &
+      namelist /GF_NML/ icumulus_gf, closure_choice,use_scale_dep,dicycle         &
+         ,use_tracer_transp, use_tracer_scaven,use_flux_form, use_tracer_evap     &
+         ,downdraft,use_fct,use_rebcb, vert_discr, clev_grid,apply_sub_mp, alp1   &
+         ,sgs_w_timescale, lightning_diag,autoconv, overshoot,use_wetbulb         &
+         ,c0_deep, qrc_crit,lambau_deep,lambau_shdn,c0_mid                        &
          ,cum_max_edt_land  ,cum_max_edt_ocean, cum_hei_down_land                 &
          ,cum_hei_down_ocean,cum_hei_updf_land, cum_hei_updf_ocean                &
          ,cum_entr_rate ,tau_deep,tau_mid                                         &
          ,use_momentum_transp ,moist_trigger,frac_modis                           &
          ,cum_use_excess,cum_ave_layer,adv_trigger,use_smooth_prof                &
-         ,use_cloud_dissipation,use_smooth_tend,use_gustiness, use_random_num     &
+         ,use_cloud_dissipation,cum_use_smooth_tend,use_gustiness, use_random_num &
          ,dcape_threshold,beta_sh,c0_shal,use_linear_subcl_mf,liq_ice_number_conc &
-         ,cap_maxs,sig_factor,cum_fadj_massflx,lcl_trigger       &
+         ,cap_maxs,sig_factor,cum_fadj_massflx,lcl_trigger                        &
          ,rh_dicycle,cum_t_star, convection_tracer, tau_ocea_cp, tau_land_cp      &
          ,use_memory, add_coldpool_prop ,mx_buoy1, mx_buoy2,max_tq_tend           &
-         ,add_coldpool_clos,add_coldpool_trig,add_coldpool_diff,n_cldrop,output_sound&
-         ,use_pass_cloudvol,use_lcl_ctrl_entr,use_rhu_ctrl_entr,cum_min_cloud_depth& 
-         ,use_sub3d
+         ,add_coldpool_clos,add_coldpool_trig,add_coldpool_diff,n_cldrop          &
+         ,output_sound,use_pass_cloudvol,use_lcl_ctrl_entr,use_rhu_ctrl_entr      &
+         ,cum_min_cloud_depth,use_sub3d
 
       if(present(IO_NODE)) then 
          local_io_node = IO_NODE
@@ -7431,7 +7433,7 @@ contains
          print*, 'beta_sh            ' , real(beta_sh            ,4)
          print*, 'use_linear_subcl_mf' , use_linear_subcl_mf
          print*, 'use_smooth_prof    ' , use_smooth_prof
-         print*, 'use_smooth_tend    ' , use_smooth_tend
+         print*, 'cum_use_smooth_tend' , cum_use_smooth_tend
          print*, 'use_random_num     ' , use_random_num
 
          print*,'!---- the cloud microphysics'
@@ -8488,14 +8490,13 @@ contains
       end if
    end subroutine set_scale_dep_factor
   !---------------------------------------------------------------------------------------------------
-   subroutine get_cloud_top_by_inv_layers(cumulus,use_inv_layers,its,ite,itf,kts,kte,ktf &
+   subroutine get_cloud_top_by_inv_layers(cumulus,its,ite,itf,kts,kte,ktf &
                                          ,ierr,ierrc,psur,po_cup,tn_cup,zo_cup,mid,shal  &
                                          ,kbcon,ktop)
       implicit none
       character*(*), intent (in)             :: cumulus
       character*(*), intent (inout), dimension(:)  :: ierrc
       integer  ,intent (in )                 :: itf,ktf, its,ite, kts,kte,mid,shal
-      logical  ,intent (in )                 :: use_inv_layers
       integer  ,intent (inout), dimension(:) :: ierr,kbcon
       integer  ,intent (inout), dimension(:) :: ktop
       real     ,intent (in   ), dimension(:) :: psur
@@ -8558,7 +8559,7 @@ contains
          do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
             min_shall_top=600.
-            !if(icumulus_gf(mid) == 0) min_shall_top=500.
+            !if(icumulus_gf(mid) == 0) min_shall_top=550.
             cloud_depth =  po_cup(kbcon(i),i)-po_cup(ktop(i),i)
             if(po_cup(ktop(i),i) < min_shall_top .or. cloud_depth < min_cloud_depth ) then
                ierr(i)=26 ; is_removed = remove(vec_ok, i)
@@ -9135,12 +9136,12 @@ contains
       end do
    end subroutine check_mass_conserv
    !----------------------------------------------------------------------
-   subroutine smooth_tend(use_smooth_tend,itf,ktf, its,ite, kts, kte, ierr, ktop &
+   subroutine smooth_tend(cumulus,itf,ktf, its,ite, kts, kte, ierr, ktop &
                          ,po_cup ,dellu, dellv, dellah, dellat, dellaq, dellaqc  &
                          ,subten_Q, subten_H, subten_U, subten_V)
       implicit none
+      character*(*), intent (in)               :: cumulus
       integer  ,intent (in )                   :: itf,ktf, its,ite, kts,kte
-      integer  ,intent (in )                   :: use_smooth_tend
       integer  ,intent (in )  , dimension(:)   :: ierr,ktop
       real     ,intent (in )  , dimension(:,:) :: po_cup
       real     ,intent (inout), dimension(:,:) :: dellu, dellv, dellah, dellat &
@@ -9997,7 +9998,7 @@ contains
       
       max_tq_tend       = 200.0   
       use_smooth_prof   = 1      
-      use_smooth_tend   = 1      
+      cum_use_smooth_tend = (/1, 1, 1/)     
 
       cum_hei_updf_land = (/0.55, 0.1, 0.55/)
       cum_hei_updf_ocean= (/0.55, 0.1, 0.55/)

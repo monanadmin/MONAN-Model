@@ -63,10 +63,10 @@
   cum_HEI_DOWN_LAND = 0.40, 0.0, 0.35,  != height of maximum Z_downdraft 
   cum_HEI_DOWN_OCEAN= 0.35, 0.0, 0.35, 
 
-  use_random_num    = 0., != stochastic pertubation for the height of maximum Zu
-  use_smooth_prof   = 1,  != 1 makes the normalized mass flux, entr and detraiment profiles smoother
-  use_smooth_tend   = 1,  != integer number of layers for smoothing the tendencies
-  overshoot         = 0,  != real value ~0.0 to 0.2
+  use_random_num      = 0., != stochastic pertubation for the height of maximum Zu
+  use_smooth_prof     = 1,  != 1 makes the normalized mass flux, entr and detraiment profiles smoother
+  cum_use_smooth_tend = 1,1,1,  != integer number of layers for smoothing the tendencies
+  overshoot           = 0.0,  != real value ~0.0 to 0.2
   use_linear_subcl_mf = 1,  !-- for shallow convection only
   beta_sh             = 2.2,!-- for shallow convection only
 !----
