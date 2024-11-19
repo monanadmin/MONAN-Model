@@ -1,3 +1,15 @@
+# Compiling output logs and scripts
+*.output.init_atmosphere
+*.output.atmosphere
+*.sh
+inc
+
+# Namelists
+namelist.atmosphere
+namelist.init_atmosphere
+stream_list.*
+streams.*
+
 # Prerequisites
 *.d
 
