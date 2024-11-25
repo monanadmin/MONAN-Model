@@ -259,7 +259,7 @@
         <var name="dewpoint_700hPa" type="real" dimensions="nCells Time" units="K"
              description="Dewpoint temperature vertically interpolated to 700 hPa"/>
 
-        <var name="dewpoint_8250hPa" type="real" dimensions="nCells Time" units="K"
+        <var name="dewpoint_825hPa" type="real" dimensions="nCells Time" units="K"
              description="Dewpoint temperature vertically interpolated to 825 hPa"/>
 
         <var name="dewpoint_850hPa" type="real" dimensions="nCells Time" units="K"
