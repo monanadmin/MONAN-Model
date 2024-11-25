@@ -13,7 +13,7 @@ module mpas_isobaric_diagnostics
     use mpas_pool_routines
     use mpas_constants
     use mpas_log, only : mpas_log_write
-    use VerticalInterpolation, only : VerticalInterpolation_ZGEO
+    use VerticalInterpolation
 
     type (MPAS_pool_type), pointer :: mesh
     type (MPAS_pool_type), pointer :: state
@@ -33,7 +33,7 @@ module mpas_isobaric_diagnostics
     logical :: need_mslp, &
                need_cldfrac_15, need_cldfrac_20, need_cldfrac_30, need_cldfrac_50, need_cldfrac_70, need_cldfrac_100, need_cldfrac_150,need_cldfrac_200, need_cldfrac_250, need_cldfrac_300, need_cldfrac_400, need_cldfrac_500, need_cldfrac_600,need_cldfrac_700, need_cldfrac_825, need_cldfrac_850, need_cldfrac_875, need_cldfrac_900, need_cldfrac_925,need_cldfrac_950, need_cldfrac_975, need_cldfrac_1000, &
                need_relhum_15, need_relhum_20, need_relhum_30, need_relhum_50, need_relhum_70, need_relhum_100, need_relhum_150, need_relhum_200, need_relhum_250, need_relhum_300, need_relhum_400, need_relhum_500, need_relhum_600, need_relhum_700, need_relhum_825, need_relhum_850, need_relhum_875, need_relhum_900, need_relhum_925, need_relhum_950, need_relhum_975, need_relhum_1000, &
-               need_dewpoint_50, need_dewpoint_100, need_dewpoint_200, need_dewpoint_250, need_dewpoint_500, need_dewpoint_700, need_dewpoint_850, need_dewpoint_925, &
+               need_dewpoint_15, need_dewpoint_20, need_dewpoint_30, need_dewpoint_50, need_dewpoint_70, need_dewpoint_100, need_dewpoint_150, need_dewpoint_200, need_dewpoint_250, need_dewpoint_300, need_dewpoint_400, need_dewpoint_500, need_dewpoint_600, need_dewpoint_700, need_dewpoint_825, need_dewpoint_850, need_dewpoint_875, need_dewpoint_900, need_dewpoint_925, need_dewpoint_950, need_dewpoint_975, need_dewpoint_1000, &
                need_temp_15, need_temp_20, need_temp_30, need_temp_50, need_temp_70, need_temp_100, need_temp_150, need_temp_200, need_temp_250, need_temp_300, need_temp_400, need_temp_500, need_temp_600, need_temp_700, need_temp_825, need_temp_850, need_temp_875, need_temp_900, need_temp_925, need_temp_950, need_temp_975, need_temp_1000, &
                need_height_15, need_height_20, need_height_30, need_height_50, need_height_70, need_height_100, need_height_150, need_height_200, need_height_250, need_height_300, need_height_400, need_height_500, need_height_600, need_height_700, need_height_825, need_height_850, need_height_875, need_height_900, need_height_925, need_height_950, need_height_975, need_height_1000, &
                need_uzonal_15, need_uzonal_20, need_uzonal_30, need_uzonal_50, need_uzonal_70, need_uzonal_100, need_uzonal_150, need_uzonal_200, need_uzonal_250, need_uzonal_300, need_uzonal_400, need_uzonal_500, need_uzonal_600, need_uzonal_700, need_uzonal_825, need_uzonal_850, need_uzonal_875, need_uzonal_900, need_uzonal_925, need_uzonal_950, need_uzonal_975, need_uzonal_1000, &
@@ -62,7 +62,7 @@ module mpas_isobaric_diagnostics
                need_qc_15, need_qc_20, need_qc_30, need_qc_50, need_qc_70, need_qc_100, need_qc_150, need_qc_200, need_qc_250, need_qc_300, need_qc_400, need_qc_500, need_qc_600, need_qc_700, need_qc_825, need_qc_850, need_qc_875, need_qc_900, need_qc_925, need_qc_950, need_qc_975, need_qc_1000, &
                need_qg_15, need_qg_20, need_qg_30, need_qg_50, need_qg_70, need_qg_100, need_qg_150, need_qg_200, need_qg_250, need_qg_300, need_qg_400, need_qg_500, need_qg_600, need_qg_700, need_qg_825, need_qg_850, need_qg_875, need_qg_900, need_qg_925, need_qg_950, need_qg_975, need_qg_1000, &
                need_qi_15, need_qi_20, need_qi_30, need_qi_50, need_qi_70, need_qi_100, need_qi_150, need_qi_200, need_qi_250, need_qi_300, need_qi_400, need_qi_500, need_qi_600, need_qi_700, need_qi_825, need_qi_850, need_qi_875, need_qi_900, need_qi_925, need_qi_950, need_qi_975, need_qi_1000, &
-               need_vorticity_50, need_vorticity_100, need_vorticity_200, need_vorticity_250, need_vorticity_500, need_vorticity_700, need_vorticity_850, need_vorticity_925, &
+               need_vorticity_15, need_vorticity_20, need_vorticity_30, need_vorticity_50, need_vorticity_70, need_vorticity_100, need_vorticity_150, need_vorticity_200, need_vorticity_250, need_vorticity_300, need_vorticity_400, need_vorticity_500, need_vorticity_600, need_vorticity_700, need_vorticity_825, need_vorticity_850, need_vorticity_875, need_vorticity_900, need_vorticity_925, need_vorticity_950, need_vorticity_975, need_vorticity_1000, &
                need_zgeo_15, need_zgeo_20, need_zgeo_30, need_zgeo_50, need_zgeo_70, need_zgeo_100, need_zgeo_150, need_zgeo_200, need_zgeo_250, need_zgeo_300, need_zgeo_400, need_zgeo_500, need_zgeo_600, need_zgeo_700, need_zgeo_825, need_zgeo_850, need_zgeo_875, need_zgeo_900, need_zgeo_925, need_zgeo_950, need_zgeo_975, need_zgeo_1000, &
                need_t_isobaric, need_z_isobaric, need_meanT_500_300,&
                need_rthcuten_15, need_rthcuten_20, need_rthcuten_30, need_rthcuten_50, need_rthcuten_70, need_rthcuten_100, need_rthcuten_150, need_rthcuten_200, need_rthcuten_250, need_rthcuten_300, need_rthcuten_400, need_rthcuten_500, need_rthcuten_600, need_rthcuten_700, need_rthcuten_825, need_rthcuten_850, need_rthcuten_875, need_rthcuten_900, need_rthcuten_925, need_rthcuten_950, need_rthcuten_975, need_rthcuten_1000
@@ -283,30 +283,72 @@ module mpas_isobaric_diagnostics
         need_relhum_1000 = MPAS_field_will_be_written('relhum_1000hPa')
         need_relhum = need_relhum .or. need_relhum_1000
         need_any_diags = need_any_diags .or. need_relhum_1000
+        need_dewpoint_15 = MPAS_field_will_be_written('dewpoint_15hPa')
+        need_dewpoint = need_dewpoint .or. need_dewpoint_15
+        need_any_diags = need_any_diags .or. need_dewpoint_15
+        need_dewpoint_20 = MPAS_field_will_be_written('dewpoint_20hPa')
+        need_dewpoint = need_dewpoint .or. need_dewpoint_20
+        need_any_diags = need_any_diags .or. need_dewpoint_20
+        need_dewpoint_30 = MPAS_field_will_be_written('dewpoint_30hPa')
+        need_dewpoint = need_dewpoint .or. need_dewpoint_30
+        need_any_diags = need_any_diags .or. need_dewpoint_30
         need_dewpoint_50 = MPAS_field_will_be_written('dewpoint_50hPa')
         need_dewpoint = need_dewpoint .or. need_dewpoint_50
         need_any_diags = need_any_diags .or. need_dewpoint_50
+        need_dewpoint_70 = MPAS_field_will_be_written('dewpoint_70hPa')
+        need_dewpoint = need_dewpoint .or. need_dewpoint_70
+        need_any_diags = need_any_diags .or. need_dewpoint_70
         need_dewpoint_100 = MPAS_field_will_be_written('dewpoint_100hPa')
         need_dewpoint = need_dewpoint .or. need_dewpoint_100
         need_any_diags = need_any_diags .or. need_dewpoint_100
+        need_dewpoint_150 = MPAS_field_will_be_written('dewpoint_150hPa')
+        need_dewpoint = need_dewpoint .or. need_dewpoint_150
+        need_any_diags = need_any_diags .or. need_dewpoint_150
         need_dewpoint_200 = MPAS_field_will_be_written('dewpoint_200hPa')
         need_dewpoint = need_dewpoint .or. need_dewpoint_200
         need_any_diags = need_any_diags .or. need_dewpoint_200
         need_dewpoint_250 = MPAS_field_will_be_written('dewpoint_250hPa')
         need_dewpoint = need_dewpoint .or. need_dewpoint_250
         need_any_diags = need_any_diags .or. need_dewpoint_250
+        need_dewpoint_300 = MPAS_field_will_be_written('dewpoint_300hPa')
+        need_dewpoint = need_dewpoint .or. need_dewpoint_300
+        need_any_diags = need_any_diags .or. need_dewpoint_300
+        need_dewpoint_400 = MPAS_field_will_be_written('dewpoint_400hPa')
+        need_dewpoint = need_dewpoint .or. need_dewpoint_400
+        need_any_diags = need_any_diags .or. need_dewpoint_400
         need_dewpoint_500 = MPAS_field_will_be_written('dewpoint_500hPa')
         need_dewpoint = need_dewpoint .or. need_dewpoint_500
         need_any_diags = need_any_diags .or. need_dewpoint_500
+        need_dewpoint_600 = MPAS_field_will_be_written('dewpoint_600hPa')
+        need_dewpoint = need_dewpoint .or. need_dewpoint_600
+        need_any_diags = need_any_diags .or. need_dewpoint_600
         need_dewpoint_700 = MPAS_field_will_be_written('dewpoint_700hPa')
         need_dewpoint = need_dewpoint .or. need_dewpoint_700
         need_any_diags = need_any_diags .or. need_dewpoint_700
+        need_dewpoint_825 = MPAS_field_will_be_written('dewpoint_825hPa')
+        need_dewpoint = need_dewpoint .or. need_dewpoint_825
+        need_any_diags = need_any_diags .or. need_dewpoint_825
         need_dewpoint_850 = MPAS_field_will_be_written('dewpoint_850hPa')
         need_dewpoint = need_dewpoint .or. need_dewpoint_850
         need_any_diags = need_any_diags .or. need_dewpoint_850
+        need_dewpoint_875 = MPAS_field_will_be_written('dewpoint_875hPa')
+        need_dewpoint = need_dewpoint .or. need_dewpoint_875
+        need_any_diags = need_any_diags .or. need_dewpoint_875
+        need_dewpoint_900 = MPAS_field_will_be_written('dewpoint_900hPa')
+        need_dewpoint = need_dewpoint .or. need_dewpoint_900
+        need_any_diags = need_any_diags .or. need_dewpoint_900
         need_dewpoint_925 = MPAS_field_will_be_written('dewpoint_925hPa')
         need_dewpoint = need_dewpoint .or. need_dewpoint_925
         need_any_diags = need_any_diags .or. need_dewpoint_925
+        need_dewpoint_950 = MPAS_field_will_be_written('dewpoint_950hPa')
+        need_dewpoint = need_dewpoint .or. need_dewpoint_950
+        need_any_diags = need_any_diags .or. need_dewpoint_950
+        need_dewpoint_975 = MPAS_field_will_be_written('dewpoint_975hPa')
+        need_dewpoint = need_dewpoint .or. need_dewpoint_975
+        need_any_diags = need_any_diags .or. need_dewpoint_975
+        need_dewpoint_1000 = MPAS_field_will_be_written('dewpoint_1000hPa')
+        need_dewpoint = need_dewpoint .or. need_dewpoint_1000
+        need_any_diags = need_any_diags .or. need_dewpoint_1000
 
         need_cldfrac_15 = MPAS_field_will_be_written('cldfrac_15hPa')
         need_cldfrac = need_cldfrac .or. need_cldfrac_15
@@ -2326,30 +2368,72 @@ module mpas_isobaric_diagnostics
         need_qi = need_qi .or. need_qi_1000
         need_any_diags = need_any_diags .or. need_qi_1000
 
+        need_vorticity_15 = MPAS_field_will_be_written('vorticity_15hPa')
+        need_vorticity = need_vorticity .or. need_vorticity_15
+        need_any_diags = need_any_diags .or. need_vorticity_15
+        need_vorticity_20 = MPAS_field_will_be_written('vorticity_20hPa')
+        need_vorticity = need_vorticity .or. need_vorticity_20
+        need_any_diags = need_any_diags .or. need_vorticity_20
+        need_vorticity_30 = MPAS_field_will_be_written('vorticity_30hPa')
+        need_vorticity = need_vorticity .or. need_vorticity_30
+        need_any_diags = need_any_diags .or. need_vorticity_30
         need_vorticity_50 = MPAS_field_will_be_written('vorticity_50hPa')
         need_vorticity = need_vorticity .or. need_vorticity_50
         need_any_diags = need_any_diags .or. need_vorticity_50
+        need_vorticity_70 = MPAS_field_will_be_written('vorticity_70hPa')
+        need_vorticity = need_vorticity .or. need_vorticity_70
+        need_any_diags = need_any_diags .or. need_vorticity_70
         need_vorticity_100 = MPAS_field_will_be_written('vorticity_100hPa')
         need_vorticity = need_vorticity .or. need_vorticity_100
         need_any_diags = need_any_diags .or. need_vorticity_100
+        need_vorticity_150 = MPAS_field_will_be_written('vorticity_150hPa')
+        need_vorticity = need_vorticity .or. need_vorticity_150
+        need_any_diags = need_any_diags .or. need_vorticity_150
         need_vorticity_200 = MPAS_field_will_be_written('vorticity_200hPa')
         need_vorticity = need_vorticity .or. need_vorticity_200
         need_any_diags = need_any_diags .or. need_vorticity_200
         need_vorticity_250 = MPAS_field_will_be_written('vorticity_250hPa')
         need_vorticity = need_vorticity .or. need_vorticity_250
         need_any_diags = need_any_diags .or. need_vorticity_250
+        need_vorticity_300 = MPAS_field_will_be_written('vorticity_300hPa')
+        need_vorticity = need_vorticity .or. need_vorticity_300
+        need_any_diags = need_any_diags .or. need_vorticity_300
+        need_vorticity_400 = MPAS_field_will_be_written('vorticity_400hPa')
+        need_vorticity = need_vorticity .or. need_vorticity_400
+        need_any_diags = need_any_diags .or. need_vorticity_400
         need_vorticity_500 = MPAS_field_will_be_written('vorticity_500hPa')
         need_vorticity = need_vorticity .or. need_vorticity_500
         need_any_diags = need_any_diags .or. need_vorticity_500
+        need_vorticity_600 = MPAS_field_will_be_written('vorticity_600hPa')
+        need_vorticity = need_vorticity .or. need_vorticity_600
+        need_any_diags = need_any_diags .or. need_vorticity_600
         need_vorticity_700 = MPAS_field_will_be_written('vorticity_700hPa')
         need_vorticity = need_vorticity .or. need_vorticity_700
         need_any_diags = need_any_diags .or. need_vorticity_700
+        need_vorticity_825 = MPAS_field_will_be_written('vorticity_825hPa')
+        need_vorticity = need_vorticity .or. need_vorticity_825
+        need_any_diags = need_any_diags .or. need_vorticity_825
         need_vorticity_850 = MPAS_field_will_be_written('vorticity_850hPa')
         need_vorticity = need_vorticity .or. need_vorticity_850
         need_any_diags = need_any_diags .or. need_vorticity_850
+        need_vorticity_875 = MPAS_field_will_be_written('vorticity_875hPa')
+        need_vorticity = need_vorticity .or. need_vorticity_875
+        need_any_diags = need_any_diags .or. need_vorticity_875
+        need_vorticity_900 = MPAS_field_will_be_written('vorticity_900hPa')
+        need_vorticity = need_vorticity .or. need_vorticity_900
+        need_any_diags = need_any_diags .or. need_vorticity_900
         need_vorticity_925 = MPAS_field_will_be_written('vorticity_925hPa')
         need_vorticity = need_vorticity .or. need_vorticity_925
         need_any_diags = need_any_diags .or. need_vorticity_925
+        need_vorticity_950 = MPAS_field_will_be_written('vorticity_950hPa')
+        need_vorticity = need_vorticity .or. need_vorticity_950
+        need_any_diags = need_any_diags .or. need_vorticity_950
+        need_vorticity_975 = MPAS_field_will_be_written('vorticity_975hPa')
+        need_vorticity = need_vorticity .or. need_vorticity_975
+        need_any_diags = need_any_diags .or. need_vorticity_975
+        need_vorticity_1000 = MPAS_field_will_be_written('vorticity_1000hPa')
+        need_vorticity = need_vorticity .or. need_vorticity_1000
+        need_any_diags = need_any_diags .or. need_vorticity_1000
         need_zgeo_15 = MPAS_field_will_be_written('zgeo_15hPa')
         need_zgeo = need_zgeo .or. need_zgeo_15
         need_any_diags = need_any_diags .or. need_zgeo_15
@@ -2551,14 +2635,28 @@ module mpas_isobaric_diagnostics
         real (kind=RKIND), dimension(:), pointer :: relhum_975hPa
         real (kind=RKIND), dimension(:), pointer :: relhum_1000hPa        
        
+        real (kind=RKIND), dimension(:), pointer :: dewpoint_15hPa
+        real (kind=RKIND), dimension(:), pointer :: dewpoint_20hPa
+        real (kind=RKIND), dimension(:), pointer :: dewpoint_30hPa
         real (kind=RKIND), dimension(:), pointer :: dewpoint_50hPa
+        real (kind=RKIND), dimension(:), pointer :: dewpoint_70hPa
         real (kind=RKIND), dimension(:), pointer :: dewpoint_100hPa
+        real (kind=RKIND), dimension(:), pointer :: dewpoint_150hPa
         real (kind=RKIND), dimension(:), pointer :: dewpoint_200hPa
         real (kind=RKIND), dimension(:), pointer :: dewpoint_250hPa
+        real (kind=RKIND), dimension(:), pointer :: dewpoint_300hPa
+        real (kind=RKIND), dimension(:), pointer :: dewpoint_400hPa
         real (kind=RKIND), dimension(:), pointer :: dewpoint_500hPa
+        real (kind=RKIND), dimension(:), pointer :: dewpoint_600hPa
         real (kind=RKIND), dimension(:), pointer :: dewpoint_700hPa
+        real (kind=RKIND), dimension(:), pointer :: dewpoint_825hPa
         real (kind=RKIND), dimension(:), pointer :: dewpoint_850hPa
+        real (kind=RKIND), dimension(:), pointer :: dewpoint_875hPa
+        real (kind=RKIND), dimension(:), pointer :: dewpoint_900hPa
         real (kind=RKIND), dimension(:), pointer :: dewpoint_925hPa
+        real (kind=RKIND), dimension(:), pointer :: dewpoint_950hPa
+        real (kind=RKIND), dimension(:), pointer :: dewpoint_975hPa
+        real (kind=RKIND), dimension(:), pointer :: dewpoint_1000hPa        
        
         real (kind=RKIND), dimension(:), pointer :: uzonal_15hPa
         real (kind=RKIND), dimension(:), pointer :: uzonal_20hPa
@@ -3227,14 +3325,28 @@ module mpas_isobaric_diagnostics
         real (kind=RKIND), dimension(:), pointer :: zgeo_975hPa
         real (kind=RKIND), dimension(:), pointer :: zgeo_1000hPa
 
+        real (kind=RKIND), dimension(:), pointer :: vorticity_15hPa
+        real (kind=RKIND), dimension(:), pointer :: vorticity_20hPa
+        real (kind=RKIND), dimension(:), pointer :: vorticity_30hPa
         real (kind=RKIND), dimension(:), pointer :: vorticity_50hPa
+        real (kind=RKIND), dimension(:), pointer :: vorticity_70hPa
         real (kind=RKIND), dimension(:), pointer :: vorticity_100hPa
+        real (kind=RKIND), dimension(:), pointer :: vorticity_150hPa
         real (kind=RKIND), dimension(:), pointer :: vorticity_200hPa
         real (kind=RKIND), dimension(:), pointer :: vorticity_250hPa
+        real (kind=RKIND), dimension(:), pointer :: vorticity_300hPa
+        real (kind=RKIND), dimension(:), pointer :: vorticity_400hPa
         real (kind=RKIND), dimension(:), pointer :: vorticity_500hPa
+        real (kind=RKIND), dimension(:), pointer :: vorticity_600hPa
         real (kind=RKIND), dimension(:), pointer :: vorticity_700hPa
+        real (kind=RKIND), dimension(:), pointer :: vorticity_825hPa
         real (kind=RKIND), dimension(:), pointer :: vorticity_850hPa
+        real (kind=RKIND), dimension(:), pointer :: vorticity_875hPa
+        real (kind=RKIND), dimension(:), pointer :: vorticity_900hPa
         real (kind=RKIND), dimension(:), pointer :: vorticity_925hPa
+        real (kind=RKIND), dimension(:), pointer :: vorticity_950hPa
+        real (kind=RKIND), dimension(:), pointer :: vorticity_975hPa
+        real (kind=RKIND), dimension(:), pointer :: vorticity_1000hPa
        
         real (kind=RKIND) :: evp
        
@@ -3397,14 +3509,28 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_array(diag, 'relhum_975hPa', relhum_975hPa)
         call mpas_pool_get_array(diag, 'relhum_1000hPa', relhum_1000hPa)        
        
+        call mpas_pool_get_array(diag, 'dewpoint_15hPa', dewpoint_15hPa)
+        call mpas_pool_get_array(diag, 'dewpoint_20hPa', dewpoint_20hPa)
+        call mpas_pool_get_array(diag, 'dewpoint_30hPa', dewpoint_30hPa)
         call mpas_pool_get_array(diag, 'dewpoint_50hPa', dewpoint_50hPa)
+        call mpas_pool_get_array(diag, 'dewpoint_70hPa', dewpoint_70hPa)
         call mpas_pool_get_array(diag, 'dewpoint_100hPa', dewpoint_100hPa)
+        call mpas_pool_get_array(diag, 'dewpoint_150hPa', dewpoint_150hPa)
         call mpas_pool_get_array(diag, 'dewpoint_200hPa', dewpoint_200hPa)
         call mpas_pool_get_array(diag, 'dewpoint_250hPa', dewpoint_250hPa)
+        call mpas_pool_get_array(diag, 'dewpoint_300hPa', dewpoint_300hPa)
+        call mpas_pool_get_array(diag, 'dewpoint_400hPa', dewpoint_400hPa)
         call mpas_pool_get_array(diag, 'dewpoint_500hPa', dewpoint_500hPa)
+        call mpas_pool_get_array(diag, 'dewpoint_600hPa', dewpoint_600hPa)
         call mpas_pool_get_array(diag, 'dewpoint_700hPa', dewpoint_700hPa)
+        call mpas_pool_get_array(diag, 'dewpoint_825hPa', dewpoint_825hPa)
         call mpas_pool_get_array(diag, 'dewpoint_850hPa', dewpoint_850hPa)
+        call mpas_pool_get_array(diag, 'dewpoint_875hPa', dewpoint_875hPa)
+        call mpas_pool_get_array(diag, 'dewpoint_900hPa', dewpoint_900hPa)
         call mpas_pool_get_array(diag, 'dewpoint_925hPa', dewpoint_925hPa)
+        call mpas_pool_get_array(diag, 'dewpoint_950hPa', dewpoint_950hPa)
+        call mpas_pool_get_array(diag, 'dewpoint_975hPa', dewpoint_975hPa)
+        call mpas_pool_get_array(diag, 'dewpoint_1000hPa', dewpoint_1000hPa)        
        
         call mpas_pool_get_array(diag, 'uzonal_15hPa'   , uzonal_15hPa)
         call mpas_pool_get_array(diag, 'uzonal_20hPa'   , uzonal_20hPa)
@@ -4075,14 +4201,28 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_array(diag, 'zgeo_975hPa', zgeo_975hPa)
         call mpas_pool_get_array(diag, 'zgeo_1000hPa', zgeo_1000hPa)
 
+        call mpas_pool_get_array(diag, 'vorticity_15hPa', vorticity_15hPa)
+        call mpas_pool_get_array(diag, 'vorticity_20hPa', vorticity_20hPa)
+        call mpas_pool_get_array(diag, 'vorticity_30hPa', vorticity_30hPa)
         call mpas_pool_get_array(diag, 'vorticity_50hPa', vorticity_50hPa)
+        call mpas_pool_get_array(diag, 'vorticity_70hPa', vorticity_70hPa)
         call mpas_pool_get_array(diag, 'vorticity_100hPa', vorticity_100hPa)
+        call mpas_pool_get_array(diag, 'vorticity_150hPa', vorticity_150hPa)
         call mpas_pool_get_array(diag, 'vorticity_200hPa', vorticity_200hPa)
         call mpas_pool_get_array(diag, 'vorticity_250hPa', vorticity_250hPa)
+        call mpas_pool_get_array(diag, 'vorticity_300hPa', vorticity_300hPa)
+        call mpas_pool_get_array(diag, 'vorticity_400hPa', vorticity_400hPa)
         call mpas_pool_get_array(diag, 'vorticity_500hPa', vorticity_500hPa)
+        call mpas_pool_get_array(diag, 'vorticity_600hPa', vorticity_600hPa)
         call mpas_pool_get_array(diag, 'vorticity_700hPa', vorticity_700hPa)
+        call mpas_pool_get_array(diag, 'vorticity_825hPa', vorticity_825hPa)
         call mpas_pool_get_array(diag, 'vorticity_850hPa', vorticity_850hPa)
+        call mpas_pool_get_array(diag, 'vorticity_875hPa', vorticity_875hPa)
+        call mpas_pool_get_array(diag, 'vorticity_900hPa', vorticity_900hPa)
         call mpas_pool_get_array(diag, 'vorticity_925hPa', vorticity_925hPa)
+        call mpas_pool_get_array(diag, 'vorticity_950hPa', vorticity_950hPa)
+        call mpas_pool_get_array(diag, 'vorticity_975hPa', vorticity_975hPa)
+        call mpas_pool_get_array(diag, 'vorticity_1000hPa', vorticity_1000hPa)
        
         call mpas_pool_get_array(diag, 'mslp', mslp)
        
@@ -4092,8 +4232,8 @@ module mpas_isobaric_diagnostics
         if(.not.allocated(pressure_v)  ) allocate(pressure_v(nVertLevels,nVertices) )
         if(.not.allocated(temperature) ) allocate(temperature(nVertLevels,nCells)   )
         if(.not.allocated(spechum)  ) allocate(spechum(nVertLevels,nCells)    ) !LFR
-        if(.not.allocated(geoph)    ) allocate(geoph(nVertLevelsP1,nCells)    ) !EGK
-        if(.not.allocated(dewpoint) ) allocate(dewpoint(nVertLevels,nCells)   )
+        if(.not.allocated(geoph)    ) allocate(geoph(nVertLevelsP1,nCells)    ) !EGK !CR:duvida pq nVertLevelsP1?
+        if(.not.allocated(dewpoint) ) allocate(dewpoint(nVertLevels,nCells)   )      !CR: resposta: nVertLevesP1 = nVertLevels+1
        
         if (need_t_isobaric .or. need_zgeo_15 .or. need_zgeo_20 .or. need_zgeo_30 .or. need_zgeo_50 &
             .or. need_zgeo_70 .or. need_zgeo_100 .or. need_zgeo_150 .or. need_zgeo_200 &
@@ -4101,17 +4241,28 @@ module mpas_isobaric_diagnostics
             .or. need_zgeo_600 .or. need_zgeo_700 .or. need_zgeo_825 .or. need_zgeo_850 &
             .or. need_zgeo_875 .or. need_zgeo_900 .or. need_zgeo_925 .or. need_zgeo_950 &
             .or. need_zgeo_975 .or. need_zgeo_1000) then
-            t_iso_levels(:) = (/1500.0, 2000.0, 3000.0, 5000.0, &
-                7000.0, 10000.0, 15000.0, 20000.0, &
-                25000.0, 30000.0, 40000.0, 50000.0, &
-                60000.0, 70000.0, 82500.0, 85000.0, &
-                87500.0, 90000.0, 92500.0, 95000.0, &
-                97500.0, 100000.0/)
-!            t_iso_levels(1) = 30000.0
-!            t_iso_levels(2) = 35000.0
-!            t_iso_levels(3) = 40000.0
-!            t_iso_levels(4) = 45000.0
-!            t_iso_levels(5) = 50000.0         
+                t_iso_levels(:) = (/   100000.0,   & !CR: surface 
+                                       97500.0,    &
+                                       95000.0,    &
+                                       92500.0,    &
+                                       90000.0,    &
+                                       87500.0,    &
+                                       85000.0,    &
+                                       82500.0,    &
+                                       70000.0,    &
+                                       60000.0,    &
+                                       50000.0,    &
+                                       40000.0,    &
+                                       30000.0,    &
+                                       25000.0,    &
+                                       20000.0,    &
+                                       15000.0,    &
+                                       10000.0,    &
+                                       7000.0,     &
+                                       5000.0,     &
+                                       3000.0,     &
+                                       2000.0,     &
+                                       1500.0      /) !CR: top
         end if
        
         if (need_z_isobaric) then
@@ -4216,9 +4367,13 @@ module mpas_isobaric_diagnostics
         end if
        
        !interpolation to fixed pressure levels for fields located at cells centers and at mass points:
-        nIntP = 22
-        if(.not.allocated(field_interp)) allocate(field_interp(nCells,nIntP) )
-        if(.not.allocated(press_interp)) allocate(press_interp(nCells,nIntP) )
+        !CR: nIntP = 22 this var should not be used any more! use nIsoLevelsT (came from registry xml)
+        
+        !CR: invertendo field_interp de (nCells,nIntP) para (nIsoLevelsT, nCells), to work in new vertical 
+        !interpolation subroutine
+        
+        if(.not.allocated(field_interp)) allocate(field_interp(nIsoLevelsT, nCells) )
+        if(.not.allocated(press_interp)) allocate(press_interp(nCells,nIsoLevelsT) ) !CR: not used!
         do iCell = 1, nCells
            press_interp(iCell,1)  = 15.0_RKIND
            press_interp(iCell,2)  = 20.0_RKIND
@@ -4244,995 +4399,1089 @@ module mpas_isobaric_diagnostics
            press_interp(iCell,22) = 1000.0_RKIND
         enddo
        
-        if(.not.allocated(press_in)) allocate(press_in(nCells,nVertLevels))
-        do iCell = 1, nCells
-        do k = 1, nVertLevels
-           kk = nVertLevels+1-k
-           press_in(iCell,kk) = pressure(k,iCell)
-        enddo
-        enddo
-       
-        if(.not.allocated(field_in)) allocate(field_in(nCells,nVertLevels))
+      
+        if(.not.allocated(field_in)) allocate(field_in(nCells,nVertLevels)) !CR: not used any more
 
         if (NEED_CLDFRAC) then
-           !... temperature:
-            do iCell = 1, nCells
-               do k = 1, nVertLevels
-                  kk = nVertLevels+1-k
-                  field_in(iCell,kk) = cldfrac(k,iCell)
-                  !write(88,*) "LFR-DBG: k,iCell,cldFrac ",k,iCell,cldfrac(k,iCell)
-               enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+         !... cldfrac:
 
-            cldfrac_15hPa(1:nCells)   = field_interp(1:nCells,1)
-            cldfrac_20hPa(1:nCells)   = field_interp(1:nCells,2)
-            cldfrac_30hPa(1:nCells)   = field_interp(1:nCells,3)
-            cldfrac_50hPa(1:nCells)   = field_interp(1:nCells,4)
-            cldfrac_70hPa(1:nCells)   = field_interp(1:nCells,5)
-            cldfrac_100hPa(1:nCells)  = field_interp(1:nCells,6)
-            cldfrac_150hPa(1:nCells)  = field_interp(1:nCells,7)
-            cldfrac_200hPa(1:nCells)  = field_interp(1:nCells,8)
-            cldfrac_250hPa(1:nCells)  = field_interp(1:nCells,9)
-            cldfrac_300hPa(1:nCells)  = field_interp(1:nCells,10)
-            cldfrac_400hPa(1:nCells)  = field_interp(1:nCells,11)
-            cldfrac_500hPa(1:nCells)  = field_interp(1:nCells,12)
-            cldfrac_600hPa(1:nCells)  = field_interp(1:nCells,13)
-            cldfrac_700hPa(1:nCells)  = field_interp(1:nCells,14)
-            cldfrac_825hPa(1:nCells)  = field_interp(1:nCells,15)
-            cldfrac_850hPa(1:nCells)  = field_interp(1:nCells,16)
-            cldfrac_875hPa(1:nCells)  = field_interp(1:nCells,17)
-            cldfrac_900hPa(1:nCells)  = field_interp(1:nCells,18)
-            cldfrac_925hPa(1:nCells)  = field_interp(1:nCells,19)
-            cldfrac_950hPa(1:nCells)  = field_interp(1:nCells,20)
-            cldfrac_975hPa(1:nCells)  = field_interp(1:nCells,21)
-            cldfrac_1000hPa(1:nCells) = field_interp(1:nCells,22)
+         !CR: 1o single
+         !CR: before: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+            
+         call VerticalInterpolation_Single ( nCells                                    , & !1
+                                             nVertLevels                               , & !2
+                                             nVertLevels                               , & !3 CR:duvida: ta certo?
+                                             nIsoLevelsT                               , & !4 CR: ta certo?
+                                             nIsoLevelsT                               , & !5 CR: ta certo?
+                                             cldfrac     (1:nVertLevels,1:nCells)      , & !6
+                                             field_interp(1:nIsoLevelsT,1:nCells)      , & !7
+                                             pressure    (1:nVertLevels,1:nCells)*100.0, & !8
+                                             t_iso_levels(1:nIsoLevelsT)               )   !9
+                                                
+
+            cldfrac_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+            cldfrac_20hPa(1:nCells)   = field_interp(21,1:nCells)
+            cldfrac_30hPa(1:nCells)   = field_interp(20,1:nCells)
+            cldfrac_50hPa(1:nCells)   = field_interp(19,1:nCells)
+            cldfrac_70hPa(1:nCells)   = field_interp(18,1:nCells)
+            cldfrac_100hPa(1:nCells)  = field_interp(17,1:nCells)
+            cldfrac_150hPa(1:nCells)  = field_interp(16,1:nCells)
+            cldfrac_200hPa(1:nCells)  = field_interp(15,1:nCells)
+            cldfrac_250hPa(1:nCells)  = field_interp(14,1:nCells)
+            cldfrac_300hPa(1:nCells)  = field_interp(13,1:nCells)
+            cldfrac_400hPa(1:nCells)  = field_interp(12,1:nCells)
+            cldfrac_500hPa(1:nCells)  = field_interp(11,1:nCells)
+            cldfrac_600hPa(1:nCells)  = field_interp(10,1:nCells)
+            cldfrac_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+            cldfrac_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+            cldfrac_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+            cldfrac_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+            cldfrac_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+            cldfrac_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+            cldfrac_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+            cldfrac_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+            cldfrac_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
             ! call mpas_log_write('--- end interpolate temperature:')
         end if
+        !CR: new vertical interpolation done! 1
 
 
         if (NEED_TEMP) then
            !... temperature:
-            do iCell = 1, nCells
-            do k = 1, nVertLevels
-               kk = nVertLevels+1-k
-               field_in(iCell,kk) = temperature(k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+           !CR: 2o thermal2
+           !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
-            temperature_15hPa(1:nCells)   = field_interp(1:nCells,1)
-            temperature_20hPa(1:nCells)   = field_interp(1:nCells,2)
-            temperature_30hPa(1:nCells)   = field_interp(1:nCells,3)
-            temperature_50hPa(1:nCells)   = field_interp(1:nCells,4)
-            temperature_70hPa(1:nCells)   = field_interp(1:nCells,5)
-            temperature_100hPa(1:nCells)  = field_interp(1:nCells,6)
-            temperature_150hPa(1:nCells)  = field_interp(1:nCells,7)
-            temperature_200hPa(1:nCells)  = field_interp(1:nCells,8)
-            temperature_250hPa(1:nCells)  = field_interp(1:nCells,9)
-            temperature_300hPa(1:nCells)  = field_interp(1:nCells,10)
-            temperature_400hPa(1:nCells)  = field_interp(1:nCells,11)
-            temperature_500hPa(1:nCells)  = field_interp(1:nCells,12)
-            temperature_600hPa(1:nCells)  = field_interp(1:nCells,13)
-            temperature_700hPa(1:nCells)  = field_interp(1:nCells,14)
-            temperature_825hPa(1:nCells)  = field_interp(1:nCells,15)
-            temperature_850hPa(1:nCells)  = field_interp(1:nCells,16)
-            temperature_875hPa(1:nCells)  = field_interp(1:nCells,17)
-            temperature_900hPa(1:nCells)  = field_interp(1:nCells,18)
-            temperature_925hPa(1:nCells)  = field_interp(1:nCells,19)
-            temperature_950hPa(1:nCells)  = field_interp(1:nCells,20)
-            temperature_975hPa(1:nCells)  = field_interp(1:nCells,21)
-            temperature_1000hPa(1:nCells) = field_interp(1:nCells,22)
+           call VerticalInterpolation_Thermal2 ( nCells                                    , & !1
+                                                 nVertLevels                               , & !2
+                                                 nIsoLevelsT                               , & !3
+                                                 pressure    (1:nVertLevels,1:nCells)*100.0, & !4
+                                                 temperature (1:nVertLevels,1:nCells)      , & !5
+                                                 field_interp(1:nIsoLevelsT,1:nCells)      , & !6
+                                                 t_iso_levels(1:nIsoLevelsT)               )   !7
+
+            temperature_15hPa(1:nCells)   =  field_interp(22,1:nCells) !top
+            temperature_20hPa(1:nCells)   =  field_interp(21,1:nCells)
+            temperature_30hPa(1:nCells)   =  field_interp(20,1:nCells)
+            temperature_50hPa(1:nCells)   =  field_interp(19,1:nCells)
+            temperature_70hPa(1:nCells)   =  field_interp(18,1:nCells)
+            temperature_100hPa(1:nCells)  =  field_interp(17,1:nCells)
+            temperature_150hPa(1:nCells)  =  field_interp(16,1:nCells)
+            temperature_200hPa(1:nCells)  =  field_interp(15,1:nCells)
+            temperature_250hPa(1:nCells)  =  field_interp(14,1:nCells)
+            temperature_300hPa(1:nCells)  =  field_interp(13,1:nCells)
+            temperature_400hPa(1:nCells)  =  field_interp(12,1:nCells)
+            temperature_500hPa(1:nCells)  =  field_interp(11,1:nCells)
+            temperature_600hPa(1:nCells)  =  field_interp(10,1:nCells)
+            temperature_700hPa(1:nCells)  =  field_interp( 9,1:nCells)
+            temperature_825hPa(1:nCells)  =  field_interp( 8,1:nCells)
+            temperature_850hPa(1:nCells)  =  field_interp( 7,1:nCells)
+            temperature_875hPa(1:nCells)  =  field_interp( 6,1:nCells)
+            temperature_900hPa(1:nCells)  =  field_interp( 5,1:nCells)
+            temperature_925hPa(1:nCells)  =  field_interp( 4,1:nCells)
+            temperature_950hPa(1:nCells)  =  field_interp( 3,1:nCells)
+            temperature_975hPa(1:nCells)  =  field_interp( 2,1:nCells)
+            temperature_1000hPa(1:nCells) =  field_interp( 1,1:nCells) !surface
             ! call mpas_log_write('--- end interpolate temperature:')
         end if
+        !CR: new vertical interpolation done! 2
 
-!        print *, "mp_thompson3=", need_mp_thompson
-!        print *, "cu_grell_freitas3=", need_cu_grell_freitas
-!        print *, "bl_mynn3=", need_bl_mynn
+
 
         if (need_mp_thompson .eqv. .true. .or. need_bl_mynn .eqv. .true.) then
             if (NEED_NI) then
                !... ni:
-                do iCell = 1, nCells
-                do k = 1, nVertLevels
-                   kk = nVertLevels+1-k
-                   field_in(iCell,kk) = scalars(index_ni,k,iCell)
-                enddo
-                enddo
-                call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+               !CR: 3o single
+               !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
     
-                ni_15hPa(1:nCells) = field_interp(1:nCells,1)
-                ni_20hPa(1:nCells) = field_interp(1:nCells,2)
-                ni_30hPa(1:nCells) = field_interp(1:nCells,3)
-                ni_50hPa(1:nCells) = field_interp(1:nCells,4)
-                ni_70hPa(1:nCells) = field_interp(1:nCells,5)
-                ni_100hPa(1:nCells) = field_interp(1:nCells,6)
-                ni_150hPa(1:nCells) = field_interp(1:nCells,7)
-                ni_200hPa(1:nCells) = field_interp(1:nCells,8)
-                ni_250hPa(1:nCells) = field_interp(1:nCells,9)
-                ni_300hPa(1:nCells) = field_interp(1:nCells,10)
-                ni_400hPa(1:nCells) = field_interp(1:nCells,11)
-                ni_500hPa(1:nCells) = field_interp(1:nCells,12)
-                ni_600hPa(1:nCells) = field_interp(1:nCells,13)
-                ni_700hPa(1:nCells) = field_interp(1:nCells,14)
-                ni_825hPa(1:nCells) = field_interp(1:nCells,15)
-                ni_850hPa(1:nCells) = field_interp(1:nCells,16)
-                ni_875hPa(1:nCells) = field_interp(1:nCells,17)
-                ni_900hPa(1:nCells) = field_interp(1:nCells,18)
-                ni_925hPa(1:nCells) = field_interp(1:nCells,19)
-                ni_950hPa(1:nCells) = field_interp(1:nCells,20)
-                ni_975hPa(1:nCells) = field_interp(1:nCells,21)
-                ni_1000hPa(1:nCells) = field_interp(1:nCells,22)
+               call VerticalInterpolation_Single ( nCells                                        , & !1
+                                                   nVertLevels                                   , & !2
+                                                   nVertLevels                                   , & !3
+                                                   nIsoLevelsT                                   , & !4
+                                                   nIsoLevelsT                                   , & !5
+                                                   scalars(index_ni,1:nVertLevels,1:nCells)      , & !6
+                                                   field_interp    (1:nIsoLevelsT,1:nCells)      , & !7
+                                                   pressure        (1:nVertLevels,1:nCells)*100.0, & !8
+                                                   t_iso_levels    (1:nIsoLevelsT)               )   !9
+                
+    
+               ni_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+               ni_20hPa(1:nCells)   = field_interp(21,1:nCells)
+               ni_30hPa(1:nCells)   = field_interp(20,1:nCells)
+               ni_50hPa(1:nCells)   = field_interp(19,1:nCells)
+               ni_70hPa(1:nCells)   = field_interp(18,1:nCells)
+               ni_100hPa(1:nCells)  = field_interp(17,1:nCells)
+               ni_150hPa(1:nCells)  = field_interp(16,1:nCells)
+               ni_200hPa(1:nCells)  = field_interp(15,1:nCells)
+               ni_250hPa(1:nCells)  = field_interp(14,1:nCells)
+               ni_300hPa(1:nCells)  = field_interp(13,1:nCells)
+               ni_400hPa(1:nCells)  = field_interp(12,1:nCells)
+               ni_500hPa(1:nCells)  = field_interp(11,1:nCells)
+               ni_600hPa(1:nCells)  = field_interp(10,1:nCells)
+               ni_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+               ni_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+               ni_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+               ni_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+               ni_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+               ni_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+               ni_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+               ni_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+               ni_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
                 ! call mpas_log_write('--- end interpolate ni:')
             end if
         end if
+        !CR: new vertical interpolation done! 3
 
         if (need_mp_thompson .eqv. .true.) then
             if (NEED_NR) then
                !... nr:
-                do iCell = 1, nCells
-                do k = 1, nVertLevels
-                   kk = nVertLevels+1-k
-                   field_in(iCell,kk) = scalars(index_nr,k,iCell)
-                enddo
-                enddo
-                call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+               !CR: 4o single
+               !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
     
-                nr_15hPa(1:nCells) = field_interp(1:nCells,1)
-                nr_20hPa(1:nCells) = field_interp(1:nCells,2)
-                nr_30hPa(1:nCells) = field_interp(1:nCells,3)
-                nr_50hPa(1:nCells) = field_interp(1:nCells,4)
-                nr_70hPa(1:nCells) = field_interp(1:nCells,5)
-                nr_100hPa(1:nCells) = field_interp(1:nCells,6)
-                nr_150hPa(1:nCells) = field_interp(1:nCells,7)
-                nr_200hPa(1:nCells) = field_interp(1:nCells,8)
-                nr_250hPa(1:nCells) = field_interp(1:nCells,9)
-                nr_300hPa(1:nCells) = field_interp(1:nCells,10)
-                nr_400hPa(1:nCells) = field_interp(1:nCells,11)
-                nr_500hPa(1:nCells) = field_interp(1:nCells,12)
-                nr_600hPa(1:nCells) = field_interp(1:nCells,13)
-                nr_700hPa(1:nCells) = field_interp(1:nCells,14)
-                nr_825hPa(1:nCells) = field_interp(1:nCells,15)
-                nr_850hPa(1:nCells) = field_interp(1:nCells,16)
-                nr_875hPa(1:nCells) = field_interp(1:nCells,17)
-                nr_900hPa(1:nCells) = field_interp(1:nCells,18)
-                nr_925hPa(1:nCells) = field_interp(1:nCells,19)
-                nr_950hPa(1:nCells) = field_interp(1:nCells,20)
-                nr_975hPa(1:nCells) = field_interp(1:nCells,21)
-                nr_1000hPa(1:nCells) = field_interp(1:nCells,22)
+               call VerticalInterpolation_Single ( nCells                                        , & !1
+                                                   nVertLevels                                   , & !2
+                                                   nVertLevels                                   , & !3
+                                                   nIsoLevelsT                                   , & !4
+                                                   nIsoLevelsT                                   , & !5
+                                                   scalars(index_nr,1:nVertLevels,1:nCells)      , & !6
+                                                   field_interp    (1:nIsoLevelsT,1:nCells)      , & !7
+                                                   pressure        (1:nVertLevels,1:nCells)*100.0, & !8
+                                                   t_iso_levels    (1:nIsoLevelsT)               )   !9
+
+ 
+               nr_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+               nr_20hPa(1:nCells)   = field_interp(21,1:nCells)
+               nr_30hPa(1:nCells)   = field_interp(20,1:nCells)
+               nr_50hPa(1:nCells)   = field_interp(19,1:nCells)
+               nr_70hPa(1:nCells)   = field_interp(18,1:nCells)
+               nr_100hPa(1:nCells)  = field_interp(17,1:nCells)
+               nr_150hPa(1:nCells)  = field_interp(16,1:nCells)
+               nr_200hPa(1:nCells)  = field_interp(15,1:nCells)
+               nr_250hPa(1:nCells)  = field_interp(14,1:nCells)
+               nr_300hPa(1:nCells)  = field_interp(13,1:nCells)
+               nr_400hPa(1:nCells)  = field_interp(12,1:nCells)
+               nr_500hPa(1:nCells)  = field_interp(11,1:nCells)
+               nr_600hPa(1:nCells)  = field_interp(10,1:nCells)
+               nr_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+               nr_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+               nr_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+               nr_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+               nr_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+               nr_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+               nr_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+               nr_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+               nr_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
                 ! call mpas_log_write('--- end interpolate nr:')
             end if
         end if
+        !CR: new vertical interpolation done! 4
 
         if (NEED_QR) then
            !... qr:
-            do iCell = 1, nCells
-            do k = 1, nVertLevels
-               kk = nVertLevels+1-k
-               field_in(iCell,kk) = scalars(index_qr,k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+            !CR: 5o single
+            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
-            qr_15hPa(1:nCells) = field_interp(1:nCells,1)
-            qr_20hPa(1:nCells) = field_interp(1:nCells,2)
-            qr_30hPa(1:nCells) = field_interp(1:nCells,3)
-            qr_50hPa(1:nCells) = field_interp(1:nCells,4)
-            qr_70hPa(1:nCells) = field_interp(1:nCells,5)
-            qr_100hPa(1:nCells) = field_interp(1:nCells,6)
-            qr_150hPa(1:nCells) = field_interp(1:nCells,7)
-            qr_200hPa(1:nCells) = field_interp(1:nCells,8)
-            qr_250hPa(1:nCells) = field_interp(1:nCells,9)
-            qr_300hPa(1:nCells) = field_interp(1:nCells,10)
-            qr_400hPa(1:nCells) = field_interp(1:nCells,11)
-            qr_500hPa(1:nCells) = field_interp(1:nCells,12)
-            qr_600hPa(1:nCells) = field_interp(1:nCells,13)
-            qr_700hPa(1:nCells) = field_interp(1:nCells,14)
-            qr_825hPa(1:nCells) = field_interp(1:nCells,15)
-            qr_850hPa(1:nCells) = field_interp(1:nCells,16)
-            qr_875hPa(1:nCells) = field_interp(1:nCells,17)
-            qr_900hPa(1:nCells) = field_interp(1:nCells,18)
-            qr_925hPa(1:nCells) = field_interp(1:nCells,19)
-            qr_950hPa(1:nCells) = field_interp(1:nCells,20)
-            qr_975hPa(1:nCells) = field_interp(1:nCells,21)
-            qr_1000hPa(1:nCells) = field_interp(1:nCells,22)
+            call VerticalInterpolation_Single ( nCells                                        , & !1
+                                                nVertLevels                                   , & !2
+                                                nVertLevels                                   , & !3
+                                                nIsoLevelsT                                   , & !4
+                                                nIsoLevelsT                                   , & !5
+                                                scalars(index_qr,1:nVertLevels,1:nCells)      , & !6
+                                                field_interp    (1:nIsoLevelsT,1:nCells)      , & !7
+                                                pressure        (1:nVertLevels,1:nCells)*100.0, & !8
+                                                t_iso_levels    (1:nIsoLevelsT)               )   !9
+            
+            
+            qr_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+            qr_20hPa(1:nCells)   = field_interp(21,1:nCells)
+            qr_30hPa(1:nCells)   = field_interp(20,1:nCells)
+            qr_50hPa(1:nCells)   = field_interp(19,1:nCells)
+            qr_70hPa(1:nCells)   = field_interp(18,1:nCells)
+            qr_100hPa(1:nCells)  = field_interp(17,1:nCells)
+            qr_150hPa(1:nCells)  = field_interp(16,1:nCells)
+            qr_200hPa(1:nCells)  = field_interp(15,1:nCells)
+            qr_250hPa(1:nCells)  = field_interp(14,1:nCells)
+            qr_300hPa(1:nCells)  = field_interp(13,1:nCells)
+            qr_400hPa(1:nCells)  = field_interp(12,1:nCells)
+            qr_500hPa(1:nCells)  = field_interp(11,1:nCells)
+            qr_600hPa(1:nCells)  = field_interp(10,1:nCells)
+            qr_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+            qr_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+            qr_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+            qr_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+            qr_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+            qr_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+            qr_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+            qr_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+            qr_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
             ! call mpas_log_write('--- end interpolate qr:')
         end if
+        !CR: new vertical interpolation done! 5
 
         if (NEED_QS) then
            !... qs:
-            do iCell = 1, nCells
-            do k = 1, nVertLevels
-               kk = nVertLevels+1-k
-               field_in(iCell,kk) = scalars(index_qs,k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+            !CR: 6o single
+            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
-            qs_15hPa(1:nCells) = field_interp(1:nCells,1)
-            qs_20hPa(1:nCells) = field_interp(1:nCells,2)
-            qs_30hPa(1:nCells) = field_interp(1:nCells,3)
-            qs_50hPa(1:nCells) = field_interp(1:nCells,4)
-            qs_70hPa(1:nCells) = field_interp(1:nCells,5)
-            qs_100hPa(1:nCells) = field_interp(1:nCells,6)
-            qs_150hPa(1:nCells) = field_interp(1:nCells,7)
-            qs_200hPa(1:nCells) = field_interp(1:nCells,8)
-            qs_250hPa(1:nCells) = field_interp(1:nCells,9)
-            qs_300hPa(1:nCells) = field_interp(1:nCells,10)
-            qs_400hPa(1:nCells) = field_interp(1:nCells,11)
-            qs_500hPa(1:nCells) = field_interp(1:nCells,12)
-            qs_600hPa(1:nCells) = field_interp(1:nCells,13)
-            qs_700hPa(1:nCells) = field_interp(1:nCells,14)
-            qs_825hPa(1:nCells) = field_interp(1:nCells,15)
-            qs_850hPa(1:nCells) = field_interp(1:nCells,16)
-            qs_875hPa(1:nCells) = field_interp(1:nCells,17)
-            qs_900hPa(1:nCells) = field_interp(1:nCells,18)
-            qs_925hPa(1:nCells) = field_interp(1:nCells,19)
-            qs_950hPa(1:nCells) = field_interp(1:nCells,20)
-            qs_975hPa(1:nCells) = field_interp(1:nCells,21)
-            qs_1000hPa(1:nCells) = field_interp(1:nCells,22)
+            call VerticalInterpolation_Single ( nCells                                        , & !1
+                                                nVertLevels                                   , & !2
+                                                nVertLevels                                   , & !3
+                                                nIsoLevelsT                                   , & !4
+                                                nIsoLevelsT                                   , & !5
+                                                scalars(index_qs,1:nVertLevels,1:nCells)      , & !6
+                                                field_interp    (1:nIsoLevelsT,1:nCells)      , & !7
+                                                pressure        (1:nVertLevels,1:nCells)*100.0, & !8
+                                                t_iso_levels    (1:nIsoLevelsT)               )   !9
+            
+            qs_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+            qs_20hPa(1:nCells)   = field_interp(21,1:nCells)
+            qs_30hPa(1:nCells)   = field_interp(20,1:nCells)
+            qs_50hPa(1:nCells)   = field_interp(19,1:nCells)
+            qs_70hPa(1:nCells)   = field_interp(18,1:nCells)
+            qs_100hPa(1:nCells)  = field_interp(17,1:nCells)
+            qs_150hPa(1:nCells)  = field_interp(16,1:nCells)
+            qs_200hPa(1:nCells)  = field_interp(15,1:nCells)
+            qs_250hPa(1:nCells)  = field_interp(14,1:nCells)
+            qs_300hPa(1:nCells)  = field_interp(13,1:nCells)
+            qs_400hPa(1:nCells)  = field_interp(12,1:nCells)
+            qs_500hPa(1:nCells)  = field_interp(11,1:nCells)
+            qs_600hPa(1:nCells)  = field_interp(10,1:nCells)
+            qs_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+            qs_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+            qs_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+            qs_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+            qs_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+            qs_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+            qs_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+            qs_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+            qs_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
             ! call mpas_log_write('--- end interpolate qs:')
         end if
+        !CR: new vertical interpolation done! 6
 
         if (NEED_QV) then
            !... qv:
-            do iCell = 1, nCells
-            do k = 1, nVertLevels
-               kk = nVertLevels+1-k
-               field_in(iCell,kk) = scalars(index_qv,k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+            !CR: 7o single
+            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
-            qv_15hPa(1:nCells) = field_interp(1:nCells,1)
-            qv_20hPa(1:nCells) = field_interp(1:nCells,2)
-            qv_30hPa(1:nCells) = field_interp(1:nCells,3)
-            qv_50hPa(1:nCells) = field_interp(1:nCells,4)
-            qv_70hPa(1:nCells) = field_interp(1:nCells,5)
-            qv_100hPa(1:nCells) = field_interp(1:nCells,6)
-            qv_150hPa(1:nCells) = field_interp(1:nCells,7)
-            qv_200hPa(1:nCells) = field_interp(1:nCells,8)
-            qv_250hPa(1:nCells) = field_interp(1:nCells,9)
-            qv_300hPa(1:nCells) = field_interp(1:nCells,10)
-            qv_400hPa(1:nCells) = field_interp(1:nCells,11)
-            qv_500hPa(1:nCells) = field_interp(1:nCells,12)
-            qv_600hPa(1:nCells) = field_interp(1:nCells,13)
-            qv_700hPa(1:nCells) = field_interp(1:nCells,14)
-            qv_825hPa(1:nCells) = field_interp(1:nCells,15)
-            qv_850hPa(1:nCells) = field_interp(1:nCells,16)
-            qv_875hPa(1:nCells) = field_interp(1:nCells,17)
-            qv_900hPa(1:nCells) = field_interp(1:nCells,18)
-            qv_925hPa(1:nCells) = field_interp(1:nCells,19)
-            qv_950hPa(1:nCells) = field_interp(1:nCells,20)
-            qv_975hPa(1:nCells) = field_interp(1:nCells,21)
-            qv_1000hPa(1:nCells) = field_interp(1:nCells,22)
+            call VerticalInterpolation_Single ( nCells                                        , & !1
+                                                nVertLevels                                   , & !2
+                                                nVertLevels                                   , & !3
+                                                nIsoLevelsT                                   , & !4
+                                                nIsoLevelsT                                   , & !5
+                                                scalars(index_qv,1:nVertLevels,1:nCells)      , & !6
+                                                field_interp    (1:nIsoLevelsT,1:nCells)      , & !7
+                                                pressure        (1:nVertLevels,1:nCells)*100.0, & !8
+                                                t_iso_levels    (1:nIsoLevelsT)               )   !9
+            
+            qv_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+            qv_20hPa(1:nCells)   = field_interp(21,1:nCells)
+            qv_30hPa(1:nCells)   = field_interp(20,1:nCells)
+            qv_50hPa(1:nCells)   = field_interp(19,1:nCells)
+            qv_70hPa(1:nCells)   = field_interp(18,1:nCells)
+            qv_100hPa(1:nCells)  = field_interp(17,1:nCells)
+            qv_150hPa(1:nCells)  = field_interp(16,1:nCells)
+            qv_200hPa(1:nCells)  = field_interp(15,1:nCells)
+            qv_250hPa(1:nCells)  = field_interp(14,1:nCells)
+            qv_300hPa(1:nCells)  = field_interp(13,1:nCells)
+            qv_400hPa(1:nCells)  = field_interp(12,1:nCells)
+            qv_500hPa(1:nCells)  = field_interp(11,1:nCells)
+            qv_600hPa(1:nCells)  = field_interp(10,1:nCells)
+            qv_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+            qv_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+            qv_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+            qv_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+            qv_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+            qv_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+            qv_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+            qv_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+            qv_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
             ! call mpas_log_write('--- end interpolate qv:')
         end if
+        !CR: new vertical interpolation done! 7
 
         if (NEED_QC) then
            !... qc:
-            do iCell = 1, nCells
-            do k = 1, nVertLevels
-               kk = nVertLevels+1-k
-               field_in(iCell,kk) = scalars(index_qc,k,iCell)
-!               field_in(iCell,kk) = 1.
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+            !CR: 8o single
+            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
-            qc_15hPa(1:nCells) = field_interp(1:nCells,1)
-            qc_20hPa(1:nCells) = field_interp(1:nCells,2)
-            qc_30hPa(1:nCells) = field_interp(1:nCells,3)
-            qc_50hPa(1:nCells) = field_interp(1:nCells,4)
-            qc_70hPa(1:nCells) = field_interp(1:nCells,5)
-            qc_100hPa(1:nCells) = field_interp(1:nCells,6)
-            qc_150hPa(1:nCells) = field_interp(1:nCells,7)
-            qc_200hPa(1:nCells) = field_interp(1:nCells,8)
-            qc_250hPa(1:nCells) = field_interp(1:nCells,9)
-            qc_300hPa(1:nCells) = field_interp(1:nCells,10)
-            qc_400hPa(1:nCells) = field_interp(1:nCells,11)
-            qc_500hPa(1:nCells) = field_interp(1:nCells,12)
-            qc_600hPa(1:nCells) = field_interp(1:nCells,13)
-            qc_700hPa(1:nCells) = field_interp(1:nCells,14)
-            qc_825hPa(1:nCells) = field_interp(1:nCells,15)
-            qc_850hPa(1:nCells) = field_interp(1:nCells,16)
-            qc_875hPa(1:nCells) = field_interp(1:nCells,17)
-            qc_900hPa(1:nCells) = field_interp(1:nCells,18)
-            qc_925hPa(1:nCells) = field_interp(1:nCells,19)
-            qc_950hPa(1:nCells) = field_interp(1:nCells,20)
-            qc_975hPa(1:nCells) = field_interp(1:nCells,21)
-            qc_1000hPa(1:nCells) = field_interp(1:nCells,22)
+            call VerticalInterpolation_Single ( nCells                                        , & !1
+                                                nVertLevels                                   , & !2
+                                                nVertLevels                                   , & !3
+                                                nIsoLevelsT                                   , & !4
+                                                nIsoLevelsT                                   , & !5
+                                                scalars(index_qc,1:nVertLevels,1:nCells)      , & !6
+                                                field_interp    (1:nIsoLevelsT,1:nCells)      , & !7
+                                                pressure        (1:nVertLevels,1:nCells)*100.0, & !8
+                                                t_iso_levels    (1:nIsoLevelsT)               )   !9
+            
+            qc_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+            qc_20hPa(1:nCells)   = field_interp(21,1:nCells)
+            qc_30hPa(1:nCells)   = field_interp(20,1:nCells)
+            qc_50hPa(1:nCells)   = field_interp(19,1:nCells)
+            qc_70hPa(1:nCells)   = field_interp(18,1:nCells)
+            qc_100hPa(1:nCells)  = field_interp(17,1:nCells)
+            qc_150hPa(1:nCells)  = field_interp(16,1:nCells)
+            qc_200hPa(1:nCells)  = field_interp(15,1:nCells)
+            qc_250hPa(1:nCells)  = field_interp(14,1:nCells)
+            qc_300hPa(1:nCells)  = field_interp(13,1:nCells)
+            qc_400hPa(1:nCells)  = field_interp(12,1:nCells)
+            qc_500hPa(1:nCells)  = field_interp(11,1:nCells)
+            qc_600hPa(1:nCells)  = field_interp(10,1:nCells)
+            qc_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+            qc_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+            qc_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+            qc_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+            qc_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+            qc_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+            qc_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+            qc_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+            qc_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
             ! call mpas_log_write('--- end interpolate qc:')
         end if
+        !CR: new vertical interpolation done! 8
 
         if (NEED_QG) then
            !... qg:
-            do iCell = 1, nCells
-            do k = 1, nVertLevels
-               kk = nVertLevels+1-k
-               field_in(iCell,kk) = scalars(index_qg,k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+            !CR: 9o single
+            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
-            qg_15hPa(1:nCells) = field_interp(1:nCells,1)
-            qg_20hPa(1:nCells) = field_interp(1:nCells,2)
-            qg_30hPa(1:nCells) = field_interp(1:nCells,3)
-            qg_50hPa(1:nCells) = field_interp(1:nCells,4)
-            qg_70hPa(1:nCells) = field_interp(1:nCells,5)
-            qg_100hPa(1:nCells) = field_interp(1:nCells,6)
-            qg_150hPa(1:nCells) = field_interp(1:nCells,7)
-            qg_200hPa(1:nCells) = field_interp(1:nCells,8)
-            qg_250hPa(1:nCells) = field_interp(1:nCells,9)
-            qg_300hPa(1:nCells) = field_interp(1:nCells,10)
-            qg_400hPa(1:nCells) = field_interp(1:nCells,11)
-            qg_500hPa(1:nCells) = field_interp(1:nCells,12)
-            qg_600hPa(1:nCells) = field_interp(1:nCells,13)
-            qg_700hPa(1:nCells) = field_interp(1:nCells,14)
-            qg_825hPa(1:nCells) = field_interp(1:nCells,15)
-            qg_850hPa(1:nCells) = field_interp(1:nCells,16)
-            qg_875hPa(1:nCells) = field_interp(1:nCells,17)
-            qg_900hPa(1:nCells) = field_interp(1:nCells,18)
-            qg_925hPa(1:nCells) = field_interp(1:nCells,19)
-            qg_950hPa(1:nCells) = field_interp(1:nCells,20)
-            qg_975hPa(1:nCells) = field_interp(1:nCells,21)
-            qg_1000hPa(1:nCells) = field_interp(1:nCells,22)
+            call VerticalInterpolation_Single ( nCells                                        , & !1
+                                                nVertLevels                                   , & !2
+                                                nVertLevels                                   , & !3
+                                                nIsoLevelsT                                   , & !4
+                                                nIsoLevelsT                                   , & !5
+                                                scalars(index_qg,1:nVertLevels,1:nCells)      , & !6
+                                                field_interp    (1:nIsoLevelsT,1:nCells)      , & !7
+                                                pressure        (1:nVertLevels,1:nCells)*100.0, & !8
+                                                t_iso_levels    (1:nIsoLevelsT)               )   !9
+            
+            qg_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+            qg_20hPa(1:nCells)   = field_interp(21,1:nCells)
+            qg_30hPa(1:nCells)   = field_interp(20,1:nCells)
+            qg_50hPa(1:nCells)   = field_interp(19,1:nCells)
+            qg_70hPa(1:nCells)   = field_interp(18,1:nCells)
+            qg_100hPa(1:nCells)  = field_interp(17,1:nCells)
+            qg_150hPa(1:nCells)  = field_interp(16,1:nCells)
+            qg_200hPa(1:nCells)  = field_interp(15,1:nCells)
+            qg_250hPa(1:nCells)  = field_interp(14,1:nCells)
+            qg_300hPa(1:nCells)  = field_interp(13,1:nCells)
+            qg_400hPa(1:nCells)  = field_interp(12,1:nCells)
+            qg_500hPa(1:nCells)  = field_interp(11,1:nCells)
+            qg_600hPa(1:nCells)  = field_interp(10,1:nCells)
+            qg_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+            qg_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+            qg_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+            qg_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+            qg_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+            qg_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+            qg_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+            qg_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+            qg_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
             ! call mpas_log_write('--- end interpolate qg:')
         end if
+        !CR: new vertical interpolation done! 9
 
         if (NEED_QI) then
            !... qi:
-            do iCell = 1, nCells
-            do k = 1, nVertLevels
-               kk = nVertLevels+1-k
-               field_in(iCell,kk) = scalars(index_qi,k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+            !CR: 10o single
+            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
-            qi_15hPa(1:nCells) = field_interp(1:nCells,1)
-            qi_20hPa(1:nCells) = field_interp(1:nCells,2)
-            qi_30hPa(1:nCells) = field_interp(1:nCells,3)
-            qi_50hPa(1:nCells) = field_interp(1:nCells,4)
-            qi_70hPa(1:nCells) = field_interp(1:nCells,5)
-            qi_100hPa(1:nCells) = field_interp(1:nCells,6)
-            qi_150hPa(1:nCells) = field_interp(1:nCells,7)
-            qi_200hPa(1:nCells) = field_interp(1:nCells,8)
-            qi_250hPa(1:nCells) = field_interp(1:nCells,9)
-            qi_300hPa(1:nCells) = field_interp(1:nCells,10)
-            qi_400hPa(1:nCells) = field_interp(1:nCells,11)
-            qi_500hPa(1:nCells) = field_interp(1:nCells,12)
-            qi_600hPa(1:nCells) = field_interp(1:nCells,13)
-            qi_700hPa(1:nCells) = field_interp(1:nCells,14)
-            qi_825hPa(1:nCells) = field_interp(1:nCells,15)
-            qi_850hPa(1:nCells) = field_interp(1:nCells,16)
-            qi_875hPa(1:nCells) = field_interp(1:nCells,17)
-            qi_900hPa(1:nCells) = field_interp(1:nCells,18)
-            qi_925hPa(1:nCells) = field_interp(1:nCells,19)
-            qi_950hPa(1:nCells) = field_interp(1:nCells,20)
-            qi_975hPa(1:nCells) = field_interp(1:nCells,21)
-            qi_1000hPa(1:nCells) = field_interp(1:nCells,22)
+            call VerticalInterpolation_Single ( nCells                                        , & !1
+                                                nVertLevels                                   , & !2
+                                                nVertLevels                                   , & !3
+                                                nIsoLevelsT                                   , & !4
+                                                nIsoLevelsT                                   , & !5
+                                                scalars(index_qi,1:nVertLevels,1:nCells)      , & !6
+                                                field_interp    (1:nIsoLevelsT,1:nCells)      , & !7
+                                                pressure        (1:nVertLevels,1:nCells)*100.0, & !8
+                                                t_iso_levels    (1:nIsoLevelsT)               )   !9
+            
+            qi_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+            qi_20hPa(1:nCells)   = field_interp(21,1:nCells)
+            qi_30hPa(1:nCells)   = field_interp(20,1:nCells)
+            qi_50hPa(1:nCells)   = field_interp(19,1:nCells)
+            qi_70hPa(1:nCells)   = field_interp(18,1:nCells)
+            qi_100hPa(1:nCells)  = field_interp(17,1:nCells)
+            qi_150hPa(1:nCells)  = field_interp(16,1:nCells)
+            qi_200hPa(1:nCells)  = field_interp(15,1:nCells)
+            qi_250hPa(1:nCells)  = field_interp(14,1:nCells)
+            qi_300hPa(1:nCells)  = field_interp(13,1:nCells)
+            qi_400hPa(1:nCells)  = field_interp(12,1:nCells)
+            qi_500hPa(1:nCells)  = field_interp(11,1:nCells)
+            qi_600hPa(1:nCells)  = field_interp(10,1:nCells)
+            qi_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+            qi_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+            qi_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+            qi_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+            qi_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+            qi_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+            qi_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+            qi_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+            qi_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
             ! call mpas_log_write('--- end interpolate qi:')
         end if
+        !CR: new vertical interpolation done! 10
 
         if (NEED_RQVBLTEN) then
            !... rqvblten:
-            do iCell = 1, nCells
-            do k = 1, nVertLevels
-               kk = nVertLevels+1-k
-               field_in(iCell,kk) = rqvblten(k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+            !CR: 11o single
+            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
-            rqvblten_15hPa(1:nCells) = field_interp(1:nCells,1)
-            rqvblten_20hPa(1:nCells) = field_interp(1:nCells,2)
-            rqvblten_30hPa(1:nCells) = field_interp(1:nCells,3)
-            rqvblten_50hPa(1:nCells) = field_interp(1:nCells,4)
-            rqvblten_70hPa(1:nCells) = field_interp(1:nCells,5)
-            rqvblten_100hPa(1:nCells) = field_interp(1:nCells,6)
-            rqvblten_150hPa(1:nCells) = field_interp(1:nCells,7)
-            rqvblten_200hPa(1:nCells) = field_interp(1:nCells,8)
-            rqvblten_250hPa(1:nCells) = field_interp(1:nCells,9)
-            rqvblten_300hPa(1:nCells) = field_interp(1:nCells,10)
-            rqvblten_400hPa(1:nCells) = field_interp(1:nCells,11)
-            rqvblten_500hPa(1:nCells) = field_interp(1:nCells,12)
-            rqvblten_600hPa(1:nCells) = field_interp(1:nCells,13)
-            rqvblten_700hPa(1:nCells) = field_interp(1:nCells,14)
-            rqvblten_825hPa(1:nCells) = field_interp(1:nCells,15)
-            rqvblten_850hPa(1:nCells) = field_interp(1:nCells,16)
-            rqvblten_875hPa(1:nCells) = field_interp(1:nCells,17)
-            rqvblten_900hPa(1:nCells) = field_interp(1:nCells,18)
-            rqvblten_925hPa(1:nCells) = field_interp(1:nCells,19)
-            rqvblten_950hPa(1:nCells) = field_interp(1:nCells,20)
-            rqvblten_975hPa(1:nCells) = field_interp(1:nCells,21)
-            rqvblten_1000hPa(1:nCells) = field_interp(1:nCells,22)
+            call VerticalInterpolation_Single ( nCells                                    , & !1
+                                                nVertLevels                               , & !2
+                                                nVertLevels                               , & !3
+                                                nIsoLevelsT                               , & !4
+                                                nIsoLevelsT                               , & !5
+                                                rqvblten    (1:nVertLevels,1:nCells)      , & !6
+                                                field_interp(1:nIsoLevelsT,1:nCells)      , & !7
+                                                pressure    (1:nVertLevels,1:nCells)*100.0, & !8
+                                                t_iso_levels(1:nIsoLevelsT)               )   !9
+            
+            rqvblten_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+            rqvblten_20hPa(1:nCells)   = field_interp(21,1:nCells)
+            rqvblten_30hPa(1:nCells)   = field_interp(20,1:nCells)
+            rqvblten_50hPa(1:nCells)   = field_interp(19,1:nCells)
+            rqvblten_70hPa(1:nCells)   = field_interp(18,1:nCells)
+            rqvblten_100hPa(1:nCells)  = field_interp(17,1:nCells)
+            rqvblten_150hPa(1:nCells)  = field_interp(16,1:nCells)
+            rqvblten_200hPa(1:nCells)  = field_interp(15,1:nCells)
+            rqvblten_250hPa(1:nCells)  = field_interp(14,1:nCells)
+            rqvblten_300hPa(1:nCells)  = field_interp(13,1:nCells)
+            rqvblten_400hPa(1:nCells)  = field_interp(12,1:nCells)
+            rqvblten_500hPa(1:nCells)  = field_interp(11,1:nCells)
+            rqvblten_600hPa(1:nCells)  = field_interp(10,1:nCells)
+            rqvblten_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+            rqvblten_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+            rqvblten_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+            rqvblten_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+            rqvblten_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+            rqvblten_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+            rqvblten_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+            rqvblten_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+            rqvblten_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
             ! call mpas_log_write('--- end interpolate rqvblten:')
         end if
 
-        if (NEED_rthblten) then
-           !... rthblten:
-            do iCell = 1, nCells
-            do k = 1, nVertLevels
-               kk = nVertLevels+1-k
-               field_in(iCell,kk) = rthblten(k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
-
-            rthblten_15hPa(1:nCells) = field_interp(1:nCells,1)
-            rthblten_20hPa(1:nCells) = field_interp(1:nCells,2)
-            rthblten_30hPa(1:nCells) = field_interp(1:nCells,3)
-            rthblten_50hPa(1:nCells) = field_interp(1:nCells,4)
-            rthblten_70hPa(1:nCells) = field_interp(1:nCells,5)
-            rthblten_100hPa(1:nCells) = field_interp(1:nCells,6)
-            rthblten_150hPa(1:nCells) = field_interp(1:nCells,7)
-            rthblten_200hPa(1:nCells) = field_interp(1:nCells,8)
-            rthblten_250hPa(1:nCells) = field_interp(1:nCells,9)
-            rthblten_300hPa(1:nCells) = field_interp(1:nCells,10)
-            rthblten_400hPa(1:nCells) = field_interp(1:nCells,11)
-            rthblten_500hPa(1:nCells) = field_interp(1:nCells,12)
-            rthblten_600hPa(1:nCells) = field_interp(1:nCells,13)
-            rthblten_700hPa(1:nCells) = field_interp(1:nCells,14)
-            rthblten_825hPa(1:nCells) = field_interp(1:nCells,15)
-            rthblten_850hPa(1:nCells) = field_interp(1:nCells,16)
-            rthblten_875hPa(1:nCells) = field_interp(1:nCells,17)
-            rthblten_900hPa(1:nCells) = field_interp(1:nCells,18)
-            rthblten_925hPa(1:nCells) = field_interp(1:nCells,19)
-            rthblten_950hPa(1:nCells) = field_interp(1:nCells,20)
-            rthblten_975hPa(1:nCells) = field_interp(1:nCells,21)
-            rthblten_1000hPa(1:nCells) = field_interp(1:nCells,22)
-            ! call mpas_log_write('--- end interpolate rthblten:')
-        end if
+        !CR: new vertical interpolation done! 11
 
 
         if (NEED_RQVCUTEN) then
            !... rqvcuten:
-            do iCell = 1, nCells
-            do k = 1, nVertLevels
-               kk = nVertLevels+1-k
-               field_in(iCell,kk) = rqvcuten(k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+            !CR: 12o single
+            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
-            rqvcuten_15hPa(1:nCells) = field_interp(1:nCells,1)
-            rqvcuten_20hPa(1:nCells) = field_interp(1:nCells,2)
-            rqvcuten_30hPa(1:nCells) = field_interp(1:nCells,3)
-            rqvcuten_50hPa(1:nCells) = field_interp(1:nCells,4)
-            rqvcuten_70hPa(1:nCells) = field_interp(1:nCells,5)
-            rqvcuten_100hPa(1:nCells) = field_interp(1:nCells,6)
-            rqvcuten_150hPa(1:nCells) = field_interp(1:nCells,7)
-            rqvcuten_200hPa(1:nCells) = field_interp(1:nCells,8)
-            rqvcuten_250hPa(1:nCells) = field_interp(1:nCells,9)
-            rqvcuten_300hPa(1:nCells) = field_interp(1:nCells,10)
-            rqvcuten_400hPa(1:nCells) = field_interp(1:nCells,11)
-            rqvcuten_500hPa(1:nCells) = field_interp(1:nCells,12)
-            rqvcuten_600hPa(1:nCells) = field_interp(1:nCells,13)
-            rqvcuten_700hPa(1:nCells) = field_interp(1:nCells,14)
-            rqvcuten_825hPa(1:nCells) = field_interp(1:nCells,15)
-            rqvcuten_850hPa(1:nCells) = field_interp(1:nCells,16)
-            rqvcuten_875hPa(1:nCells) = field_interp(1:nCells,17)
-            rqvcuten_900hPa(1:nCells) = field_interp(1:nCells,18)
-            rqvcuten_925hPa(1:nCells) = field_interp(1:nCells,19)
-            rqvcuten_950hPa(1:nCells) = field_interp(1:nCells,20)
-            rqvcuten_975hPa(1:nCells) = field_interp(1:nCells,21)
-            rqvcuten_1000hPa(1:nCells) = field_interp(1:nCells,22)
+            call VerticalInterpolation_Single ( nCells                                    , & !1
+                                                nVertLevels                               , & !2
+                                                nVertLevels                               , & !3
+                                                nIsoLevelsT                               , & !4
+                                                nIsoLevelsT                               , & !5
+                                                rqvcuten    (1:nVertLevels,1:nCells)      , & !6
+                                                field_interp(1:nIsoLevelsT,1:nCells)      , & !7
+                                                pressure    (1:nVertLevels,1:nCells)*100.0, & !8
+                                                t_iso_levels(1:nIsoLevelsT)               )   !9
+
+            rqvcuten_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+            rqvcuten_20hPa(1:nCells)   = field_interp(21,1:nCells)
+            rqvcuten_30hPa(1:nCells)   = field_interp(20,1:nCells)
+            rqvcuten_50hPa(1:nCells)   = field_interp(19,1:nCells)
+            rqvcuten_70hPa(1:nCells)   = field_interp(18,1:nCells)
+            rqvcuten_100hPa(1:nCells)  = field_interp(17,1:nCells)
+            rqvcuten_150hPa(1:nCells)  = field_interp(16,1:nCells)
+            rqvcuten_200hPa(1:nCells)  = field_interp(15,1:nCells)
+            rqvcuten_250hPa(1:nCells)  = field_interp(14,1:nCells)
+            rqvcuten_300hPa(1:nCells)  = field_interp(13,1:nCells)
+            rqvcuten_400hPa(1:nCells)  = field_interp(12,1:nCells)
+            rqvcuten_500hPa(1:nCells)  = field_interp(11,1:nCells)
+            rqvcuten_600hPa(1:nCells)  = field_interp(10,1:nCells)
+            rqvcuten_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+            rqvcuten_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+            rqvcuten_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+            rqvcuten_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+            rqvcuten_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+            rqvcuten_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+            rqvcuten_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+            rqvcuten_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+            rqvcuten_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
             ! call mpas_log_write('--- end interpolate rqvcuten:')
         end if
 
 
-        if (NEED_RTHCUTEN) then
-           !... rthcuten:
-            do iCell = 1, nCells
-            do k = 1, nVertLevels
-               kk = nVertLevels+1-k
-               field_in(iCell,kk) = rthcuten(k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
-
-            rthcuten_15hPa(1:nCells) = field_interp(1:nCells,1)
-            rthcuten_20hPa(1:nCells) = field_interp(1:nCells,2)
-            rthcuten_30hPa(1:nCells) = field_interp(1:nCells,3)
-            rthcuten_50hPa(1:nCells) = field_interp(1:nCells,4)
-            rthcuten_70hPa(1:nCells) = field_interp(1:nCells,5)
-            rthcuten_100hPa(1:nCells) = field_interp(1:nCells,6)
-            rthcuten_150hPa(1:nCells) = field_interp(1:nCells,7)
-            rthcuten_200hPa(1:nCells) = field_interp(1:nCells,8)
-            rthcuten_250hPa(1:nCells) = field_interp(1:nCells,9)
-            rthcuten_300hPa(1:nCells) = field_interp(1:nCells,10)
-            rthcuten_400hPa(1:nCells) = field_interp(1:nCells,11)
-            rthcuten_500hPa(1:nCells) = field_interp(1:nCells,12)
-            rthcuten_600hPa(1:nCells) = field_interp(1:nCells,13)
-            rthcuten_700hPa(1:nCells) = field_interp(1:nCells,14)
-            rthcuten_825hPa(1:nCells) = field_interp(1:nCells,15)
-            rthcuten_850hPa(1:nCells) = field_interp(1:nCells,16)
-            rthcuten_875hPa(1:nCells) = field_interp(1:nCells,17)
-            rthcuten_900hPa(1:nCells) = field_interp(1:nCells,18)
-            rthcuten_925hPa(1:nCells) = field_interp(1:nCells,19)
-            rthcuten_950hPa(1:nCells) = field_interp(1:nCells,20)
-            rthcuten_975hPa(1:nCells) = field_interp(1:nCells,21)
-            rthcuten_1000hPa(1:nCells) = field_interp(1:nCells,22)
-            ! call mpas_log_write('--- end interpolate rthcuten:')
-        end if
+        !CR: new vertical interpolation done! 12
 
 
         if (NEED_RTHRATENLW) then
            !... rthratenlw:
-            do iCell = 1, nCells
-            do k = 1, nVertLevels
-               kk = nVertLevels+1-k
-               field_in(iCell,kk) = rthratenlw(k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+            !CR: 13o single
+            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
-            rthratenlw_15hPa(1:nCells) = field_interp(1:nCells,1)
-            rthratenlw_20hPa(1:nCells) = field_interp(1:nCells,2)
-            rthratenlw_30hPa(1:nCells) = field_interp(1:nCells,3)
-            rthratenlw_50hPa(1:nCells) = field_interp(1:nCells,4)
-            rthratenlw_70hPa(1:nCells) = field_interp(1:nCells,5)
-            rthratenlw_100hPa(1:nCells) = field_interp(1:nCells,6)
-            rthratenlw_150hPa(1:nCells) = field_interp(1:nCells,7)
-            rthratenlw_200hPa(1:nCells) = field_interp(1:nCells,8)
-            rthratenlw_250hPa(1:nCells) = field_interp(1:nCells,9)
-            rthratenlw_300hPa(1:nCells) = field_interp(1:nCells,10)
-            rthratenlw_400hPa(1:nCells) = field_interp(1:nCells,11)
-            rthratenlw_500hPa(1:nCells) = field_interp(1:nCells,12)
-            rthratenlw_600hPa(1:nCells) = field_interp(1:nCells,13)
-            rthratenlw_700hPa(1:nCells) = field_interp(1:nCells,14)
-            rthratenlw_825hPa(1:nCells) = field_interp(1:nCells,15)
-            rthratenlw_850hPa(1:nCells) = field_interp(1:nCells,16)
-            rthratenlw_875hPa(1:nCells) = field_interp(1:nCells,17)
-            rthratenlw_900hPa(1:nCells) = field_interp(1:nCells,18)
-            rthratenlw_925hPa(1:nCells) = field_interp(1:nCells,19)
-            rthratenlw_950hPa(1:nCells) = field_interp(1:nCells,20)
-            rthratenlw_975hPa(1:nCells) = field_interp(1:nCells,21)
-            rthratenlw_1000hPa(1:nCells) = field_interp(1:nCells,22)
+            call VerticalInterpolation_Single ( nCells                                    , & !1
+                                                nVertLevels                               , & !2
+                                                nVertLevels                               , & !3
+                                                nIsoLevelsT                               , & !4
+                                                nIsoLevelsT                               , & !5
+                                                rthratenlw  (1:nVertLevels,1:nCells)      , & !6
+                                                field_interp(1:nIsoLevelsT,1:nCells)      , & !7
+                                                pressure    (1:nVertLevels,1:nCells)*100.0, & !8
+                                                t_iso_levels(1:nIsoLevelsT)               )   !9
+            
+            rthratenlw_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+            rthratenlw_20hPa(1:nCells)   = field_interp(21,1:nCells)
+            rthratenlw_30hPa(1:nCells)   = field_interp(20,1:nCells)
+            rthratenlw_50hPa(1:nCells)   = field_interp(19,1:nCells)
+            rthratenlw_70hPa(1:nCells)   = field_interp(18,1:nCells)
+            rthratenlw_100hPa(1:nCells)  = field_interp(17,1:nCells)
+            rthratenlw_150hPa(1:nCells)  = field_interp(16,1:nCells)
+            rthratenlw_200hPa(1:nCells)  = field_interp(15,1:nCells)
+            rthratenlw_250hPa(1:nCells)  = field_interp(14,1:nCells)
+            rthratenlw_300hPa(1:nCells)  = field_interp(13,1:nCells)
+            rthratenlw_400hPa(1:nCells)  = field_interp(12,1:nCells)
+            rthratenlw_500hPa(1:nCells)  = field_interp(11,1:nCells)
+            rthratenlw_600hPa(1:nCells)  = field_interp(10,1:nCells)
+            rthratenlw_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+            rthratenlw_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+            rthratenlw_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+            rthratenlw_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+            rthratenlw_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+            rthratenlw_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+            rthratenlw_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+            rthratenlw_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+            rthratenlw_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
             ! call mpas_log_write('--- end interpolate rthratenlw:')
         end if
+        !CR: new vertical interpolation done! 13
 
         if (NEED_RTHRATENSW) then
            !... rthratenlw:
-            do iCell = 1, nCells
-            do k = 1, nVertLevels
-               kk = nVertLevels+1-k
-               field_in(iCell,kk) = rthratensw(k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+            !CR: 14o single
+            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
-            rthratensw_15hPa(1:nCells) = field_interp(1:nCells,1)
-            rthratensw_20hPa(1:nCells) = field_interp(1:nCells,2)
-            rthratensw_30hPa(1:nCells) = field_interp(1:nCells,3)
-            rthratensw_50hPa(1:nCells) = field_interp(1:nCells,4)
-            rthratensw_70hPa(1:nCells) = field_interp(1:nCells,5)
-            rthratensw_100hPa(1:nCells) = field_interp(1:nCells,6)
-            rthratensw_150hPa(1:nCells) = field_interp(1:nCells,7)
-            rthratensw_200hPa(1:nCells) = field_interp(1:nCells,8)
-            rthratensw_250hPa(1:nCells) = field_interp(1:nCells,9)
-            rthratensw_300hPa(1:nCells) = field_interp(1:nCells,10)
-            rthratensw_400hPa(1:nCells) = field_interp(1:nCells,11)
-            rthratensw_500hPa(1:nCells) = field_interp(1:nCells,12)
-            rthratensw_600hPa(1:nCells) = field_interp(1:nCells,13)
-            rthratensw_700hPa(1:nCells) = field_interp(1:nCells,14)
-            rthratensw_825hPa(1:nCells) = field_interp(1:nCells,15)
-            rthratensw_850hPa(1:nCells) = field_interp(1:nCells,16)
-            rthratensw_875hPa(1:nCells) = field_interp(1:nCells,17)
-            rthratensw_900hPa(1:nCells) = field_interp(1:nCells,18)
-            rthratensw_925hPa(1:nCells) = field_interp(1:nCells,19)
-            rthratensw_950hPa(1:nCells) = field_interp(1:nCells,20)
-            rthratensw_975hPa(1:nCells) = field_interp(1:nCells,21)
-            rthratensw_1000hPa(1:nCells) = field_interp(1:nCells,22)
+            call VerticalInterpolation_Single ( nCells                                    , & !1
+                                                nVertLevels                               , & !2
+                                                nVertLevels                               , & !3
+                                                nIsoLevelsT                               , & !4
+                                                nIsoLevelsT                               , & !5
+                                                rthratensw  (1:nVertLevels,1:nCells)      , & !6
+                                                field_interp(1:nIsoLevelsT,1:nCells)      , & !7
+                                                pressure    (1:nVertLevels,1:nCells)*100.0, & !8
+                                                t_iso_levels(1:nIsoLevelsT)               ) !9
+            
+            rthratensw_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+            rthratensw_20hPa(1:nCells)   = field_interp(21,1:nCells)
+            rthratensw_30hPa(1:nCells)   = field_interp(20,1:nCells)
+            rthratensw_50hPa(1:nCells)   = field_interp(19,1:nCells)
+            rthratensw_70hPa(1:nCells)   = field_interp(18,1:nCells)
+            rthratensw_100hPa(1:nCells)  = field_interp(17,1:nCells)
+            rthratensw_150hPa(1:nCells)  = field_interp(16,1:nCells)
+            rthratensw_200hPa(1:nCells)  = field_interp(15,1:nCells)
+            rthratensw_250hPa(1:nCells)  = field_interp(14,1:nCells)
+            rthratensw_300hPa(1:nCells)  = field_interp(13,1:nCells)
+            rthratensw_400hPa(1:nCells)  = field_interp(12,1:nCells)
+            rthratensw_500hPa(1:nCells)  = field_interp(11,1:nCells)
+            rthratensw_600hPa(1:nCells)  = field_interp(10,1:nCells)
+            rthratensw_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+            rthratensw_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+            rthratensw_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+            rthratensw_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+            rthratensw_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+            rthratensw_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+            rthratensw_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+            rthratensw_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+            rthratensw_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
             ! call mpas_log_write('--- end interpolate rthratenlw:')
         end if
+        !CR: new vertical interpolation done! 14
 
 
 
         if (NEED_RUCUTEN) then
          !... rucuten:
-          do iCell = 1, nCells
-          do k = 1, nVertLevels
-             kk = nVertLevels+1-k
-             field_in(iCell,kk) = rucuten(k,iCell)
-          enddo
-          enddo
-          call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+            !CR: 15o single
+            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
-          rucuten_15hPa(1:nCells) = field_interp(1:nCells,1)
-          rucuten_20hPa(1:nCells) = field_interp(1:nCells,2)
-          rucuten_30hPa(1:nCells) = field_interp(1:nCells,3)
-          rucuten_50hPa(1:nCells) = field_interp(1:nCells,4)
-          rucuten_70hPa(1:nCells) = field_interp(1:nCells,5)
-          rucuten_100hPa(1:nCells) = field_interp(1:nCells,6)
-          rucuten_150hPa(1:nCells) = field_interp(1:nCells,7)
-          rucuten_200hPa(1:nCells) = field_interp(1:nCells,8)
-          rucuten_250hPa(1:nCells) = field_interp(1:nCells,9)
-          rucuten_300hPa(1:nCells) = field_interp(1:nCells,10)
-          rucuten_400hPa(1:nCells) = field_interp(1:nCells,11)
-          rucuten_500hPa(1:nCells) = field_interp(1:nCells,12)
-          rucuten_600hPa(1:nCells) = field_interp(1:nCells,13)
-          rucuten_700hPa(1:nCells) = field_interp(1:nCells,14)
-          rucuten_825hPa(1:nCells) = field_interp(1:nCells,15)
-          rucuten_850hPa(1:nCells) = field_interp(1:nCells,16)
-          rucuten_875hPa(1:nCells) = field_interp(1:nCells,17)
-          rucuten_900hPa(1:nCells) = field_interp(1:nCells,18)
-          rucuten_925hPa(1:nCells) = field_interp(1:nCells,19)
-          rucuten_950hPa(1:nCells) = field_interp(1:nCells,20)
-          rucuten_975hPa(1:nCells) = field_interp(1:nCells,21)
-          rucuten_1000hPa(1:nCells) = field_interp(1:nCells,22)
+            call VerticalInterpolation_Single ( nCells                                    , & !1
+                                                nVertLevels                               , & !2
+                                                nVertLevels                               , & !3
+                                                nIsoLevelsT                               , & !4
+                                                nIsoLevelsT                               , & !5
+                                                rucuten     (1:nVertLevels,1:nCells)      , & !6
+                                                field_interp(1:nIsoLevelsT,1:nCells)      , & !7
+                                                pressure    (1:nVertLevels,1:nCells)*100.0, & !8
+                                                t_iso_levels(1:nIsoLevelsT)               ) !9
+            
+            rucuten_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+            rucuten_20hPa(1:nCells)   = field_interp(21,1:nCells)
+            rucuten_30hPa(1:nCells)   = field_interp(20,1:nCells)
+            rucuten_50hPa(1:nCells)   = field_interp(19,1:nCells)
+            rucuten_70hPa(1:nCells)   = field_interp(18,1:nCells)
+            rucuten_100hPa(1:nCells)  = field_interp(17,1:nCells)
+            rucuten_150hPa(1:nCells)  = field_interp(16,1:nCells)
+            rucuten_200hPa(1:nCells)  = field_interp(15,1:nCells)
+            rucuten_250hPa(1:nCells)  = field_interp(14,1:nCells)
+            rucuten_300hPa(1:nCells)  = field_interp(13,1:nCells)
+            rucuten_400hPa(1:nCells)  = field_interp(12,1:nCells)
+            rucuten_500hPa(1:nCells)  = field_interp(11,1:nCells)
+            rucuten_600hPa(1:nCells)  = field_interp(10,1:nCells)
+            rucuten_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+            rucuten_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+            rucuten_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+            rucuten_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+            rucuten_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+            rucuten_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+            rucuten_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+            rucuten_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+            rucuten_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
           ! call mpas_log_write('--- end interpolate rucuten:')
         end if
+        !CR: new vertical interpolation done! 15
 
         if (NEED_RVCUTEN) then
          !... rvcuten:
-          do iCell = 1, nCells
-          do k = 1, nVertLevels
-             kk = nVertLevels+1-k
-             field_in(iCell,kk) = rvcuten(k,iCell)
-          enddo
-          enddo
-          call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+            !CR: 16o single
+            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
-          rvcuten_15hPa(1:nCells) = field_interp(1:nCells,1)
-          rvcuten_20hPa(1:nCells) = field_interp(1:nCells,2)
-          rvcuten_30hPa(1:nCells) = field_interp(1:nCells,3)
-          rvcuten_50hPa(1:nCells) = field_interp(1:nCells,4)
-          rvcuten_70hPa(1:nCells) = field_interp(1:nCells,5)
-          rvcuten_100hPa(1:nCells) = field_interp(1:nCells,6)
-          rvcuten_150hPa(1:nCells) = field_interp(1:nCells,7)
-          rvcuten_200hPa(1:nCells) = field_interp(1:nCells,8)
-          rvcuten_250hPa(1:nCells) = field_interp(1:nCells,9)
-          rvcuten_300hPa(1:nCells) = field_interp(1:nCells,10)
-          rvcuten_400hPa(1:nCells) = field_interp(1:nCells,11)
-          rvcuten_500hPa(1:nCells) = field_interp(1:nCells,12)
-          rvcuten_600hPa(1:nCells) = field_interp(1:nCells,13)
-          rvcuten_700hPa(1:nCells) = field_interp(1:nCells,14)
-          rvcuten_825hPa(1:nCells) = field_interp(1:nCells,15)
-          rvcuten_850hPa(1:nCells) = field_interp(1:nCells,16)
-          rvcuten_875hPa(1:nCells) = field_interp(1:nCells,17)
-          rvcuten_900hPa(1:nCells) = field_interp(1:nCells,18)
-          rvcuten_925hPa(1:nCells) = field_interp(1:nCells,19)
-          rvcuten_950hPa(1:nCells) = field_interp(1:nCells,20)
-          rvcuten_975hPa(1:nCells) = field_interp(1:nCells,21)
-          rvcuten_1000hPa(1:nCells) = field_interp(1:nCells,22)
+            call VerticalInterpolation_Single ( nCells                                    , & !1
+                                                nVertLevels                               , & !2
+                                                nVertLevels                               , & !3
+                                                nIsoLevelsT                               , & !4
+                                                nIsoLevelsT                               , & !5
+                                                rvcuten     (1:nVertLevels,1:nCells)      , & !6
+                                                field_interp(1:nIsoLevelsT,1:nCells)      , & !7
+                                                pressure    (1:nVertLevels,1:nCells)*100.0, & !8  
+                                                t_iso_levels(1:nIsoLevelsT)               ) !9
+          
+          rvcuten_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+          rvcuten_20hPa(1:nCells)   = field_interp(21,1:nCells)
+          rvcuten_30hPa(1:nCells)   = field_interp(20,1:nCells)
+          rvcuten_50hPa(1:nCells)   = field_interp(19,1:nCells)
+          rvcuten_70hPa(1:nCells)   = field_interp(18,1:nCells)
+          rvcuten_100hPa(1:nCells)  = field_interp(17,1:nCells)
+          rvcuten_150hPa(1:nCells)  = field_interp(16,1:nCells)
+          rvcuten_200hPa(1:nCells)  = field_interp(15,1:nCells)
+          rvcuten_250hPa(1:nCells)  = field_interp(14,1:nCells)
+          rvcuten_300hPa(1:nCells)  = field_interp(13,1:nCells)
+          rvcuten_400hPa(1:nCells)  = field_interp(12,1:nCells)
+          rvcuten_500hPa(1:nCells)  = field_interp(11,1:nCells)
+          rvcuten_600hPa(1:nCells)  = field_interp(10,1:nCells)
+          rvcuten_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+          rvcuten_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+          rvcuten_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+          rvcuten_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+          rvcuten_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+          rvcuten_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+          rvcuten_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+          rvcuten_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+          rvcuten_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
           ! call mpas_log_write('--- end interpolate rvcuten:')
         end if
+        !CR: new vertical interpolation done! 16
 
         if (NEED_RUBLTEN) then
          !... rublten:
-          do iCell = 1, nCells
-          do k = 1, nVertLevels
-             kk = nVertLevels+1-k
-             field_in(iCell,kk) = rublten(k,iCell)
-          enddo
-          enddo
-          call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+            !CR: 17o single
+            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
-          rublten_15hPa(1:nCells) = field_interp(1:nCells,1)
-          rublten_20hPa(1:nCells) = field_interp(1:nCells,2)
-          rublten_30hPa(1:nCells) = field_interp(1:nCells,3)
-          rublten_50hPa(1:nCells) = field_interp(1:nCells,4)
-          rublten_70hPa(1:nCells) = field_interp(1:nCells,5)
-          rublten_100hPa(1:nCells) = field_interp(1:nCells,6)
-          rublten_150hPa(1:nCells) = field_interp(1:nCells,7)
-          rublten_200hPa(1:nCells) = field_interp(1:nCells,8)
-          rublten_250hPa(1:nCells) = field_interp(1:nCells,9)
-          rublten_300hPa(1:nCells) = field_interp(1:nCells,10)
-          rublten_400hPa(1:nCells) = field_interp(1:nCells,11)
-          rublten_500hPa(1:nCells) = field_interp(1:nCells,12)
-          rublten_600hPa(1:nCells) = field_interp(1:nCells,13)
-          rublten_700hPa(1:nCells) = field_interp(1:nCells,14)
-          rublten_825hPa(1:nCells) = field_interp(1:nCells,15)
-          rublten_850hPa(1:nCells) = field_interp(1:nCells,16)
-          rublten_875hPa(1:nCells) = field_interp(1:nCells,17)
-          rublten_900hPa(1:nCells) = field_interp(1:nCells,18)
-          rublten_925hPa(1:nCells) = field_interp(1:nCells,19)
-          rublten_950hPa(1:nCells) = field_interp(1:nCells,20)
-          rublten_975hPa(1:nCells) = field_interp(1:nCells,21)
-          rublten_1000hPa(1:nCells) = field_interp(1:nCells,22)
+            call VerticalInterpolation_Single ( nCells                                    , & !1
+                                                nVertLevels                               , & !2
+                                                nVertLevels                               , & !3
+                                                nIsoLevelsT                               , & !4
+                                                nIsoLevelsT                               , & !5
+                                                rublten     (1:nVertLevels,1:nCells)      , & !6
+                                                field_interp(1:nIsoLevelsT,1:nCells)      , & !7
+                                                pressure    (1:nVertLevels,1:nCells)*100.0, & !8
+                                                t_iso_levels(1:nIsoLevelsT)               )   !9
+          
+          rublten_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+          rublten_20hPa(1:nCells)   = field_interp(21,1:nCells)
+          rublten_30hPa(1:nCells)   = field_interp(20,1:nCells)
+          rublten_50hPa(1:nCells)   = field_interp(19,1:nCells)
+          rublten_70hPa(1:nCells)   = field_interp(18,1:nCells)
+          rublten_100hPa(1:nCells)  = field_interp(17,1:nCells)
+          rublten_150hPa(1:nCells)  = field_interp(16,1:nCells)
+          rublten_200hPa(1:nCells)  = field_interp(15,1:nCells)
+          rublten_250hPa(1:nCells)  = field_interp(14,1:nCells)
+          rublten_300hPa(1:nCells)  = field_interp(13,1:nCells)
+          rublten_400hPa(1:nCells)  = field_interp(12,1:nCells)
+          rublten_500hPa(1:nCells)  = field_interp(11,1:nCells)
+          rublten_600hPa(1:nCells)  = field_interp(10,1:nCells)
+          rublten_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+          rublten_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+          rublten_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+          rublten_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+          rublten_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+          rublten_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+          rublten_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+          rublten_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+          rublten_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
           ! call mpas_log_write('--- end interpolate rublten:')
         end if
+        !CR: new vertical interpolation done! 17
 
      
         if (NEED_RVBLTEN) then
          !... rvblten:
-          do iCell = 1, nCells
-          do k = 1, nVertLevels
-             kk = nVertLevels+1-k
-             field_in(iCell,kk) = rvblten(k,iCell)
-          enddo
-          enddo
-          call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+            !CR: 18o single
+            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
-          rvblten_15hPa(1:nCells) = field_interp(1:nCells,1)
-          rvblten_20hPa(1:nCells) = field_interp(1:nCells,2)
-          rvblten_30hPa(1:nCells) = field_interp(1:nCells,3)
-          rvblten_50hPa(1:nCells) = field_interp(1:nCells,4)
-          rvblten_70hPa(1:nCells) = field_interp(1:nCells,5)
-          rvblten_100hPa(1:nCells) = field_interp(1:nCells,6)
-          rvblten_150hPa(1:nCells) = field_interp(1:nCells,7)
-          rvblten_200hPa(1:nCells) = field_interp(1:nCells,8)
-          rvblten_250hPa(1:nCells) = field_interp(1:nCells,9)
-          rvblten_300hPa(1:nCells) = field_interp(1:nCells,10)
-          rvblten_400hPa(1:nCells) = field_interp(1:nCells,11)
-          rvblten_500hPa(1:nCells) = field_interp(1:nCells,12)
-          rvblten_600hPa(1:nCells) = field_interp(1:nCells,13)
-          rvblten_700hPa(1:nCells) = field_interp(1:nCells,14)
-          rvblten_825hPa(1:nCells) = field_interp(1:nCells,15)
-          rvblten_850hPa(1:nCells) = field_interp(1:nCells,16)
-          rvblten_875hPa(1:nCells) = field_interp(1:nCells,17)
-          rvblten_900hPa(1:nCells) = field_interp(1:nCells,18)
-          rvblten_925hPa(1:nCells) = field_interp(1:nCells,19)
-          rvblten_950hPa(1:nCells) = field_interp(1:nCells,20)
-          rvblten_975hPa(1:nCells) = field_interp(1:nCells,21)
-          rvblten_1000hPa(1:nCells) = field_interp(1:nCells,22)
+            call VerticalInterpolation_Single ( nCells                                    , & !1
+                                                nVertLevels                               , & !2
+                                                nVertLevels                               , & !3
+                                                nIsoLevelsT                               , & !4
+                                                nIsoLevelsT                               , & !5
+                                                rvblten     (1:nVertLevels,1:nCells)      , & !6
+                                                field_interp(1:nIsoLevelsT,1:nCells)      , & !7
+                                                pressure    (1:nVertLevels,1:nCells)*100.0, & !8
+                                                t_iso_levels(1:nIsoLevelsT)               )   !9
+          
+          rvblten_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+          rvblten_20hPa(1:nCells)   = field_interp(21,1:nCells)
+          rvblten_30hPa(1:nCells)   = field_interp(20,1:nCells)
+          rvblten_50hPa(1:nCells)   = field_interp(19,1:nCells)
+          rvblten_70hPa(1:nCells)   = field_interp(18,1:nCells)
+          rvblten_100hPa(1:nCells)  = field_interp(17,1:nCells)
+          rvblten_150hPa(1:nCells)  = field_interp(16,1:nCells)
+          rvblten_200hPa(1:nCells)  = field_interp(15,1:nCells)
+          rvblten_250hPa(1:nCells)  = field_interp(14,1:nCells)
+          rvblten_300hPa(1:nCells)  = field_interp(13,1:nCells)
+          rvblten_400hPa(1:nCells)  = field_interp(12,1:nCells)
+          rvblten_500hPa(1:nCells)  = field_interp(11,1:nCells)
+          rvblten_600hPa(1:nCells)  = field_interp(10,1:nCells)
+          rvblten_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+          rvblten_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+          rvblten_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+          rvblten_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+          rvblten_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+          rvblten_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+          rvblten_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+          rvblten_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+          rvblten_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
           ! call mpas_log_write('--- end interpolate rvblten:')
         end if
+        !CR: new vertical interpolation done! 18
 
         if (NEED_RELHUM) then
            !... relative humidity:
-            do iCell = 1, nCells
-            do k = 1, nVertLevels
-               kk = nVertLevels+1-k
-               field_in(iCell,kk) = relhum(k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
-            relhum_15hPa(1:nCells) = field_interp(1:nCells,1)
-            relhum_20hPa(1:nCells) = field_interp(1:nCells,2)
-            relhum_30hPa(1:nCells) = field_interp(1:nCells,3)
-            relhum_50hPa(1:nCells) = field_interp(1:nCells,4)
-            relhum_70hPa(1:nCells) = field_interp(1:nCells,5)
-            relhum_100hPa(1:nCells) = field_interp(1:nCells,6)
-            relhum_150hPa(1:nCells) = field_interp(1:nCells,7)
-            relhum_200hPa(1:nCells) = field_interp(1:nCells,8)
-            relhum_250hPa(1:nCells) = field_interp(1:nCells,9)
-            relhum_300hPa(1:nCells) = field_interp(1:nCells,10)
-            relhum_400hPa(1:nCells) = field_interp(1:nCells,11)
-            relhum_500hPa(1:nCells) = field_interp(1:nCells,12)
-            relhum_600hPa(1:nCells) = field_interp(1:nCells,13)
-            relhum_700hPa(1:nCells) = field_interp(1:nCells,14)
-            relhum_825hPa(1:nCells) = field_interp(1:nCells,15)
-            relhum_850hPa(1:nCells) = field_interp(1:nCells,16)
-            relhum_875hPa(1:nCells) = field_interp(1:nCells,17)
-            relhum_900hPa(1:nCells) = field_interp(1:nCells,18)
-            relhum_925hPa(1:nCells) = field_interp(1:nCells,19)
-            relhum_950hPa(1:nCells) = field_interp(1:nCells,20)
-            relhum_975hPa(1:nCells) = field_interp(1:nCells,21)
-            relhum_1000hPa(1:nCells) = field_interp(1:nCells,22)            
+            !CR: 19o Humid
+            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+            
+            call VerticalInterpolation_Humid ( nCells                                    , & !1
+                                               nVertLevels                               , & !2
+                                               nIsoLevelsT                               , & !3
+                                               pressure    (1:nVertLevels,1:nCells)*100.0, & !4
+                                               relhum      (1:nVertLevels,1:nCells)      , & !5
+                                               field_interp(1:nIsoLevelsT,1:nCells)      , & !6
+                                               t_iso_levels(1:nIsoLevelsT)               ) !7
+                                             
+             
+            
+            relhum_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+            relhum_20hPa(1:nCells)   = field_interp(21,1:nCells)
+            relhum_30hPa(1:nCells)   = field_interp(20,1:nCells)
+            relhum_50hPa(1:nCells)   = field_interp(19,1:nCells)
+            relhum_70hPa(1:nCells)   = field_interp(18,1:nCells)
+            relhum_100hPa(1:nCells)  = field_interp(17,1:nCells)
+            relhum_150hPa(1:nCells)  = field_interp(16,1:nCells)
+            relhum_200hPa(1:nCells)  = field_interp(15,1:nCells)
+            relhum_250hPa(1:nCells)  = field_interp(14,1:nCells)
+            relhum_300hPa(1:nCells)  = field_interp(13,1:nCells)
+            relhum_400hPa(1:nCells)  = field_interp(12,1:nCells)
+            relhum_500hPa(1:nCells)  = field_interp(11,1:nCells)
+            relhum_600hPa(1:nCells)  = field_interp(10,1:nCells)
+            relhum_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+            relhum_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+            relhum_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+            relhum_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+            relhum_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+            relhum_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+            relhum_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+            relhum_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+            relhum_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface            
            ! call mpas_log_write('--- end interpolate relative humidity:')
         end if
+        !CR: new vertical interpolation done! 19
        
         if (NEED_KZQ) then
            !... kzq:
-            do iCell = 1, nCells
-            do k = 1, nVertLevels
-               kk = nVertLevels+1-k
-               field_in(iCell,kk) = kzq(k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+            !CR: 20o single
+            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
-            kzq_15hPa(1:nCells) = field_interp(1:nCells,1)
-            kzq_20hPa(1:nCells) = field_interp(1:nCells,2)
-            kzq_30hPa(1:nCells) = field_interp(1:nCells,3)
-            kzq_50hPa(1:nCells) = field_interp(1:nCells,4)
-            kzq_70hPa(1:nCells) = field_interp(1:nCells,5)
-            kzq_100hPa(1:nCells) = field_interp(1:nCells,6)
-            kzq_150hPa(1:nCells) = field_interp(1:nCells,7)
-            kzq_200hPa(1:nCells) = field_interp(1:nCells,8)
-            kzq_250hPa(1:nCells) = field_interp(1:nCells,9)
-            kzq_300hPa(1:nCells) = field_interp(1:nCells,10)
-            kzq_400hPa(1:nCells) = field_interp(1:nCells,11)
-            kzq_500hPa(1:nCells) = field_interp(1:nCells,12)
-            kzq_600hPa(1:nCells) = field_interp(1:nCells,13)
-            kzq_700hPa(1:nCells) = field_interp(1:nCells,14)
-            kzq_825hPa(1:nCells) = field_interp(1:nCells,15)
-            kzq_850hPa(1:nCells) = field_interp(1:nCells,16)
-            kzq_875hPa(1:nCells) = field_interp(1:nCells,17)
-            kzq_900hPa(1:nCells) = field_interp(1:nCells,18)
-            kzq_925hPa(1:nCells) = field_interp(1:nCells,19)
-            kzq_950hPa(1:nCells) = field_interp(1:nCells,20)
-            kzq_975hPa(1:nCells) = field_interp(1:nCells,21)
-            kzq_1000hPa(1:nCells) = field_interp(1:nCells,22)
+            call VerticalInterpolation_Single ( nCells                                    , & !1
+                                                nVertLevels                               , & !2
+                                                nVertLevels                               , & !3
+                                                nIsoLevelsT                               , & !4
+                                                nIsoLevelsT                               , & !5
+                                                kzq         (1:nVertLevels,1:nCells)      , & !6
+                                                field_interp(1:nIsoLevelsT,1:nCells)      , & !7
+                                                pressure    (1:nVertLevels,1:nCells)*100.0, & !8
+                                                t_iso_levels(1:nIsoLevelsT)               )   !9
+            
+            kzq_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+            kzq_20hPa(1:nCells)   = field_interp(21,1:nCells)
+            kzq_30hPa(1:nCells)   = field_interp(20,1:nCells)
+            kzq_50hPa(1:nCells)   = field_interp(19,1:nCells)
+            kzq_70hPa(1:nCells)   = field_interp(18,1:nCells)
+            kzq_100hPa(1:nCells)  = field_interp(17,1:nCells)
+            kzq_150hPa(1:nCells)  = field_interp(16,1:nCells)
+            kzq_200hPa(1:nCells)  = field_interp(15,1:nCells)
+            kzq_250hPa(1:nCells)  = field_interp(14,1:nCells)
+            kzq_300hPa(1:nCells)  = field_interp(13,1:nCells)
+            kzq_400hPa(1:nCells)  = field_interp(12,1:nCells)
+            kzq_500hPa(1:nCells)  = field_interp(11,1:nCells)
+            kzq_600hPa(1:nCells)  = field_interp(10,1:nCells)
+            kzq_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+            kzq_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+            kzq_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+            kzq_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+            kzq_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+            kzq_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+            kzq_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+            kzq_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+            kzq_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
             ! call mpas_log_write('--- end interpolate kzq:')
         end if
+        !CR: new vertical interpolation done! 20
 
         if (NEED_KZH) then
            !... kzh:
-            do iCell = 1, nCells
-            do k = 1, nVertLevels
-               kk = nVertLevels+1-k
-               field_in(iCell,kk) = kzh(k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+            !CR: 21o single
+            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
-            kzh_15hPa(1:nCells) = field_interp(1:nCells,1)
-            kzh_20hPa(1:nCells) = field_interp(1:nCells,2)
-            kzh_30hPa(1:nCells) = field_interp(1:nCells,3)
-            kzh_50hPa(1:nCells) = field_interp(1:nCells,4)
-            kzh_70hPa(1:nCells) = field_interp(1:nCells,5)
-            kzh_100hPa(1:nCells) = field_interp(1:nCells,6)
-            kzh_150hPa(1:nCells) = field_interp(1:nCells,7)
-            kzh_200hPa(1:nCells) = field_interp(1:nCells,8)
-            kzh_250hPa(1:nCells) = field_interp(1:nCells,9)
-            kzh_300hPa(1:nCells) = field_interp(1:nCells,10)
-            kzh_400hPa(1:nCells) = field_interp(1:nCells,11)
-            kzh_500hPa(1:nCells) = field_interp(1:nCells,12)
-            kzh_600hPa(1:nCells) = field_interp(1:nCells,13)
-            kzh_700hPa(1:nCells) = field_interp(1:nCells,14)
-            kzh_825hPa(1:nCells) = field_interp(1:nCells,15)
-            kzh_850hPa(1:nCells) = field_interp(1:nCells,16)
-            kzh_875hPa(1:nCells) = field_interp(1:nCells,17)
-            kzh_900hPa(1:nCells) = field_interp(1:nCells,18)
-            kzh_925hPa(1:nCells) = field_interp(1:nCells,19)
-            kzh_950hPa(1:nCells) = field_interp(1:nCells,20)
-            kzh_975hPa(1:nCells) = field_interp(1:nCells,21)
-            kzh_1000hPa(1:nCells) = field_interp(1:nCells,22)
+            call VerticalInterpolation_Single ( nCells                                    , & !1
+                                                nVertLevels                               , & !2
+                                                nVertLevels                               , & !3
+                                                nIsoLevelsT                               , & !4
+                                                nIsoLevelsT                               , & !5
+                                                kzh         (1:nVertLevels,1:nCells)      , & !6
+                                                field_interp(1:nIsoLevelsT,1:nCells)      , & !7
+                                                pressure    (1:nVertLevels,1:nCells)*100.0, & !8
+                                                t_iso_levels(1:nIsoLevelsT)               )   !9
+            
+            kzh_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+            kzh_20hPa(1:nCells)   = field_interp(21,1:nCells)
+            kzh_30hPa(1:nCells)   = field_interp(20,1:nCells)
+            kzh_50hPa(1:nCells)   = field_interp(19,1:nCells)
+            kzh_70hPa(1:nCells)   = field_interp(18,1:nCells)
+            kzh_100hPa(1:nCells)  = field_interp(17,1:nCells)
+            kzh_150hPa(1:nCells)  = field_interp(16,1:nCells)
+            kzh_200hPa(1:nCells)  = field_interp(15,1:nCells)
+            kzh_250hPa(1:nCells)  = field_interp(14,1:nCells)
+            kzh_300hPa(1:nCells)  = field_interp(13,1:nCells)
+            kzh_400hPa(1:nCells)  = field_interp(12,1:nCells)
+            kzh_500hPa(1:nCells)  = field_interp(11,1:nCells)
+            kzh_600hPa(1:nCells)  = field_interp(10,1:nCells)
+            kzh_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+            kzh_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+            kzh_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+            kzh_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+            kzh_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+            kzh_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+            kzh_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+            kzh_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+            kzh_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
             ! call mpas_log_write('--- end interpolate kzh:')
         end if
+        !CR: new vertical interpolation done! 21
 
         if (NEED_KZM) then
            !... kzm:
-            do iCell = 1, nCells
-            do k = 1, nVertLevels
-               kk = nVertLevels+1-k
-               field_in(iCell,kk) = kzm(k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+            !CR: 22o single
+            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
-            kzm_15hPa(1:nCells) = field_interp(1:nCells,1)
-            kzm_20hPa(1:nCells) = field_interp(1:nCells,2)
-            kzm_30hPa(1:nCells) = field_interp(1:nCells,3)
-            kzm_50hPa(1:nCells) = field_interp(1:nCells,4)
-            kzm_70hPa(1:nCells) = field_interp(1:nCells,5)
-            kzm_100hPa(1:nCells) = field_interp(1:nCells,6)
-            kzm_150hPa(1:nCells) = field_interp(1:nCells,7)
-            kzm_200hPa(1:nCells) = field_interp(1:nCells,8)
-            kzm_250hPa(1:nCells) = field_interp(1:nCells,9)
-            kzm_300hPa(1:nCells) = field_interp(1:nCells,10)
-            kzm_400hPa(1:nCells) = field_interp(1:nCells,11)
-            kzm_500hPa(1:nCells) = field_interp(1:nCells,12)
-            kzm_600hPa(1:nCells) = field_interp(1:nCells,13)
-            kzm_700hPa(1:nCells) = field_interp(1:nCells,14)
-            kzm_825hPa(1:nCells) = field_interp(1:nCells,15)
-            kzm_850hPa(1:nCells) = field_interp(1:nCells,16)
-            kzm_875hPa(1:nCells) = field_interp(1:nCells,17)
-            kzm_900hPa(1:nCells) = field_interp(1:nCells,18)
-            kzm_925hPa(1:nCells) = field_interp(1:nCells,19)
-            kzm_950hPa(1:nCells) = field_interp(1:nCells,20)
-            kzm_975hPa(1:nCells) = field_interp(1:nCells,21)
-            kzm_1000hPa(1:nCells) = field_interp(1:nCells,22)
+            call VerticalInterpolation_Single ( nCells                                    , & !1
+                                                nVertLevels                               , & !2
+                                                nVertLevels                               , & !3
+                                                nIsoLevelsT                               , & !4
+                                                nIsoLevelsT                               , & !5
+                                                kzm         (1:nVertLevels,1:nCells)      , & !6
+                                                field_interp(1:nIsoLevelsT,1:nCells)      , & !7
+                                                pressure    (1:nVertLevels,1:nCells)*100.0, & !8
+                                                t_iso_levels(1:nIsoLevelsT)               )   !9
+            
+            kzm_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+            kzm_20hPa(1:nCells)   = field_interp(21,1:nCells)
+            kzm_30hPa(1:nCells)   = field_interp(20,1:nCells)
+            kzm_50hPa(1:nCells)   = field_interp(19,1:nCells)
+            kzm_70hPa(1:nCells)   = field_interp(18,1:nCells)
+            kzm_100hPa(1:nCells)  = field_interp(17,1:nCells)
+            kzm_150hPa(1:nCells)  = field_interp(16,1:nCells)
+            kzm_200hPa(1:nCells)  = field_interp(15,1:nCells)
+            kzm_250hPa(1:nCells)  = field_interp(14,1:nCells)
+            kzm_300hPa(1:nCells)  = field_interp(13,1:nCells)
+            kzm_400hPa(1:nCells)  = field_interp(12,1:nCells)
+            kzm_500hPa(1:nCells)  = field_interp(11,1:nCells)
+            kzm_600hPa(1:nCells)  = field_interp(10,1:nCells)
+            kzm_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+            kzm_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+            kzm_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+            kzm_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+            kzm_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+            kzm_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+            kzm_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+            kzm_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+            kzm_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
             ! call mpas_log_write('--- end interpolate kzm:')
         end if
+        !CR: new vertical interpolation done! 22
 
 
         if (NEED_DEWPOINT) then
            !... dewpoint
-            do iCell = 1, nCells
-            do k = 1, nVertLevels
-               kk = nVertLevels+1-k
-               field_in(iCell,kk) = dewpoint(k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
-            dewpoint_50hPa(1:nCells) = field_interp(1:nCells,1)
-            dewpoint_100hPa(1:nCells) = field_interp(1:nCells,2)
-            dewpoint_200hPa(1:nCells) = field_interp(1:nCells,3)
-            dewpoint_250hPa(1:nCells) = field_interp(1:nCells,4)
-            dewpoint_500hPa(1:nCells) = field_interp(1:nCells,5)
-            dewpoint_700hPa(1:nCells) = field_interp(1:nCells,6)
-            dewpoint_850hPa(1:nCells) = field_interp(1:nCells,7)
-            dewpoint_925hPa(1:nCells) = field_interp(1:nCells,8)
+            !CR: 23o Thermal2
+            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+            !CR: dewpoint was in 8 levels = now its 22, like the others!
+            
+            call VerticalInterpolation_Thermal2 ( nCells                                    , & !1
+                                                  nVertLevels                               , & !2
+                                                  nIsoLevelsT                               , & !3
+                                                  pressure    (1:nVertLevels,1:nCells)*100.0, & !4
+                                                  dewpoint    (1:nVertLevels,1:nCells)      , & !5
+                                                  field_interp(1:nIsoLevelsT,1:nCells)      , & !6
+                                                  t_iso_levels(1:nIsoLevelsT)               )   !7
+            
+            dewpoint_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+            dewpoint_20hPa(1:nCells)   = field_interp(21,1:nCells)
+            dewpoint_30hPa(1:nCells)   = field_interp(20,1:nCells)
+            dewpoint_50hPa(1:nCells)   = field_interp(19,1:nCells)
+            dewpoint_70hPa(1:nCells)   = field_interp(18,1:nCells)
+            dewpoint_100hPa(1:nCells)  = field_interp(17,1:nCells)
+            dewpoint_150hPa(1:nCells)  = field_interp(16,1:nCells)
+            dewpoint_200hPa(1:nCells)  = field_interp(15,1:nCells)
+            dewpoint_250hPa(1:nCells)  = field_interp(14,1:nCells)
+            dewpoint_300hPa(1:nCells)  = field_interp(13,1:nCells)
+            dewpoint_400hPa(1:nCells)  = field_interp(12,1:nCells)
+            dewpoint_500hPa(1:nCells)  = field_interp(11,1:nCells)
+            dewpoint_600hPa(1:nCells)  = field_interp(10,1:nCells)
+            dewpoint_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+            dewpoint_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+            dewpoint_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+            dewpoint_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+            dewpoint_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+            dewpoint_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+            dewpoint_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+            dewpoint_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+            dewpoint_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
            ! call mpas_log_write('--- end interpolate relative humidity:')
         end if
+        !CR: new vertical interpolation done! 23
        
         if (NEED_UZONAL) then
            !... u zonal wind:
-            do iCell = 1, nCells
-            do k = 1, nVertLevels
-               kk = nVertLevels+1-k
-               field_in(iCell,kk) = uzonal(k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
-            uzonal_15hPa(1:nCells)    = field_interp(1:nCells,1)
-            uzonal_20hPa(1:nCells)    = field_interp(1:nCells,2)
-            uzonal_30hPa(1:nCells)    = field_interp(1:nCells,3)
-            uzonal_50hPa(1:nCells)    = field_interp(1:nCells,4)
-            uzonal_70hPa(1:nCells)    = field_interp(1:nCells,5)
-            uzonal_100hPa(1:nCells)   = field_interp(1:nCells,6)
-            uzonal_150hPa(1:nCells)   = field_interp(1:nCells,7)
-            uzonal_200hPa(1:nCells)   = field_interp(1:nCells,8)
-            uzonal_250hPa(1:nCells)   = field_interp(1:nCells,9)
-            uzonal_300hPa(1:nCells)   = field_interp(1:nCells,10)
-            uzonal_400hPa(1:nCells)   = field_interp(1:nCells,11)
-            uzonal_500hPa(1:nCells)   = field_interp(1:nCells,12)
-            uzonal_600hPa(1:nCells)   = field_interp(1:nCells,13)
-            uzonal_700hPa(1:nCells)   = field_interp(1:nCells,14)
-            uzonal_825hPa(1:nCells)   = field_interp(1:nCells,15)
-            uzonal_850hPa(1:nCells)   = field_interp(1:nCells,16)
-            uzonal_875hPa(1:nCells)   = field_interp(1:nCells,17)
-            uzonal_900hPa(1:nCells)   = field_interp(1:nCells,18)
-            uzonal_925hPa(1:nCells)   = field_interp(1:nCells,19)
-            uzonal_950hPa(1:nCells)   = field_interp(1:nCells,20)
-            uzonal_975hPa(1:nCells)   = field_interp(1:nCells,21)
-            uzonal_1000hPa(1:nCells)  = field_interp(1:nCells,22)
+           !CR: 24o Wind 
+            !CR: oldone: call interp_tofixed_pressure(1.nCells, 2.nVertLevels, 3.nIntP, 4.press_in, 5.field_in, 6.press_interp, 7.field_interp)
+
+            call VerticalInterpolation_Wind ( nCells                                    , & !1. 
+                                              nVertLevels                               , & !2. 
+                                              nIsoLevelsT                               , & !3. 
+                                              pressure    (1:nVertLevels,1:nCells)*100.0, & !4. 
+                                              t_iso_levels(1:nIsoLevelsT)               , & !5. 
+                                              uzonal      (1:nVertLevels, 1:nCells)     , & !6. 
+                                              field_interp(1:nIsoLevelsT,1:nCells)      )   !7. 
+            
+
+            uzonal_15hPa(1:nCells)    = field_interp(22,1:nCells) !top
+            uzonal_20hPa(1:nCells)    = field_interp(21,1:nCells)
+            uzonal_30hPa(1:nCells)    = field_interp(20,1:nCells)
+            uzonal_50hPa(1:nCells)    = field_interp(19,1:nCells)
+            uzonal_70hPa(1:nCells)    = field_interp(18,1:nCells)
+            uzonal_100hPa(1:nCells)   = field_interp(17,1:nCells)
+            uzonal_150hPa(1:nCells)   = field_interp(16,1:nCells)
+            uzonal_200hPa(1:nCells)   = field_interp(15,1:nCells)
+            uzonal_250hPa(1:nCells)   = field_interp(14,1:nCells)
+            uzonal_300hPa(1:nCells)   = field_interp(13,1:nCells)
+            uzonal_400hPa(1:nCells)   = field_interp(12,1:nCells)
+            uzonal_500hPa(1:nCells)   = field_interp(11,1:nCells)
+            uzonal_600hPa(1:nCells)   = field_interp(10,1:nCells)
+            uzonal_700hPa(1:nCells)   = field_interp( 9,1:nCells)
+            uzonal_825hPa(1:nCells)   = field_interp( 8,1:nCells)
+            uzonal_850hPa(1:nCells)   = field_interp( 7,1:nCells)
+            uzonal_875hPa(1:nCells)   = field_interp( 6,1:nCells)
+            uzonal_900hPa(1:nCells)   = field_interp( 5,1:nCells)
+            uzonal_925hPa(1:nCells)   = field_interp( 4,1:nCells)
+            uzonal_950hPa(1:nCells)   = field_interp( 3,1:nCells)
+            uzonal_975hPa(1:nCells)   = field_interp( 2,1:nCells)
+            uzonal_1000hPa(1:nCells)  = field_interp( 1,1:nCells) !surface
 
                        ! call mpas_log_write('--- end interpolate zonal wind:')
         end if
+        !CR: new vertical interpolation done! 24
        
         if (NEED_UMERIDIONAL) then
            !... u meridional wind:
-            do iCell = 1, nCells
-            do k = 1, nVertLevels
-               kk = nVertLevels+1-k
-               field_in(iCell,kk) = umeridional(k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
-            umeridional_15hPa(1:nCells) = field_interp(1:nCells,1)
-            umeridional_20hPa(1:nCells) = field_interp(1:nCells,2)
-            umeridional_30hPa(1:nCells) = field_interp(1:nCells,3)
-            umeridional_50hPa(1:nCells) = field_interp(1:nCells,4)
-            umeridional_70hPa(1:nCells) = field_interp(1:nCells,5)
-            umeridional_100hPa(1:nCells) = field_interp(1:nCells,6)
-            umeridional_150hPa(1:nCells) = field_interp(1:nCells,7)
-            umeridional_200hPa(1:nCells) = field_interp(1:nCells,8)
-            umeridional_250hPa(1:nCells) = field_interp(1:nCells,9)
-            umeridional_300hPa(1:nCells) = field_interp(1:nCells,10)
-            umeridional_400hPa(1:nCells) = field_interp(1:nCells,11)
-            umeridional_500hPa(1:nCells) = field_interp(1:nCells,12)
-            umeridional_600hPa(1:nCells) = field_interp(1:nCells,13)
-            umeridional_700hPa(1:nCells) = field_interp(1:nCells,14)
-            umeridional_825hPa(1:nCells) = field_interp(1:nCells,15)
-            umeridional_850hPa(1:nCells) = field_interp(1:nCells,16)
-            umeridional_875hPa(1:nCells) = field_interp(1:nCells,17)
-            umeridional_900hPa(1:nCells) = field_interp(1:nCells,18)
-            umeridional_925hPa(1:nCells) = field_interp(1:nCells,19)
-            umeridional_950hPa(1:nCells) = field_interp(1:nCells,20)
-            umeridional_975hPa(1:nCells) = field_interp(1:nCells,21)
-            umeridional_1000hPa(1:nCells) = field_interp(1:nCells,22)
+           !CR: 25o Wind
+            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+
+            call VerticalInterpolation_Wind (nCells                                    , & !1. 
+                                             nVertLevels                               , & !2. 
+                                             nIsoLevelsT                               , & !3. 
+                                             pressure    (1:nVertLevels,1:nCells)*100.0, & !4. 
+                                             t_iso_levels(1:nIsoLevelsT)               , & !5. 
+                                             umeridional (1:nVertLevels,1:nCells)      , & !6. 
+                                             field_interp(1:nIsoLevelsT,1:nCells)      )   !7. 
+
+
+            umeridional_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+            umeridional_20hPa(1:nCells)   = field_interp(21,1:nCells)
+            umeridional_30hPa(1:nCells)   = field_interp(20,1:nCells)
+            umeridional_50hPa(1:nCells)   = field_interp(19,1:nCells)
+            umeridional_70hPa(1:nCells)   = field_interp(18,1:nCells)
+            umeridional_100hPa(1:nCells)  = field_interp(17,1:nCells)
+            umeridional_150hPa(1:nCells)  = field_interp(16,1:nCells)
+            umeridional_200hPa(1:nCells)  = field_interp(15,1:nCells)
+            umeridional_250hPa(1:nCells)  = field_interp(14,1:nCells)
+            umeridional_300hPa(1:nCells)  = field_interp(13,1:nCells)
+            umeridional_400hPa(1:nCells)  = field_interp(12,1:nCells)
+            umeridional_500hPa(1:nCells)  = field_interp(11,1:nCells)
+            umeridional_600hPa(1:nCells)  = field_interp(10,1:nCells)
+            umeridional_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+            umeridional_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+            umeridional_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+            umeridional_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+            umeridional_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+            umeridional_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+            umeridional_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+            umeridional_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+            umeridional_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
            ! call mpas_log_write('--- end interpolate meridional wind:')
         end if
+        !CR: new vertical interpolation done! 25
        
         if (NEED_SPECHUM) then
            !... spechum:
-            do iCell = 1, nCells
-            do k = 1, nVertLevels
-               kk = nVertLevels+1-k
-               field_in(iCell,kk) = spechum(k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
-            spechum_15hPa(1:nCells) = field_interp(1:nCells,1)
-            spechum_20hPa(1:nCells) = field_interp(1:nCells,2)
-            spechum_30hPa(1:nCells) = field_interp(1:nCells,3)
-            spechum_50hPa(1:nCells) = field_interp(1:nCells,4)
-            spechum_70hPa(1:nCells) = field_interp(1:nCells,5)
-            spechum_100hPa(1:nCells) = field_interp(1:nCells,6)
-            spechum_150hPa(1:nCells) = field_interp(1:nCells,7)
-            spechum_200hPa(1:nCells) = field_interp(1:nCells,8)
-            spechum_250hPa(1:nCells) = field_interp(1:nCells,9)
-            spechum_300hPa(1:nCells) = field_interp(1:nCells,10)
-            spechum_400hPa(1:nCells) = field_interp(1:nCells,11)
-            spechum_500hPa(1:nCells) = field_interp(1:nCells,12)
-            spechum_600hPa(1:nCells) = field_interp(1:nCells,13)
-            spechum_700hPa(1:nCells) = field_interp(1:nCells,14)
-            spechum_825hPa(1:nCells) = field_interp(1:nCells,15)
-            spechum_850hPa(1:nCells) = field_interp(1:nCells,16)
-            spechum_875hPa(1:nCells) = field_interp(1:nCells,17)
-            spechum_900hPa(1:nCells) = field_interp(1:nCells,18)
-            spechum_925hPa(1:nCells) = field_interp(1:nCells,19)
-            spechum_950hPa(1:nCells) = field_interp(1:nCells,20)
-            spechum_975hPa(1:nCells) = field_interp(1:nCells,21)
-            spechum_1000hPa(1:nCells) = field_interp(1:nCells,22)
+           !CR: 26o Humid
+           !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+
+            call VerticalInterpolation_Humid(nCells                                    , & !1
+                                             nVertLevels                               , & !2
+                                             nIsoLevelsT                               , & !3
+                                             pressure    (1:nVertLevels,1:nCells)*100.0, & !4
+                                             spechum     (1:nVertLevels,1:nCells)      , & !5
+                                             field_interp(1:nIsoLevelsT,1:nCells)      , & !6
+                                             t_iso_levels(1:nIsoLevelsT)               )   !7
+            
+            spechum_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+            spechum_20hPa(1:nCells)   = field_interp(21,1:nCells)
+            spechum_30hPa(1:nCells)   = field_interp(20,1:nCells)
+            spechum_50hPa(1:nCells)   = field_interp(19,1:nCells)
+            spechum_70hPa(1:nCells)   = field_interp(18,1:nCells)
+            spechum_100hPa(1:nCells)  = field_interp(17,1:nCells)
+            spechum_150hPa(1:nCells)  = field_interp(16,1:nCells)
+            spechum_200hPa(1:nCells)  = field_interp(15,1:nCells)
+            spechum_250hPa(1:nCells)  = field_interp(14,1:nCells)
+            spechum_300hPa(1:nCells)  = field_interp(13,1:nCells)
+            spechum_400hPa(1:nCells)  = field_interp(12,1:nCells)
+            spechum_500hPa(1:nCells)  = field_interp(11,1:nCells)
+            spechum_600hPa(1:nCells)  = field_interp(10,1:nCells)
+            spechum_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+            spechum_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+            spechum_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+            spechum_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+            spechum_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+            spechum_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+            spechum_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+            spechum_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+            spechum_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface   
            ! call mpas_log_write('--- end interpolate spechum:')
         end if
+        !CR: new vertical interpolation done! 26
 
 
 
@@ -5243,188 +5492,220 @@ module mpas_isobaric_diagnostics
            !interpolation to fixed pressure levels for fields located at cells centers and at vertical
            !velocity points:
             if(.not.allocated(press_in)) allocate(press_in(nCells,nVertLevelsP1))
-            do iCell = 1, nCells
-            do k = 1, nVertLevelsP1
-               kk = nVertLevelsP1+1-k
-               press_in(iCell,kk) = pressure2(k,iCell)
-            enddo
-            enddo
        
-            if(.not.allocated(field_in)) allocate(field_in(nCells,nVertLevelsP1))
-            !... height:
-            do iCell = 1, nCells
-            do k = 1, nVertLevelsP1
-               kk = nVertLevelsP1+1-k
-               field_in(iCell,kk) = height(k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevelsP1,nIntP,press_in,field_in,press_interp,field_interp)
-            height_15hPa(1:nCells) = field_interp(1:nCells,1)
-            height_20hPa(1:nCells) = field_interp(1:nCells,2)
-            height_30hPa(1:nCells) = field_interp(1:nCells,3)
-            height_50hPa(1:nCells) = field_interp(1:nCells,4)
-            height_70hPa(1:nCells) = field_interp(1:nCells,5)
-            height_100hPa(1:nCells) = field_interp(1:nCells,6)
-            height_150hPa(1:nCells) = field_interp(1:nCells,7)
-            height_200hPa(1:nCells) = field_interp(1:nCells,8)
-            height_250hPa(1:nCells) = field_interp(1:nCells,9)
-            height_300hPa(1:nCells) = field_interp(1:nCells,10)
-            height_400hPa(1:nCells) = field_interp(1:nCells,11)
-            height_500hPa(1:nCells) = field_interp(1:nCells,12)
-            height_600hPa(1:nCells) = field_interp(1:nCells,13)
-            height_700hPa(1:nCells) = field_interp(1:nCells,14)
-            height_825hPa(1:nCells) = field_interp(1:nCells,15)
-            height_850hPa(1:nCells) = field_interp(1:nCells,16)
-            height_875hPa(1:nCells) = field_interp(1:nCells,17)
-            height_900hPa(1:nCells) = field_interp(1:nCells,18)
-            height_925hPa(1:nCells) = field_interp(1:nCells,19)
-            height_950hPa(1:nCells) = field_interp(1:nCells,20)
-            height_975hPa(1:nCells) = field_interp(1:nCells,21)
-            height_1000hPa(1:nCells) = field_interp(1:nCells,22)
+           !CR: 27o Single
+            !CR: call interp_tofixed_pressure(nCells,nVertLevelsP1,nIntP,press_in,field_in,press_interp,field_interp)
+
+            call VerticalInterpolation_Single ( nCells                                    , & !1
+                                                nVertLevels                               , & !2
+                                                nVertLevels                               , & !3
+                                                nIsoLevelsT                               , & !4
+                                                nIsoLevelsT                               , & !5
+                                                height      (1:nVertLevels,1:nCells)      , & !6
+                                                field_interp(1:nIsoLevelsT,1:nCells)      , & !7
+                                                pressure    (1:nVertLevels,1:nCells)*100.0, & !8
+                                                t_iso_levels(1:nIsoLevelsT)               )   !9
+
+            height_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+            height_20hPa(1:nCells)   = field_interp(21,1:nCells)
+            height_30hPa(1:nCells)   = field_interp(20,1:nCells)
+            height_50hPa(1:nCells)   = field_interp(19,1:nCells)
+            height_70hPa(1:nCells)   = field_interp(18,1:nCells)
+            height_100hPa(1:nCells)  = field_interp(17,1:nCells)
+            height_150hPa(1:nCells)  = field_interp(16,1:nCells)
+            height_200hPa(1:nCells)  = field_interp(15,1:nCells)
+            height_250hPa(1:nCells)  = field_interp(14,1:nCells)
+            height_300hPa(1:nCells)  = field_interp(13,1:nCells)
+            height_400hPa(1:nCells)  = field_interp(12,1:nCells)
+            height_500hPa(1:nCells)  = field_interp(11,1:nCells)
+            height_600hPa(1:nCells)  = field_interp(10,1:nCells)
+            height_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+            height_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+            height_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+            height_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+            height_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+            height_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+            height_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+            height_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+            height_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
            ! call mpas_log_write('--- end interpolate height:')
+           !CR: new vertical interpolation done! 27
         
            !... vertical velocity
-            do iCell = 1, nCells
-            do k = 1, nVertLevelsP1
-               kk = nVertLevelsP1+1-k
-               field_in(iCell,kk) = vvel(k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevelsP1,nIntP,press_in,field_in,press_interp,field_interp)
-            w_15hPa(1:nCells)   = field_interp(1:nCells,1)
-            w_20hPa(1:nCells)   = field_interp(1:nCells,2)
-            w_30hPa(1:nCells)   = field_interp(1:nCells,3)
-            w_50hPa(1:nCells)   = field_interp(1:nCells,4)
-            w_70hPa(1:nCells)   = field_interp(1:nCells,5)
-            w_100hPa(1:nCells)  = field_interp(1:nCells,6)
-            w_150hPa(1:nCells)  = field_interp(1:nCells,7)
-            w_200hPa(1:nCells)  = field_interp(1:nCells,8)
-            w_250hPa(1:nCells)  = field_interp(1:nCells,9)
-            w_300hPa(1:nCells)  = field_interp(1:nCells,10)
-            w_400hPa(1:nCells)  = field_interp(1:nCells,11)
-            w_500hPa(1:nCells)  = field_interp(1:nCells,12)
-            w_600hPa(1:nCells)  = field_interp(1:nCells,13)
-            w_700hPa(1:nCells)  = field_interp(1:nCells,14)
-            w_825hPa(1:nCells)  = field_interp(1:nCells,15)
-            w_850hPa(1:nCells)  = field_interp(1:nCells,16)
-            w_875hPa(1:nCells)  = field_interp(1:nCells,17)
-            w_900hPa(1:nCells)  = field_interp(1:nCells,18)
-            w_925hPa(1:nCells)  = field_interp(1:nCells,19)
-            w_950hPa(1:nCells)  = field_interp(1:nCells,20)
-            w_975hPa(1:nCells)  = field_interp(1:nCells,21)
-            w_1000hPa(1:nCells) = field_interp(1:nCells,22)
+            !CR: 28o Wind
+            !CR: call interp_tofixed_pressure(nCells,nVertLevelsP1,nIntP,press_in,field_in,press_interp,field_interp)
+
+            call VerticalInterpolation_Wind (nCells                                    , & !1. 
+                                             nVertLevels                               , & !2. 
+                                             nIsoLevelsT                               , & !3. 
+                                             pressure    (1:nVertLevels,1:nCells)*100.0, & !4. 
+                                             t_iso_levels(1:nIsoLevelsT)               , & !5. 
+                                             vvel        (1:nVertLevels,1:nCells)      , & !6. 
+                                             field_interp(1:nIsoLevelsT,1:nCells)      )   !7.
+
+            w_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+            w_20hPa(1:nCells)   = field_interp(21,1:nCells)
+            w_30hPa(1:nCells)   = field_interp(20,1:nCells)
+            w_50hPa(1:nCells)   = field_interp(19,1:nCells)
+            w_70hPa(1:nCells)   = field_interp(18,1:nCells)
+            w_100hPa(1:nCells)  = field_interp(17,1:nCells)
+            w_150hPa(1:nCells)  = field_interp(16,1:nCells)
+            w_200hPa(1:nCells)  = field_interp(15,1:nCells)
+            w_250hPa(1:nCells)  = field_interp(14,1:nCells)
+            w_300hPa(1:nCells)  = field_interp(13,1:nCells)
+            w_400hPa(1:nCells)  = field_interp(12,1:nCells)
+            w_500hPa(1:nCells)  = field_interp(11,1:nCells)
+            w_600hPa(1:nCells)  = field_interp(10,1:nCells)
+            w_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+            w_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+            w_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+            w_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+            w_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+            w_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+            w_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+            w_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+            w_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
            ! call mpas_log_write('--- end interpolate vertical velocity:')
+           !CR: new vertical interpolation done! 28
 
            !... geoph:
 
             if(allocated(field_in)) deallocate(field_in)
-            if(.not.allocated(field_in)) allocate(field_in(nCells,nVertLevelsP1))
+            !CR:if(.not.allocated(field_in)) allocate(field_in(nCells,nVertLevelsP1))
 
-            call compute_geopotential_height(nCells,nVertLevelsP1,latCell,height,geoph) !EGK
+            !CR: 29o geoph
+            !CR: call interp_tofixed_pressure(nCells,nVertLevelsP1,nIntP,press_in,field_in,press_interp,field_interp)
 
-            do iCell = 1, nCells
-            do k = 1, nVertLevelsP1
-               kk = nVertLevelsP1+1-k
-               field_in(iCell,kk) = geoph(k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevelsP1,nIntP,press_in,field_in,press_interp,field_interp)
-            geoph_15hPa(1:nCells) = field_interp(1:nCells,1)
-            geoph_20hPa(1:nCells) = field_interp(1:nCells,2)
-            geoph_30hPa(1:nCells) = field_interp(1:nCells,3)
-            geoph_50hPa(1:nCells) = field_interp(1:nCells,4)
-            geoph_70hPa(1:nCells) = field_interp(1:nCells,5)
-            geoph_100hPa(1:nCells) = field_interp(1:nCells,6)
-            geoph_150hPa(1:nCells) = field_interp(1:nCells,7)
-            geoph_200hPa(1:nCells) = field_interp(1:nCells,8)
-            geoph_250hPa(1:nCells) = field_interp(1:nCells,9)
-            geoph_300hPa(1:nCells) = field_interp(1:nCells,10)
-            geoph_400hPa(1:nCells) = field_interp(1:nCells,11)
-            geoph_500hPa(1:nCells) = field_interp(1:nCells,12)
-            geoph_600hPa(1:nCells) = field_interp(1:nCells,13)
-            geoph_700hPa(1:nCells) = field_interp(1:nCells,14)
-            geoph_825hPa(1:nCells) = field_interp(1:nCells,15)
-            geoph_850hPa(1:nCells) = field_interp(1:nCells,16)
-            geoph_875hPa(1:nCells) = field_interp(1:nCells,17)
-            geoph_900hPa(1:nCells) = field_interp(1:nCells,18)
-            geoph_925hPa(1:nCells) = field_interp(1:nCells,19)
-            geoph_950hPa(1:nCells) = field_interp(1:nCells,20)
-            geoph_975hPa(1:nCells) = field_interp(1:nCells,21)
-            geoph_1000hPa(1:nCells) = field_interp(1:nCells,22)
+            call VerticalInterpolation_ZGEO(nVertLevels                               , & !1
+                                            nCells                                    , & !2
+                                            temperature (1:nVertLevels,1:nCells)      , & !3
+                                            pressure    (1:nVertLevels,1:nCells)*100.0, & !4 
+                                            height      (1:1,1:nCells)                , & !5 
+                                            nIsoLevelsT                               , & !6
+                                            field_interp(1:nIsoLevelsT,1:nCells)      , & !7
+                                            t_iso_levels(1:nIsoLevelsT)               )   !8
+
+            geoph_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+            geoph_20hPa(1:nCells)   = field_interp(21,1:nCells)
+            geoph_30hPa(1:nCells)   = field_interp(20,1:nCells)
+            geoph_50hPa(1:nCells)   = field_interp(19,1:nCells)
+            geoph_70hPa(1:nCells)   = field_interp(18,1:nCells)
+            geoph_100hPa(1:nCells)  = field_interp(17,1:nCells)
+            geoph_150hPa(1:nCells)  = field_interp(16,1:nCells)
+            geoph_200hPa(1:nCells)  = field_interp(15,1:nCells)
+            geoph_250hPa(1:nCells)  = field_interp(14,1:nCells)
+            geoph_300hPa(1:nCells)  = field_interp(13,1:nCells)
+            geoph_400hPa(1:nCells)  = field_interp(12,1:nCells)
+            geoph_500hPa(1:nCells)  = field_interp(11,1:nCells)
+            geoph_600hPa(1:nCells)  = field_interp(10,1:nCells)
+            geoph_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+            geoph_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+            geoph_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+            geoph_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+            geoph_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+            geoph_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+            geoph_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+            geoph_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+            geoph_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
            ! call mpas_log_write('--- end interpolate geoph:')
+           !CR: new vertical interpolation done! 29
+
+
+            !CR:? ...omega:
 
             if(allocated(field_in)) deallocate(field_in)
-            if(.not.allocated(field_in)) allocate(field_in(nCells,nVertLevels))
+            !CR:if(.not.allocated(field_in)) allocate(field_in(nCells,nVertLevels))
 
-            do iCell = 1, nCells
-            do k = 1, nVertLevels   ! LFR bugfix          
-               kk = nVertLevels+1-k
-               field_in(iCell,kk) = rho(k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
-            omega_15hPa(1:nCells)   = w_15hPa(1:nCells)  * field_interp(1:nCells,1)  *grav *(-1)
-            omega_20hPa(1:nCells)   = w_20hPa(1:nCells)  * field_interp(1:nCells,2)  *grav *(-1)
-            omega_30hPa(1:nCells)   = w_30hPa(1:nCells)  * field_interp(1:nCells,3)  *grav *(-1)
-            omega_50hPa(1:nCells)   = w_50hPa(1:nCells)  * field_interp(1:nCells,4)  *grav *(-1)
-            omega_70hPa(1:nCells)   = w_70hPa(1:nCells)  * field_interp(1:nCells,5)  *grav *(-1)
-            omega_100hPa(1:nCells)  = w_100hPa(1:nCells) * field_interp(1:nCells,6)  *grav *(-1)
-            omega_150hPa(1:nCells)  = w_150hPa(1:nCells) * field_interp(1:nCells,7)  *grav *(-1)
-            omega_200hPa(1:nCells)  = w_200hPa(1:nCells) * field_interp(1:nCells,8)  *grav *(-1)
-            omega_250hPa(1:nCells)  = w_250hPa(1:nCells) * field_interp(1:nCells,9)  *grav *(-1)
-            omega_300hPa(1:nCells)  = w_300hPa(1:nCells) * field_interp(1:nCells,10) *grav *(-1)
-            omega_400hPa(1:nCells)  = w_400hPa(1:nCells) * field_interp(1:nCells,11) *grav *(-1)
-            omega_500hPa(1:nCells)  = w_500hPa(1:nCells) * field_interp(1:nCells,12) *grav *(-1)
-            omega_600hPa(1:nCells)  = w_600hPa(1:nCells) * field_interp(1:nCells,13) *grav *(-1)
-            omega_700hPa(1:nCells)  = w_700hPa(1:nCells) * field_interp(1:nCells,14) *grav *(-1)
-            omega_825hPa(1:nCells)  = w_825hPa(1:nCells) * field_interp(1:nCells,15) *grav *(-1)
-            omega_850hPa(1:nCells)  = w_850hPa(1:nCells) * field_interp(1:nCells,16) *grav *(-1)
-            omega_875hPa(1:nCells)  = w_875hPa(1:nCells) * field_interp(1:nCells,17) *grav *(-1)
-            omega_900hPa(1:nCells)  = w_900hPa(1:nCells) * field_interp(1:nCells,18) *grav *(-1)
-            omega_925hPa(1:nCells)  = w_925hPa(1:nCells) * field_interp(1:nCells,19) *grav *(-1)
-            omega_950hPa(1:nCells)  = w_950hPa(1:nCells) * field_interp(1:nCells,20) *grav *(-1)
-            omega_975hPa(1:nCells)  = w_975hPa(1:nCells) * field_interp(1:nCells,21) *grav *(-1)
-            omega_1000hPa(1:nCells) = w_1000hPa(1:nCells)* field_interp(1:nCells,22) *grav *(-1)
+            !CR: 30o Wind
+            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+
+            call VerticalInterpolation_Wind (nCells                                    , & !1. 
+                                             nVertLevels                               , & !2. 
+                                             nIsoLevelsT                               , & !3. 
+                                             pressure    (1:nVertLevels,1:nCells)*100.0, & !4. 
+                                             t_iso_levels(1:nIsoLevelsT)               , & !5. 
+                                             rho         (1:nVertLevels, 1:nCells)     , & !6. 
+                                             field_interp(1:nIsoLevelsT,1:nCells)      )   !7.
+
+
+
+            omega_15hPa(1:nCells)   = w_15hPa(1:nCells)  * field_interp(22,1:nCells) *grav *(-1) !top
+            omega_20hPa(1:nCells)   = w_20hPa(1:nCells)  * field_interp(21,1:nCells) *grav *(-1)
+            omega_30hPa(1:nCells)   = w_30hPa(1:nCells)  * field_interp(20,1:nCells) *grav *(-1)
+            omega_50hPa(1:nCells)   = w_50hPa(1:nCells)  * field_interp(19,1:nCells) *grav *(-1)
+            omega_70hPa(1:nCells)   = w_70hPa(1:nCells)  * field_interp(18,1:nCells) *grav *(-1)
+            omega_100hPa(1:nCells)  = w_100hPa(1:nCells) * field_interp(17,1:nCells) *grav *(-1)
+            omega_150hPa(1:nCells)  = w_150hPa(1:nCells) * field_interp(16,1:nCells) *grav *(-1)
+            omega_200hPa(1:nCells)  = w_200hPa(1:nCells) * field_interp(15,1:nCells) *grav *(-1)
+            omega_250hPa(1:nCells)  = w_250hPa(1:nCells) * field_interp(14,1:nCells) *grav *(-1)
+            omega_300hPa(1:nCells)  = w_300hPa(1:nCells) * field_interp(13,1:nCells) *grav *(-1)
+            omega_400hPa(1:nCells)  = w_400hPa(1:nCells) * field_interp(12,1:nCells) *grav *(-1)
+            omega_500hPa(1:nCells)  = w_500hPa(1:nCells) * field_interp(11,1:nCells) *grav *(-1)
+            omega_600hPa(1:nCells)  = w_600hPa(1:nCells) * field_interp(10,1:nCells) *grav *(-1)
+            omega_700hPa(1:nCells)  = w_700hPa(1:nCells) * field_interp( 9,1:nCells) *grav *(-1)
+            omega_825hPa(1:nCells)  = w_825hPa(1:nCells) * field_interp( 8,1:nCells) *grav *(-1)
+            omega_850hPa(1:nCells)  = w_850hPa(1:nCells) * field_interp( 7,1:nCells) *grav *(-1)
+            omega_875hPa(1:nCells)  = w_875hPa(1:nCells) * field_interp( 6,1:nCells) *grav *(-1)
+            omega_900hPa(1:nCells)  = w_900hPa(1:nCells) * field_interp( 5,1:nCells) *grav *(-1)
+            omega_925hPa(1:nCells)  = w_925hPa(1:nCells) * field_interp( 4,1:nCells) *grav *(-1)
+            omega_950hPa(1:nCells)  = w_950hPa(1:nCells) * field_interp( 3,1:nCells) *grav *(-1)
+            omega_975hPa(1:nCells)  = w_975hPa(1:nCells) * field_interp( 2,1:nCells) *grav *(-1)
+            omega_1000hPa(1:nCells) = w_1000hPa(1:nCells)* field_interp( 1,1:nCells) *grav *(-1) !surface
            ! call mpas_log_write('--- end interpolat omega:')
+           !CR: new vertical interpolation done! 30
 
            !... zgeo:
-            do k = 1, nIsoLevelsT
-               zgeo_isobaric(k,:) = 0.0_RKIND
-            enddo            
+!EGK:
+!CR: zgeo ja foi calculada correta em geoph, porem mantive a nomenclatura de zgeo caso alguem estiver 
+!CR: acostumado com a variavel, pode usar pois sera uma copia de geoph :
+!CR:
+!CR:            zgeo_15hPa(1:nCells)  = zgeo_isobaric(1,1:nCells)
+!CR:            zgeo_20hPa(1:nCells)  = zgeo_isobaric(2,1:nCells)
+!CR:            zgeo_30hPa(1:nCells)  = zgeo_isobaric(3,1:nCells)
+!CR:            zgeo_50hPa(1:nCells)  = zgeo_isobaric(4,1:nCells)
+!CR:            zgeo_70hPa(1:nCells)  = zgeo_isobaric(5,1:nCells)
+!CR:            zgeo_100hPa(1:nCells) = zgeo_isobaric(6,1:nCells)
+!CR:            zgeo_150hPa(1:nCells) = zgeo_isobaric(7,1:nCells)
+!CR:            zgeo_200hPa(1:nCells) = zgeo_isobaric(8,1:nCells)
+!CR:            zgeo_250hPa(1:nCells) = zgeo_isobaric(9,1:nCells)
+!CR:            zgeo_300hPa(1:nCells) = zgeo_isobaric(10,1:nCells)
+!CR:            zgeo_400hPa(1:nCells) = zgeo_isobaric(11,1:nCells)
+!CR:            zgeo_500hPa(1:nCells) = zgeo_isobaric(12,1:nCells)
+!CR:            zgeo_600hPa(1:nCells) = zgeo_isobaric(13,1:nCells)
+!CR:            zgeo_700hPa(1:nCells) = zgeo_isobaric(14,1:nCells)
+!CR:            zgeo_825hPa(1:nCells) = zgeo_isobaric(15,1:nCells)
+!CR:            zgeo_850hPa(1:nCells) = zgeo_isobaric(16,1:nCells)
+!CR:            zgeo_875hPa(1:nCells) = zgeo_isobaric(17,1:nCells)
+!CR:            zgeo_900hPa(1:nCells) = zgeo_isobaric(18,1:nCells)
+!CR:            zgeo_925hPa(1:nCells) = zgeo_isobaric(19,1:nCells)
+!CR:            zgeo_950hPa(1:nCells) = zgeo_isobaric(20,1:nCells)
+!CR:            zgeo_975hPa(1:nCells) = zgeo_isobaric(21,1:nCells)
+!CR:            zgeo_1000hPa(1:nCells)= zgeo_isobaric(22,1:nCells)
 
-!            call VerticalInterpolation_ZGEO (nVertLevels, nCells, temperature, pressure, top, lmax, zp, pmand) !Bonatti
-            call VerticalInterpolation_ZGEO (nVertLevels                                , &
-                                             nCells                                     , &
-                                             temperature(1:nVertLevels,1:nCells)        , &
-                                             pressure   (1:nVertLevels,1:nCells)*100.0  , &
-                                             height     (1:1,1:nCells)                  , &
-                                             nIsoLevelsT                                , &
-                                             zgeo_isobaric(nIsoLevelsT:1:-1,1:nCells)   , &
-                                             t_iso_levels (nIsoLevelsT:1:-1)              )! Pa  (top->surf)
-
-            zgeo_15hPa(1:nCells)  = zgeo_isobaric(1,1:nCells)
-            zgeo_20hPa(1:nCells)  = zgeo_isobaric(2,1:nCells)
-            zgeo_30hPa(1:nCells)  = zgeo_isobaric(3,1:nCells)
-            zgeo_50hPa(1:nCells)  = zgeo_isobaric(4,1:nCells)
-            zgeo_70hPa(1:nCells)  = zgeo_isobaric(5,1:nCells)
-            zgeo_100hPa(1:nCells) = zgeo_isobaric(6,1:nCells)
-            zgeo_150hPa(1:nCells) = zgeo_isobaric(7,1:nCells)
-            zgeo_200hPa(1:nCells) = zgeo_isobaric(8,1:nCells)
-            zgeo_250hPa(1:nCells) = zgeo_isobaric(9,1:nCells)
-            zgeo_300hPa(1:nCells) = zgeo_isobaric(10,1:nCells)
-            zgeo_400hPa(1:nCells) = zgeo_isobaric(11,1:nCells)
-            zgeo_500hPa(1:nCells) = zgeo_isobaric(12,1:nCells)
-            zgeo_600hPa(1:nCells) = zgeo_isobaric(13,1:nCells)
-            zgeo_700hPa(1:nCells) = zgeo_isobaric(14,1:nCells)
-            zgeo_825hPa(1:nCells) = zgeo_isobaric(15,1:nCells)
-            zgeo_850hPa(1:nCells) = zgeo_isobaric(16,1:nCells)
-            zgeo_875hPa(1:nCells) = zgeo_isobaric(17,1:nCells)
-            zgeo_900hPa(1:nCells) = zgeo_isobaric(18,1:nCells)
-            zgeo_925hPa(1:nCells) = zgeo_isobaric(19,1:nCells)
-            zgeo_950hPa(1:nCells) = zgeo_isobaric(20,1:nCells)
-            zgeo_975hPa(1:nCells) = zgeo_isobaric(21,1:nCells)
-            zgeo_1000hPa(1:nCells)= zgeo_isobaric(22,1:nCells)
+            zgeo_15hPa  (1:nCells)= geoph_15hPa  (1:nCells)
+            zgeo_20hPa  (1:nCells)= geoph_20hPa  (1:nCells)
+            zgeo_30hPa  (1:nCells)= geoph_30hPa  (1:nCells)
+            zgeo_50hPa  (1:nCells)= geoph_50hPa  (1:nCells)
+            zgeo_70hPa  (1:nCells)= geoph_70hPa  (1:nCells)
+            zgeo_100hPa (1:nCells)= geoph_100hPa (1:nCells)
+            zgeo_150hPa (1:nCells)= geoph_150hPa (1:nCells)
+            zgeo_200hPa (1:nCells)= geoph_200hPa (1:nCells)
+            zgeo_250hPa (1:nCells)= geoph_250hPa (1:nCells)
+            zgeo_300hPa (1:nCells)= geoph_300hPa (1:nCells)
+            zgeo_400hPa (1:nCells)= geoph_400hPa (1:nCells)
+            zgeo_500hPa (1:nCells)= geoph_500hPa (1:nCells)
+            zgeo_600hPa (1:nCells)= geoph_600hPa (1:nCells)
+            zgeo_700hPa (1:nCells)= geoph_700hPa (1:nCells)
+            zgeo_825hPa (1:nCells)= geoph_825hPa (1:nCells)
+            zgeo_850hPa (1:nCells)= geoph_850hPa (1:nCells)
+            zgeo_875hPa (1:nCells)= geoph_875hPa (1:nCells)
+            zgeo_900hPa (1:nCells)= geoph_900hPa (1:nCells)
+            zgeo_925hPa (1:nCells)= geoph_925hPa (1:nCells)
+            zgeo_950hPa (1:nCells)= geoph_950hPa (1:nCells)
+            zgeo_975hPa (1:nCells)= geoph_975hPa (1:nCells)
+            zgeo_1000hPa(1:nCells)= geoph_1000hPa(1:nCells)
             ! call mpas_log_write('--- end interpolate zgeo:')
+           !CR: new vertical interpolation done! 31
 
             if(allocated(field_in)) deallocate(field_in)
             if(allocated(press_in)) deallocate(press_in)
@@ -5466,6 +5747,8 @@ module mpas_isobaric_diagnostics
             enddo
             enddo
             call interp_tofixed_pressure(nVertices,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+            !CR: passar vorticity de 8n para 22n padrao, mas antes eh necessario calcular vorticity 
+            !CR: no centro da celula, pois ela eh calculada nas arestas. Continua original MPAS ainda. (TO-DO)
             vorticity_50hPa(1:nVertices) = field_interp(1:nVertices,1)
             vorticity_100hPa(1:nVertices) = field_interp(1:nVertices,2)
             vorticity_200hPa(1:nVertices) = field_interp(1:nVertices,3)
