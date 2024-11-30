@@ -973,19 +973,21 @@ contains
          do ii_plume = 1, maxiens
 
             if(ii_plume == 1) then
-               plume = shal
-               c0 = c0_shal
-            endif
-            if(ii_plume == 2) then
                plume = deep
                c0 = c0_deep
+            endif
+            if(ii_plume == 2) then
+               plume = shal
+               c0 = c0_shal
+               if(icumulus_gf(shal) == 2 ) where(ierr4d(:,j,deep) == 0) ierr4d(:,j,shal) = -99
             endif
             if(ii_plume == 3) then
                plume = mid
                c0 = c0_mid
+               if(icumulus_gf(mid) == 2 ) where(ierr4d(:,j,deep) == 0) ierr4d(:,j,mid) = -99
             endif
-
-            if(icumulus_gf(plume) /= ON ) cycle
+            
+            if(icumulus_gf(plume) == OFF ) cycle
 
             use_smooth_tend=  cum_use_smooth_tend(plume)
             min_cloud_depth=  cum_min_cloud_depth(plume)
@@ -2040,7 +2042,7 @@ contains
                c0 = c0_mid
             endif
 
-            if(icumulus_gf(plume) /= ON ) cycle
+            if(icumulus_gf(plume) == OFF ) cycle
             
             use_smooth_tend=  cum_use_smooth_tend(plume)
             hei_down_land  =  cum_hei_down_land  (plume)
@@ -7375,7 +7377,7 @@ contains
          endif
          if(config_gf_sub3d > 0) then
             use_scale_dep = 1
-            if(icumulus_gf(shal) == 1 .or. icumulus_gf(mid) == 1) then
+            if(icumulus_gf(shal) /= OFF .or. icumulus_gf(mid) /= OFF) then
               stop "only deep plume is allowed with sub3d"
             endif 
          endif
@@ -8559,7 +8561,7 @@ contains
          do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
             min_shall_top=600.
-            !if(icumulus_gf(mid) == 0) min_shall_top=550.
+            !if(icumulus_gf(mid) == OFF) min_shall_top=550.
             cloud_depth =  po_cup(kbcon(i),i)-po_cup(ktop(i),i)
             if(po_cup(ktop(i),i) < min_shall_top .or. cloud_depth < min_cloud_depth ) then
                ierr(i)=26 ; is_removed = remove(vec_ok, i)
@@ -8570,7 +8572,7 @@ contains
 
       if(cumulus == 'deep') then
             min_deep_top=500.
-            if(icumulus_gf(mid) == 0) min_deep_top=600.
+            if(icumulus_gf(mid) == OFF) min_deep_top=600.
             do vtp_index = get_num_elements(vec_ok),1,-1
                i = get_data_value(vec_ok,vtp_index)
                cloud_depth =  po_cup(kbcon(i),i)-po_cup(ktop(i),i)
