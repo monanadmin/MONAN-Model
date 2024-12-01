@@ -103,7 +103,7 @@ module module_cu_gf_monan
       ,nmp, lsmp, cnmp,moist_trigger,frac_modis,max_tq_tend              &
       ,cum_fadj_massflx, cum_use_excess, cum_ave_layer, adv_trigger      &
       ,use_smooth_prof, output_sound,use_cloud_dissipation               &
-      ,cum_use_smooth_tend,beta_sh,c0_shal                                   &
+      ,cum_use_smooth_tend,beta_sh,c0_shal                               &
       ,use_linear_subcl_mf,cap_maxs,liq_ice_number_conc                  &
       ,sig_factor,lcl_trigger, rh_dicycle, add_coldpool_prop             &
       ,add_coldpool_clos,add_coldpool_trig,mx_buoy1, mx_buoy2, cum_t_star&
@@ -299,10 +299,10 @@ module module_cu_gf_monan
    real    ::  ave_layer         != layer depth for average the properties of source air parcels (mbar)
    real    ::  c0                != autoconversion constant
    real    ::  min_cloud_depth   != minimum cloud depth for activate convection
-   integer ::  use_excess        != default= 1   - use t,q excess sub-grid scale variability
+   integer ::  use_excess        != default= 1   - use for t,q excess sub-grid scale variability
    integer ::  use_smooth_tend   != default  1,1,1,
 
-   !-- general internal controls for the diverse options in gf
+   !-- General internal controls for the diverse options in GF
 
    logical, parameter :: coupl_mphysics = .true.  != coupling with cloud microphysics (do not change to false)
 
@@ -314,7 +314,7 @@ module module_cu_gf_monan
 
    logical :: ave_from_surface = .false.          != 
    
-   logical, parameter :: USE_INV_LAYERS=.false. 
+   logical :: use_inv_layers=.false. 
    !
    !- proportionality constant to estimate pressure
    !- gradient of updraft (Zhang and Wu, 2003, JAS) => REAL, PARAMETER ::    pgcon=-0.55
@@ -5096,12 +5096,13 @@ contains
       adj_cp_entr = 1.
       if(draft == "deep_up" .and. (use_memory == 22 .or. use_memory == 222)) then
            !-- higher hei_max_zu_updraft, lower effec entrainment, lower precip
-           ! adj_cp_entr = min(1.3,max(1.0, 2.-coldPoolStart(x_add_buoy)))
+   !22v2=>        ! adj_cp_entr = min(1.3,max(1.0, 2.-coldPoolStart(x_add_buoy)))
            !
            !-- lower hei_max_zu_updraft, larger effec entrainment, larger precip
              adj_cp_entr = min(1.0,max(0.7,    coldPoolStart(x_add_buoy)))
 
       endif
+      
       if(draft == "deep_up" .or. draft == "mid_up" ) then       !--- land/ocean
 
          hei_updf=(1.-xland)*hei_updf_LAND+xland*hei_updf_OCEAN
@@ -7383,6 +7384,10 @@ contains
          endif
       endif
 
+      if(icumulus_gf(mid) /= OFF) then
+       use_inv_layers = .true.
+      endif
+      
       if(mynum==local_io_node) then
          !- print the namelist
          print*,"           "
@@ -7477,6 +7482,7 @@ contains
          print*, 'cum_fadj_massflx   ' , real(cum_fadj_massflx     ,4)
          print*, 'add_coldpool_prop  ' , add_coldpool_prop
          print*, 'add_coldpool_diff  ' , add_coldpool_diff
+         print*, 'use_inv_layers     ' , use_inv_layers
          print*,"========================================================================"
          !call flush(6)
       endif
@@ -7513,13 +7519,11 @@ contains
             tqliq = dtime * outqc(k,i)* rho(k,i) * fr
             tqice = dtime * outqc(k,i)* rho(k,i) * (1.-fr)
 
-            outnice(k,i) = max(0.0,  makeIceNumber    (tqice, tempco(k,i))/rho(k,i))
-            outnliq(k,i) = max(0.0,  makeDropletNumber(tqliq, nwfa  (k,i))/rho(k,i))
+            !-- convert in tendencies
+            outnice(k,i) = max(0.0,  makeIceNumber    (tqice, tempco(k,i))/rho(k,i))* dtinv
+            outnliq(k,i) = max(0.0,  makeDropletNumber(tqliq, nwfa  (k,i))/rho(k,i))* dtinv
 
          enddo
-         !-- convert in tendencies
-         outnice = outnice * dtinv ! unit [1/s]
-         outnliq = outnliq * dtinv ! unit [1/s]
       !--- for update
       ! nwfa =nwfa + outnliq*dtime
       ! nifa =nifa + outnice*dtime
@@ -8492,9 +8496,8 @@ contains
       end if
    end subroutine set_scale_dep_factor
   !---------------------------------------------------------------------------------------------------
-   subroutine get_cloud_top_by_inv_layers(cumulus,its,ite,itf,kts,kte,ktf &
-                                         ,ierr,ierrc,psur,po_cup,tn_cup,zo_cup,mid,shal  &
-                                         ,kbcon,ktop)
+   subroutine get_cloud_top_by_inv_layers(cumulus,its,ite,itf,kts,kte,ktf,ierr,ierrc,psur&
+                                         ,po_cup,tn_cup,zo_cup,mid,shal,kbcon,ktop)
       implicit none
       character*(*), intent (in)             :: cumulus
       character*(*), intent (inout), dimension(:)  :: ierrc
@@ -8560,7 +8563,7 @@ contains
          !--- check if ktop is above 700hpa layer for shallow convection
          do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
-            min_shall_top=600.
+            min_shall_top=700.
             !if(icumulus_gf(mid) == OFF) min_shall_top=550.
             cloud_depth =  po_cup(kbcon(i),i)-po_cup(ktop(i),i)
             if(po_cup(ktop(i),i) < min_shall_top .or. cloud_depth < min_cloud_depth ) then

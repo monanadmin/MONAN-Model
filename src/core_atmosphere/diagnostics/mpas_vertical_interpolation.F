@@ -7,7 +7,7 @@ MODULE VerticalInterpolation
                                ! r4 : Kind for 32-bits Real Numbers
                                ! i4 : Kind for 32-bits Integer Numbers
                                ! RKIND : Kind for 64-bits Real Numbers
-   !INTEGER, PARAMETER, PUBLIC :: r4RKIND  = SELECTED_REAL_KIND(6)
+   !INTEGER, PARAMETER, PUBLIC :: r4 = SELECTED_REAL_KIND(6)
    !INTEGER, PARAMETER, PUBLIC :: i4 = SELECTED_INT_KIND(9)
    !INTEGER, PARAMETER, PUBLIC :: RKIND = SELECTED_REAL_KIND(15)
    !INTEGER, PARAMETER, PUBLIC :: r16 = SELECTED_REAL_KIND(15)
@@ -57,14 +57,12 @@ MODULE VerticalInterpolation
 
    PUBLIC :: VerticalInterpolation_ZGEO
    PUBLIC :: VerticalInterpolation_Thermal
-   PUBLIC :: VerticalInterpolation_Humid
-   PUBLIC :: VerticalInterpolation_Thermal2
    PUBLIC :: VerticalInterpolation_Wind
    PUBLIC :: VerticalInterpolation_Single
 
 CONTAINS
 
-  SUBROUTINE VerticalInterpolation_Thermal2(nCells,nVertLevels,Lmax,pressure,temperature, tg, pmand)
+  SUBROUTINE VerticalInterpolation_Thermal(nCells,nVertLevels,Lmax,pressure,temperature, gsh, gss, tg, rg,rq, pmand)
 
     IMPLICIT NONE
     INTEGER, INTENT(IN) :: nCells
@@ -73,264 +71,13 @@ CONTAINS
 
     REAL (KIND=RKIND), INTENT(IN ) :: pressure   (nVertLevels,nCells)
     REAL (KIND=RKIND), INTENT(IN ) :: temperature(nVertLevels,nCells)
-
-    REAL (KIND=RKIND), INTENT(OUT) :: tg         (Lmax,nCells)
-    REAL (KIND=RKIND), INTENT(IN ) :: pmand (Lmax)
-
-    INTEGER :: i, j, k
-    INTEGER :: kp
-    REAL (KIND=RKIND) :: alnpmd(Lmax)
-    REAL (KIND=RKIND) :: pref(Lmax)
-
-    INTEGER           :: ks   (Lmax,nCells)
-
-    REAL (KIND=RKIND) :: ddp  (Lmax,nCells)
- 
-    REAL (KIND=RKIND) :: pim  (nVertLevels  ,nCells)
-    REAL (KIND=RKIND) :: alnpm(nVertLevels  ,nCells)
-    REAL (KIND=RKIND) :: alnp (nVertLevels+1,nCells)
-    REAL (KIND=RKIND) :: pi   (nVertLevels+1,nCells)
-    REAL (KIND=RKIND) :: p    (nVertLevels+1,nCells)
-    REAL (KIND=RKIND) :: rdelp(nVertLevels-1,nCells)
-    REAL (KIND=RKIND) :: bt   (nVertLevels-1,nCells)
-
-    REAL (KIND=RKIND) :: wtl
-
-    wtl=LOG(Po)
-    
-    ! compute pressure on each sigma surface 
-
-       DO k=1,nVertLevels
-          DO i=1,nCells
-            ! transform from Pa to mbar
-             p(k,i)= 1.e-2_RKIND * pressure(k,i)
-          END DO
-       END DO    
-       ! set the top of the model at Pt (See Constants).
-       p(nVertLevels+1,:)=Pt
-
-
-       DO kp=1,Lmax
-            ! transform from Pa to mbar
-          pref(kp) = 1.e-2_RKIND * pmand (kp)
-       END DO
-
-    ! log of pressure and exner function on each sigma surface
-
-       DO k=1,nVertLevels+1
-          DO i=1,nCells
-             alnp(k,i)=LOG(MAX(p(k,i),0.00000001_RKIND))
-             pi  (k,i)=EXP(RdByCp*(alnp(k,i)-wtl))
-          END DO
-       END DO
-
-       DO kp=1,Lmax
-          alnpmd(kp) = LOG(MAX(pref(kp),0.00000001_RKIND))
-       END DO
-    ! mean value of the exner function, log of pim and
-    ! the log of the mean value of pressure in each layer
-
-       DO k=1,nVertLevels
-          DO i=1,nCells
-             pim(k,i)=(pi(k+1,i)-pi(k,i))/ &
-                  (RdByCp*(alnp(k+1,i)-alnp(k,i)))
-             alnpm(k,i)=wtl+CpByRd*LOG(pim(k,i))
-          END DO
-       END DO
-
-    ! return interpolated t absolute. ts replaced by temperature
-
-       DO k=1,nVertLevels-1
-          DO i=1,nCells
-             rdelp(k,i)=1.0_RKIND/(alnpm(k+1,i)-alnpm(k,i))
-             bt(k,i)=(temperature(k+1,i)-temperature(k,i))*rdelp(k,i)
-          END DO
-       END DO
-
-    ! heights to pressure surfaces  -  hydrostatic interpolation
-    ! winds and temps by linear interpolation with ln(p)
-    ! search for middle of sigma layer above kp
-
-       ks(:,:)=nVertLevels
-       DO kp=1,Lmax
-          DO k=1,nVertLevels-1
-             DO i=1,nCells
-                IF ((ks(kp,i) == nVertLevels) .AND. (alnpmd(kp) > alnpm(k,i))) THEN
-                   ks(kp,i)=k
-                END IF
-             END DO
-          END DO
-       END DO
-
-    ! find values and slopes for upward or downward extrapolation
-    ! as well as for interpolation away from tropopause
-    ! ts to temperature for absolute t
-
-       DO kp=1,Lmax
-          DO i=1,nCells
-             IF (ks(kp,i) /= 1) THEN
-                ddp(kp,i)=alnpmd(kp)-alnpm(ks(kp,i),i)
-                tg (kp,i)=temperature(ks(kp,i),i)+bt(ks(kp,i)-1,i)*ddp(kp,i)
-             ELSE
-                IF(.NOT.ExtrapoAdiabatica)THEN
-                   tg(kp,i)=temperature(1,i)
-                ELSE
-                   tg(kp,i)=temperature (1,i)*EXP(0.5_RKIND*RdByCp*ABS(alnpm(ks(kp,i),i)-alnpmd(kp)))  
-                END IF
-             END IF
-          END DO
-       END DO
-
-  END SUBROUTINE VerticalInterpolation_Thermal2
-
-  SUBROUTINE VerticalInterpolation_Humid(nCells,nVertLevels,Lmax,pressure, gsh,rq, pmand)
-
-    IMPLICIT NONE
-    INTEGER, INTENT(IN) :: nCells
-    INTEGER, INTENT(IN) :: nVertLevels
-    INTEGER, INTENT(IN) :: Lmax
-
-    REAL (KIND=RKIND), INTENT(IN ) :: pressure   (nVertLevels,nCells)
     REAL (KIND=RKIND), INTENT(IN ) :: gsh        (nVertLevels,nCells)
+
+    REAL (KIND=RKIND), INTENT(OUT) :: gss        (nVertLevels,nCells)
+    REAL (KIND=RKIND), INTENT(OUT) :: tg         (Lmax,nCells)
+    REAL (KIND=RKIND), INTENT(OUT) :: rg         (Lmax,nCells)
     REAL (KIND=RKIND), INTENT(OUT) :: rq         (Lmax,nCells)
     REAL (KIND=RKIND), INTENT(IN ) :: pmand (Lmax)
-
-    INTEGER :: i, j, k
-    INTEGER :: kp
-    REAL (KIND=RKIND) :: alnpmd(Lmax)
-    REAL (KIND=RKIND) :: pref(Lmax)
-
-    INTEGER           :: ks   (Lmax,nCells)
-
-    REAL (KIND=RKIND) :: ddp  (Lmax,nCells)
- 
-    REAL (KIND=RKIND) :: pim  (nVertLevels  ,nCells)
-    REAL (KIND=RKIND) :: alnpm(nVertLevels  ,nCells)
-    REAL (KIND=RKIND) :: alnp (nVertLevels+1,nCells)
-    REAL (KIND=RKIND) :: pi   (nVertLevels+1,nCells)
-    REAL (KIND=RKIND) :: p    (nVertLevels+1,nCells)
-    REAL (KIND=RKIND) :: rdelp(nVertLevels-1,nCells)
-    REAL (KIND=RKIND) :: bqq  (nVertLevels-1,nCells)
-
-    REAL (KIND=RKIND) :: wtl
-
-    wtl=LOG(Po)
-    
-    ! compute pressure on each sigma surface 
-
-       DO k=1,nVertLevels
-          DO i=1,nCells
-            ! transform from Pa to mbar
-             p(k,i)= 1.e-2_RKIND * pressure(k,i)
-          END DO
-       END DO    
-       ! set the top of the model at Pt (See Constants).
-       p(nVertLevels+1,:)=Pt
-
-
-       DO kp=1,Lmax
-            ! transform from Pa to mbar
-          pref(kp) = 1.e-2_RKIND * pmand (kp)
-       END DO
-
-    ! log of pressure and exner function on each sigma surface
-
-       DO k=1,nVertLevels+1
-          DO i=1,nCells
-             alnp(k,i)=LOG(MAX(p(k,i),0.00000001_RKIND))
-             pi  (k,i)=EXP(RdByCp*(alnp(k,i)-wtl))
-          END DO
-       END DO
-
-       DO kp=1,Lmax
-          alnpmd(kp) = LOG(MAX(pref(kp),0.00000001_RKIND))
-       END DO
-    ! mean value of the exner function, log of pim and
-    ! the log of the mean value of pressure in each layer
-
-       DO k=1,nVertLevels
-          DO i=1,nCells
-             pim(k,i)=(pi(k+1,i)-pi(k,i))/ &
-                  (RdByCp*(alnp(k+1,i)-alnp(k,i)))
-             alnpm(k,i)=wtl+CpByRd*LOG(pim(k,i))
-          END DO
-       END DO
-
-    ! return interpolated t absolute. ts replaced by temperature
-
-       DO k=1,nVertLevels-1
-          DO i=1,nCells
-             rdelp(k,i)=1.0_RKIND/(alnpm(k+1,i)-alnpm(k,i))
-          END DO
-       END DO
-
-       DO k=1,nVertLevels-1
-          DO i=1,nCells
-             bqq(k,i)=(gsh(k+1,i)-gsh(k,i))*rdelp(k,i)
-          END DO
-       END DO
-
-    ! heights to pressure surfaces  -  hydrostatic interpolation
-    ! winds and temps by linear interpolation with ln(p)
-    ! search for middle of sigma layer above kp
-
-       ks(:,:)=nVertLevels
-       DO kp=1,Lmax
-          DO k=1,nVertLevels-1
-             DO i=1,nCells
-                IF ((ks(kp,i) == nVertLevels) .AND. (alnpmd(kp) > alnpm(k,i))) THEN
-                   ks(kp,i)=k
-                END IF
-             END DO
-          END DO
-       END DO
-
-    ! find values and slopes for upward or downward extrapolation
-    ! as well as for interpolation away from tropopause
-    ! ts to temperature for absolute t
-
-       DO kp=1,Lmax
-          DO i=1,nCells
-             IF (ks(kp,i) /= 1) THEN
-                IF (pref(kp) < PRHcut) THEN
-                   rq(kp,i)=1.0e-12_RKIND
-                ELSE
-                   IF (ks(kp,i) <= nVertLevels) THEN
-                      rq(kp,i)=gsh(ks(kp,i),i)+bqq(ks(kp,i)-1,i)*(alnpmd(kp)-alnpm(ks(kp,i),i))
-                   ELSE
-                      rq(kp,i)=gsh(nVertLevels,i)
-                   END IF
-                END IF
-                ddp(kp,i)=alnpmd(kp)-alnpm(ks(kp,i),i)
-             ELSE
-                IF(.NOT.ExtrapoAdiabatica)THEN
-                   rq(kp,i)=gsh(1,i)
-                ELSE
-                   rq(kp,i)=gsh(1,i)*EXP(0.5_RKIND*RdByCp*ABS(alnpm(ks(kp,i),i)-alnpmd(kp)))
-                END IF
-             END IF
-          END DO
-       END DO
-
-  END SUBROUTINE VerticalInterpolation_Humid
-
-  SUBROUTINE VerticalInterpolation_Thermal(nCells,nVertLevels,Lmax,pressure,temperature, gsh, gss, tg, rg,rq, pmand)
-
-    IMPLICIT NONE
-    INTEGER, INTENT(IN) :: nCells !voronoi cel number
-    INTEGER, INTENT(IN) :: nVertLevels !vertical layers number
-    INTEGER, INTENT(IN) :: Lmax !isobaric layers to interpolate
-
-    REAL (KIND=RKIND), INTENT(IN ) :: pressure   (nVertLevels,nCells) ! pressao da camada atmosferica do modelo [Pa]
-    REAL (KIND=RKIND), INTENT(IN ) :: temperature(nVertLevels,nCells) ! campo de temperatura do modelo (voronoi) [K]
-    REAL (KIND=RKIND), INTENT(IN ) :: gsh        (nVertLevels,nCells) ! umidade especifica do modelo [kg/kg]
-
-    REAL (KIND=RKIND), INTENT(OUT) :: gss        (nVertLevels,nCells) ! umidade relativa na grade do modelo (no nivel do modelo) 
-                                                                      ! nao interpolada [frac. #0~1]
-    REAL (KIND=RKIND), INTENT(OUT) :: tg         (Lmax,nCells) !interpolated temperature [k]
-    REAL (KIND=RKIND), INTENT(OUT) :: rg         (Lmax,nCells) !interpolated rel. Hum. [frac. #0~1]
-    REAL (KIND=RKIND), INTENT(OUT) :: rq         (Lmax,nCells) !interpolated espc. hum. [kg/kg]
-    REAL (KIND=RKIND), INTENT(IN ) :: pmand (Lmax) ! isobaric levels to interpolate [Pa] 
 
     INTEGER :: i, j, k
     INTEGER :: kp
@@ -862,6 +609,13 @@ CONTAINS
     ! as well as for interpolation away from tropopause
     ! ts to tm for absolute t
 
+!       DO kp=1,Lmax
+!          DO i=1,nCells
+!!                zp(kp,i)=temperature(kp,i)
+!!                zp(kp,i)=pressure(kp,i)
+!                zp(kp,i)=top(i)
+!          END DO
+!       END DO
        DO kp=1,Lmax
           DO i=1,nCells
              IF (ks(kp,i) == 1) THEN
@@ -942,7 +696,7 @@ CONTAINS
              DO i=1,nCells
                 IF (pmand(k) > pin(1,i)) THEN
                    work(k,i)=gausin(1,i)
-                   Above(k,i)=.TRUE.
+                   Above(i,k)=.TRUE.
                 END IF
              END DO
           END DO

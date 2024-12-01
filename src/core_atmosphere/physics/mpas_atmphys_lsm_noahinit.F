@@ -152,12 +152,12 @@
 !initializes soil liquid water content SH2O:
     do iCell = 1, nCells
 
-!---srf 
-!      do ns = 1, nSoilLevels
-!             if(smois(ns,iCell) < 0.999) smois(ns,iCell) = 0.8* smois(ns,iCell)
-!      enddo
-!      call physics_message( 'srf: soil moisture reduced by 20%' )
-!---srf
+      !---srf 
+      do ns = 1, nSoilLevels
+         if(smois(ns,iCell) < 0.99) smois(ns,iCell) = 0.7* smois(ns,iCell)
+      enddo
+      call physics_message( 'srf: initial soil moisture reduced by 30%' )
+      !---srf
 
        bx = bb(isltyp(iCell))
        smcmax = maxsmc(isltyp(iCell))
