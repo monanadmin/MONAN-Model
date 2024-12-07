@@ -576,17 +576,22 @@ contains
       logical :: debug_mpas 
       !- tmp delete no futuro-----------------------------------------------
       rh_dicycle_fct = 0.
-      
-!print*,'itimestep',itimestep
-!      print*,'mpas qv', maxval(abs(rqvcuten(its:ite,kts:kte,jts:jte))),mynum
-!      print*,'mpas th', maxval(abs(rthcuten(its:ite,kts:kte,jts:jte))),mynum
-!      print*,'mpas qi', maxval(abs(rqicuten(its:ite,kts:kte,jts:jte))),mynum
-!      print*,'mpas qc', maxval(abs(rqccuten(its:ite,kts:kte,jts:jte))),mynum
+      print*,'================================================================'
+      print*,'itimestep',itimestep
+      print*,'mpas qv', maxval(abs(rqvcuten(its:ite,kts:kte,jts:jte))),mynum
+      print*,'mpas th', maxval(abs(rthcuten(its:ite,kts:kte,jts:jte))),mynum
+      print*,'mpas qi', maxval(abs(rqicuten(its:ite,kts:kte,jts:jte))),mynum
+      print*,'mpas qc', maxval(abs(rqccuten(its:ite,kts:kte,jts:jte))),mynum
+      print*,'mpas bu', maxval(abs(rbuoyxcuten(its:ite,kts:kte,jts:jte))),mynum
+      print*,'mpas u ', maxval(abs(rucuten(its:ite,kts:kte,jts:jte))),mynum
+      print*,'mpas v ', maxval(abs(rvcuten(its:ite,kts:kte,jts:jte))),mynum
+      print*,'================================================================'
+      print*,'================================================================'
 
 
 
 
-      !--- these arrays must be set to zero every timestep.
+      !--- these arrays must be reset every timestep.
       ierr4d         = 0
       jmin4d         = kts
       klcl4d         = kts
@@ -1233,7 +1238,7 @@ contains
                !- var output for diagnostic/debug
                !var3d1   (i,k,j) = var3d1_2d(k,i)
 
-               var3d1   (i,k,j) = outt (k,i,shal) * fixout_qv(i) * temp2theta
+              ! var3d1   (i,k,j) = outt (k,i,shal) * fixout_qv(i) * temp2theta
 
                !--- keep this for potential later use --------------------------------------
                !-- in updraft liq water content ( check the array config clwup5d(kts:kte,its:ite,jts:jte,maxiens) )
@@ -1274,11 +1279,13 @@ contains
              !- source term: downdraft detrainment of buoyancy [ J/kg s^{-1}]
              !- negative sign => source for updraft at the gust front
              do i = its,itf
+               !rbuoyxcuten (i,:,j) = 0.0
                if(do_this_column(i,j) == 0) cycle
                do k = kts,kte
                   rbuoyxcuten (i,k,j) = - min(0.,( outbuoy(k,i,shal)                 + &
                                                    outbuoy(k,i, mid)                 + &
                                                    outbuoy(k,i,deep) ) *fixout_qv(i))
+                  var3d1   (i,k,j) = rbuoyxcuten (i,k,j) 
                enddo
             enddo
          endif
@@ -3187,12 +3194,13 @@ contains
          do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
             !- mean vertical velocity based on integration of vertical veloc equation
-            wmean(i) = min(max(vvel1d(i),3.),20.)
-            
+           !wmean(i) = min(max(vvel1d(i),3.),20.)
+            wmean(i) = min(max(vvel1d(i),3.),10.)            
+           
             !- time-scale cape removal from Bechtold et al. 2008
             tau_ecmwf(i)=( zo_cup(ktop(i),i)- zo_cup(kbcon(i),i) ) / wmean(i)
-            tau_ecmwf(i)= min(10800., max(600.,tau_ecmwf(i)))
-           !tau_ecmwf(i)= min(10800., max(1800.,tau_ecmwf(i)))
+           !tau_ecmwf(i)= min(10800., max(600.,tau_ecmwf(i)))
+            tau_ecmwf(i)= min(10800., max(1800.,tau_ecmwf(i)))
             
          enddo
       endif
@@ -4504,17 +4512,17 @@ contains
                Nc = n_cldrop *1.e+6 
                Nc = Nc*xland(i) + 3.*Nc*(1.0-xland(i))
                min_liq  = 4./3.*c_pi*rhowater*r0**3*Nc/rhoair0  ! 0.419e-3 -- .61e-3
-              
               if(clw_all(k,i) <= min_liq) then !=> more heating at upper levels, more detrained ice
               
                   qrc(k,i)= clw_all(k,i)
                   pw(k,i) = 0.
               
               else
-                 !w_upd = min(15.,max(vvel2d(k,i),4.))
-                  w_upd = min(10.,max(vvel2d(k,i),2.))
+                  w_upd = min(15.,max(vvel2d(k,i),4.))
+                 !w_upd = min(10.,max(vvel2d(k,i),2.))
                  
                   cx0 = .104*9.8*peaut/(Nc*rhowater)**(1./3.)/xmyu*rhoair0**(4./3.)! 7.03
+                 ! print*,'minliq=',min_liq*1000.,Nc
 
                  !pw (k,i)= cx0*(clw_all(k,i)**7./3.)* dz/w_upd ! units kg[rain]/kg[air]
                   pw (k,i)= cx0*exp(log(clw_all(k,i))*((7./3.)))* dz/w_upd ! units kg[rain]/kg[air]

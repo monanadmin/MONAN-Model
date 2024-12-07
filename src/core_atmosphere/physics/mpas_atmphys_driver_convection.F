@@ -1006,8 +1006,8 @@
                rthratensw_p(i,k,j)  = rthratensw(k,i)
                rqvblten_p(i,k,j)    = rqvblten(k,i)
                rqvdynten_p(i,k,j)   = rqvdynten(k,i)
-               rbuoyxcuten_p(i,k,j) = rbuoyxcuten(k,i)
-               rcnvcfcuten_p(i,k,j) = rcnvcfcuten(k,i)
+               rbuoyxcuten_p(i,k,j) = 0.0
+               rcnvcfcuten_p(i,k,j) = 0.0
               
             enddo
          enddo
