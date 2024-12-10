@@ -598,7 +598,7 @@
           !accumulated precipitation:
           snownc(i)    = snownc(i) + snowncv(i)
           graupelnc(i) = graupelnc(i) + graupelncv(i)
-
+          !-srf  adding column ice and cloud content, like precipw
           do k = kts,kte
               rho_a = rho_p(i,k,j) / (1._RKIND + qv_p(i,k,j))
               precipci(i) = precipci(i) + (qc_p(i,k,j) + qi_p(i,k,j)) * rho_a * dz_p(i,k,j)

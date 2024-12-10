@@ -946,7 +946,7 @@
 			<var name="i_rainnc"/>
 			<var name="rainnc"/>
 			<var name="precipw"/>
-               <var name="precipci"/>
+                        <var name="precipci"/>
 			<var name="cuprec"/>
 			<var name="i_rainc"/>
 			<var name="rainc"/>
@@ -1688,7 +1688,7 @@
 			<var name="refl10cm_1km"/>
 			<var name="refl10cm_1km_max"/>
 			<var name="precipw"/>
-               <var name="precipci"/>
+                        <var name="precipci"/>
 			<var name="u10"/>
 			<var name="v10"/>
 			<var name="q2"/>

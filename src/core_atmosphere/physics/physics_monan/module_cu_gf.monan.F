@@ -576,19 +576,16 @@ contains
       logical :: debug_mpas 
       !- tmp delete no futuro-----------------------------------------------
       rh_dicycle_fct = 0.
-      print*,'================================================================'
-      print*,'itimestep',itimestep
-      print*,'mpas qv', maxval(abs(rqvcuten(its:ite,kts:kte,jts:jte))),mynum
-      print*,'mpas th', maxval(abs(rthcuten(its:ite,kts:kte,jts:jte))),mynum
-      print*,'mpas qi', maxval(abs(rqicuten(its:ite,kts:kte,jts:jte))),mynum
-      print*,'mpas qc', maxval(abs(rqccuten(its:ite,kts:kte,jts:jte))),mynum
-      print*,'mpas bu', maxval(abs(rbuoyxcuten(its:ite,kts:kte,jts:jte))),mynum
-      print*,'mpas u ', maxval(abs(rucuten(its:ite,kts:kte,jts:jte))),mynum
-      print*,'mpas v ', maxval(abs(rvcuten(its:ite,kts:kte,jts:jte))),mynum
-      print*,'================================================================'
-      print*,'================================================================'
-
-
+      !print*,'================================================================'
+      !print*,'itimestep',itimestep
+      !print*,'mpas qv', maxval(abs(rqvcuten(its:ite,kts:kte,jts:jte))),mynum
+      !print*,'mpas th', maxval(abs(rthcuten(its:ite,kts:kte,jts:jte))),mynum
+      !print*,'mpas qi', maxval(abs(rqicuten(its:ite,kts:kte,jts:jte))),mynum
+      !print*,'mpas qc', maxval(abs(rqccuten(its:ite,kts:kte,jts:jte))),mynum
+      !print*,'mpas bu', maxval(abs(rbuoyxcuten(its:ite,kts:kte,jts:jte))),mynum
+      !print*,'mpas u ', maxval(abs(rucuten(its:ite,kts:kte,jts:jte))),mynum
+      !print*,'mpas v ', maxval(abs(rvcuten(its:ite,kts:kte,jts:jte))),mynum
+      !print*,'================================================================'
 
 
       !--- these arrays must be reset every timestep.
@@ -1237,8 +1234,7 @@ contains
                
                !- var output for diagnostic/debug
                !var3d1   (i,k,j) = var3d1_2d(k,i)
-
-              ! var3d1   (i,k,j) = outt (k,i,shal) * fixout_qv(i) * temp2theta
+               !var3d1   (i,k,j) = outt (k,i,shal) * fixout_qv(i) * temp2theta
 
                !--- keep this for potential later use --------------------------------------
                !-- in updraft liq water content ( check the array config clwup5d(kts:kte,its:ite,jts:jte,maxiens) )
@@ -1256,14 +1252,11 @@ contains
          enddo
          !print*,'max1 TH',maxval(rthcuten)*86400,minval(rthcuten)*86400
          !print*,'max1 QV',maxval(rqvcuten)*86400*2.5e+3,minval(rqvcuten)*86400*2.5e+3
-
          ! print*,'outs---',maxval(fixout_qv),maxval(conprr(:,jts))*3600,maxval(abs(outt (:,:,deep)))*86400,&
          !                  maxval(abs(rthcuten(:,:,jts)))*86400.,maxval(abs(rqvcuten(:,:,jts)))*86400.*2.5e+6/1004.
- 
          !   print*,'outs---',maxval(conprr(its:ite,jts:jte))*3600, maxval(abs(outt (:,:,deep)))*86400&
          !                  ,maxval(abs(rthcuten(its:ite,kts:kte,jts:jte)))*86400.&
          !                  ,maxval(abs(rqvcuten(its:ite,kts:kte,jts:jte)))*86400.*2.5e+6/1004.
-
 
          if(use_momentum_transp > 0) then
             do i = its,itf
@@ -1279,7 +1272,6 @@ contains
              !- source term: downdraft detrainment of buoyancy [ J/kg s^{-1}]
              !- negative sign => source for updraft at the gust front
              do i = its,itf
-               !rbuoyxcuten (i,:,j) = 0.0
                if(do_this_column(i,j) == 0) cycle
                do k = kts,kte
                   rbuoyxcuten (i,k,j) = - min(0.,( outbuoy(k,i,shal)                 + &
@@ -3194,14 +3186,14 @@ contains
          do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
             !- mean vertical velocity based on integration of vertical veloc equation
-           !wmean(i) = min(max(vvel1d(i),3.),20.)
-            wmean(i) = min(max(vvel1d(i),3.),10.)            
-           
+            !wmean(i) = min(max(vvel1d(i),3.),20.)
+             wmean(i) = min(max(vvel1d(i),3.),10.)
+
             !- time-scale cape removal from Bechtold et al. 2008
             tau_ecmwf(i)=( zo_cup(ktop(i),i)- zo_cup(kbcon(i),i) ) / wmean(i)
-           !tau_ecmwf(i)= min(10800., max(600.,tau_ecmwf(i)))
-            tau_ecmwf(i)= min(10800., max(1800.,tau_ecmwf(i)))
-            
+           !tau_ecmwf(i)= min(10800., max(600. ,tau_ecmwf(i)))
+            tau_ecmwf(i)= min(10800., max(3600.,tau_ecmwf(i)))
+
          enddo
       endif
 
@@ -4512,6 +4504,7 @@ contains
                Nc = n_cldrop *1.e+6 
                Nc = Nc*xland(i) + 3.*Nc*(1.0-xland(i))
                min_liq  = 4./3.*c_pi*rhowater*r0**3*Nc/rhoair0  ! 0.419e-3 -- .61e-3
+              
               if(clw_all(k,i) <= min_liq) then !=> more heating at upper levels, more detrained ice
               
                   qrc(k,i)= clw_all(k,i)
@@ -4522,7 +4515,6 @@ contains
                  !w_upd = min(10.,max(vvel2d(k,i),2.))
                  
                   cx0 = .104*9.8*peaut/(Nc*rhowater)**(1./3.)/xmyu*rhoair0**(4./3.)! 7.03
-                 ! print*,'minliq=',min_liq*1000.,Nc
 
                  !pw (k,i)= cx0*(clw_all(k,i)**7./3.)* dz/w_upd ! units kg[rain]/kg[air]
                   pw (k,i)= cx0*exp(log(clw_all(k,i))*((7./3.)))* dz/w_upd ! units kg[rain]/kg[air]
@@ -9941,11 +9933,11 @@ contains
       endif
 
       !-- inicializa as variáveis do módulo
-      icumulus_gf      = (/1, 1, 0/)
+      icumulus_gf      = (/1, 1, 2/)
       closure_choice   = (/10,10, 3/) 
       cum_entr_rate    = (/       &
                            6.0e-4 & !deep
-                          ,2.0e-3 & !shallow
+                          ,3.0e-3 & !shallow
                           ,1.0e-3 & !mid
                          /)
       use_lcl_ctrl_entr = 0
@@ -9985,18 +9977,18 @@ contains
       use_rebcb         = 1 
       irainevap         = 0
       cum_max_edt_land  = (/0.50, 0.00, 0.20/)
-      cum_max_edt_ocean = (/0.50, 0.00, 0.20/)
+      cum_max_edt_ocean = (/0.50, 0.00, 0.50/)
       cum_use_excess    = (/1, 1, 1/)
-      cum_ave_layer     = (/30., 15., 15./)
-      cum_min_cloud_depth=(/200., 50., 150./)
+      cum_ave_layer     = (/50., 30., 30./)
+      cum_min_cloud_depth=(/200., 70., 150./)
       sgs_w_timescale   = 1 
       tau_deep          = 3600.0  
-      tau_mid           = 1200.0  
+      tau_mid           = 3600.0  
       lightning_diag    = 1
       liq_ice_number_conc=0
       apply_sub_mp      = 0 
       use_wetbulb       = 0 
-      overshoot         = 0.0
+      overshoot         = 0.20
 
       autoconv          = 4     
       c0_deep           = 1.0e-3
@@ -10009,14 +10001,14 @@ contains
       lambau_deep       = 0.0 
       lambau_shdn       = 2.0 
       
-      max_tq_tend       = 200.0   
+      max_tq_tend       = 300.0   
       use_smooth_prof   = 1      
-      cum_use_smooth_tend = (/1, 1, 1/)     
+      cum_use_smooth_tend = (/2, 2, 2/)     
 
       cum_hei_updf_land = (/0.55, 0.1, 0.55/)
       cum_hei_updf_ocean= (/0.55, 0.1, 0.55/)
-      cum_hei_down_land = (/0.40, 0.0, 0.35/)
-      cum_hei_down_ocean= (/0.35, 0.0, 0.35/) 
+      cum_hei_down_land = (/0.60, 0.0, 0.35/)
+      cum_hei_down_ocean= (/0.50, 0.0, 0.35/) 
 
       cum_fadj_massflx  = (/1.00, 1.00, 1.00/)
       moist_trigger     = 0   
