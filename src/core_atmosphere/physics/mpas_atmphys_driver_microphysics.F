@@ -530,7 +530,7 @@
  integer,dimension(:),pointer:: i_rainnc
 
  real(kind=RKIND),pointer:: config_bucket_rainnc
- real(kind=RKIND),dimension(:),pointer:: precipw
+ real(kind=RKIND),dimension(:),pointer:: precipw,precipci
  real(kind=RKIND),dimension(:),pointer:: graupelnc,rainnc,snownc
  real(kind=RKIND),dimension(:),pointer:: graupelncv,rainncv,snowncv,sr
 
@@ -552,9 +552,11 @@
  call mpas_pool_get_array(diag_physics,'snownc'    ,snownc    )
  call mpas_pool_get_array(diag_physics,'snowncv'   ,snowncv   )
  call mpas_pool_get_array(diag_physics,'sr'        ,sr        )
+ call mpas_pool_get_array(diag_physics,'precipci'  ,precipci  )
 
  do i = its,ite
     precipw(i) = 0._RKIND
+    precipci(i)= 0._RKIND
  enddo
 
 !variables common to all cloud microphysics schemes:
@@ -596,6 +598,11 @@
           !accumulated precipitation:
           snownc(i)    = snownc(i) + snowncv(i)
           graupelnc(i) = graupelnc(i) + graupelncv(i)
+
+          do k = kts,kte
+              rho_a = rho_p(i,k,j) / (1._RKIND + qv_p(i,k,j))
+              precipci(i) = precipci(i) + (qc_p(i,k,j) + qi_p(i,k,j)) * rho_a * dz_p(i,k,j)
+          enddo
        enddo
        enddo
 
