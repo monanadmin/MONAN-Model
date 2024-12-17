@@ -2767,7 +2767,8 @@ contains
       real                                  ::  evap_(mtp),wetdep_(mtp),trash_(mtp),trash2_(mtp) &
                                                ,massi,massf,dtime_max,evap,wetdep,residu_(mtp)   &
                                                ,s1,s2,q1,q2,rzenv,factor,CWV,entr_threshold      &
-                                               ,resten_H,resten_Q,resten_T,alp0,beta1,beta2 
+                                               ,resten_H,resten_Q,resten_T,alp0,beta1,beta2      &
+                                               ,dx_ref,alpha_cats
       !----------------------------------------------------------------------
       !-- only for debug (atmos composition)
       real, allocatable, dimension (:,:,:),save    ::   se_chem_update
@@ -3172,28 +3173,43 @@ contains
                               , x_add_buoy, xland, tpert, zuo, up_massdetro , up_massentro, zuo, p_liq_ice          &
                               , qrco, ierr, zo, po, z1,aa1_radpbl, aa1_adv,dicycle)
       end if
-  
+
       !
-      !--- Bechtold et al 2008 time-scale of cape removal
+      !--- time-scale of cape removal
       !
       if(cumulus=='deep') then
                tau_ecmwf(:)=tau_deep;   wmean(:) = 3. !  mean vertical velocity m/s
       else
                tau_ecmwf(:)=tau_mid ;   wmean(:) = 3. 
       endif
- 
+      !--- Bechtold et al (2008) time-scale of cape removal
       if(sgs_w_timescale == 1 .and. cumulus=='deep') then
          do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
             !- mean vertical velocity based on integration of vertical veloc equation
-            !wmean(i) = min(max(vvel1d(i),3.),20.)
-             wmean(i) = min(max(vvel1d(i),3.),10.)
+            wmean(i) = min(max(vvel1d(i),3.),20.)
 
             !- time-scale cape removal from Bechtold et al. 2008
             tau_ecmwf(i)=( zo_cup(ktop(i),i)- zo_cup(kbcon(i),i) ) / wmean(i)
-           !tau_ecmwf(i)= min(10800., max(600. ,tau_ecmwf(i)))
-            tau_ecmwf(i)= min(10800., max(3600.,tau_ecmwf(i)))
+            tau_ecmwf(i)= min(10800., max(600.,tau_ecmwf(i)))
 
+         enddo
+      endif
+      !--- time-scale cape removal of IFS 2023
+      if(sgs_w_timescale == 2 .and. cumulus=='deep') then
+         dx_ref = 125.e+3 ! meters
+         do vtp_index = get_num_elements(vec_ok),1,-1
+            i = get_data_value(vec_ok,vtp_index)
+            !- mean vertical velocity based on integration of vertical veloc equation
+            wmean(i) = min(max(vvel1d(i),3.),20.)
+
+            if(dx(i) > 8000.) then
+               alpha_cats = 1. + 1.60*dx(i)/dx_ref
+            else
+               alpha_cats = 1. + (log(1.e+4/dx(i)))**2
+            endif
+            tau_ecmwf(i)=alpha_cats*(zo_cup(ktop(i),i)- zo_cup(kbcon(i),i)) / wmean(i)
+            tau_ecmwf(i)= min(10800., max(720.,tau_ecmwf(i)))
          enddo
       endif
 
@@ -4511,8 +4527,8 @@ contains
                   pw(k,i) = 0.
               
               else
-                  w_upd = min(15.,max(vvel2d(k,i),4.))
-                 !w_upd = min(10.,max(vvel2d(k,i),2.))
+                 !w_upd = min(15.,max(vvel2d(k,i),4.))
+                  w_upd = min(10.,max(vvel2d(k,i),2.))
                  
                   cx0 = .104*9.8*peaut/(Nc*rhowater)**(1./3.)/xmyu*rhoair0**(4./3.)! 7.03
 
@@ -8198,7 +8214,7 @@ contains
       real   ,intent(out)           :: x_aver
       !-- local vars
       integer                       :: i,local_order_aver,order_aver, i_beg,i_end,ic
-      real,    parameter            :: frac_ave_layer_ocean= 1.
+      real,    parameter            :: frac_ave_layer_ocean= 1.0
       real                          :: count,dp,dp_layer,effec_frac,x_ave_layer
 
       if(ave_from_surface) then
@@ -8563,7 +8579,7 @@ contains
          !--- check if ktop is above 700hpa layer for shallow convection
          do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
-            min_shall_top=700.
+            min_shall_top=600.
             !if(icumulus_gf(mid) == OFF) min_shall_top=550.
             cloud_depth =  po_cup(kbcon(i),i)-po_cup(ktop(i),i)
             if(po_cup(ktop(i),i) < min_shall_top .or. cloud_depth < min_cloud_depth ) then
