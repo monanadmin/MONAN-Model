@@ -31,7 +31,7 @@
                    ims,ime,jms,jme,kms,kme,                      &
                    its,ite,jts,jte,kts,kte,                      &
                    errmsg,errflg,                                &
-                   sgsgustcu                                     &
+                   sgsgustcu,hfx_spr,lh_spr                      &
                        )
 !-------------------------------------------------------------------
 !-- u3d         3d u-velocity interpolated to theta points (m/s)
@@ -210,6 +210,10 @@ real(kind=RKIND),intent(in),dimension(ims:ime,jms:jme):: &
     psim,   &
     psih
 
+real(kind=RKIND),intent(out),dimension(ims:ime,jms:jme):: &
+    hfx_spr, &
+    lh_spr
+
 !--- local variables and arrays:
  integer:: i,j,k
 
@@ -232,7 +236,7 @@ real(kind=RKIND),intent(in),dimension(ims:ime,jms:jme):: &
  real(kind=RKIND),dimension(its:ite):: u10_hv,v10_hv,th2_hv,t2_hv,q2_hv,wstar_hv,qstar_hv
  real(kind=RKIND),dimension(its:ite):: cd_hv,cda_hv,ck_hv,cka_hv,ustm_hv
 
- real(kind=RKIND),dimension(its:ite):: sgsgustcu_hv
+ real(kind=RKIND),dimension(its:ite):: sgsgustcu_hv,hfx_spr_hv,lh_spr_hv
 
 !-----------------------------------------------------------------------------------------------------------------
 
@@ -304,6 +308,8 @@ real(kind=RKIND),intent(in),dimension(ims:ime,jms:jme):: &
        t2_hv(i)     = 0.
        q2_hv(i)     = 0.
        wstar_hv(i)  = 0.
+       hfx_spr_hv(i)= 0.
+       lh_spr_hv(i) = 0.
     enddo
 
     !optional output arguments:
@@ -341,7 +347,7 @@ real(kind=RKIND),intent(in),dimension(ims:ime,jms:jme):: &
                  cka      = cka_hv    , cd       = cd_hv     , cda     = cda_hv   , spp_pbl   = f_spp     , &
                  rstoch1d = rstoch1d  , isftcflx = isftcflx  , iz0tlnd = iz0tlnd                          , &
                  its      = its       , ite      = ite       , errmsg  = errmsg   , errflg    = errflg    , &
-                 sgsgustcu = sgsgustcu_hv                                                                   &
+                 sgsgustcu = sgsgustcu_hv, hfx_spr = hfx_spr_hv, lh_spr = lh_spr_hv                         &
                      )
 
     !inout arguments:
@@ -380,6 +386,8 @@ real(kind=RKIND),intent(in),dimension(ims:ime,jms:jme):: &
        q2(i,j)    = q2_hv(i)
        wstar(i,j) = wstar_hv(i)
        qstar(i,j) = qstar_hv(i)
+       hfx_spr(i,j)= hfx_spr_hv(i)
+       lh_spr (i,j)= lh_spr_hv(i) 
     enddo
 
     !optional output arguments:

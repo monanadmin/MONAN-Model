@@ -148,6 +148,8 @@
  if(.not.allocated(znt_p)   ) allocate(znt_p(ims:ime,jms:jme)   )
     
  if(.not.allocated(sgsgustcu_p)) allocate(sgsgustcu_p(ims:ime,jms:jme) )
+ if(.not.allocated(hfx_spr_p)  ) allocate(hfx_spr_p(ims:ime,jms:jme)   )
+ if(.not.allocated(lh_spr_p)   ) allocate(lh_spr_p(ims:ime,jms:jme)    )
 
  if(config_frac_seaice) then
     if(.not.allocated(sst_p)      ) allocate(sst_p(ims:ime,jms:jme)      )
@@ -282,7 +284,9 @@
  if(allocated(zol_p)   ) deallocate(zol_p   )
  if(allocated(znt_p)   ) deallocate(znt_p   )
 
- if(allocated(sgsgustcu_p)) deallocate(sgsgustcu_p   )
+ if(allocated(sgsgustcu_p)) deallocate(sgsgustcu_p)
+ if(allocated(hfx_spr_p)  ) deallocate(hfx_spr_p  )
+ if(allocated(lh_spr_p)   ) deallocate(lh_spr_p   )
 
 
  if(config_frac_seaice) then
@@ -442,6 +446,7 @@
  call mpas_pool_get_array(diag_physics,'znt'     ,znt     )
  call mpas_pool_get_array(diag_physics,'zol'     ,zol     )
 
+
  do j = jts,jte
  do i = its,ite
     !input variables:
@@ -481,6 +486,8 @@
     th2m_p(i,j)   = 0._RKIND
     u10_p(i,j)    = 0._RKIND
     v10_p(i,j)    = 0._RKIND
+    hfx_spr_p(i,j)= 0._RKIND
+    lh_spr_p(i,j) = 0._RKIND
 
     !output variables (optional):
     cd_p(i,j)     = 0._RKIND
@@ -724,6 +731,8 @@
 !local pointers specific to mynn:
  real(kind=RKIND),dimension(:),pointer:: ch,qcg
 
+ real(kind=RKIND),dimension(:),pointer:: lh_spr,hfx_spr
+
 !-----------------------------------------------------------------------------------------------------------------
 
  call mpas_pool_get_config(configs,'config_frac_seaice'    ,config_frac_seaice)
@@ -752,6 +761,9 @@
  call mpas_pool_get_array(diag_physics,'wspd'  ,wspd  )
  call mpas_pool_get_array(diag_physics,'znt'   ,znt   )
  call mpas_pool_get_array(diag_physics,'zol'   ,zol   )
+ 
+ call mpas_pool_get_array(diag_physics,'lh_spr' ,lh_spr )
+ call mpas_pool_get_array(diag_physics,'hfx_spr',hfx_spr)
 
 !output variables:
  call mpas_pool_get_array(diag_physics,'q2'    ,q2    )
@@ -759,6 +771,9 @@
  call mpas_pool_get_array(diag_physics,'th2m'  ,th2m  )
  call mpas_pool_get_array(diag_physics,'u10'   ,u10   )
  call mpas_pool_get_array(diag_physics,'v10'   ,v10   )
+
+ call mpas_pool_get_array(diag_physics,'hfx_spr',hfx_spr)
+ call mpas_pool_get_array(diag_physics,'lh_spr' ,lh_spr )
 
 !output variables (optional):
  call mpas_pool_get_array(diag_physics,'cd'    ,cd    )
@@ -804,6 +819,9 @@
     th2m(i)   = th2m_p(i,j)
     u10(i)    = u10_p(i,j)
     v10(i)    = v10_p(i,j)
+    hfx_spr(i)= hfx_spr_p(i,j)
+    lh_spr(i) = lh_spr_p(i,j)
+
     !output variables (optional):
     cd(i)     = cd_p(i,j)
     cda(i)    = cda_p(i,j)
@@ -1149,7 +1167,7 @@
                    qcg      = qcg_p      , spp_pbl   = spp_pbl  , isftcflx = isftcflx    , &
                    iz0tlnd  = iz0tlnd    , itimestep = initflag                          , &
                    errmsg   = errmsg     , errflg    = errflg                            , &
-                   sgsgustcu = sgsgustcu_p                                               , & 
+                   sgsgustcu= sgsgustcu_p, hfx_spr   = hfx_spr_p, lh_spr   = lh_spr_p    , &                       
                    ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde , &
                    ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme , &
                    its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte   &
@@ -1181,7 +1199,7 @@
                       qcg      = qcg_p      , spp_pbl   = spp_pbl  , isftcflx = isftcflx    , &
                       iz0tlnd  = iz0tlnd    , itimestep = initflag                          , &
                       errmsg   = errmsg     , errflg    = errflg                            , &
-                      sgsgustcu = sgsgustcu_p                                               , &                       
+                      sgsgustcu= sgsgustcu_p, hfx_spr   = hfx_spr_p, lh_spr   = lh_spr_p    , &                       
                       ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde , &
                       ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme , &
                       its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte   &
