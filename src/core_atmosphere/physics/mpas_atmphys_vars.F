@@ -389,7 +389,8 @@
  real(kind=RKIND),dimension(:,:),allocatable:: &
     wlpool_p,     &!
     vcpool_p,     &!
-    lightn_dens_p 
+    lightn_dens_p,&
+    ctt_p
 
  real(kind=RKIND),dimension(:,:,:),allocatable:: &
     sub3d_rthcuten_p,        &!

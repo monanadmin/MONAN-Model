@@ -125,6 +125,8 @@
  !surface precipitation:
  if(.not.allocated(rainnc_p) ) allocate(rainnc_p(ims:ime,jms:jme) )
  if(.not.allocated(rainncv_p)) allocate(rainncv_p(ims:ime,jms:jme))
+ if(.not.allocated(ctt_p)    ) allocate(ctt_p(ims:ime,jms:jme)    )
+
 
  microp_select: select case(microp_scheme)
 
@@ -199,6 +201,7 @@
  !surface precipitation:
  if(allocated(rainnc_p)  ) deallocate(rainnc_p  )
  if(allocated(rainncv_p) ) deallocate(rainncv_p )
+ if(allocated(ctt_p)     ) deallocate(ctt_p     )
 
  microp_select: select case(microp_scheme)
 
@@ -428,6 +431,13 @@
     !over ice otherwise.
     call compute_relhum(diag,its,ite)
 
+    call wrfcttcalc(pres_p, pi_p, th_p, qi_p, qc_p, qv_p, z_p, ctt_p, haveqci,&
+                    ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde       , &
+                    ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme       , &
+                    its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte         )
+
+ 
+
  end if
 
 !... copy updated precipitation from the wrf-physics grid back to the geodesic-dynamics grid:
@@ -601,7 +611,8 @@
           !-srf  adding column ice and cloud content, like precipw
           do k = kts,kte
               rho_a = rho_p(i,k,j) / (1._RKIND + qv_p(i,k,j))
-              precipci(i) = precipci(i) + (qc_p(i,k,j) + qi_p(i,k,j)) * rho_a * dz_p(i,k,j)
+              !precipci(i) = precipci(i) + (qc_p(i,k,j) + qi_p(i,k,j)) * rho_a * dz_p(i,k,j)
+              precipci(i) = ctt_p(i,j)
           enddo
        enddo
        enddo
