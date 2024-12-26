@@ -1061,13 +1061,13 @@
                dqstar_spr,dthvstar_spr,dthref_spr,dtref_spr,dqref_spr,dsref_spr,&
                tau,H_S0pr,H_L0pr,M_spr,H_Tspr,H_Rspr,H_SNspr,H_Lspr,alpha_S,&
                beta_S,beta_L,gamma_S,gamma_L)
-      if(abs(dHL1_spr)>0.0001) then
-          print*,"INP",z_1,t_1,q_1,U_1,p_0,t_0,Lmo,z0,z0t,z0q,z_ref,whichSSGF,paramWaves
-          print*,"FLX",U_1,dHS1_spr,dHL1_spr,dthvstar_spr
-      endif 
+      !if(abs(dHL1_spr)>0.0001) then
+      !    print*,"INP",z_1,t_1,q_1,U_1,p_0,t_0,Lmo,z0,z0t,z0q,z_ref,whichSSGF,paramWaves
+      !    print*,"FLX",U_1,dHS1_spr,dHL1_spr,dthvstar_spr
+      !endif 
       hfx_spr(i) = dHS1_spr ! W/m2
       lh_spr (i) = dHL1_spr ! W/m2
-
+      cycle 
       hfx    (i) = hfx(i) + hfx_spr(i)
       lh     (i) = lh (i) + lh_spr (i)
       qfx    (i) = qfx(i) + lh_spr (i)/xlv ! kg/kg
