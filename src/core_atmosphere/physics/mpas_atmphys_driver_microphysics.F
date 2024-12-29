@@ -431,13 +431,14 @@
     !over ice otherwise.
     call compute_relhum(diag,its,ite)
 
-    call wrfcttcalc(pres_p = pres_p, pi_p = pi_p, th_p = th_p, qci = qi_p , qcw = qc_p          , &
-                    qvp = qv_p, ght = z_p, ctt = ctt_p                                          , &
-                    ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde       , &
-                    ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme       , &
-                    its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte         )
-
  end if
+
+ call wrfcttcalc(pres_p = pres_p, pi_p = pi_p, th_p = th_p, qci = qi_p , qcw = qc_p          , &
+ qvp = qv_p, ght = z_p, ctt = ctt_p                                          , &
+ ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde       , &
+ ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme       , &
+ its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte         )
+
 
 
 !... copy updated precipitation from the wrf-physics grid back to the geodesic-dynamics grid:
@@ -509,6 +510,7 @@
           snownc_p(i,j)     = 0._RKIND
           graupelnc_p(i,j)  = 0._RKIND
           sr_p(i,j)         = 0._RKIND
+          ctt_p(i,j)        = 0._RKIND
        enddo
        enddo
 
@@ -540,7 +542,7 @@
  integer,dimension(:),pointer:: i_rainnc
 
  real(kind=RKIND),pointer:: config_bucket_rainnc
- real(kind=RKIND),dimension(:),pointer:: precipw,precipci
+ real(kind=RKIND),dimension(:),pointer:: precipw,precipci,ctt
  real(kind=RKIND),dimension(:),pointer:: graupelnc,rainnc,snownc
  real(kind=RKIND),dimension(:),pointer:: graupelncv,rainncv,snowncv,sr
 
@@ -562,6 +564,7 @@
  call mpas_pool_get_array(diag_physics,'snownc'    ,snownc    )
  call mpas_pool_get_array(diag_physics,'snowncv'   ,snowncv   )
  call mpas_pool_get_array(diag_physics,'sr'        ,sr        )
+ call mpas_pool_get_array(diag_physics,'ctt'       ,ctt       )
  call mpas_pool_get_array(diag_physics,'precipci'  ,precipci  )
 
  do i = its,ite
@@ -611,9 +614,10 @@
           !-srf  adding column ice and cloud content, like precipw
           do k = kts,kte
               rho_a = rho_p(i,k,j) / (1._RKIND + qv_p(i,k,j))
-              !precipci(i) = precipci(i) + (qc_p(i,k,j) + qi_p(i,k,j)) * rho_a * dz_p(i,k,j)
-              precipci(i) = ctt_p(i,j)
+              precipci(i) = precipci(i) + (qc_p(i,k,j) + qi_p(i,k,j)) * rho_a * dz_p(i,k,j)
           enddo
+          !-srf adding cloud top temperature
+          ctt(i) =  ctt_p(i,j)
        enddo
        enddo
 
@@ -850,8 +854,6 @@ real(kind=RKIND), DIMENSION(ims:ime , kms:kme , jms:jme ), INTENT(IN) :: ght, pr
 real(kind=RKIND), DIMENSION(ims:ime , jms:jme ), INTENT(OUT) :: ctt
 real(kind=RKIND), DIMENSION(ims:ime , kms:kme , jms:jme) :: pf,tk,prs
 !real(kind=RKIND), DIMENSION(ims:ime , jms:jme ) :: ter
-
-
 !!NCLEND
 !     real(kind=RKIND) ::     znfac(nz)
 
@@ -956,6 +958,9 @@ DO j=jts, jte
       ELSE
          ctt(i,j) = missing
       END IF
+
+     if(abs(ctt(i,j)) > 300.) print*,'XXXX',ctt(i,j) 
+
    END DO
 END DO
 !#!$OMP END DO

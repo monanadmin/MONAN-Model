@@ -1029,6 +1029,10 @@
  do i=its,ite
     hfx_spr(i) = 0.0
     lh_spr (i) = 0.0
+!xxxxxxxxx
+        cycle 
+!xxxxxxxxx
+
     if ((xland(i)-1.5) < 0.) cycle ! if xland < 1.5 => land
       !--------------------------------------
       ! water
@@ -1044,7 +1048,9 @@
       dcp = 0.  
       swh = 0.  
       mss = 0.  
-      Lmo = 1.0/rmol (i)
+      ! Program received signal SIGFPE: Floating-point exception - erroneous arithmetic operation.
+      !Lmo = 1.0/rmol (i)
+      Lmo = 1.0/(rmol (i) + 1.e-12)
       z0  = zntstoch(i) !_or_ znt(i) 
       z0t = z_t(i)
       z0q = z_q(i)

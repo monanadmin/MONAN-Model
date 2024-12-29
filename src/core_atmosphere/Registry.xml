@@ -551,7 +551,8 @@
 			<var name="q2"/>
 			<var name="t2m"/>
 			<var name="precipw"/>
-               <var name="precipci"/>
+                        <var name="precipci"/>
+                        <var name="ctt"/>
 			<var name="dzs"/>
 			<var name="sh2o"/>
 			<var name="smois"/>
@@ -947,6 +948,7 @@
 			<var name="rainnc"/>
 			<var name="precipw"/>
                         <var name="precipci"/>
+                        <var name="ctt"/>
 			<var name="cuprec"/>
 			<var name="i_rainc"/>
 			<var name="rainc"/>
@@ -1689,6 +1691,7 @@
 			<var name="refl10cm_1km_max"/>
 			<var name="precipw"/>
                         <var name="precipci"/>
+                        <var name="ctt"/>
 			<var name="u10"/>
 			<var name="v10"/>
 			<var name="q2"/>
@@ -2983,6 +2986,9 @@
 
                 <var name="precipci" type="real" dimensions="nCells Time" units="kg m^{-2}"
                      description="precipitable cloud and ice"/>
+
+                <var name="ctt" type="real" dimensions="nCells Time" units="K"
+                     description="cloud top temperature"/>
 
                 <!-- ================================================================================================== -->
                 <!-- ... PARAMETERIZATION OF CONVECTION:                                                                -->

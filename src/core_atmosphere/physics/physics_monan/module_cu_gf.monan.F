@@ -9281,6 +9281,7 @@ contains
                         (1.+(c_xlf/c_alvl)*(1.-p_liq_ice(k,i)))))*mbdt(i) + tn(k,i)
 
                !--- temp tendency due to the environmental subsidence
+               if(use_sub3d > 0) &
                subten_t(k,i)=(1./c_cp)*(subten_h(k,i)-c_alvl*subten_q(k,i))
 
             enddo
