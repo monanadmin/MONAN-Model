@@ -1332,7 +1332,8 @@
        do j = jts,jte
        do i = its,ite
           v2d1(i)  = v2d1_p(i,j)
-          v2d2(i)  = v2d2_p(i,j)
+         !--- used in sfclayer
+         !v2d2(i)  = v2d2_p(i,j)
           do k = kts,kte
              v3d1(k,i) = v3d1_p(i,k,j)
           enddo

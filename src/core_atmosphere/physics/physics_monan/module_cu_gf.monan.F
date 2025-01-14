@@ -636,6 +636,7 @@ contains
       stochastic_sig(:,:) = 1.0  
       aot500        (:,:) = 0.0
       col_sat       (:,:) = 0.0  !falta
+      aa3           (:,:) = 0.0
       !----------------------------------------------------------------------
       !print*, 'domain', its,itf,ite,kts,ktf,kte,jts,jtf,jte
       !print*,'ins---',maxval(conprr(its:ite,jts:jte))*3600 &
@@ -1153,9 +1154,9 @@ contains
 
          !-- diagnostic/debug 2d
          do i=its,itf
-            if(do_this_column(i,j) == 0) cycle
+            !if(do_this_column(i,j) == 0) cycle
             var2d1(i,j) = aa3(i,j) !cum_ztexec(i)
-            !var2d2(i,j) = aa1_bl(i,j)! cum_zqexec(i) 
+           !var2d2(i,j) = aa1_bl(i,j)! cum_zqexec(i) 
          enddo
 
 !--- temporary : we will overwritten all grid boxes 

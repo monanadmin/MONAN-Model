@@ -388,12 +388,16 @@
     vsgd = 0.32 * (max(dx(i)/5000.-1.,0.))**.33
 
     !-srf: orig version MPAS 8.1
-    !wspd(i)=sqrt(wspd(i)*wspd(i)+wstar(i)*wstar(i)+vsgd*vsgd)
+    !if(sgsgustcu(i) < 0.0) then 
+    !   wspd(i)=sqrt(wspd(i)*wspd(i)+wstar(i)*wstar(i)+vsgd*vsgd)
     !
     !--------------------------------------------------------
     !-srf:  adding sgs gustiness from convection scheme, currently only GF monan 
     !--------------------------------------------------------
-    wspd(i)=sqrt(wspd(i)*wspd(i)+wstar(i)*wstar(i)+vsgd*vsgd+sgsgustcu(i)*sgsgustcu(i))
+    !else 
+      wspd(i)=sqrt(wspd(i)*wspd(i)+wstar(i)*wstar(i)+vsgd*vsgd+sgsgustcu(i)*sgsgustcu(i))
+      ! wspd(i)=sqrt(                wstar(i)*wstar(i)+vsgd*vsgd+sgsgustcu(i)*sgsgustcu(i))
+    !endif
     !
     !
     wspd(i)=max(wspd(i),wmin)
