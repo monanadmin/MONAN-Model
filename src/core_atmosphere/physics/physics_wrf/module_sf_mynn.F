@@ -27,12 +27,12 @@
                    karman,itimestep,ch,th3d,pi3d,qc3d,rho3d,qcg, &
                    spp_pbl,pattern_spp_pbl,                      &
                    ustm,ck,cka,cd,cda,isftcflx,iz0tlnd,          &
+                   errmsg,errflg,                                &
+                   sgsgustcu,hfx_spr,lh_spr,config_gf_gustf,     &
                    ids,ide,jds,jde,kds,kde,                      &
                    ims,ime,jms,jme,kms,kme,                      &
-                   its,ite,jts,jte,kts,kte,                      &
-                   errmsg,errflg,                                &
-                   sgsgustcu,hfx_spr,lh_spr                      &
-                       )
+                   its,ite,jts,jte,kts,kte                       &
+                                                                 )
 !-------------------------------------------------------------------
 !-- u3d         3d u-velocity interpolated to theta points (m/s)
 !-- v3d         3d v-velocity interpolated to theta points (m/s)
@@ -103,8 +103,9 @@
 !    only)      =2: modified yang et al (2002, 2008) - generalized for all landuse
 !               =3: constant zt = z0/7.4 (garratt 1992)
 !
-!-- sgsgustcu   sub-grid-scale gust speed from GF cumlus scheme (m/s)
-!
+!-- sgsgustcu       sub-grid-scale gust speed from GF cumlus scheme (m/s)
+!-- config_gf_gustf parameter to couple the gustfront speed with the sfc layer scheme
+
 !-- ids         start index for i in domain
 !-- ide         end index for i in domain
 !-- jds         start index for j in domain
@@ -163,7 +164,8 @@
     snowh,  &
     dx
 
-real(kind=RKIND),intent(in),dimension(ims:ime,jms:jme):: &
+ integer,intent(in):: config_gf_gustf
+ real(kind=RKIND),intent(in),dimension(ims:ime,jms:jme):: &
     sgsgustcu
 
 !--- output arguments:
@@ -347,8 +349,8 @@ real(kind=RKIND),intent(out),dimension(ims:ime,jms:jme):: &
                  cka      = cka_hv    , cd       = cd_hv     , cda     = cda_hv   , spp_pbl   = f_spp     , &
                  rstoch1d = rstoch1d  , isftcflx = isftcflx  , iz0tlnd = iz0tlnd                          , &
                  its      = its       , ite      = ite       , errmsg  = errmsg   , errflg    = errflg    , &
-                 sgsgustcu = sgsgustcu_hv, hfx_spr = hfx_spr_hv, lh_spr = lh_spr_hv                         &
-                     )
+                 sgsgustcu = sgsgustcu_hv, hfx_spr = hfx_spr_hv, lh_spr = lh_spr_hv                       , &
+                 config_gf_gustf = config_gf_gustf                                                          )
 
     !inout arguments:
     do i = its,ite

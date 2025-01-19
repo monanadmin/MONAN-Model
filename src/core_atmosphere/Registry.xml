@@ -2871,7 +2871,7 @@
                 <nml_option name="config_gf_gustf" type="integer" default_value="0" in_defaults="false"
                      units="-"
                      description="Option for coupling the Grell-Freitas MONAN cold pool gust front speed with the surface layer scheme, it needs config_gf_cporg greater than zero"
-                     possible_values="0,1,2"/>
+                     possible_values="0,1,2,3"/>
                 
                 <nml_option name="config_gf_sub3d" type="integer" default_value="0" in_defaults="false"
                      units="-"

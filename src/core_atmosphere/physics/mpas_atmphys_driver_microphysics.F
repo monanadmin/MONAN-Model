@@ -87,6 +87,9 @@
 !   pointer to config_microp_scheme.
 !   Laura D. Fowler (laura@ucar.edu) / 2917-02-16.
 
+! * implemented fro WRF a cloud top temperature estimation
+!   Saulo R. Freitas (saulo.freitas@inpe.br) / 2025-01-20
+!
 !--- initialization option for WSM6 from WRF version 3.8.1. this option could also be set as a namelist parameter.
  integer,parameter:: hail_opt = 0
 
@@ -433,13 +436,12 @@
 
  end if
 
+!... diagnostic the clout top temperature
  call wrfcttcalc(pres_p = pres_p, pi_p = pi_p, th_p = th_p, qci = qi_p , qcw = qc_p          , &
- qvp = qv_p, ght = z_p, ctt = ctt_p                                          , &
- ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde       , &
- ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme       , &
- its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte         )
-
-
+                 qvp = qv_p, ght = z_p, ctt = ctt_p                                          , &
+                 ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde       , &
+                 ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme       , &
+                 its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte         )
 
 !... copy updated precipitation from the wrf-physics grid back to the geodesic-dynamics grid:
  call precip_to_MPAS(configs,diag_physics,its,ite)
@@ -821,152 +823,128 @@
  if(allocated(qvs1d)) deallocate(qvs1d)
 
  end subroutine compute_relhum
-!!NCLFORTSTART
 !=================================================================================================================
-
- SUBROUTINE wrfcttcalc( pres_p,pi_p, th_p, qci, qcw, qvp, ght, ctt &
-   ,ids,ide, jds,jde, kds,kde                         & ! domain dims
-   ,ims,ime, jms,jme, kms,kme                         & ! memory dims
-   ,its,ite, jts,jte, kts,kte                         ) ! tile   dims
+ subroutine wrfcttcalc(pres_p,pi_p, th_p, qci, qcw, qvp, ght, ctt        &
+                      ,ids,ide, jds,jde, kds,kde                         & ! domain dims
+                      ,ims,ime, jms,jme, kms,kme                         & ! memory dims
+                      ,its,ite, jts,jte, kts,kte                         ) ! tile   dims
 !=================================================================================================================
-!!!!srf    USE wrf_constants, ONLY : EPS, USSALR, RD, G, ABSCOEFI, ABSCOEF, CELKEL
+implicit none
+real(kind=rkind), parameter :: abscoefi = .272_rkind  ! cloud ice absorption coefficient in m^2/g
+real(kind=rkind), parameter :: abscoef = .145_rkind   ! cloud water absorption coefficient in m^2/g
+real(kind=rkind), parameter :: celkel = 273.15_rkind
+real(kind=rkind), parameter :: g = 9.81_rkind
+real(kind=rkind), parameter :: ussalr = 0.0065_rkind  ! deg c per m
+real(kind=rkind), parameter :: rd = 287._rkind
+real(kind=rkind), parameter :: eps = 0.622_rkind
+real(kind=rkind), parameter :: missing = -999._rkind
+real(kind=rkind), parameter :: opt_thresh = 1.0_rkind
+integer         , parameter :: fill_nocloud  = 0
+integer         , parameter :: haveqci = 1
 
-IMPLICIT NONE
-real(kind=RKIND), PARAMETER :: ABSCOEFI = .272_RKIND  ! cloud ice absorption coefficient in m^2/g
-real(kind=RKIND), PARAMETER :: ABSCOEF = .145_RKIND   ! cloud water absorption coefficient in m^2/g
-real(kind=RKIND), PARAMETER :: CELKEL = 273.15_RKIND
-real(kind=RKIND), PARAMETER :: G = 9.81_RKIND
-real(kind=RKIND), PARAMETER :: USSALR = 0.0065_RKIND  ! deg C per m
-real(kind=RKIND), PARAMETER :: RD = 287._RKIND
-real(kind=RKIND), PARAMETER :: EPS = 0.622_RKIND
-real(kind=RKIND), PARAMETER :: missing = -999._RKIND
-real(kind=RKIND), PARAMETER :: opt_thresh = 1.0_RKIND
-integer         , PARAMETER :: fill_nocloud  = 0
-INTEGER         , PARAMETER :: haveqci = 1
-
-INTEGER         , INTENT(IN   )    :: ids,ide, jds,jde, kds,kde, &
+integer         , intent(in   )    :: ids,ide, jds,jde, kds,kde, &
                    ims,ime, jms,jme, kms,kme, &
                    its,ite, jts,jte, kts,kte
 
-!!f2py threadsafe
-!!f2py intent(in,out) :: ctt
-real(kind=RKIND), DIMENSION(ims:ime , kms:kme , jms:jme ), INTENT(IN) :: ght, pres_p, th_p, qci, qcw, qvp,pi_p
-real(kind=RKIND), DIMENSION(ims:ime , jms:jme ), INTENT(OUT) :: ctt
-real(kind=RKIND), DIMENSION(ims:ime , kms:kme , jms:jme) :: pf,tk,prs
-!real(kind=RKIND), DIMENSION(ims:ime , jms:jme ) :: ter
-!!NCLEND
-!     real(kind=RKIND) ::     znfac(nz)
+real(kind=rkind), dimension(ims:ime , kms:kme , jms:jme ), intent(in) :: ght, pres_p, th_p, qci, qcw, qvp,pi_p
+real(kind=rkind), dimension(ims:ime , jms:jme ), intent(out) :: ctt
+real(kind=rkind), dimension(ims:ime , kms:kme , jms:jme) :: pf,tk,prs
 
-! LOCAL VARIABLES
-INTEGER i,j,k,ripk
-real(kind=RKIND) :: opdepthu, opdepthd, dp, arg1, fac, prsctt, ratmix
-real(kind=RKIND) :: arg2, agl_hgt, vt
-real(kind=RKIND) :: p1, p2
+! local variables
+integer i,j,k,ripk
+real(kind=rkind) :: opdepthu, opdepthd, dp, arg1, fac, prsctt, ratmix
+real(kind=rkind) :: arg2, agl_hgt, vt
+real(kind=rkind) :: p1, p2
 
-prs = 0.01_RKIND*pres_p ! convert to hPa
-tk  = th_p * pi_p       ! temp in K
+prs = 0.01_rkind*pres_p ! convert to hpa
+tk  = th_p * pi_p       ! temp in k
 !ter(:,:) = ght(:,1,:)
 
-!#!$OMP PARALLEL
-! Calculate the surface pressure
-!#!$OMP DO COLLAPSE(2) PRIVATE(i, j, ratmix, arg1, arg2, vt, agl_hgt) &
-!#!$OMP SCHEDULE(runtime)
-DO j=jts, jte
-   DO i=its,ite
-      ratmix = .001_RKIND*qvp(i,1,j)
-      arg1 = EPS + ratmix
-      arg2 = EPS*(1. + ratmix)
-      vt = tk(i,1,j)*arg1/arg2 !Virtual temperature
+do j=jts, jte
+   do i=its,ite
+      ratmix = .001_rkind*qvp(i,1,j)
+      arg1 = eps + ratmix
+      arg2 = eps*(1. + ratmix)
+      vt = tk(i,1,j)*arg1/arg2 !virtual temperature
       agl_hgt = ght(i,kte,j) -  ght(i,1,j)
-      arg1 = -G/(RD*USSALR)
-      pf(i,kte,j) = prs(i,1,j)*(vt/(vt + USSALR*(agl_hgt)))**(arg1)
-   END DO
-END DO
-!#!$OMP END DO
+      arg1 = -g/(rd*ussalr)
+      pf(i,kte,j) = prs(i,1,j)*(vt/(vt + ussalr*(agl_hgt)))**(arg1)
+   end do
+end do
 
-!#!$OMP DO COLLAPSE(3) PRIVATE(i, k, j, ripk) SCHEDULE(runtime)
-DO k=1,kte-1
-   DO j=jts, jte
-     DO i=its,ite
+do k=1,kte-1
+   do j=jts, jte
+     do i=its,ite
         ripk = kte-k+1
-        pf(i,k,j) = .5_RKIND*(prs(i,ripk,j) + prs(i,ripk-1,j))
-      END DO
-   END DO
-END DO
-!#!$OMP END DO
+        pf(i,k,j) = .5_rkind*(prs(i,ripk,j) + prs(i,ripk-1,j))
+      end do
+   end do
+end do
 
-!#!$OMP DO COLLAPSE(2) PRIVATE(i, k, j, ripk, opdepthd, opdepthu, &
-!#!$OMP prsctt, dp, p1, p2, fac, arg1) SCHEDULE(runtime)
-DO j=jts, jte
-   DO i=its,ite
-      opdepthd = 0._RKIND
+do j=jts, jte
+   do i=its,ite
+      opdepthd = 0._rkind
       k = 0
       prsctt = -1
 
-     ! Integrate downward from model top, calculating path at full
+     ! integrate downward from model top, calculating path at full
      ! model vertical levels.
-      DO k=2,kte
+      do k=2,kte
         opdepthu = opdepthd
         ripk = kte - k + 1
 
-        IF (k .NE. 1) THEN
-          dp = 100._RKIND*(pf(i,k,j) - pf(i,k-1,j))  ! should be in Pa
-        ELSE
-          dp = 200._RKIND*(pf(i,1,j) - prs(i,kte,j))  ! should be in Pa
-        END IF
+        if (k .ne. 1) then
+          dp = 100._rkind*(pf(i,k,j) - pf(i,k-1,j))  ! should be in pa
+        else
+          dp = 200._rkind*(pf(i,1,j) - prs(i,kte,j))  ! should be in pa
+        end if
 
-        IF (haveqci .EQ. 0) then
-             IF (tk(i,ripk,j) .LT. CELKEL) then
-               ! Note: abscoefi is m**2/g, qcw is g/kg, so no convrsion needed
-                opdepthd = opdepthu + ABSCOEFI*1.e+3*qcw(i,ripk,j) * dp/G
-             ELSE
-                opdepthd = opdepthu + ABSCOEF*1.e+3*qcw(i,ripk,j) * dp/G
-             END IF
-         ELSE
-             opdepthd = opdepthd + (ABSCOEF*1.e+3*qcw(i,ripk,j) + ABSCOEFI*1.e+3*qci(i,ripk,j))*dp/G
-         END IF
+        if (haveqci .eq. 0) then
+             if (tk(i,ripk,j) .lt. celkel) then
+               ! note: abscoefi is m**2/g, qcw is g/kg, so no convrsion needed
+                opdepthd = opdepthu + abscoefi*1.e+3*qcw(i,ripk,j) * dp/g
+             else
+                opdepthd = opdepthu + abscoef*1.e+3*qcw(i,ripk,j) * dp/g
+             end if
+         else
+             opdepthd = opdepthd + (abscoef*1.e+3*qcw(i,ripk,j) + abscoefi*1.e+3*qci(i,ripk,j))*dp/g
+         end if
 
-         IF (opdepthd .LT. opt_thresh .AND. k .LT. kte) THEN
-             CYCLE
+         if (opdepthd .lt. opt_thresh .and. k .lt. kte) then
+             cycle
 
-         ELSE IF (opdepthd .LT. opt_thresh .AND. k .EQ. kte) THEN
-             IF (fill_nocloud .EQ. 0) THEN
+         else if (opdepthd .lt. opt_thresh .and. k .eq. kte) then
+             if (fill_nocloud .eq. 0) then
               prsctt = prs(i,1,j)
-             ENDIF
-             EXIT
-         ELSE
+             endif
+             exit
+         else
              fac = (1. - opdepthu)/(opdepthd - opdepthu)
              prsctt = pf(i,k-1,j) + fac*(pf(i,k,j) - pf(i,k-1,j))
-             prsctt = MIN(prs(i,1,j), MAX(prs(i,kte,j), prsctt))
-             EXIT
-         END IF
-      END DO
+             prsctt = min(prs(i,1,j), max(prs(i,kte,j), prsctt))
+             exit
+         end if
+      end do
 
       ! prsctt should only be 0 if fill values are used
-      IF (prsctt .GT. -1) THEN
-         DO k=2,kte
+      if (prsctt .gt. -1) then
+         do k=2,kte
             ripk = kte - k + 1
             p1 = prs(i,ripk+1,j)
             p2 = prs(i,ripk,j)
-            IF (prsctt .GE. p1 .AND. prsctt .LE. p2) THEN
+            if (prsctt .ge. p1 .and. prsctt .le. p2) then
                fac      = (prsctt - p1)/(p2 - p1)
-               arg1     = fac*(tk(i,ripk ,j) - tk(i,ripk+1,j)) - CELKEL
+               arg1     = fac*(tk(i,ripk ,j) - tk(i,ripk+1,j)) - celkel
                ctt(i,j) = tk(i,ripk+1,j) + arg1
-               EXIT
-            END IF
-         END DO
-      ELSE
+               exit
+            end if
+         end do
+      else
          ctt(i,j) = missing
-      END IF
-
-     if(abs(ctt(i,j)) > 300.) print*,'XXXX',ctt(i,j) 
-
-   END DO
-END DO
-!#!$OMP END DO
-!#!$OMP END PARALLEL
-!print*,'BRTEM',maxval(ctt),minval(ctt)
-END SUBROUTINE wrfcttcalc
+      end if
+   end do
+end do
+end subroutine wrfcttcalc
 
 !=================================================================================================================
  end module mpas_atmphys_driver_microphysics

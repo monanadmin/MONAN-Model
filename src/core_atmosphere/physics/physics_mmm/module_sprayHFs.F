@@ -3,19 +3,6 @@ MODULE module_sprayHFs
 IMPLICIT NONE
 PUBLIC :: sprayHFs
 PRIVATE
-!PUBLIC :: update_HFs
-!PUBLIC :: ssgf_BCF23
-!PUBLIC :: ssgf_F94
-!PUBLIC :: qsat0
-!PUBLIC :: satratio
-!PUBLIC :: stabIntM
-!PUBLIC :: stabIntH
-!PUBLIC :: stabIntSprayH
-!PUBLIC :: whitecapActive_DLM17
-!PUBLIC :: whitecap_MOM80
-!PUBLIC :: whitecap_BCF23wind
-!PUBLIC :: waveProps
-!PUBLIC :: fall_velocity_PK97
 
 !===============================================================================
 !
@@ -28,6 +15,9 @@ PRIVATE
 ! are available.  Please send any questions about model physics or this module's
 ! implementation to Ben Barr at benjamin.barr@whoi.edu.
 !
+!===============================================================================
+!
+! Implemented in MPAS/MONAN models by S.R.Freitas (INPE @ Jan 2025)
 !===============================================================================
 
 
@@ -341,7 +331,7 @@ ELSE IF (U_10 >= sprayLB) THEN    ! Perform spray calculations
     dthstar_spr = -kappa/G_S*dHS1_spr    ! Change to thstar due to spray [K]
     dqstar_spr  = -kappa/G_L*dHL1_spr    ! Change to qstar due to spray [kg kg-1]
     
-    !---Floating-point exception - erroneous arithmetic operation.
+    !--srf: got floating-point exception - erroneous arithmetic operation.
     !alpha_S = H_Sspr/H_Ssprpr    ! Feedback coefficient for H_Sspr [-]
     !beta_S = H_Rspr/H_Rsprpr    ! Feedback coefficient for H_Rspr [-]
     !beta_L = H_Lspr/H_Lsprpr    ! Feedback coefficient for H_Lspr [-]

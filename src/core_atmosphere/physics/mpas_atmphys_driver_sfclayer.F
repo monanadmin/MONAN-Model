@@ -89,6 +89,8 @@
 ! * updated the MYNN surface layer scheme to the sourcecode available from WRF version 4.6.
 !   Laura D. Fowler (laura@ucar.edu) / 2024-02-14.
 
+! * coupling gust front speed from downdrafts with surface winds 
+!   Saulo R. Freitas (saulo.freitas@inpe.br) / 2025-01-19
 
  contains
 
@@ -631,7 +633,7 @@
 
        call mpas_pool_get_array(diag_physics,'v2d2'       ,v2d2    )
 
-       if(config_gf_gustf == 1 .and. config_gf_cporg == 1) then 
+       if( (config_gf_gustf == 1 .or. config_gf_gustf == 2) .and. config_gf_cporg == 1) then 
          !--- coupled with the cold pool gustfront scheme
          call mpas_pool_get_dimension(state,'index_buoyx',index_buoyx)
          call mpas_pool_get_array(state,'scalars',scalars,time_lev)
@@ -668,7 +670,7 @@
          enddo
          enddo
 
-       else if(config_gf_gustf == 2) then  
+       else if(config_gf_gustf == 3) then  
          !- gustiness parameterization based on Redelsperger et al (2000).
          !- using the downdraft mass flux from GF cumulus scheme (rmfxdncu) 
          call mpas_pool_get_array(diag_physics,'rmfxdncu'   ,rmfxdncu)
@@ -979,6 +981,8 @@
  character(len=StrKIND),pointer:: sfclayer_scheme
  real(kind=RKIND),dimension(:),pointer:: areaCell
 
+ integer,pointer:: config_gf_gustf ! parameter to couple the gustfront speed with the 
+                                   ! surface layer fluxes
 !local variables:
  integer:: initflag
  real(kind=RKIND):: dx
@@ -998,6 +1002,7 @@
  call mpas_pool_get_config(configs,'config_do_restart'     ,config_do_restart )
  call mpas_pool_get_config(configs,'config_frac_seaice'    ,config_frac_seaice)
  call mpas_pool_get_config(configs,'config_sfclayer_scheme',sfclayer_scheme   )
+ call mpas_pool_get_config(configs,'config_gf_gustf'       ,config_gf_gustf   )
 
  call mpas_pool_get_array(mesh,'areaCell',areaCell)
 
@@ -1170,6 +1175,7 @@
                    iz0tlnd  = iz0tlnd    , itimestep = initflag                          , &
                    errmsg   = errmsg     , errflg    = errflg                            , &
                    sgsgustcu= sgsgustcu_p, hfx_spr   = hfx_spr_p, lh_spr   = lh_spr_p    , &                       
+                   config_gf_gustf = config_gf_gustf                                     , &
                    ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde , &
                    ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme , &
                    its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte   &
@@ -1201,7 +1207,8 @@
                       qcg      = qcg_p      , spp_pbl   = spp_pbl  , isftcflx = isftcflx    , &
                       iz0tlnd  = iz0tlnd    , itimestep = initflag                          , &
                       errmsg   = errmsg     , errflg    = errflg                            , &
-                      sgsgustcu= sgsgustcu_p, hfx_spr   = hfx_spr_p, lh_spr   = lh_spr_p    , &                       
+                      sgsgustcu= sgsgustcu_p, hfx_spr   = hfx_spr_p, lh_spr   = lh_spr_p    , &  
+                      config_gf_gustf = config_gf_gustf                                     , &
                       ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde , &
                       ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme , &
                       its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte   &
