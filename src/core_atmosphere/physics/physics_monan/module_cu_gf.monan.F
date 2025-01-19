@@ -5541,7 +5541,7 @@ contains
          do k=start_level(i)+1,ktf-1
 
             if(hcot(k,i) < heso_cup(k,i) )then
-               ktop(i)  =  k - 1
+               ktop(i)  =  k
                exit
             endif
          enddo
@@ -5554,7 +5554,7 @@ contains
             Z_overshoot = (1. + delz_oversh) * z_cup(ktop(i),i)
             do k=ktop(i),ktf-2
                if(Z_overshoot < z_cup(k,i)) then
-                  ktop(i) = min(k-1, ktf-2)
+                  ktop(i) = min(k  , ktf-2)
                   exit
                endif
             enddo

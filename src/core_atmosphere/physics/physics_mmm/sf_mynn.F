@@ -396,7 +396,7 @@
     !--------------------------------------------------------
     !else 
       wspd(i)=sqrt(wspd(i)*wspd(i)+wstar(i)*wstar(i)+vsgd*vsgd+sgsgustcu(i)*sgsgustcu(i))
-      ! wspd(i)=sqrt(                wstar(i)*wstar(i)+vsgd*vsgd+sgsgustcu(i)*sgsgustcu(i))
+     !wspd(i)=sqrt(                wstar(i)*wstar(i)+vsgd*vsgd+sgsgustcu(i)*sgsgustcu(i))
     !endif
     !
     !
@@ -1034,7 +1034,7 @@
     hfx_spr(i) = 0.0
     lh_spr (i) = 0.0
 !xxxxxxxxx
-        cycle 
+    cycle 
 !xxxxxxxxx
 
     if ((xland(i)-1.5) < 0.) cycle ! if xland < 1.5 => land

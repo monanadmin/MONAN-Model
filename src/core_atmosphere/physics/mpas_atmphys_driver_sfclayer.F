@@ -643,7 +643,9 @@
          do i = its,ite
              factor1 = min (mx_buoy2,buoyx(kts,i))
              factor1 = min (factor1,mx_buoy2)/mx_buoy2
-             factor2 = atan((factor1-0.05*mx_buoy1/mx_buoy2)*5.)
+            !factor2 = atan((factor1-0.05*mx_buoy1/mx_buoy2)*5.)
+             factor2 = atan((factor1-2.00*mx_buoy1/mx_buoy2)*5.)
+
              factor2 = max (0.0,min(factor2,1.0))
    
              wspd_local = sqrt(u_p(i,kts,j)  *u_p(i,kts,j)   + v_p(i,kts,j)  *v_p(i,kts,j))
