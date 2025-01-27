@@ -1024,11 +1024,15 @@
  !---    b) if using a wind-based model (F94_MOM80 or F94_BCF23), swh is still required 
  !---       (for calculating the droplet settling timescale),  but the remaining wave 
  !---       parameters (eps, dcp, mss) are not used (should set to zero)
- if(config_gf_gustf == 2) then 
+ if(config_gf_gustf == 2) then
+     whichSSGF = 'BCF23_Seastate'
+     paramWaves = .TRUE.
      do i=its,ite
            hfx_spr(i) = 0.0
            lh_spr (i) = 0.0
            if ((xland(i)-1.5) < 0.) cycle ! if xland < 1.5 => land
+! for test           if ((xland(i)-1.5) < 0. .or. sqrt( u10(i)*u10(i) + v10(i)*v10(i)) < 10.0 ) cycle ! if xland < 1.5 => land
+
              !--------------------------------------
              ! water
              !--------------------------------------
@@ -1050,8 +1054,6 @@
              z0t = z_t(i)
              z0q = z_q(i)
              z_ref = 2. 
-             whichSSGF = 'BCF23_Seastate'
-             paramWaves = .TRUE.
 
              !dHS1_spr = 0.; dHL1_spr = 0.; dthstar_spr = 0.; dqstar_spr = 0.; dthvstar_spr = 0.
              !dthref_spr = 0.; dtref_spr = 0.; dqref_spr = 0.; dsref_spr = 0.; tau = 0.; H_S0pr = 0.; H_L0pr = 0.; M_spr = 0.
@@ -1066,6 +1068,11 @@
              !    print*,"INP",z_1,t_1,q_1,U_1,p_0,t_0,Lmo,z0,z0t,z0q,z_ref,whichSSGF,paramWaves
              !    print*,"FLX",U_1,dHS1_spr,dHL1_spr,dthvstar_spr
              !endif 
+
+             !-- limit max/min to 300 W/m2 (Ben Barr recomendation 2025)
+             dHS1_spr  = min(300., abs(dHS1_spr))*sign(1.,dHS1_spr)
+             dHL1_spr  = min(300., abs(dHL1_spr))*sign(1.,dHL1_spr)
+
              hfx_spr(i) = dHS1_spr ! W/m2
              lh_spr (i) = dHL1_spr ! W/m2 
              hfx    (i) = hfx(i) + hfx_spr(i)
