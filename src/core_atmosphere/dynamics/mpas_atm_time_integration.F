@@ -2810,6 +2810,7 @@ module atm_time_integration
 
 !-srf 
       integer, pointer :: index_buoyx
+      integer, pointer :: config_gf_cporg
       real (kind=RKIND), dimension(:,:), pointer :: rumcl
       real (kind=RKIND), allocatable, dimension(:,:) :: wwAvg_local
 !-srf 
@@ -2856,6 +2857,7 @@ module atm_time_integration
 
 !--srf
       call mpas_pool_get_dimension(state,'index_buoyx',index_buoyx)
+      call mpas_pool_get_config(configs,'config_gf_cporg',config_gf_cporg)
 !--srf
       call atm_advance_scalars_work(nCells, num_scalars, dt, &
              edgeStart, edgeEnd, &
@@ -2871,7 +2873,7 @@ module atm_time_integration
 
 !--srf
 !-- this is only for GF_MONAN cumulus scheme and convection_tracer == 1 
-      if(index_buoyx > 0) then
+      if(config_gf_cporg == 1) then
         call mpas_pool_get_array(diag, 'rumcl', rumcl) ! = umcl,vmcl
         
         if(.not. allocated(wwAvg_local)) allocate(wwAvg_local(nVertLevels+1,nCells+1)); wwAvg_local = 0.0_RKIND
@@ -3238,6 +3240,7 @@ module atm_time_integration
 
 !-srf 
       integer, pointer :: index_buoyx
+      integer, pointer :: config_gf_cporg
       real (kind=RKIND), dimension(:,:), pointer :: rumcl
       real (kind=RKIND), allocatable, dimension(:,:) :: wwAvg_local
 !-srf
@@ -3283,6 +3286,7 @@ module atm_time_integration
 
 !--srf
       call mpas_pool_get_dimension(state,'index_buoyx',index_buoyx)
+      call mpas_pool_get_config(configs,'config_gf_cporg',config_gf_cporg)
 !--srf
       call atm_advance_scalars_mono_work(block, state, nCells, nEdges, num_scalars, dt, &
                                    cellStart, cellEnd, edgeStart, edgeEnd, &
@@ -3297,7 +3301,7 @@ module atm_time_integration
 
 !--srf
 !-- this is only for GF_MONAN cumulus scheme and convection_tracer == 1 
-      if(index_buoyx > 0) then
+      if(config_gf_cporg == 1) then
         call mpas_pool_get_array(diag, 'rumcl', rumcl) ! = umcl,vmcl
         if(.not. allocated(wwAvg_local)) allocate(wwAvg_local(nVertLevels+1,nCells+1)); wwAvg_local = 0.0_RKIND
         

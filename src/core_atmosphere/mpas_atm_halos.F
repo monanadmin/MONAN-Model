@@ -177,6 +177,13 @@ module mpas_atm_halos
          call mpas_dmpar_exch_group_create(domain,    'physics:coldpool')
          call mpas_dmpar_exch_group_add_field(domain, 'physics:coldpool' , 'umcl', timeLevel=1, haloLayers=(/1,2/))
          call mpas_dmpar_exch_group_add_field(domain, 'physics:coldpool' , 'vmcl', timeLevel=1, haloLayers=(/1,2/))
+         
+         call mpas_dmpar_exch_group_create(domain, 'physics:sub3d_cuten')
+         call mpas_dmpar_exch_group_add_field(domain, 'physics:sub3d_cuten', 'sigma_deep'   ,  timeLevel=1, haloLayers=(/1/))
+         call mpas_dmpar_exch_group_add_field(domain, 'physics:sub3d_cuten', 'sub3d_rucuten',  timeLevel=1, haloLayers=(/1/))
+         call mpas_dmpar_exch_group_add_field(domain, 'physics:sub3d_cuten', 'sub3d_rvcuten',  timeLevel=1, haloLayers=(/1/))
+         call mpas_dmpar_exch_group_add_field(domain, 'physics:sub3d_cuten', 'sub3d_rthcuten', timeLevel=1, haloLayers=(/1/))
+         call mpas_dmpar_exch_group_add_field(domain, 'physics:sub3d_cuten', 'sub3d_rqvcuten', timeLevel=1, haloLayers=(/1/))
          !-srf
 #endif
 
@@ -316,6 +323,14 @@ module mpas_atm_halos
          call mpas_halo_exch_group_add_field(domain, 'physics:coldpool', 'umcl', timeLevel=1, haloLayers=(/1,2/))
          call mpas_halo_exch_group_add_field(domain, 'physics:coldpool', 'vmcl', timeLevel=1, haloLayers=(/1,2/))
          call mpas_halo_exch_group_complete(domain,  'physics:coldpool')
+         
+         call mpas_halo_exch_group_create(domain, 'physics:sub3d_cuten')
+         call mpas_halo_exch_group_add_field(domain, 'physics:sub3d_cuten', 'sigma_deep'   ,  timeLevel=1, haloLayers=(/1/))
+         call mpas_halo_exch_group_add_field(domain, 'physics:sub3d_cuten', 'sub3d_rucuten',  timeLevel=1, haloLayers=(/1/))
+         call mpas_halo_exch_group_add_field(domain, 'physics:sub3d_cuten', 'sub3d_rvcuten',  timeLevel=1, haloLayers=(/1/))
+         call mpas_halo_exch_group_add_field(domain, 'physics:sub3d_cuten', 'sub3d_rthcuten', timeLevel=1, haloLayers=(/1/))
+         call mpas_halo_exch_group_add_field(domain, 'physics:sub3d_cuten', 'sub3d_rqvcuten', timeLevel=1, haloLayers=(/1/))
+         call mpas_halo_exch_group_complete(domain, 'physics:sub3d_cuten')
          !-srf
 #endif
 
@@ -400,6 +415,8 @@ module mpas_atm_halos
          call mpas_dmpar_exch_group_destroy(domain, 'physics:cuten')
          !srf
          call mpas_dmpar_exch_group_destroy(domain, 'physics:coldpool')
+         call mpas_dmpar_exch_group_destroy(domain, 'physics:sub3d_cuten')
+
 #endif
 
       else if (trim(config_halo_exch_method) == 'mpas_halo') then
@@ -438,6 +455,8 @@ module mpas_atm_halos
          call mpas_halo_exch_group_destroy(domain, 'physics:cuten')
          !srf
          call mpas_halo_exch_group_destroy(domain, 'physics:coldpool')
+         call mpas_halo_exch_group_destroy(domain, 'physics:sub3d_cuten')
+
 #endif
 
          call mpas_halo_finalize(domain)

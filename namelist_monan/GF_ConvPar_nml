@@ -1,18 +1,18 @@
 &GF_NML  
 
-  icumulus_gf       = 1,1,0,   != trimodal plume (deep ,shallow ,congestus)
+  icumulus_gf       = 1,1,0,                != trimodal plume (deep ,shallow ,congestus)
   
-  closure_choice    = 10,10,3, != closure for the mass flux at the cloud base
+  closure_choice    = 10,10,3,              != closure for the mass flux at the cloud base
   
-  cum_entr_rate   = 6.0e-4, 2.e-3, 1.e-3, != initial gross entrainment rate for 
+  cum_entr_rate     = 6.0e-4, 2.e-3, 1.e-3, != initial gross entrainment rate for 
                                             != deep, shallow, congestus
-  cum_min_cloud_depth = 200.,100.,150.,   != minimum cloud depth (mbar)
+  cum_min_cloud_depth = 200.,50.,150.,      != minimum cloud depth (mbar)
 
-  dicycle           = 1,                  != 0/1/2:  diurnal cycle closure, default = 1
-                                          != 2 adds Qadv closure (Becker et al 2021) 
-  cum_t_star        = 4., -99., -99.,     != scale temperature for 
-                                          !diurnal cycle closure, 
-  
+  dicycle           = 1,                    != 0/1/2:  diurnal cycle closure, default = 1
+                                            != 2 adds Qadv closure (Becker et al 2021) 
+  cum_t_star        = 4., -99., -99.,       != scale temperature for diurnal cycle closure
+
+  use_sub3d         = 0,
   use_scale_dep     = 1,            != 0/1: turn ON/OFF the scale dependence approach
   sig_factor        = 0.22,         != exponential factor for the sigma determination (orig = 0.1)
   
@@ -38,22 +38,22 @@
   moist_trigger     = 0,     != 0/1: relative humidity effects on the cap_max trigger function
   adv_trigger       = 0,     != 0/1/3:  1 => Kain (2004), 3 => dcape trigger  Xie et al (2019)
   dcape_threshold   = 60.,   != CAPE time rate threshold for triggering convection (adv_trigger = 3)
-                            != typical range is [-200,200] J/kg/hour
+                             != typical range is [-200,200] J/kg/hour
 
   lcl_trigger       = 0,     != only for shallow: lcl_trigger > 0 activates the LCL trigger which  
-                            != requires the lcl height be lower than the pbl height. 0 turn it off.
+                             != requires the lcl height be lower than the pbl height. 0 turn it off.
 
   cap_maxs          = 50.,   != max- distance (hPa) the air parcel is allowed to go up looking for the LFC
 !---
 !--- controls rainfall evaporation
-  use_rebcb         = 1, != 0/1: turn ON/OFF rainfall evap below cloud base
-  cum_MAX_EDT_LAND  = 0.3, 0.0, 0.2,   !-(deep ,shallow ,congestus)
-  cum_MAX_EDT_OCEAN = 0.3, 0.0, 0.2,
+  use_rebcb         = 1,               != 0/1: turn ON/OFF rainfall evap below cloud base
+  cum_MAX_EDT_LAND  = 0.5, 0.0, 0.2,   !-(deep ,shallow ,congestus)
+  cum_MAX_EDT_OCEAN = 0.5, 0.0, 0.2,
 !----
 
 !---- boundary condition specification
-  cum_use_excess    = 2,1,1,
-  cum_ave_layer     = 50.,25.,25.,!- (deep ,shallow ,congestus)
+  cum_use_excess    = 1,1,1,
+  cum_ave_layer     = 30.,15.,15.,!- (deep ,shallow ,congestus)
 !----
 
 !---- for mass flux profiles - (deep ,shallow ,congestus)
@@ -65,19 +65,20 @@
 
   use_random_num    = 0., != stochastic pertubation for the height of maximum Zu
   use_smooth_prof   = 1,  != 1 makes the normalized mass flux, entr and detraiment profiles smoother
-  
+  use_smooth_tend   = 1,  != integer number of layers for smoothing the tendencies
+  overshoot         = 0,  != real value ~0.0 to 0.2
   use_linear_subcl_mf = 1,  !-- for shallow convection only
   beta_sh             = 2.2,!-- for shallow convection only
 !----
 
 !---- the 'cloud microphysics'
   autoconv          = 4,
-  qrc_crit          = 6.0e-4,
+  qrc_crit          = 1.0e-3,
 
   c0_deep           = 1.0e-3,
   c0_shal           = 0.0e-3,
   c0_mid            = 1.5e-3, 
-  n_cldrop          = 50.,
+  n_cldrop          = 100.,
 
 !   c0_deep    = 2.e-3,
 !   c0_mid     = 2.e-3, 
@@ -92,8 +93,8 @@
 
 !--- for tracer transport
   use_tracer_transp = 0,
-  use_tracer_scaven = 0,
-  use_tracer_evap   = 0,
+  use_tracer_scaven = 2,
+  use_tracer_evap   = 1,
   apply_sub_mp      = 0,
   use_flux_form     = 1,
   use_fct           = 1,
@@ -101,19 +102,17 @@
 !----
   
 !---- couplings w/ other parameterizations
-  lightning_diag      = 0,
+  lightning_diag      = 1,
   liq_ice_number_conc = 0,
 !----
 
 !--- do not change below
   downdraft         = 1,
-  use_smooth_tend   = 1, 
   frac_modis        = 1, 
-  overshoot         = 0,
   use_wetbulb       = 0,
   vert_discr        = 1, 
   clev_grid         = 1, 
-  max_tq_tend       = 500., 
+  max_tq_tend       = 200., 
   output_sound      = 0,
   use_cloud_dissipation = 0.,
 !-----

@@ -24,8 +24,6 @@
                             , readGFConvParNML                    &
                             , modConvParGF_initialized            &
                             , initModConvParGF                    &
-                            , use_pass_cloudvol                   &
-                            , convection_tracer                   &
                             , tau_ocea_cp, tau_land_cp            &
                             , mx_buoy1, mx_buoy2                  &
                             , satur_spec_hum
@@ -138,6 +136,7 @@
 
 !local variables and pointers:
  character(len=StrKIND),pointer:: convection_scheme
+ integer,pointer:: config_gf_sub3d
 
  integer:: i,k,j
 
@@ -191,6 +190,7 @@
        if(.not.allocated(xlat_p)         ) allocate(xlat_p(ims:ime,jms:jme)             )
        if(.not.allocated(xlon_p)         ) allocate(xlon_p(ims:ime,jms:jme)             )
        if(.not.allocated(rmfxdpcu_p)     ) allocate(rmfxdpcu_p(ims:ime,jms:jme)         )
+       if(.not.allocated(rmfxdncu_p)     ) allocate(rmfxdncu_p(ims:ime,jms:jme)         )
        if(.not.allocated(rmfxmdcu_p)     ) allocate(rmfxmdcu_p(ims:ime,jms:jme)         )
        if(.not.allocated(rmfxshcu_p)     ) allocate(rmfxshcu_p(ims:ime,jms:jme)         )
        if(.not.allocated(rtopdpcu_p)     ) allocate(rtopdpcu_p(ims:ime,jms:jme)         )
@@ -199,6 +199,8 @@
        if(.not.allocated(rbotdpcu_p)     ) allocate(rbotdpcu_p(ims:ime,jms:jme)         )
        if(.not.allocated(v2d1_p)         ) allocate(v2d1_p(ims:ime,jms:jme)             )
        if(.not.allocated(v2d2_p)         ) allocate(v2d2_p(ims:ime,jms:jme)             )    
+       if(.not.allocated(lightn_dens_p)  ) allocate(lightn_dens_p(ims:ime,jms:jme)      )    
+       if(.not.allocated(sigma_deep_p)   ) allocate(sigma_deep_p(ims:ime,jms:jme)       )    
 
        if(.not.allocated(rthblten_p)     ) allocate(rthblten_p(ims:ime,kms:kme,jms:jme) )
        if(.not.allocated(rthdynten_p)    ) allocate(rthdynten_p(ims:ime,kms:kme,jms:jme))
@@ -237,6 +239,7 @@
        do i = its,ite
        do j = jts,jte
           rmfxdpcu_p(i,j)   = 0._RKIND
+          rmfxdncu_p(i,j)   = 0._RKIND
           rmfxmdcu_p(i,j)   = 0._RKIND
           rmfxshcu_p(i,j)   = 0._RKIND
           rtopdpcu_p(i,j)   = 0._RKIND
@@ -245,6 +248,7 @@
           rbotdpcu_p(i,j)   = 0._RKIND
           v2d2_p(i,j)       = 0._RKIND
           v2d1_p(i,j)       = 0._RKIND
+          sigma_deep_p(i,j) = 0._RKIND
        enddo
        enddo
        do i = its,ite
@@ -254,6 +258,30 @@
        enddo
        enddo
        enddo
+
+       call mpas_pool_get_config(configs,'config_gf_sub3d',config_gf_sub3d)
+       if(config_gf_sub3d > 0) then
+            if(.not.allocated(sub3d_rthcuten_p)) allocate(sub3d_rthcuten_p(ims:ime,kms:kme,jms:jme)  )
+            if(.not.allocated(sub3d_rqvcuten_p)) allocate(sub3d_rqvcuten_p(ims:ime,kms:kme,jms:jme)  )
+            if(.not.allocated(sub3d_rucuten_p))  allocate(sub3d_rucuten_p (ims:ime,kms:kme,jms:jme)  )
+            if(.not.allocated(sub3d_rvcuten_p))  allocate(sub3d_rvcuten_p (ims:ime,kms:kme,jms:jme)  )
+            do i = its,ite
+            do k = kts,kte
+            do j = jts,jte
+               sub3d_rthcuten_p(i,k,j)  = 0._RKIND
+               sub3d_rqvcuten_p(i,k,j)  = 0._RKIND
+               sub3d_rucuten_p(i,k,j)   = 0._RKIND
+               sub3d_rvcuten_p(i,k,j)   = 0._RKIND
+            enddo
+            enddo
+            enddo
+       else
+            if(.not.allocated(sub3d_rthcuten_p)) allocate(sub3d_rthcuten_p(0,0,0)  )
+            if(.not.allocated(sub3d_rqvcuten_p)) allocate(sub3d_rqvcuten_p(0,0,0)  )
+            if(.not.allocated(sub3d_rucuten_p))  allocate(sub3d_rucuten_p (0,0,0)  )
+            if(.not.allocated(sub3d_rvcuten_p))  allocate(sub3d_rvcuten_p (0,0,0)  )
+       endif
+
     case ("cu_grell_freitas")
        if(.not.allocated(ht_p)           ) allocate(ht_p(ims:ime,jms:jme)               )
        if(.not.allocated(cubot_p)        ) allocate(cubot_p(ims:ime,jms:jme)            )
@@ -463,6 +491,8 @@
        if(allocated(rbotdpcu_p)     ) deallocate(rbotdpcu_p     )
        if(allocated(v2d1_p)         ) deallocate(v2d1_p         )
        if(allocated(v2d2_p)         ) deallocate(v2d2_p         )    
+       if(allocated(lightn_dens_p)  ) deallocate(lightn_dens_p  )    
+       if(allocated(sigma_deep_p)   ) deallocate(sigma_deep_p   )    
 
        if(allocated(rthblten_p)     ) deallocate(rthblten_p     )
        if(allocated(rthdynten_p)    ) deallocate(rthdynten_p    )
@@ -479,7 +509,13 @@
        if(allocated(rupmfxcu_p)     ) deallocate(rupmfxcu_p     )
        if(allocated(rdnmfxcu_p)     ) deallocate(rdnmfxcu_p     )
        if(allocated(rmfxdpcu_p)     ) deallocate(rmfxdpcu_p     )
+       if(allocated(rmfxdncu_p)     ) deallocate(rmfxdncu_p     )
        if(allocated(v3d1_p)         ) deallocate(v3d1_p         )
+       if(allocated(sub3d_rthcuten_p)) deallocate(sub3d_rthcuten_p)
+       if(allocated(sub3d_rqvcuten_p)) deallocate(sub3d_rqvcuten_p)
+       if(allocated(sub3d_rucuten_p) ) deallocate(sub3d_rucuten_p )
+       if(allocated(sub3d_rvcuten_p) ) deallocate(sub3d_rvcuten_p )
+
     case ("cu_kain_fritsch")
        if(allocated(dx_p)         ) deallocate(dx_p         )
        if(allocated(area_p)       ) deallocate(area_p       )
@@ -541,6 +577,7 @@
  integer:: iCell
 
 !local var for gf_monan
+ integer, pointer :: config_gf_cporg,config_gf_pcvol,config_gf_gustf,config_gf_sub3d
  integer :: mynum, init_stat
 !-----------------------------------------------------------------------------------------------------------------
 
@@ -560,11 +597,16 @@
        call kf_lutab(svp1,svp2,svp3,svpt0)
 
     case ("cu_gf_monan")
+       call mpas_pool_get_config(configs,'config_gf_gustf',config_gf_gustf)
+       call mpas_pool_get_config(configs,'config_gf_cporg',config_gf_cporg)
+       call mpas_pool_get_config(configs,'config_gf_pcvol',config_gf_pcvol)
+       call mpas_pool_get_config(configs,'config_gf_sub3d',config_gf_sub3d)
        modConvParGF_initialized = .false.
        init_stat = initModConvParGF()
        mynum = dminfo % my_proc_id
        !print*," mynum", dminfo % my_proc_id
-       call readGFConvParNML(mynum,IO_NODE)
+       call readGFConvParNML(mynum,IO_NODE,config_gf_cporg,config_gf_pcvol,config_gf_gustf &
+                            ,config_gf_sub3d)
     case default
 
  end select convection_select
@@ -572,7 +614,8 @@
  end subroutine init_convection
 
 !=================================================================================================================
- subroutine driver_convection(itimestep,configs,mesh,sfc_input,diag_physics,tend_physics,diag,dminfo,its,ite)
+ subroutine driver_convection(itimestep,configs,mesh,sfc_input,diag_physics,tend_physics,diag,dminfo,its,ite &
+                             ,exchange_halo_group,block)
 !=================================================================================================================
 
 !input arguments:
@@ -581,6 +624,8 @@
  type(mpas_pool_type),intent(in):: sfc_input
  type(mpas_pool_type),intent(in):: diag
  type(dm_info),intent(in):: dminfo
+ type(block_type), intent(in) :: block
+ procedure (halo_exchange_routine) :: exchange_halo_group
 
  integer,intent(in):: its,ite
  integer,intent(in):: itimestep
@@ -673,14 +718,20 @@
              rthratenlw      = rthratenlw_p           , rthratensw    = rthratensw_p    , &
              rthdyten        = rthdynten_p            , rqvdyten      = rqvdynten_p     , &    
              
-             raincv          = raincv_p               , conprr        = pratec_p        , &     
+             raincv          = raincv_p               , conprr        = pratec_p        , &
+             lightn_dens     = lightn_dens_p          , sigma_deep    = sigma_deep_p    , &
              rthcuten        = rthcuten_p             , rqvcuten      = rqvcuten_p      , & 
              rqccuten        = rqccuten_p             , rqicuten      = rqicuten_p      , &
              rucuten         = rucuten_p              , rvcuten       = rvcuten_p       , &
              rbuoyxcuten     = rbuoyxcuten_p          , rcnvcfcuten   = rcnvcfcuten_p   , &
-             rupmfxcu        = rupmfxcu_p             , rdnmfxcu      = rdnmfxcu_p      , &
 
-             rmfxdpcu        = rmfxdpcu_p             , rmfxmdcu      = rmfxmdcu_p      , &
+             sub3d_rthcuten  = sub3d_rthcuten_p       , sub3d_rqvcuten= sub3d_rqvcuten_p, & 
+             sub3d_rucuten   = sub3d_rucuten_p        , sub3d_rvcuten = sub3d_rvcuten_p , &
+
+             rupmfxcu        = rupmfxcu_p             , rdnmfxcu      = rdnmfxcu_p      , &
+             
+             rmfxdpcu        = rmfxdpcu_p             , rmfxdncu      = rmfxdncu_p      , &        
+             rmfxmdcu        = rmfxmdcu_p                                               , &
              rmfxshcu        = rmfxshcu_p             , rtopdpcu      = rtopdpcu_p      , &
              rtopmdcu        = rtopmdcu_p             , rtopshcu      = rtopshcu_p      , &
              rbotdpcu        = rbotdpcu_p                                               , &
@@ -692,6 +743,7 @@
              itimestep       = itimestep              , mynum         = dminfo%my_proc_id )
 
        call mpas_timer_stop('Grell-Freitas-MONAN')
+
     case ("cu_grell_freitas")
        call mpas_timer_start('Grell-Freitas')
        call cu_grell_freitas( &
@@ -826,7 +878,7 @@
 
 !copy instantaneous and accumulated precipitation, convective tendencies, and "other" arrays
 !specific to convection parameterization back to the dynamics grid:
- call convection_to_MPAS(configs,diag_physics,tend_physics,its,ite)
+ call convection_to_MPAS(configs,mesh,diag_physics,tend_physics,its,ite,exchange_halo_group,block)
 
 !call mpas_log_write('--- end subroutine driver_convection.')
 !call mpas_log_write('')
@@ -852,12 +904,12 @@
  character(len=StrKIND),pointer:: convection_scheme,config_pbl_scheme
  integer,dimension(:),pointer:: kpbl,k22_shallow,kbcon_shallow,ktop_shallow,ktop_deep
  real(kind=RKIND),dimension(:),pointer  :: areaCell,meshDensity
- real(kind=RKIND),dimension(:),pointer  :: nca,cubot,cutop,cuprec,raincv,wlpool
+ real(kind=RKIND),dimension(:),pointer  :: nca,cubot,cutop,cuprec,raincv,wlpool,lightn_dens,sigma_deep
  real(kind=RKIND),dimension(:),pointer  :: gsw,hfx,qfx,xland,t2m,cape,cin
  real(kind=RKIND),dimension(:),pointer  :: xmb_total,xmb_shallow
  real(kind=RKIND),dimension(:),pointer  :: latCell,lonCell
  real(kind=RKIND),dimension(:,:),pointer:: zgrid
- real(kind=RKIND),dimension(:,:),pointer:: qc_cu,qi_cu,tke_pbl,el_pbl
+ real(kind=RKIND),dimension(:,:),pointer:: qc_cu,qi_cu,tke_pbl,el_pbl,qke
  real(kind=RKIND),dimension(:,:),pointer:: w0avg
  real(kind=RKIND),dimension(:,:),pointer:: rthcuten,rqvcuten,rqccuten,rqicuten,rqrcuten,rqscuten 
  real(kind=RKIND),dimension(:,:),pointer:: rthblten,rthdynten,rthratenlw,rthratensw
@@ -909,22 +961,24 @@
 
          call mpas_pool_get_array(sfc_input,'xland',xland)
 
-         call mpas_pool_get_array(diag,'cape'              ,cape    )
-         call mpas_pool_get_array(diag,'cin'               ,cin     )
-         call mpas_pool_get_array(diag_physics,'hfx'       ,hfx     )
-         call mpas_pool_get_array(diag_physics,'qfx'       ,qfx     )
-         call mpas_pool_get_array(diag_physics,'t2m'       ,t2m     )
-         call mpas_pool_get_array(diag_physics,'kpbl'      ,kpbl    )
-         call mpas_pool_get_array(diag_physics,'wlpool'    ,wlpool  )
+         call mpas_pool_get_array(diag,'cape'               ,cape    )
+         call mpas_pool_get_array(diag,'cin'                ,cin     )
+         call mpas_pool_get_array(diag_physics,'hfx'        ,hfx     )
+         call mpas_pool_get_array(diag_physics,'qfx'        ,qfx     )
+         call mpas_pool_get_array(diag_physics,'t2m'        ,t2m     )
+         call mpas_pool_get_array(diag_physics,'kpbl'       ,kpbl    )
+         call mpas_pool_get_array(diag_physics,'wlpool'     ,wlpool  )
+         call mpas_pool_get_array(diag_physics,'lightn_dens',lightn_dens)
+         call mpas_pool_get_array(diag_physics,'sigma_deep' ,sigma_deep)
 
-         call mpas_pool_get_array(tend_physics,'rqvblten'  ,rqvblten  )
-         call mpas_pool_get_array(tend_physics,'rqvdynten' ,rqvdynten )
-         call mpas_pool_get_array(tend_physics,'rthblten'  ,rthblten  )
-         call mpas_pool_get_array(tend_physics,'rthdynten' ,rthdynten )
-         call mpas_pool_get_array(tend_physics,'rthratenlw',rthratenlw)
-         call mpas_pool_get_array(tend_physics,'rthratensw',rthratensw)
-         call mpas_pool_get_array(tend_physics,'rcnvcfcuten' ,rcnvcfcuten   )
-         call mpas_pool_get_array(tend_physics,'rbuoyxcuten' ,rbuoyxcuten   )
+         call mpas_pool_get_array(tend_physics,'rqvblten'   ,rqvblten  )
+         call mpas_pool_get_array(tend_physics,'rqvdynten'  ,rqvdynten )
+         call mpas_pool_get_array(tend_physics,'rthblten'   ,rthblten  )
+         call mpas_pool_get_array(tend_physics,'rthdynten'  ,rthdynten )
+         call mpas_pool_get_array(tend_physics,'rthratenlw' ,rthratenlw)
+         call mpas_pool_get_array(tend_physics,'rthratensw' ,rthratensw)
+         call mpas_pool_get_array(tend_physics,'rcnvcfcuten',rcnvcfcuten)
+         call mpas_pool_get_array(tend_physics,'rbuoyxcuten',rbuoyxcuten)
 
          do j = jts,jte
          do i = its,ite
@@ -939,9 +993,10 @@
             cape_p(i,j)          = cape(i)
             cin_p(i,j)           = cin(i)
             wlpool_p(i,j)        = wlpool(i)
+            lightn_dens_p(i,j)   = lightn_dens(i)
             xlat_p(i,j)          = latCell(i) / degrad
             xlon_p(i,j)          = lonCell(i) / degrad
-
+            sigma_deep_p(i,j)    = sigma_deep(i)
 
             do k = kts,kte
  
@@ -960,17 +1015,21 @@
          
          call mpas_pool_get_config(configs, 'config_pbl_scheme', config_pbl_scheme)
          if (trim(config_pbl_scheme) == "bl_mynn") then
-               call mpas_pool_get_array(diag_physics,'tke_pbl'   ,tke_pbl )
+               !call mpas_pool_get_array(diag_physics,'tke_pbl'   ,tke_pbl )
+               call mpas_pool_get_array(diag_physics,'qke'       ,qke )
                call mpas_pool_get_array(diag_physics,'el_pbl'    ,el_pbl  )
                do j = jts,jte
                do i = its,ite               
                   do k = kts,kte
-                     tkepbl_p(i,k,j) = tke_pbl(k,i)
+                     !--- srf: for some reason, in this MPAS version "tke_pbl" is always zero
+                     !--- using 'QKE' which is defined as 2 * TKE 
+                     !tkepbl_p(i,k,j) = tke_pbl(k,i)
+                     tkepbl_p(i,k,j) = 0.5*qke(k,i)
                      elpbl_p(i,k,j)  = el_pbl(k,i)                    
                   enddo
                enddo
                enddo
- end if
+         end if
 
     case ("cu_grell_freitas")
        call mpas_pool_get_config(configs,'config_len_disp',len_disp)
@@ -1152,11 +1211,15 @@
  end subroutine convection_from_MPAS
 
 !=================================================================================================================
- subroutine convection_to_MPAS(configs,diag_physics,tend_physics,its,ite)
+ subroutine convection_to_MPAS(configs,mesh,diag_physics,tend_physics,its,ite,exchange_halo_group,block)
 !=================================================================================================================
 
 !input arguments:
  type(mpas_pool_type),intent(in):: configs
+ type(mpas_pool_type),intent(in):: mesh
+ type(block_type), intent(in) :: block
+ procedure (halo_exchange_routine) :: exchange_halo_group
+
  integer,intent(in):: its,ite
 
 !inout arguments:
@@ -1164,24 +1227,28 @@
  type(mpas_pool_type),intent(inout):: tend_physics
 
 !local variables:
- integer:: i,k,j
+ integer:: i,k,j,iCell,ineighbour
 
 !local pointers:
  character(len=StrKIND),pointer:: convection_scheme
  integer,dimension(:),pointer:: k22_shallow,kbcon_shallow,ktop_shallow,ktop_deep
- real(kind=RKIND),dimension(:),pointer  :: nca,cubot,cutop,cuprec,raincv
+ real(kind=RKIND),dimension(:),pointer  :: nca,cubot,cutop,cuprec,raincv,lightn_dens,sigma_deep
  real(kind=RKIND),dimension(:),pointer  :: xmb_total,xmb_shallow
  real(kind=RKIND),dimension(:,:),pointer:: qc_cu,qi_cu
  real(kind=RKIND),dimension(:,:),pointer:: w0avg
  real(kind=RKIND),dimension(:,:),pointer:: rthcuten,rqvcuten,rqccuten,rqicuten,rqrcuten,rqscuten
  real(kind=RKIND),dimension(:,:),pointer:: rucuten,rvcuten
  !local pointers specific for gf_monan convection scheme
- real(kind=RKIND),dimension(:),pointer  :: rmfxdpcu,rmfxmdcu,rmfxshcu
+ integer,pointer:: config_gf_sub3d,nCellsSolve
+ integer, dimension(:), pointer:: nEdgesOnCell
+ integer, dimension(:,:), pointer:: cellsOnCell
+ real(kind=RKIND),dimension(:),pointer  :: rmfxdpcu,rmfxdncu,rmfxmdcu,rmfxshcu
  real(kind=RKIND),dimension(:),pointer  :: rtopdpcu,rtopmdcu,rtopshcu
  real(kind=RKIND),dimension(:),pointer  :: rbotdpcu,v2d1,v2d2
  real(kind=RKIND),dimension(:,:),pointer:: v3d1
  real(kind=RKIND),dimension(:,:),pointer:: rcnvcfcuten, rbuoyxcuten
  real(kind=RKIND),dimension(:,:),pointer:: rupmfxcu, rdnmfxcu
+ real(kind=RKIND),dimension(:,:),pointer:: sub3d_rucuten,sub3d_rvcuten,sub3d_rthcuten,sub3d_rqvcuten
 
 !-----------------------------------------------------------------------------------------------------------------
 
@@ -1211,6 +1278,7 @@
  convection_select: select case(convection_scheme)
     case ("cu_gf_monan")
        call mpas_pool_get_array(diag_physics,'rmfxdpcu'    ,rmfxdpcu   )
+       call mpas_pool_get_array(diag_physics,'rmfxdncu'    ,rmfxdncu   )
        call mpas_pool_get_array(diag_physics,'rmfxmdcu'    ,rmfxmdcu   )
        call mpas_pool_get_array(diag_physics,'rmfxshcu'    ,rmfxshcu   )
        call mpas_pool_get_array(diag_physics,'rtopdpcu'    ,rtopdpcu   )
@@ -1219,6 +1287,8 @@
        call mpas_pool_get_array(diag_physics,'rbotdpcu'    ,rbotdpcu   )
        call mpas_pool_get_array(diag_physics,'v2d1'        ,v2d1       )
        call mpas_pool_get_array(diag_physics,'v2d2'        ,v2d2       )
+       call mpas_pool_get_array(diag_physics,'lightn_dens' ,lightn_dens)
+       call mpas_pool_get_array(diag_physics,'sigma_deep'  ,sigma_deep )
 
        call mpas_pool_get_array(diag_physics,'rupmfxcu'    ,rupmfxcu   )
        call mpas_pool_get_array(diag_physics,'rdnmfxcu'    ,rdnmfxcu   )
@@ -1245,13 +1315,16 @@
        !- 2-d
        do j = jts,jte
        do i = its,ite
+          lightn_dens(i) = lightn_dens_p(i,j)
+          sigma_deep(i) = sigma_deep_p(i,j)
           rmfxdpcu(i) = rmfxdpcu_p(i,j)  
+          rmfxdncu(i) = rmfxdncu_p(i,j)  
           rmfxmdcu(i) = rmfxmdcu_p(i,j)  
           rmfxshcu(i) = rmfxshcu_p(i,j)  
           rtopdpcu(i) = rtopdpcu_p(i,j)  
           rtopmdcu(i) = rtopmdcu_p(i,j)  
           rtopshcu(i) = rtopshcu_p(i,j)  
-          rbotdpcu(i) = rbotdpcu_p(i,j)  
+          rbotdpcu(i) = rbotdpcu_p(i,j)
        enddo
        enddo
 
@@ -1265,6 +1338,74 @@
           enddo
        enddo
        enddo
+
+       !-- including option of the env subsidence lateral spreading              
+       call mpas_pool_get_config(configs,'config_gf_sub3d',config_gf_sub3d)
+       
+       if(config_gf_sub3d > 0) then
+            call mpas_pool_get_array(tend_physics,'sub3d_rucuten'  ,sub3d_rucuten )
+            call mpas_pool_get_array(tend_physics,'sub3d_rvcuten'  ,sub3d_rvcuten )
+            call mpas_pool_get_array(tend_physics,'sub3d_rqvcuten' ,sub3d_rqvcuten)
+            call mpas_pool_get_array(tend_physics,'sub3d_rthcuten' ,sub3d_rthcuten)
+
+            do j = jts,jte
+            do i = its,ite
+               do k = kts,kte
+                  sub3d_rthcuten(k,i) = sub3d_rthcuten_p(i,k,j)
+                  sub3d_rqvcuten(k,i) = sub3d_rqvcuten_p(i,k,j)
+                  sub3d_rucuten(k,i)  = sub3d_rucuten_p(i,k,j)
+                  sub3d_rvcuten(k,i)  = sub3d_rvcuten_p(i,k,j)
+               enddo
+            enddo
+            enddo
+            !
+            !
+            !-- part 1: remove the subsidence tendencies from the total tendencies
+            !
+            call mpas_pool_get_dimension(mesh, 'nCellsSolve', nCellsSolve)
+            do i = 1, nCellsSolve
+            do k = 1, nVertLevels
+                 rucuten(k,i)  = rucuten(k,i)  - sub3d_rucuten(k,i)
+                 rvcuten(k,i)  = rvcuten(k,i)  - sub3d_rvcuten(k,i)
+                 rthcuten(k,i) = rthcuten(k,i) - sub3d_rthcuten(k,i)
+                 rqvcuten(k,i) = rqvcuten(k,i) - sub3d_rqvcuten(k,i)
+            enddo
+            enddo
+
+            !-- part 2: broadcast the subsidence tendencies
+            call exchange_halo_group(block % domain, 'physics:sub3d_cuten')
+
+            !-- part 3: spread the subsidence tendencies to the 1st neighboors
+            call mpas_pool_get_array(mesh, 'cellsOnCell', cellsOnCell)
+            call mpas_pool_get_array(mesh, 'nEdgesOnCell', nEdgesOnCell)
+
+            do iCell = 1, nCellsSolve
+              do k = 1, nVertLevels
+                 rthcuten(k,iCell) = rthcuten(k,iCell) + sigma_deep(iCell) * sub3d_rthcuten(k,iCell)
+                 rqvcuten(k,iCell) = rqvcuten(k,iCell) + sigma_deep(iCell) * sub3d_rqvcuten(k,iCell)
+                 rucuten(k,iCell)  = rucuten(k,iCell)  + sigma_deep(iCell) * sub3d_rucuten(k,iCell)
+                 rvcuten(k,iCell)  = rvcuten(k,iCell)  + sigma_deep(iCell) * sub3d_rvcuten(k,iCell)
+                 
+                 !-- loop over the neighbours of the grid cell 'iCell'
+                 do i = 1, nEdgesOnCell(iCell)
+                   ineighbour = cellsOnCell(i,iCell)
+                   rthcuten(k,iCell) = rthcuten(k,iCell) + &
+                                       (1._RKIND - sigma_deep(ineighbour))*sub3d_rthcuten(k,ineighbour)/ &
+                                       real(nEdgesOnCell(ineighbour),RKIND)  
+                   rqvcuten(k,iCell) = rqvcuten(k,iCell) + &
+                                       (1._RKIND - sigma_deep(ineighbour))*sub3d_rqvcuten(k,ineighbour)/ &
+                                       real(nEdgesOnCell(ineighbour),RKIND)  
+                   rucuten(k,iCell) = rucuten(k,iCell) + &
+                                       (1._RKIND - sigma_deep(ineighbour))*sub3d_rucuten(k,ineighbour)/ &
+                                       real(nEdgesOnCell(ineighbour),RKIND)  
+                   rvcuten(k,iCell) = rvcuten(k,iCell) + &
+                                       (1._RKIND - sigma_deep(ineighbour))*sub3d_rvcuten(k,ineighbour)/ &
+                                       real(nEdgesOnCell(ineighbour),RKIND)
+                 enddo
+              enddo
+            enddo
+
+       endif
 
     case ("cu_grell_freitas")
        call mpas_pool_get_array(diag_physics,'cubot'        ,cubot        )
@@ -1434,13 +1575,14 @@
 
 !local pointers:
  integer,pointer:: index_cnvcf, index_buoyx
+ integer,pointer:: config_gf_cporg, config_gf_pcvol
  integer,dimension(:),pointer:: i_rainc
  integer,pointer:: nEdgesSolve,nCells,nCellsSolve,nEdges
 
 !local pointers:
  character(len=StrKIND),pointer:: convection_scheme
  real(kind=RKIND),pointer:: bucket_rainc
- real(kind=RKIND),dimension(:),pointer:: cuprec,rainc
+ real(kind=RKIND),dimension(:),pointer:: cuprec,rainc,lightn_dens,acc_lightn_dens
  real(kind=RKIND),dimension(:),pointer:: xland
  real(kind=RKIND),dimension(:),pointer:: wlpool,vcpool,u_gustfront,v_gustfront
 
@@ -1490,9 +1632,19 @@
  call mpas_pool_get_config(configs,'config_convection_scheme',convection_scheme)
 
  convection_select: select case(convection_scheme)
-    case ("cu_gf_monan")
-      
-      if(use_pass_cloudvol > 0) then 
+    case ("cu_gf_monan")      
+      !--- update the accumulated lightning density at the end of each dynamic time-step:
+      !--- if(lightning_diag == 1) then -- for future
+      call mpas_pool_get_array(diag_physics,'lightn_dens'      ,lightn_dens)
+      call mpas_pool_get_array(diag_physics,'acc_lightn_dens'  ,acc_lightn_dens)
+      do i = its, ite
+        acc_lightn_dens(i) = acc_lightn_dens(i) + lightn_dens(i) * dt_dyn
+      enddo
+
+      call mpas_pool_get_config(configs,'config_gf_pcvol',config_gf_pcvol)
+      call mpas_pool_get_config(configs,'config_gf_cporg',config_gf_cporg)
+
+      if(config_gf_pcvol > 0) then 
           !-- get cnvcf scalar
           call mpas_pool_get_dimension(state,'index_cnvcf',index_cnvcf)
           call mpas_pool_get_array(state,'scalars',scalars,time_lev)
@@ -1539,7 +1691,7 @@
 
       endif 
       
-      if(convection_tracer == 1) then
+      if(config_gf_cporg == 1) then
           call mpas_pool_get_dimension(state,'index_buoyx',index_buoyx)
           call mpas_pool_get_array(state,'scalars',scalars,time_lev)
           buoyx => scalars(index_buoyx,:,:)
@@ -1551,7 +1703,7 @@
              !<var name="xland" type="real" dimensions="nCells Time" units="unitless"
              !description="land-ocean mask (1=land including sea-ice ; 2=ocean)"/>
              if(xland(i) < 1.5_RKIND ) tau_cp = tau_land_cp
-             if(xland(i) > 1.5_RKIND ) tau_cp = tau_ocea_cp
+             if(xland(i) >= 1.5_RKIND) tau_cp = tau_ocea_cp
 
               do k = kts,kte                
                 !---- sink term for the buoyancy excess
@@ -1699,7 +1851,7 @@
           !   enddo
           !enddo
           !---------
-      endif  !- (convection_tracer == 1)
+      endif  !- (config_gf_cporg == 1)
 
     case default
 

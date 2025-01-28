@@ -30,7 +30,8 @@
                    ids,ide,jds,jde,kds,kde,                      &
                    ims,ime,jms,jme,kms,kme,                      &
                    its,ite,jts,jte,kts,kte,                      &
-                   errmsg,errflg                                 &
+                   errmsg,errflg,                                &
+                   sgsgustcu                                     &
                        )
 !-------------------------------------------------------------------
 !-- u3d         3d u-velocity interpolated to theta points (m/s)
@@ -102,6 +103,8 @@
 !    only)      =2: modified yang et al (2002, 2008) - generalized for all landuse
 !               =3: constant zt = z0/7.4 (garratt 1992)
 !
+!-- sgsgustcu   sub-grid-scale gust speed from GF cumlus scheme (m/s)
+!
 !-- ids         start index for i in domain
 !-- ide         end index for i in domain
 !-- jds         start index for j in domain
@@ -159,6 +162,9 @@
     psfcpa, &
     snowh,  &
     dx
+
+real(kind=RKIND),intent(in),dimension(ims:ime,jms:jme):: &
+    sgsgustcu
 
 !--- output arguments:
  character(len=StrKIND),intent(out):: errmsg
@@ -226,6 +232,8 @@
  real(kind=RKIND),dimension(its:ite):: u10_hv,v10_hv,th2_hv,t2_hv,q2_hv,wstar_hv,qstar_hv
  real(kind=RKIND),dimension(its:ite):: cd_hv,cda_hv,ck_hv,cka_hv,ustm_hv
 
+ real(kind=RKIND),dimension(its:ite):: sgsgustcu_hv
+
 !-----------------------------------------------------------------------------------------------------------------
 
  f_spp = .false.
@@ -258,6 +266,10 @@
        qcg_hv(i)    = qcg(i,j)
        snowh_hv(i)  = snowh(i,j)
        dx_hv(i)     = dx(i,j)
+    enddo
+
+    do i = its,ite
+       sgsgustcu_hv(i) = sgsgustcu(i,j)
     enddo
 
     !inout arguments:
@@ -328,8 +340,9 @@
                  wstar    = wstar_hv  , qstar    = qstar_hv  , ustm    = ustm_hv  , ck        = ck_hv     , &
                  cka      = cka_hv    , cd       = cd_hv     , cda     = cda_hv   , spp_pbl   = f_spp     , &
                  rstoch1d = rstoch1d  , isftcflx = isftcflx  , iz0tlnd = iz0tlnd                          , &
-                 its      = its       , ite      = ite       , errmsg  = errmsg   , errflg    = errflg      &
-                    )
+                 its      = its       , ite      = ite       , errmsg  = errmsg   , errflg    = errflg    , &
+                 sgsgustcu = sgsgustcu_hv                                                                   &
+                     )
 
     !inout arguments:
     do i = its,ite
