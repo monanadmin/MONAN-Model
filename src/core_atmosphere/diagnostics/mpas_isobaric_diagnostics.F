@@ -4187,7 +4187,7 @@ module mpas_isobaric_diagnostics
                                              nIsoLevelsT                               , & !5 CR: ta certo?
                                              cldfrac     (1:nVertLevels,1:nCells)      , & !6
                                              field_interp(1:nIsoLevelsT,1:nCells)      , & !7
-                                             pressure    (1:nVertLevels,1:nCells)*100.0, & !8
+                                             pressure2   (1:nVertLevels,1:nCells)*100.0, & !8
                                              t_iso_levels(1:nIsoLevelsT)               )   !9
                                                 
 
@@ -4226,7 +4226,7 @@ module mpas_isobaric_diagnostics
            call VerticalInterpolation_Thermal2 ( nCells                                    , & !1
                                                  nVertLevels                               , & !2
                                                  nIsoLevelsT                               , & !3
-                                                 pressure    (1:nVertLevels,1:nCells)*100.0, & !4
+                                                 pressure2   (1:nVertLevels,1:nCells)*100.0, & !4
                                                  temperature (1:nVertLevels,1:nCells)      , & !5
                                                  field_interp(1:nIsoLevelsT,1:nCells)      , & !6
                                                  t_iso_levels(1:nIsoLevelsT)               )   !7
@@ -4271,7 +4271,7 @@ module mpas_isobaric_diagnostics
                                                    nIsoLevelsT                                   , & !5
                                                    scalars(index_ni,1:nVertLevels,1:nCells)      , & !6
                                                    field_interp    (1:nIsoLevelsT,1:nCells)      , & !7
-                                                   pressure        (1:nVertLevels,1:nCells)*100.0, & !8
+                                                   pressure2       (1:nVertLevels,1:nCells)*100.0, & !8
                                                    t_iso_levels    (1:nIsoLevelsT)               )   !9
                 
     
@@ -4315,7 +4315,7 @@ module mpas_isobaric_diagnostics
                                                    nIsoLevelsT                                   , & !5
                                                    scalars(index_nr,1:nVertLevels,1:nCells)      , & !6
                                                    field_interp    (1:nIsoLevelsT,1:nCells)      , & !7
-                                                   pressure        (1:nVertLevels,1:nCells)*100.0, & !8
+                                                   pressure2       (1:nVertLevels,1:nCells)*100.0, & !8
                                                    t_iso_levels    (1:nIsoLevelsT)               )   !9
 
  
@@ -4358,7 +4358,7 @@ module mpas_isobaric_diagnostics
                                                 nIsoLevelsT                                   , & !5
                                                 scalars(index_qr,1:nVertLevels,1:nCells)      , & !6
                                                 field_interp    (1:nIsoLevelsT,1:nCells)      , & !7
-                                                pressure        (1:nVertLevels,1:nCells)*100.0, & !8
+                                                pressure2       (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels    (1:nIsoLevelsT)               )   !9
             
             
@@ -4400,7 +4400,7 @@ module mpas_isobaric_diagnostics
                                                 nIsoLevelsT                                   , & !5
                                                 scalars(index_qs,1:nVertLevels,1:nCells)      , & !6
                                                 field_interp    (1:nIsoLevelsT,1:nCells)      , & !7
-                                                pressure        (1:nVertLevels,1:nCells)*100.0, & !8
+                                                pressure2       (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels    (1:nIsoLevelsT)               )   !9
             
             qs_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
@@ -4441,7 +4441,7 @@ module mpas_isobaric_diagnostics
                                                 nIsoLevelsT                                   , & !5
                                                 scalars(index_qv,1:nVertLevels,1:nCells)      , & !6
                                                 field_interp    (1:nIsoLevelsT,1:nCells)      , & !7
-                                                pressure        (1:nVertLevels,1:nCells)*100.0, & !8
+                                                pressure2       (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels    (1:nIsoLevelsT)               )   !9
             
             qv_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
@@ -4482,7 +4482,7 @@ module mpas_isobaric_diagnostics
                                                 nIsoLevelsT                                   , & !5
                                                 scalars(index_qc,1:nVertLevels,1:nCells)      , & !6
                                                 field_interp    (1:nIsoLevelsT,1:nCells)      , & !7
-                                                pressure        (1:nVertLevels,1:nCells)*100.0, & !8
+                                                pressure2       (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels    (1:nIsoLevelsT)               )   !9
             
             qc_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
@@ -4523,7 +4523,7 @@ module mpas_isobaric_diagnostics
                                                 nIsoLevelsT                                   , & !5
                                                 scalars(index_qg,1:nVertLevels,1:nCells)      , & !6
                                                 field_interp    (1:nIsoLevelsT,1:nCells)      , & !7
-                                                pressure        (1:nVertLevels,1:nCells)*100.0, & !8
+                                                pressure2       (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels    (1:nIsoLevelsT)               )   !9
             
             qg_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
@@ -4564,7 +4564,7 @@ module mpas_isobaric_diagnostics
                                                 nIsoLevelsT                                   , & !5
                                                 scalars(index_qi,1:nVertLevels,1:nCells)      , & !6
                                                 field_interp    (1:nIsoLevelsT,1:nCells)      , & !7
-                                                pressure        (1:nVertLevels,1:nCells)*100.0, & !8
+                                                pressure2       (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels    (1:nIsoLevelsT)               )   !9
             
             qi_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
@@ -4605,7 +4605,7 @@ module mpas_isobaric_diagnostics
                                                 nIsoLevelsT                               , & !5
                                                 rqvblten    (1:nVertLevels,1:nCells)      , & !6
                                                 field_interp(1:nIsoLevelsT,1:nCells)      , & !7
-                                                pressure    (1:nVertLevels,1:nCells)*100.0, & !8
+                                                pressure2   (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels(1:nIsoLevelsT)               )   !9
             
             rqvblten_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
@@ -4647,7 +4647,7 @@ module mpas_isobaric_diagnostics
                                                 nIsoLevelsT                               , & !5
                                                 rqvcuten    (1:nVertLevels,1:nCells)      , & !6
                                                 field_interp(1:nIsoLevelsT,1:nCells)      , & !7
-                                                pressure    (1:nVertLevels,1:nCells)*100.0, & !8
+                                                pressure2   (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels(1:nIsoLevelsT)               )   !9
 
             rqvcuten_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
@@ -4688,7 +4688,7 @@ module mpas_isobaric_diagnostics
                                                 nIsoLevelsT                               , & !5
                                                 rthratenlw  (1:nVertLevels,1:nCells)      , & !6
                                                 field_interp(1:nIsoLevelsT,1:nCells)      , & !7
-                                                pressure    (1:nVertLevels,1:nCells)*100.0, & !8
+                                                pressure2   (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels(1:nIsoLevelsT)               )   !9
             
             rthratenlw_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
@@ -4729,7 +4729,7 @@ module mpas_isobaric_diagnostics
                                                 nIsoLevelsT                               , & !5
                                                 rthratensw  (1:nVertLevels,1:nCells)      , & !6
                                                 field_interp(1:nIsoLevelsT,1:nCells)      , & !7
-                                                pressure    (1:nVertLevels,1:nCells)*100.0, & !8
+                                                pressure2   (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels(1:nIsoLevelsT)               ) !9
             
             rthratensw_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
@@ -4772,7 +4772,7 @@ module mpas_isobaric_diagnostics
                                                 nIsoLevelsT                               , & !5
                                                 rucuten     (1:nVertLevels,1:nCells)      , & !6
                                                 field_interp(1:nIsoLevelsT,1:nCells)      , & !7
-                                                pressure    (1:nVertLevels,1:nCells)*100.0, & !8
+                                                pressure2   (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels(1:nIsoLevelsT)               ) !9
             
             rucuten_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
@@ -4813,7 +4813,7 @@ module mpas_isobaric_diagnostics
                                                 nIsoLevelsT                               , & !5
                                                 rvcuten     (1:nVertLevels,1:nCells)      , & !6
                                                 field_interp(1:nIsoLevelsT,1:nCells)      , & !7
-                                                pressure    (1:nVertLevels,1:nCells)*100.0, & !8  
+                                                pressure2   (1:nVertLevels,1:nCells)*100.0, & !8  
                                                 t_iso_levels(1:nIsoLevelsT)               ) !9
           
           rvcuten_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
@@ -4855,7 +4855,7 @@ module mpas_isobaric_diagnostics
                                                 nIsoLevelsT                               , & !5
                                                 rublten     (1:nVertLevels,1:nCells)      , & !6
                                                 field_interp(1:nIsoLevelsT,1:nCells)      , & !7
-                                                pressure    (1:nVertLevels,1:nCells)*100.0, & !8
+                                                pressure2   (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels(1:nIsoLevelsT)               )   !9
           
           rublten_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
@@ -4897,7 +4897,7 @@ module mpas_isobaric_diagnostics
                                                 nIsoLevelsT                               , & !5
                                                 rvblten     (1:nVertLevels,1:nCells)      , & !6
                                                 field_interp(1:nIsoLevelsT,1:nCells)      , & !7
-                                                pressure    (1:nVertLevels,1:nCells)*100.0, & !8
+                                                pressure2   (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels(1:nIsoLevelsT)               )   !9
           
           rvblten_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
@@ -4934,7 +4934,7 @@ module mpas_isobaric_diagnostics
             call VerticalInterpolation_Humid ( nCells                                    , & !1
                                                nVertLevels                               , & !2
                                                nIsoLevelsT                               , & !3
-                                               pressure    (1:nVertLevels,1:nCells)*100.0, & !4
+                                               pressure2   (1:nVertLevels,1:nCells)*100.0, & !4
                                                relhum      (1:nVertLevels,1:nCells)      , & !5
                                                field_interp(1:nIsoLevelsT,1:nCells)      , & !6
                                                t_iso_levels(1:nIsoLevelsT)               ) !7
@@ -4979,7 +4979,7 @@ module mpas_isobaric_diagnostics
                                                 nIsoLevelsT                               , & !5
                                                 kzq         (1:nVertLevels,1:nCells)      , & !6
                                                 field_interp(1:nIsoLevelsT,1:nCells)      , & !7
-                                                pressure    (1:nVertLevels,1:nCells)*100.0, & !8
+                                                pressure2   (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels(1:nIsoLevelsT)               )   !9
             
             kzq_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
@@ -5020,7 +5020,7 @@ module mpas_isobaric_diagnostics
                                                 nIsoLevelsT                               , & !5
                                                 kzh         (1:nVertLevels,1:nCells)      , & !6
                                                 field_interp(1:nIsoLevelsT,1:nCells)      , & !7
-                                                pressure    (1:nVertLevels,1:nCells)*100.0, & !8
+                                                pressure2   (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels(1:nIsoLevelsT)               )   !9
             
             kzh_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
@@ -5061,7 +5061,7 @@ module mpas_isobaric_diagnostics
                                                 nIsoLevelsT                               , & !5
                                                 kzm         (1:nVertLevels,1:nCells)      , & !6
                                                 field_interp(1:nIsoLevelsT,1:nCells)      , & !7
-                                                pressure    (1:nVertLevels,1:nCells)*100.0, & !8
+                                                pressure2   (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels(1:nIsoLevelsT)               )   !9
             
             kzm_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
@@ -5100,7 +5100,7 @@ module mpas_isobaric_diagnostics
             call VerticalInterpolation_Thermal2 ( nCells                                    , & !1
                                                   nVertLevels                               , & !2
                                                   nIsoLevelsT                               , & !3
-                                                  pressure    (1:nVertLevels,1:nCells)*100.0, & !4
+                                                  pressure2   (1:nVertLevels,1:nCells)*100.0, & !4
                                                   dewpoint    (1:nVertLevels,1:nCells)      , & !5
                                                   field_interp(1:nIsoLevelsT,1:nCells)      , & !6
                                                   t_iso_levels(1:nIsoLevelsT)               )   !7
@@ -5140,7 +5140,7 @@ module mpas_isobaric_diagnostics
             call VerticalInterpolation_Wind ( nCells                                    , & !1. 
                                               nVertLevels                               , & !2. 
                                               nIsoLevelsT                               , & !3. 
-                                              pressure    (1:nVertLevels,1:nCells)*100.0, & !4. 
+                                              pressure2    (1:nVertLevels,1:nCells)*100.0, & !4. 
                                               t_iso_levels(1:nIsoLevelsT)               , & !5. 
                                               uzonal      (1:nVertLevels, 1:nCells)     , & !6. 
                                               field_interp(1:nIsoLevelsT,1:nCells)      )   !7. 
@@ -5181,7 +5181,7 @@ module mpas_isobaric_diagnostics
             call VerticalInterpolation_Wind (nCells                                    , & !1. 
                                              nVertLevels                               , & !2. 
                                              nIsoLevelsT                               , & !3. 
-                                             pressure    (1:nVertLevels,1:nCells)*100.0, & !4. 
+                                             pressure2    (1:nVertLevels,1:nCells)*100.0, & !4. 
                                              t_iso_levels(1:nIsoLevelsT)               , & !5. 
                                              umeridional (1:nVertLevels,1:nCells)      , & !6. 
                                              field_interp(1:nIsoLevelsT,1:nCells)      )   !7. 
@@ -5221,7 +5221,7 @@ module mpas_isobaric_diagnostics
             call VerticalInterpolation_Humid(nCells                                    , & !1
                                              nVertLevels                               , & !2
                                              nIsoLevelsT                               , & !3
-                                             pressure    (1:nVertLevels,1:nCells)*100.0, & !4
+                                             pressure2    (1:nVertLevels,1:nCells)*100.0, & !4
                                              spechum     (1:nVertLevels,1:nCells)      , & !5
                                              field_interp(1:nIsoLevelsT,1:nCells)      , & !6
                                              t_iso_levels(1:nIsoLevelsT)               )   !7
@@ -5272,7 +5272,7 @@ module mpas_isobaric_diagnostics
                                                 nIsoLevelsT                               , & !5
                                                 height      (1:nVertLevels,1:nCells)      , & !6
                                                 field_interp(1:nIsoLevelsT,1:nCells)      , & !7
-                                                pressure    (1:nVertLevels,1:nCells)*100.0, & !8
+                                                pressure2    (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels(1:nIsoLevelsT)               )   !9
 
             height_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
@@ -5307,7 +5307,7 @@ module mpas_isobaric_diagnostics
             call VerticalInterpolation_Wind (nCells                                    , & !1. 
                                              nVertLevels                               , & !2. 
                                              nIsoLevelsT                               , & !3. 
-                                             pressure    (1:nVertLevels,1:nCells)*100.0, & !4. 
+                                             pressure2    (1:nVertLevels,1:nCells)*100.0, & !4. 
                                              t_iso_levels(1:nIsoLevelsT)               , & !5. 
                                              vvel        (1:nVertLevels,1:nCells)      , & !6. 
                                              field_interp(1:nIsoLevelsT,1:nCells)      )   !7.
@@ -5350,7 +5350,7 @@ module mpas_isobaric_diagnostics
             call VerticalInterpolation_ZGEO(nVertLevels                               , & !1
                                             nCells                                    , & !2
                                             temperature (1:nVertLevels,1:nCells)      , & !3
-                                            pressure    (1:nVertLevels,1:nCells)*100.0, & !4 
+                                            pressure2    (1:nVertLevels,1:nCells)*100.0, & !4 
                                             height      (1:1,1:nCells)                , & !5 
                                             nIsoLevelsT                               , & !6
                                             field_interp(1:nIsoLevelsT,1:nCells)      , & !7
@@ -5393,7 +5393,7 @@ module mpas_isobaric_diagnostics
             call VerticalInterpolation_Wind (nCells                                    , & !1. 
                                              nVertLevels                               , & !2. 
                                              nIsoLevelsT                               , & !3. 
-                                             pressure    (1:nVertLevels,1:nCells)*100.0, & !4. 
+                                             pressure2    (1:nVertLevels,1:nCells)*100.0, & !4. 
                                              t_iso_levels(1:nIsoLevelsT)               , & !5. 
                                              rho         (1:nVertLevels, 1:nCells)     , & !6. 
                                              field_interp(1:nIsoLevelsT,1:nCells)      )   !7.
@@ -5562,12 +5562,12 @@ module mpas_isobaric_diagnostics
      
             allocate(field_in(nCells, nVertLevels))
             allocate(press_in(nCells, nVertLevels))
-            allocate(field_interp(nCells, nIsoLevelsT))
-            allocate(press_interp(nCells, nIsoLevelsT))
+            !PK allocate(field_interp(nCells, nIsoLevelsT))
+            !PK allocate(press_interp(nCells, nIsoLevelsT))
      
-            do k=1,nIsoLevelsT
-               press_interp(:,k) = t_iso_levels(k)
-            end do
+            !PK do k=1,nIsoLevelsT
+            !PK   press_interp(:,k) = t_iso_levels(k)
+            !PK end do
      
             ! Additional temperature levels for vortex tracking
             do iCell=1,nCells
@@ -5585,11 +5585,18 @@ module mpas_isobaric_diagnostics
             end do
      
             if (need_t_isobaric) then
-               call interp_tofixed_pressure(nCells, nVertLevels, nIsoLevelsT, press_in, field_in, press_interp, field_interp)
-         
-                do k=1,nIsoLevelsT
-                   t_isobaric(k,1:nCells) = field_interp(1:nCells,k)
-                end do
+               !PK call interp_tofixed_pressure(nCells, nVertLevels, nIsoLevelsT, press_in, field_in, press_interp, field_interp)
+               CALL VerticalInterpolation_Thermal2(nCells                                       ,&
+                                                   nVertLevels                                  ,&
+                                                   nIsoLevelsT                                  ,&
+                                                   pressure2     (1:nVertLevels, 1:nCells)*100.0,&
+                                                   temperature   (1:nVertLevels, 1:nCells)      ,&
+                                                   t_isobaric    (1:nIsoLevelsT, 1:nCells)      ,&
+                                                   t_iso_levels  (1:nIsoLevelsT)                 )
+        
+               !PK do k=1,nIsoLevelsT
+               !PK    t_isobaric(k,1:nCells) = field_interp(k,1:nCells)
+               !PK end do
             end if
      
      
@@ -5601,48 +5608,55 @@ module mpas_isobaric_diagnostics
      
      
             deallocate(field_in)
-            deallocate(field_interp)
+            !PK deallocate(field_interp)
             deallocate(press_in)
-            deallocate(press_interp)
+            !PK deallocate(press_interp)
         end if
      
      
         !!!!!!!!!!! Additional height levels for vortex tracking !!!!!!!!!!!
         if (need_z_isobaric) then
-            allocate(field_in(nCells, nVertLevelsP1))
-            allocate(press_in(nCells, nVertLevelsP1))
+            !PK allocate(field_in(nCells, nVertLevelsP1))
+            !PK allocate(press_in(nCells, nVertLevelsP1))
 
-            allocate(field_interp(nCells, nIsoLevelsZ))
-            allocate(press_interp(nCells, nIsoLevelsZ))
+            !PK  allocate(field_interp(nCells, nIsoLevelsZ))
+            !PK allocate(press_interp(nCells, nIsoLevelsZ))
      
-            do k=1,nIsoLevelsZ
-               press_interp(:,k) = z_iso_levels(k)
-            end do
+            !do k=1,nIsoLevelsZ
+            !   press_interp(:,k) = z_iso_levels(k)
+            !end do
      
-            do iCell=1,nCells
-            do k=1,nVertLevelsP1
-               kk = nVertLevelsP1+1-k
-               field_in(iCell,kk) = height(k,iCell)
-            end do
-            end do
+            !PK do iCell=1,nCells
+            !PK do k=1,nVertLevelsP1
+            !PK    kk = nVertLevelsP1+1-k
+            !PK    field_in(iCell,kk) = height(k,iCell)
+            !PK end do
+            !PK end do
      
-            do iCell=1,nCells
-            do k=1,nVertLevelsP1
-               kk = nVertLevelsP1+1-k
-               press_in(iCell,kk) = pressure2(k,iCell) * 100.0
-            end do
-            end do
+            !PK do iCell=1,nCells
+            !PK do k=1,nVertLevelsP1
+            !PK    kk = nVertLevelsP1+1-k
+            !PK    press_in(iCell,kk) = pressure2(k,iCell) * 100.0
+            !PK end do
+            !PK end do
      
-            call interp_tofixed_pressure(nCells, nVertLevelsP1, nIsoLevelsZ, press_in, field_in, press_interp, field_interp)
+            !PK call interp_tofixed_pressure(nCells, nVertLevelsP1, nIsoLevelsZ, press_in, field_in, press_interp, field_interp)
+              CALL VerticalInterpolation_Wind(nCells                                               ,&
+                                              nVertLevels                                          ,&
+                                              nIsoLevelsT                                          ,&
+                                              pressure2      (1:nVertLevels        ,1:nCells)*100.0,&
+                                              t_iso_levels   (1:nIsoLevelsT)                       ,&
+                                              height         (1:nVertLevels        ,1:nCells)      ,&
+                                              z_isobaric     (1:nIsoLevelsT        ,1:nCells)       )
+      
+            !PK do k=1,nIsoLevelsZ
+            !PK   z_isobaric(k,1:nCells) = field_interp(1:nCells,k)
+            !PK end do
      
-            do k=1,nIsoLevelsZ
-               z_isobaric(k,1:nCells) = field_interp(1:nCells,k)
-            end do
-     
-            deallocate(field_in)
-            deallocate(field_interp)
-            deallocate(press_in)
-            deallocate(press_interp)
+            !PKdeallocate(field_in)
+            !PKdeallocate(field_interp)
+            !PKdeallocate(press_in)
+            !PKdeallocate(press_interp)
         end if
     
         if(allocated(temperature) ) deallocate(temperature )
