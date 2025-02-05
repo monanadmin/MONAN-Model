@@ -1,16 +1,16 @@
 &GF_NML  
 
-  icumulus_gf       = 1,1,2,                != trimodal plume (deep ,shallow ,congestus)
+  icumulus_gf   = 1,1,0,                != trimodal plume (deep ,shallow ,congestus)
   
   closure_choice    = 10,10,3,              != closure for the mass flux at the cloud base
   
-  cum_entr_rate     = 6.0e-4, 3.e-3, 1.e-3, != initial gross entrainment rate for 
+  cum_entr_rate     = 6.0e-4, 2.e-3, 1.e-3, != initial gross entrainment rate for 
                                             != deep, shallow, congestus
-  cum_min_cloud_depth = 200.,70.,150.,      != minimum cloud depth (mbar)
+  cum_min_cloud_depth = 200.,50.,150.,      != minimum cloud depth (mbar)
 
   dicycle           = 1,                    != 0/1/2:  diurnal cycle closure, default = 1
                                             != 2 adds Qadv closure (Becker et al 2021) 
-  cum_t_star        = 4., -99., -99.,       != scale temperature for diurnal cycle closure, 
+  cum_t_star = 10., -99., -99.,       != scale temperature for diurnal cycle closure, 
  
   use_sub3d         = 0,
   use_scale_dep     = 1,            != 0/1: turn ON/OFF the scale dependence approach
@@ -31,7 +31,7 @@
   mx_buoy2          = 20004.0,     ! J/kg
 
 
-  sgs_w_timescale   = 1,     != 0/1: uses vertical velocity for determination of tau_ecmwf
+  sgs_w_timescale   = 2,     != 0/1: uses vertical velocity for determination of tau_ecmwf
   tau_deep          = 3600., != timescales for instability removal, only for sgs_w_timescale = 0
   tau_mid           = 3600., 
 
@@ -53,15 +53,15 @@
 
 !---- boundary condition specification
   cum_use_excess    = 1,1,1,
-  cum_ave_layer     = 50.,30.,30.,!- (deep ,shallow ,congestus)
+  cum_ave_layer     = 30.,15.,30.,!- (deep ,shallow ,congestus)
 !----
 
 !---- for mass flux profiles - (deep ,shallow ,congestus)
   cum_HEI_UPDF_LAND = 0.55, 0.1, 0.55,  != height of maximum Z_updraft
   cum_HEI_UPDF_OCEAN= 0.55, 0.1, 0.55,
 
-  cum_HEI_DOWN_LAND = 0.60, 0.0, 0.35,  != height of maximum Z_downdraft 
-  cum_HEI_DOWN_OCEAN= 0.50, 0.0, 0.35, 
+  cum_HEI_DOWN_LAND = 0.40, 0.0, 0.35,  != height of maximum Z_downdraft 
+  cum_HEI_DOWN_OCEAN= 0.40, 0.0, 0.35, 
 
   use_random_num      = 0., != stochastic pertubation for the height of maximum Zu
   use_smooth_prof     = 1,  != 1 makes the normalized mass flux, entr and detraiment profiles smoother
@@ -113,7 +113,7 @@
   use_wetbulb       = 0,
   vert_discr        = 1, 
   clev_grid         = 1, 
-  max_tq_tend       = 300., 
+  max_tq_tend       = 200., 
   output_sound      = 0,
   use_cloud_dissipation = 0.,
 !-----

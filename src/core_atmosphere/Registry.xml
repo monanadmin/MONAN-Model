@@ -3101,7 +3101,7 @@
 
                 <var name="sigma_deep" type="real" dimensions="nCells Time" units="-"
                      description="scale-aware parameter for deep convection"
-                     packages="cu_gf_monan_in"/>
+                     packages="cu_gf_monan_in;gf_monan_sub3d"/>
 
                 <var name="rmfxdpcu" type="real" dimensions="nCells Time" units="kg m^{-2} s^{-1}"
                      description="updraft mass flux at cloud base from deep cumulus parameterization"
