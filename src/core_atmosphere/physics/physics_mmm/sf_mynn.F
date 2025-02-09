@@ -1,6 +1,7 @@
 !=================================================================================================================
  module sf_mynn
 
+ use module_sprayHFs, only: sprayHFs
 !-------------------------------------------------------------------
 !Modifications implemented by Joseph Olson NOAA/GSL
 !The following overviews the current state of this scheme::
@@ -139,8 +140,9 @@
                      itimestep,wstar,qstar,ustm,ck,cka,  &
                      cd,cda,spp_pbl,rstoch1d,isftcflx,   &
                      iz0tlnd,its,ite,errmsg,errflg,      &
-                     sgsgustcu                           &
-                        )
+                     sgsgustcu,hfx_spr,lh_spr,           &
+                     config_gf_gustf                     &
+                                                         )
  implicit none
 !=================================================================================================================
 
@@ -167,6 +169,7 @@
  integer,intent(in):: isfflx
  integer,intent(in),optional:: isftcflx,iz0tlnd
 
+ integer,intent(in):: config_gf_gustf
 !-----------------------------
 ! 1d arrays
 !-----------------------------
@@ -234,6 +237,9 @@
                                                        wstar, &
                                                        qstar
 
+ real(kind=kind_phys),intent(out),dimension(its:ite):: hfx_spr,&
+                                                       lh_spr
+
  real(kind=kind_phys),intent(out),dimension(its:ite),optional:: &
                                                           ck, &
                                                          cka, &
@@ -282,7 +288,18 @@
              zratio       !z0/zt
 
 !-----------------------------------------------------------------------------------------------------------------
+!---    Parameterization of "Seastate-Dependent Air-Sea Heat 
+!---    Fluxes with Sea Spray in High Winds. Ref: Barr et al. (2023)"
+!---    Implemented by Saulo Freitas (Oct 2024) 
 
+ character(len=50)   :: whichssgf
+ logical             :: paramWaves
+ real(kind=kind_phys):: z_1,t_1,q_1,U_1,gf,p_0,t_0,eps,dcp,swh,mss,Lmo,z0,z0t,z0q,&
+                        z_ref,dHS1_spr,dHL1_spr,dthstar_spr,dqstar_spr,&
+                        dtref_spr,dqref_spr,dsref_spr,tau,H_S0pr,H_L0pr,thvstar,M_spr,&
+                        H_Tspr,H_Rspr,H_SNspr,H_Lspr,alpha_S,beta_S,beta_L,gamma_S,&
+                        gamma_L,dthvstar_spr,dthref_spr
+!-----------------------------------------------------------------------------------------------------------------
  ep3 = 1.-ep2
 
  do i=its,ite
@@ -372,14 +389,9 @@
     !--------------------------------------------------------
     vsgd = 0.32 * (max(dx(i)/5000.-1.,0.))**.33
 
-    !-srf: orig version MPAS 8.1
-    !wspd(i)=sqrt(wspd(i)*wspd(i)+wstar(i)*wstar(i)+vsgd*vsgd)
-    !
-    !--------------------------------------------------------
-    !-srf:  adding sgs gustiness from convection scheme, currently only GF monan 
-    !--------------------------------------------------------
+    !-srf:  adding sgs gustiness from convection scheme, currently only for GF MONAN 
+    !-srf: orig "wspd(i)=sqrt(wspd(i)*wspd(i)+wstar(i)*wstar(i)+vsgd*vsgd)"
     wspd(i)=sqrt(wspd(i)*wspd(i)+wstar(i)*wstar(i)+vsgd*vsgd+sgsgustcu(i)*sgsgustcu(i))
-    !
     !
     wspd(i)=max(wspd(i),wmin)
 
@@ -1001,6 +1013,85 @@
    endif
 
  enddo !end i-loop
+ !
+ !------------------------------------------------------------
+ !---    Implemented in MPAS/MONAN models by S.R.Freitas (INPE @ Jan 2025)
+ !---    Including the parameterization "Seastate-Dependent Air-Sea Heat
+ !---    " Fluxes with Sea Spray in High Winds. Ref: Barr et al. (2023, JAMES)"
+ !---    GitHub ref: https://github.com/bwbarr/sprayHFs
+ !---    a) if using the seastate-based model BCF23_Seastate, all wave 
+ !---       parameters are required (eps, dcp, swh, mss). 
+ !---    b) if using a wind-based model (F94_MOM80 or F94_BCF23), swh is still required 
+ !---       (for calculating the droplet settling timescale),  but the remaining wave 
+ !---       parameters (eps, dcp, mss) are not used (should set to zero)
+ if(config_gf_gustf == 2) then
+     whichSSGF = 'BCF23_Seastate'
+     paramWaves = .TRUE.
+     do i=its,ite
+           hfx_spr(i) = 0.0
+           lh_spr (i) = 0.0
+           if ((xland(i)-1.5) < 0.) cycle ! if xland < 1.5 => land
+! for test           if ((xland(i)-1.5) < 0. .or. sqrt( u10(i)*u10(i) + v10(i)*v10(i)) < 10.0 ) cycle ! if xland < 1.5 => land
+
+             !--------------------------------------
+             ! water
+             !--------------------------------------
+             z_1 = za  (i)
+             t_1 = t1d (i)
+             q_1 = qvsh(i) 
+             U_1 = wspd(i) ! check
+             p_0 = psfcpa(i)
+             t_0 = tsk   (i)
+             gf  = 1.  ! use gf = wspd(i)/U_1.  
+             eps = 0.  
+             dcp = 0.  
+             swh = 0.  
+             mss = 0.  
+             ! Program received signal SIGFPE: Floating-point exception - erroneous arithmetic operation.
+             !Lmo = 1.0/rmol (i)
+             Lmo = 1.0/(rmol (i) + 1.e-12)
+             z0  = zntstoch(i) !_or_ znt(i) 
+             z0t = z_t(i)
+             z0q = z_q(i)
+             z_ref = 2. 
+
+             !dHS1_spr = 0.; dHL1_spr = 0.; dthstar_spr = 0.; dqstar_spr = 0.; dthvstar_spr = 0.
+             !dthref_spr = 0.; dtref_spr = 0.; dqref_spr = 0.; dsref_spr = 0.; tau = 0.; H_S0pr = 0.; H_L0pr = 0.; M_spr = 0.
+             !H_Tspr = 0.; H_Rspr = 0.; H_SNspr = 0.; H_Lspr = 0.; alpha_S = 0.; beta_S = 0.; beta_L = 0.; gamma_S = 0.; gamma_L = 0.
+
+             call sprayHFs(z_1,t_1,q_1,U_1,gf,p_0,t_0,eps,dcp,swh,mss,Lmo,z0,z0t,z0q,&
+                      z_ref,whichSSGF,paramWaves,dHS1_spr,dHL1_spr,dthstar_spr,&
+                      dqstar_spr,dthvstar_spr,dthref_spr,dtref_spr,dqref_spr,dsref_spr,&
+                      tau,H_S0pr,H_L0pr,M_spr,H_Tspr,H_Rspr,H_SNspr,H_Lspr,alpha_S,&
+                      beta_S,beta_L,gamma_S,gamma_L)
+             !if(abs(dHL1_spr)>0.0001) then
+             !    print*,"INP",z_1,t_1,q_1,U_1,p_0,t_0,Lmo,z0,z0t,z0q,z_ref,whichSSGF,paramWaves
+             !    print*,"FLX",U_1,dHS1_spr,dHL1_spr,dthvstar_spr
+             !endif 
+
+             !-- limit max/min to 300 W/m2 (Ben Barr recomendation 2025)
+             dHS1_spr  = min(300., abs(dHS1_spr))*sign(1.,dHS1_spr)
+             dHL1_spr  = min(300., abs(dHL1_spr))*sign(1.,dHL1_spr)
+
+             hfx_spr(i) = dHS1_spr ! W/m2
+             lh_spr (i) = dHL1_spr ! W/m2 
+             hfx    (i) = hfx(i) + hfx_spr(i)
+             lh     (i) = lh (i) + lh_spr (i)
+             qfx    (i) = qfx(i) + lh_spr (i)/xlv ! kg/kg
+             mol    (i) = mol(i) + dthvstar_spr 
+             !_OR_ recalculate T* Q* T2 Q2 with the updated heat fluxes? ask
+             
+             !tstar(i) = tstar(i) + dthstar_spr/((1.e5/p_0)**0.286) ! check 
+             qstar(i) = qstar(i) + dqstar_spr*1000.
+             t2   (i) = t2   (i) + dtref_spr  ! 2-m temp
+             q2   (i) = q2   (i) + dqref_spr  ! 2-m qv
+             th2  (i) = th2  (i) + dthref_spr 
+             ! M_spr : spray generated mass flux [kg m-2 s-1] ! only output
+
+      enddo !end i-loop 2
+ endif
+ !---srf end of the "sea-spray" implementation 
+ !------------------------------------------------------------
 
  errmsg = ' '
  errflg = 0

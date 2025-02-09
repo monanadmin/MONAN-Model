@@ -103,7 +103,7 @@ module module_cu_gf_monan
       ,nmp, lsmp, cnmp,moist_trigger,frac_modis,max_tq_tend              &
       ,cum_fadj_massflx, cum_use_excess, cum_ave_layer, adv_trigger      &
       ,use_smooth_prof, output_sound,use_cloud_dissipation               &
-      ,use_smooth_tend,beta_sh,c0_shal                                   &
+      ,cum_use_smooth_tend,beta_sh,c0_shal                               &
       ,use_linear_subcl_mf,cap_maxs,liq_ice_number_conc                  &
       ,sig_factor,lcl_trigger, rh_dicycle, add_coldpool_prop             &
       ,add_coldpool_clos,add_coldpool_trig,mx_buoy1, mx_buoy2, cum_t_star&
@@ -232,9 +232,11 @@ module module_cu_gf_monan
 
    integer :: use_smooth_prof      != 1 makes the normalized mass flux, entr and detrainment profiles smoother
 
-   integer :: use_smooth_tend      != 0 => off, > 0 produces smoother tendencies (e.g.: for 1=> makes average between k-1,k,k+1)
-   !---                                      deep, shallow, congestus
    integer :: irainevap           
+
+   integer, dimension(maxiens) :: cum_use_smooth_tend  ! = 0 => off, (deep, shallow, congestus)
+                                                       ! > 0 => produces smoother tendencies 
+                                                       !    (e.g.: for 1 => makes average between k-1,k,k+1) 
 
    real,   dimension(maxiens) :: cum_hei_down_land != [0.2,0.8] height of the max z downdraft , default = 0.50
    real,   dimension(maxiens) :: cum_hei_down_ocean!= [0.2,0.8] height of the max z downdraft , default = 0.50
@@ -286,18 +288,19 @@ module module_cu_gf_monan
 
    integer, parameter :: ON = 1, OFF = 0 !=  ON/OFF integer paremeters
 
-   real    ::  HEI_DOWN_LAND     != [0.2,0.8] height of the max Z Downdraft , default = 0.50
-   real    ::  HEI_DOWN_OCEAN    != [0.2,0.8] height of the max Z Downdraft , default = 0.50
-   real    ::  HEI_UPDF_LAND     != [0.2,0.8] height of the max Z Updraft   , default = 0.35
-   real    ::  HEI_UPDF_OCEAN    != [0.2,0.8] height of the max Z Updraft   , default = 0.35
-   real    ::  MAX_EDT_LAND      != default= 0.9 - maximum evap fraction allowed over the land
-   real    ::  MAX_EDT_OCEAN     != default= 0.9 - maximum evap fraction allowed over the ocean
-   real    ::  FADJ_MASSFLX      != default= 1.0 - multiplicative factor for the mass flux at cloud base
-   real    ::  T_star            != Scale Temperature for the DC closure
-   real    ::  AVE_LAYER         != layer depth for average the properties of source air parcels (mbar)
+   real    ::  hei_down_land     != [0.2,0.8] height of the max z downdraft , default = 0.50
+   real    ::  hei_down_ocean    != [0.2,0.8] height of the max z downdraft , default = 0.50
+   real    ::  hei_updf_land     != [0.2,0.8] height of the max z updraft   , default = 0.35
+   real    ::  hei_updf_ocean    != [0.2,0.8] height of the max z updraft   , default = 0.35
+   real    ::  max_edt_land      != default= 0.9 - maximum evap fraction allowed over the land
+   real    ::  max_edt_ocean     != default= 0.9 - maximum evap fraction allowed over the ocean
+   real    ::  fadj_massflx      != default= 1.0 - multiplicative factor for the mass flux at cloud base
+   real    ::  t_star            != scale temperature for the dc closure
+   real    ::  ave_layer         != layer depth for average the properties of source air parcels (mbar)
    real    ::  c0                != autoconversion constant
    real    ::  min_cloud_depth   != minimum cloud depth for activate convection
-   integer ::  USE_EXCESS        != default= 1   - use T,Q excess sub-grid scale variability
+   integer ::  use_excess        != default= 1   - use for t,q excess sub-grid scale variability
+   integer ::  use_smooth_tend   != default  1,1,1,
 
    !-- General internal controls for the diverse options in GF
 
@@ -310,6 +313,8 @@ module module_cu_gf_monan
    integer, parameter :: aeroevap = 1             !=rainfall evaporation (1) orig  - (2) mix orig+new - (3) new
 
    logical :: ave_from_surface = .false.          != 
+   
+   logical :: use_inv_layers=.false. 
    !
    !- proportionality constant to estimate pressure
    !- gradient of updraft (Zhang and Wu, 2003, JAS) => REAL, PARAMETER ::    pgcon=-0.55
@@ -571,17 +576,19 @@ contains
       logical :: debug_mpas 
       !- tmp delete no futuro-----------------------------------------------
       rh_dicycle_fct = 0.
-      
-!print*,'itimestep',itimestep
-!      print*,'mpas qv', maxval(abs(rqvcuten(its:ite,kts:kte,jts:jte))),mynum
-!      print*,'mpas th', maxval(abs(rthcuten(its:ite,kts:kte,jts:jte))),mynum
-!      print*,'mpas qi', maxval(abs(rqicuten(its:ite,kts:kte,jts:jte))),mynum
-!      print*,'mpas qc', maxval(abs(rqccuten(its:ite,kts:kte,jts:jte))),mynum
+      !print*,'================================================================'
+      !print*,'itimestep',itimestep
+      !print*,'mpas qv', maxval(abs(rqvcuten(its:ite,kts:kte,jts:jte))),mynum
+      !print*,'mpas th', maxval(abs(rthcuten(its:ite,kts:kte,jts:jte))),mynum
+      !print*,'mpas qi', maxval(abs(rqicuten(its:ite,kts:kte,jts:jte))),mynum
+      !print*,'mpas qc', maxval(abs(rqccuten(its:ite,kts:kte,jts:jte))),mynum
+      !print*,'mpas bu', maxval(abs(rbuoyxcuten(its:ite,kts:kte,jts:jte))),mynum
+      !print*,'mpas u ', maxval(abs(rucuten(its:ite,kts:kte,jts:jte))),mynum
+      !print*,'mpas v ', maxval(abs(rvcuten(its:ite,kts:kte,jts:jte))),mynum
+      !print*,'================================================================'
 
 
-
-
-      !--- these arrays must be set to zero every timestep.
+      !--- these arrays must be reset every timestep.
       ierr4d         = 0
       jmin4d         = kts
       klcl4d         = kts
@@ -629,6 +636,7 @@ contains
       stochastic_sig(:,:) = 1.0  
       aot500        (:,:) = 0.0
       col_sat       (:,:) = 0.0  !falta
+      aa3           (:,:) = 0.0
       !----------------------------------------------------------------------
       !print*, 'domain', its,itf,ite,kts,ktf,kte,jts,jtf,jte
       !print*,'ins---',maxval(conprr(its:ite,jts:jte))*3600 &
@@ -968,20 +976,23 @@ contains
          do ii_plume = 1, maxiens
 
             if(ii_plume == 1) then
-               plume = shal
-               c0 = c0_shal
-            endif
-            if(ii_plume == 2) then
                plume = deep
                c0 = c0_deep
+            endif
+            if(ii_plume == 2) then
+               plume = shal
+               c0 = c0_shal
+               if(icumulus_gf(shal) == 2 ) where(ierr4d(:,j,deep) == 0) ierr4d(:,j,shal) = -99
             endif
             if(ii_plume == 3) then
                plume = mid
                c0 = c0_mid
+               if(icumulus_gf(mid) == 2 ) where(ierr4d(:,j,deep) == 0) ierr4d(:,j,mid) = -99
             endif
+            
+            if(icumulus_gf(plume) == OFF ) cycle
 
-            if(icumulus_gf(plume) /= ON ) cycle
-
+            use_smooth_tend=  cum_use_smooth_tend(plume)
             min_cloud_depth=  cum_min_cloud_depth(plume)
             hei_down_land  =  cum_hei_down_land  (plume)
             hei_down_ocean =  cum_hei_down_ocean (plume)
@@ -1143,9 +1154,9 @@ contains
 
          !-- diagnostic/debug 2d
          do i=its,itf
-            if(do_this_column(i,j) == 0) cycle
+            !if(do_this_column(i,j) == 0) cycle
             var2d1(i,j) = aa3(i,j) !cum_ztexec(i)
-            !var2d2(i,j) = aa1_bl(i,j)! cum_zqexec(i) 
+           !var2d2(i,j) = aa1_bl(i,j)! cum_zqexec(i) 
          enddo
 
 !--- temporary : we will overwritten all grid boxes 
@@ -1223,8 +1234,8 @@ contains
                rdnmfxcu (i,k,j) = zdn5d(k,i,j,shal) + zdn5d(k,i,j,mid) + zdn5d(k,i,j,deep)
                
                !- var output for diagnostic/debug
-               var3d1   (i,k,j) = var3d1_2d(k,i)
-
+               !var3d1   (i,k,j) = var3d1_2d(k,i)
+               !var3d1   (i,k,j) = outt (k,i,shal) * fixout_qv(i) * temp2theta
 
                !--- keep this for potential later use --------------------------------------
                !-- in updraft liq water content ( check the array config clwup5d(kts:kte,its:ite,jts:jte,maxiens) )
@@ -1242,14 +1253,11 @@ contains
          enddo
          !print*,'max1 TH',maxval(rthcuten)*86400,minval(rthcuten)*86400
          !print*,'max1 QV',maxval(rqvcuten)*86400*2.5e+3,minval(rqvcuten)*86400*2.5e+3
-
          ! print*,'outs---',maxval(fixout_qv),maxval(conprr(:,jts))*3600,maxval(abs(outt (:,:,deep)))*86400,&
          !                  maxval(abs(rthcuten(:,:,jts)))*86400.,maxval(abs(rqvcuten(:,:,jts)))*86400.*2.5e+6/1004.
- 
          !   print*,'outs---',maxval(conprr(its:ite,jts:jte))*3600, maxval(abs(outt (:,:,deep)))*86400&
          !                  ,maxval(abs(rthcuten(its:ite,kts:kte,jts:jte)))*86400.&
          !                  ,maxval(abs(rqvcuten(its:ite,kts:kte,jts:jte)))*86400.*2.5e+6/1004.
-
 
          if(use_momentum_transp > 0) then
             do i = its,itf
@@ -1270,6 +1278,7 @@ contains
                   rbuoyxcuten (i,k,j) = - min(0.,( outbuoy(k,i,shal)                 + &
                                                    outbuoy(k,i, mid)                 + &
                                                    outbuoy(k,i,deep) ) *fixout_qv(i))
+                  var3d1   (i,k,j) = rbuoyxcuten (i,k,j) 
                enddo
             enddo
          endif
@@ -1470,6 +1479,7 @@ contains
       endif
 
    end subroutine cu_gf_monan_driver
+   !---------------------------------------------------------------------------------------------------
    !---------------------------------------------------------------------------------------------------
    !--- brams driver 
    !---------------------------------------------------------------------------------------------------
@@ -2032,8 +2042,9 @@ contains
                c0 = c0_mid
             endif
 
-            if(icumulus_gf(plume) /= ON ) cycle
-
+            if(icumulus_gf(plume) == OFF ) cycle
+            
+            use_smooth_tend=  cum_use_smooth_tend(plume)
             hei_down_land  =  cum_hei_down_land  (plume)
             hei_down_ocean =  cum_hei_down_ocean (plume)
             hei_updf_land  =  cum_hei_updf_land  (plume)
@@ -2451,10 +2462,8 @@ contains
   !enddo
 
       enddo
-
-
-
    end subroutine convParGFDriver
+   !---------------------------------------------------------------------------------------------!
    !---------------------------------------------------------------------------------------------------
 
    subroutine CUP_GF (its,ite,kts,kte ,itf,ktf, mtp, nmp &
@@ -2563,9 +2572,6 @@ contains
                      ,var3d_bgf         &
                      )
       implicit none
-
-      !-local settings
-      logical, parameter:: USE_INV_LAYERS=.true. 
 
       character*(*),intent(in) :: cumulus
       integer      ,intent(in) :: itf,ktf,its,ite,kts,kte,ichoice,use_excess,mtp, nmp
@@ -2762,7 +2768,8 @@ contains
       real                                  ::  evap_(mtp),wetdep_(mtp),trash_(mtp),trash2_(mtp) &
                                                ,massi,massf,dtime_max,evap,wetdep,residu_(mtp)   &
                                                ,s1,s2,q1,q2,rzenv,factor,CWV,entr_threshold      &
-                                               ,resten_H,resten_Q,resten_T,alp0,beta1,beta2 
+                                               ,resten_H,resten_Q,resten_T,alp0,beta1,beta2      &
+                                               ,dx_ref,alpha_cats
       !----------------------------------------------------------------------
       !-- only for debug (atmos composition)
       real, allocatable, dimension (:,:,:),save    ::   se_chem_update
@@ -2948,7 +2955,7 @@ contains
       !
       !--- option for using the inversion layers as a barrier for the convection development
       !
-      call get_cloud_top_by_inv_layers(cumulus,USE_INV_LAYERS,its,ite,itf,kts,kte,ktf &
+      call get_cloud_top_by_inv_layers(cumulus,its,ite,itf,kts,kte,ktf &
                                       ,ierr,ierrc,psur,po_cup,tn_cup,zo_cup,mid,shal,kbcon,ktop)
       !
       !--- determine the normalized mass flux profile for updraft
@@ -3167,26 +3174,43 @@ contains
                               , x_add_buoy, xland, tpert, zuo, up_massdetro , up_massentro, zuo, p_liq_ice          &
                               , qrco, ierr, zo, po, z1,aa1_radpbl, aa1_adv,dicycle)
       end if
-  
+
       !
-      !--- Bechtold et al 2008 time-scale of cape removal
+      !--- time-scale of cape removal
       !
       if(cumulus=='deep') then
                tau_ecmwf(:)=tau_deep;   wmean(:) = 3. !  mean vertical velocity m/s
       else
                tau_ecmwf(:)=tau_mid ;   wmean(:) = 3. 
       endif
- 
+      !--- Bechtold et al (2008) time-scale of cape removal
       if(sgs_w_timescale == 1 .and. cumulus=='deep') then
          do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
             !- mean vertical velocity based on integration of vertical veloc equation
             wmean(i) = min(max(vvel1d(i),3.),20.)
-            
+
             !- time-scale cape removal from Bechtold et al. 2008
             tau_ecmwf(i)=( zo_cup(ktop(i),i)- zo_cup(kbcon(i),i) ) / wmean(i)
             tau_ecmwf(i)= min(10800., max(600.,tau_ecmwf(i)))
-            
+
+         enddo
+      endif
+      !--- time-scale cape removal of IFS 2023
+      if(sgs_w_timescale == 2 .and. cumulus=='deep') then
+         dx_ref = 125.e+3 ! meters
+         do vtp_index = get_num_elements(vec_ok),1,-1
+            i = get_data_value(vec_ok,vtp_index)
+            !- mean vertical velocity based on integration of vertical veloc equation
+            wmean(i) = min(max(vvel1d(i),3.),20.)
+
+            if(dx(i) > 8000.) then
+               alpha_cats = 1. + 1.60*dx(i)/dx_ref
+            else
+               alpha_cats = 1. + (log(1.e+4/dx(i)))**2
+            endif
+            tau_ecmwf(i)=alpha_cats*(zo_cup(ktop(i),i)- zo_cup(kbcon(i),i)) / wmean(i)
+            tau_ecmwf(i)= min(10800., max(720.,tau_ecmwf(i)))
          enddo
       endif
 
@@ -3258,10 +3282,9 @@ contains
       !
       !--- make the smoothness procedure
       !
-      if(USE_SMOOTH_TEND > 0) &
-         call smooth_tend(use_smooth_tend,itf,ktf, its,ite, kts,kte,ierr,ktop &
-                         ,po_cup,dellu, dellv, dellah, dellat, dellaq,dellaqc &
-                         ,subten_Q, subten_H, subten_U, subten_V)
+      if(use_smooth_tend > 0) &
+         call smooth_tend(cumulus,itf,ktf, its,ite, kts,kte,ierr,ktop,po_cup,dellu, dellv, dellah &
+                         ,dellat, dellaq,dellaqc,subten_Q, subten_H, subten_U, subten_V)
       !
       !
       !--- using dellas, calculate changed environmental profiles
@@ -5090,12 +5113,13 @@ contains
       adj_cp_entr = 1.
       if(draft == "deep_up" .and. (use_memory == 22 .or. use_memory == 222)) then
            !-- higher hei_max_zu_updraft, lower effec entrainment, lower precip
-           ! adj_cp_entr = min(1.3,max(1.0, 2.-coldPoolStart(x_add_buoy)))
+   !22v2=>        ! adj_cp_entr = min(1.3,max(1.0, 2.-coldPoolStart(x_add_buoy)))
            !
            !-- lower hei_max_zu_updraft, larger effec entrainment, larger precip
              adj_cp_entr = min(1.0,max(0.7,    coldPoolStart(x_add_buoy)))
 
       endif
+      
       if(draft == "deep_up" .or. draft == "mid_up" ) then       !--- land/ocean
 
          hei_updf=(1.-xland)*hei_updf_LAND+xland*hei_updf_OCEAN
@@ -5517,7 +5541,7 @@ contains
          do k=start_level(i)+1,ktf-1
 
             if(hcot(k,i) < heso_cup(k,i) )then
-               ktop(i)  =  k - 1
+               ktop(i)  =  k
                exit
             endif
          enddo
@@ -5530,7 +5554,7 @@ contains
             Z_overshoot = (1. + delz_oversh) * z_cup(ktop(i),i)
             do k=ktop(i),ktf-2
                if(Z_overshoot < z_cup(k,i)) then
-                  ktop(i) = min(k-1, ktf-2)
+                  ktop(i) = min(k  , ktf-2)
                   exit
                endif
             enddo
@@ -5809,7 +5833,7 @@ contains
          enddo
       endif
       !- apply the mean tropospheric RH control on diurnal cycle (Tian GRL 2022)
-       if(cumulus == 'deep' .and. rh_dicycle == 1) then
+      if(cumulus == 'deep' .and. rh_dicycle == 1) then
          do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
             xf_dicycle(i) =  xf_dicycle(i) * rh_dicycle_fct(i)
@@ -7306,25 +7330,24 @@ contains
       character (len = 64) :: fn_nml = 'GF_ConvPar_nml'
       integer :: local_io_node
       logical :: exists
-      namelist /GF_NML/ icumulus_gf, closure_choice,use_scale_dep,dicycle     &
-         ,use_tracer_transp, use_tracer_scaven,use_flux_form, use_tracer_evap &
-         ,downdraft,use_fct  &
-         ,use_rebcb, vert_discr, clev_grid,apply_sub_mp, alp1         &
-         ,sgs_w_timescale, lightning_diag,autoconv, overshoot,use_wetbulb &
-         ,c0_deep, qrc_crit,lambau_deep,lambau_shdn,c0_mid                     &
+      namelist /GF_NML/ icumulus_gf, closure_choice,use_scale_dep,dicycle         &
+         ,use_tracer_transp, use_tracer_scaven,use_flux_form, use_tracer_evap     &
+         ,downdraft,use_fct,use_rebcb, vert_discr, clev_grid,apply_sub_mp, alp1   &
+         ,sgs_w_timescale, lightning_diag,autoconv, overshoot,use_wetbulb         &
+         ,c0_deep, qrc_crit,lambau_deep,lambau_shdn,c0_mid                        &
          ,cum_max_edt_land  ,cum_max_edt_ocean, cum_hei_down_land                 &
          ,cum_hei_down_ocean,cum_hei_updf_land, cum_hei_updf_ocean                &
          ,cum_entr_rate ,tau_deep,tau_mid                                         &
          ,use_momentum_transp ,moist_trigger,frac_modis                           &
          ,cum_use_excess,cum_ave_layer,adv_trigger,use_smooth_prof                &
-         ,use_cloud_dissipation,use_smooth_tend,use_gustiness, use_random_num     &
+         ,use_cloud_dissipation,cum_use_smooth_tend,use_gustiness, use_random_num &
          ,dcape_threshold,beta_sh,c0_shal,use_linear_subcl_mf,liq_ice_number_conc &
-         ,cap_maxs,sig_factor,cum_fadj_massflx,lcl_trigger       &
+         ,cap_maxs,sig_factor,cum_fadj_massflx,lcl_trigger                        &
          ,rh_dicycle,cum_t_star, convection_tracer, tau_ocea_cp, tau_land_cp      &
          ,use_memory, add_coldpool_prop ,mx_buoy1, mx_buoy2,max_tq_tend           &
-         ,add_coldpool_clos,add_coldpool_trig,add_coldpool_diff,n_cldrop,output_sound&
-         ,use_pass_cloudvol,use_lcl_ctrl_entr,use_rhu_ctrl_entr,cum_min_cloud_depth& 
-         ,use_sub3d
+         ,add_coldpool_clos,add_coldpool_trig,add_coldpool_diff,n_cldrop          &
+         ,output_sound,use_pass_cloudvol,use_lcl_ctrl_entr,use_rhu_ctrl_entr      &
+         ,cum_min_cloud_depth,use_sub3d
 
       if(present(IO_NODE)) then 
          local_io_node = IO_NODE
@@ -7372,12 +7395,16 @@ contains
          endif
          if(config_gf_sub3d > 0) then
             use_scale_dep = 1
-            if(icumulus_gf(shal) == 1 .or. icumulus_gf(mid) == 1) then
+            if(icumulus_gf(shal) /= OFF .or. icumulus_gf(mid) /= OFF) then
               stop "only deep plume is allowed with sub3d"
             endif 
          endif
       endif
 
+      if(icumulus_gf(mid) /= OFF) then
+       use_inv_layers = .true.
+      endif
+      
       if(mynum==local_io_node) then
          !- print the namelist
          print*,"           "
@@ -7430,7 +7457,7 @@ contains
          print*, 'beta_sh            ' , real(beta_sh            ,4)
          print*, 'use_linear_subcl_mf' , use_linear_subcl_mf
          print*, 'use_smooth_prof    ' , use_smooth_prof
-         print*, 'use_smooth_tend    ' , use_smooth_tend
+         print*, 'cum_use_smooth_tend' , cum_use_smooth_tend
          print*, 'use_random_num     ' , use_random_num
 
          print*,'!---- the cloud microphysics'
@@ -7472,6 +7499,7 @@ contains
          print*, 'cum_fadj_massflx   ' , real(cum_fadj_massflx     ,4)
          print*, 'add_coldpool_prop  ' , add_coldpool_prop
          print*, 'add_coldpool_diff  ' , add_coldpool_diff
+         print*, 'use_inv_layers     ' , use_inv_layers
          print*,"========================================================================"
          !call flush(6)
       endif
@@ -7508,13 +7536,11 @@ contains
             tqliq = dtime * outqc(k,i)* rho(k,i) * fr
             tqice = dtime * outqc(k,i)* rho(k,i) * (1.-fr)
 
-            outnice(k,i) = max(0.0,  makeIceNumber    (tqice, tempco(k,i))/rho(k,i))
-            outnliq(k,i) = max(0.0,  makeDropletNumber(tqliq, nwfa  (k,i))/rho(k,i))
+            !-- convert in tendencies
+            outnice(k,i) = max(0.0,  makeIceNumber    (tqice, tempco(k,i))/rho(k,i))* dtinv
+            outnliq(k,i) = max(0.0,  makeDropletNumber(tqliq, nwfa  (k,i))/rho(k,i))* dtinv
 
          enddo
-         !-- convert in tendencies
-         outnice = outnice * dtinv ! unit [1/s]
-         outnliq = outnliq * dtinv ! unit [1/s]
       !--- for update
       ! nwfa =nwfa + outnliq*dtime
       ! nifa =nifa + outnice*dtime
@@ -8189,7 +8215,7 @@ contains
       real   ,intent(out)           :: x_aver
       !-- local vars
       integer                       :: i,local_order_aver,order_aver, i_beg,i_end,ic
-      real,    parameter            :: frac_ave_layer_ocean= 1.
+      real,    parameter            :: frac_ave_layer_ocean= 1.0
       real                          :: count,dp,dp_layer,effec_frac,x_ave_layer
 
       if(ave_from_surface) then
@@ -8487,14 +8513,12 @@ contains
       end if
    end subroutine set_scale_dep_factor
   !---------------------------------------------------------------------------------------------------
-   subroutine get_cloud_top_by_inv_layers(cumulus,use_inv_layers,its,ite,itf,kts,kte,ktf &
-                                         ,ierr,ierrc,psur,po_cup,tn_cup,zo_cup,mid,shal  &
-                                         ,kbcon,ktop)
+   subroutine get_cloud_top_by_inv_layers(cumulus,its,ite,itf,kts,kte,ktf,ierr,ierrc,psur&
+                                         ,po_cup,tn_cup,zo_cup,mid,shal,kbcon,ktop)
       implicit none
       character*(*), intent (in)             :: cumulus
       character*(*), intent (inout), dimension(:)  :: ierrc
       integer  ,intent (in )                 :: itf,ktf, its,ite, kts,kte,mid,shal
-      logical  ,intent (in )                 :: use_inv_layers
       integer  ,intent (inout), dimension(:) :: ierr,kbcon
       integer  ,intent (inout), dimension(:) :: ktop
       real     ,intent (in   ), dimension(:) :: psur
@@ -8557,7 +8581,7 @@ contains
          do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
             min_shall_top=600.
-            !if(icumulus_gf(mid) == 0) min_shall_top=500.
+            !if(icumulus_gf(mid) == OFF) min_shall_top=550.
             cloud_depth =  po_cup(kbcon(i),i)-po_cup(ktop(i),i)
             if(po_cup(ktop(i),i) < min_shall_top .or. cloud_depth < min_cloud_depth ) then
                ierr(i)=26 ; is_removed = remove(vec_ok, i)
@@ -8568,7 +8592,7 @@ contains
 
       if(cumulus == 'deep') then
             min_deep_top=500.
-            if(icumulus_gf(mid) == 0) min_deep_top=600.
+            if(icumulus_gf(mid) == OFF) min_deep_top=600.
             do vtp_index = get_num_elements(vec_ok),1,-1
                i = get_data_value(vec_ok,vtp_index)
                cloud_depth =  po_cup(kbcon(i),i)-po_cup(ktop(i),i)
@@ -9134,12 +9158,12 @@ contains
       end do
    end subroutine check_mass_conserv
    !----------------------------------------------------------------------
-   subroutine smooth_tend(use_smooth_tend,itf,ktf, its,ite, kts, kte, ierr, ktop &
+   subroutine smooth_tend(cumulus,itf,ktf, its,ite, kts, kte, ierr, ktop &
                          ,po_cup ,dellu, dellv, dellah, dellat, dellaq, dellaqc  &
                          ,subten_Q, subten_H, subten_U, subten_V)
       implicit none
+      character*(*), intent (in)               :: cumulus
       integer  ,intent (in )                   :: itf,ktf, its,ite, kts,kte
-      integer  ,intent (in )                   :: use_smooth_tend
       integer  ,intent (in )  , dimension(:)   :: ierr,ktop
       real     ,intent (in )  , dimension(:,:) :: po_cup
       real     ,intent (inout), dimension(:,:) :: dellu, dellv, dellah, dellat &
@@ -9258,6 +9282,7 @@ contains
                         (1.+(c_xlf/c_alvl)*(1.-p_liq_ice(k,i)))))*mbdt(i) + tn(k,i)
 
                !--- temp tendency due to the environmental subsidence
+               if(use_sub3d > 0) &
                subten_t(k,i)=(1./c_cp)*(subten_h(k,i)-c_alvl*subten_q(k,i))
 
             enddo
@@ -9926,11 +9951,11 @@ contains
       endif
 
       !-- inicializa as variáveis do módulo
-      icumulus_gf      = (/1, 1, 0/)
+      icumulus_gf      = (/1, 1, 2/)
       closure_choice   = (/10,10, 3/) 
       cum_entr_rate    = (/       &
                            6.0e-4 & !deep
-                          ,2.0e-3 & !shallow
+                          ,3.0e-3 & !shallow
                           ,1.0e-3 & !mid
                          /)
       use_lcl_ctrl_entr = 0
@@ -9970,18 +9995,18 @@ contains
       use_rebcb         = 1 
       irainevap         = 0
       cum_max_edt_land  = (/0.50, 0.00, 0.20/)
-      cum_max_edt_ocean = (/0.50, 0.00, 0.20/)
+      cum_max_edt_ocean = (/0.50, 0.00, 0.50/)
       cum_use_excess    = (/1, 1, 1/)
-      cum_ave_layer     = (/30., 15., 15./)
-      cum_min_cloud_depth=(/200., 50., 150./)
+      cum_ave_layer     = (/50., 30., 30./)
+      cum_min_cloud_depth=(/200., 70., 150./)
       sgs_w_timescale   = 1 
       tau_deep          = 3600.0  
-      tau_mid           = 1200.0  
+      tau_mid           = 3600.0  
       lightning_diag    = 1
       liq_ice_number_conc=0
       apply_sub_mp      = 0 
       use_wetbulb       = 0 
-      overshoot         = 0.0
+      overshoot         = 0.20
 
       autoconv          = 4     
       c0_deep           = 1.0e-3
@@ -9994,14 +10019,14 @@ contains
       lambau_deep       = 0.0 
       lambau_shdn       = 2.0 
       
-      max_tq_tend       = 200.0   
+      max_tq_tend       = 300.0   
       use_smooth_prof   = 1      
-      use_smooth_tend   = 1      
+      cum_use_smooth_tend = (/2, 2, 2/)     
 
       cum_hei_updf_land = (/0.55, 0.1, 0.55/)
       cum_hei_updf_ocean= (/0.55, 0.1, 0.55/)
-      cum_hei_down_land = (/0.40, 0.0, 0.35/)
-      cum_hei_down_ocean= (/0.35, 0.0, 0.35/) 
+      cum_hei_down_land = (/0.60, 0.0, 0.35/)
+      cum_hei_down_ocean= (/0.50, 0.0, 0.35/) 
 
       cum_fadj_massflx  = (/1.00, 1.00, 1.00/)
       moist_trigger     = 0   

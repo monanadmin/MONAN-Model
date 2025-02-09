@@ -293,7 +293,7 @@ module atm_core_interface
             call mpas_log_write('  Option gf_monan_cporg: Inactive')
          end if
 
-         if (config_gf_gustf == 1) then
+         if (config_gf_gustf >= 1) then
             gf_monan_gustf = .true.
             call mpas_log_write('  Option gf_monan_gustf: Active')
          else

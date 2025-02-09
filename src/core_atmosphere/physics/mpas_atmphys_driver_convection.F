@@ -198,9 +198,9 @@
        if(.not.allocated(rtopshcu_p)     ) allocate(rtopshcu_p(ims:ime,jms:jme)         )
        if(.not.allocated(rbotdpcu_p)     ) allocate(rbotdpcu_p(ims:ime,jms:jme)         )
        if(.not.allocated(v2d1_p)         ) allocate(v2d1_p(ims:ime,jms:jme)             )
-       if(.not.allocated(v2d2_p)         ) allocate(v2d2_p(ims:ime,jms:jme)             )    
-       if(.not.allocated(lightn_dens_p)  ) allocate(lightn_dens_p(ims:ime,jms:jme)      )    
-       if(.not.allocated(sigma_deep_p)   ) allocate(sigma_deep_p(ims:ime,jms:jme)       )    
+       if(.not.allocated(v2d2_p)         ) allocate(v2d2_p(ims:ime,jms:jme)             )
+       if(.not.allocated(lightn_dens_p)  ) allocate(lightn_dens_p(ims:ime,jms:jme)      )
+       if(.not.allocated(sigma_deep_p)   ) allocate(sigma_deep_p(ims:ime,jms:jme)       )
 
        if(.not.allocated(rthblten_p)     ) allocate(rthblten_p(ims:ime,kms:kme,jms:jme) )
        if(.not.allocated(rthdynten_p)    ) allocate(rthdynten_p(ims:ime,kms:kme,jms:jme))
@@ -212,8 +212,8 @@
        if(.not.allocated(rucuten_p)      ) allocate(rucuten_p(ims:ime,kms:kme,jms:jme)  )
        if(.not.allocated(rvcuten_p)      ) allocate(rvcuten_p(ims:ime,kms:kme,jms:jme)  )
        if(.not.allocated(rcnvcfcuten_p)  ) allocate(rcnvcfcuten_p(ims:ime,kms:kme,jms:jme))
-       if(.not.allocated(rbuoyxcuten_p)  ) allocate(rbuoyxcuten_p(ims:ime,kms:kme,jms:jme)) 
-       
+       if(.not.allocated(rbuoyxcuten_p)  ) allocate(rbuoyxcuten_p(ims:ime,kms:kme,jms:jme))
+
        if(.not.allocated(tkepbl_p)       ) allocate(tkepbl_p  (ims:ime,kms:kme,jms:jme) )
        if(.not.allocated(elpbl_p)        ) allocate(elpbl_p   (ims:ime,kms:kme,jms:jme) )
        if(.not.allocated(rupmfxcu_p)     ) allocate(rupmfxcu_p(ims:ime,kms:kme,jms:jme) )
@@ -329,7 +329,7 @@
        if(.not.allocated(area_p)     ) allocate(area_p(ims:ime,jms:jme)            )
        if(.not.allocated(nca_p)      ) allocate(nca_p(ims:ime,jms:jme)             )
        if(.not.allocated(cubot_p)    ) allocate(cubot_p(ims:ime,jms:jme)           )
-       if(.not.allocated(cutop_p)    ) allocate(cutop_p(ims:ime,jms:jme)           ) 
+       if(.not.allocated(cutop_p)    ) allocate(cutop_p(ims:ime,jms:jme)           )
        if(.not.allocated(w0avg_p)    ) allocate(w0avg_p(ims:ime,kms:kme,jms:jme)   )
        if(.not.allocated(rqrcuten_p) ) allocate(rqrcuten_p(ims:ime,kms:kme,jms:jme))
        if(.not.allocated(rqscuten_p) ) allocate(rqscuten_p(ims:ime,kms:kme,jms:jme))
@@ -490,9 +490,9 @@
        if(allocated(rtopshcu_p)     ) deallocate(rtopshcu_p     )
        if(allocated(rbotdpcu_p)     ) deallocate(rbotdpcu_p     )
        if(allocated(v2d1_p)         ) deallocate(v2d1_p         )
-       if(allocated(v2d2_p)         ) deallocate(v2d2_p         )    
-       if(allocated(lightn_dens_p)  ) deallocate(lightn_dens_p  )    
-       if(allocated(sigma_deep_p)   ) deallocate(sigma_deep_p   )    
+       if(allocated(v2d2_p)         ) deallocate(v2d2_p         )
+       if(allocated(lightn_dens_p)  ) deallocate(lightn_dens_p  )
+       if(allocated(sigma_deep_p)   ) deallocate(sigma_deep_p   )
 
        if(allocated(rthblten_p)     ) deallocate(rthblten_p     )
        if(allocated(rthdynten_p)    ) deallocate(rthdynten_p    )
@@ -521,7 +521,7 @@
        if(allocated(area_p)       ) deallocate(area_p       )
        if(allocated(nca_p)        ) deallocate(nca_p        )
        if(allocated(cubot_p)      ) deallocate(cubot_p      )
-       if(allocated(cutop_p)      ) deallocate(cutop_p      ) 
+       if(allocated(cutop_p)      ) deallocate(cutop_p      )
        if(allocated(w0avg_p)      ) deallocate(w0avg_p      )
        if(allocated(rqrcuten_p)   ) deallocate(rqrcuten_p   )
        if(allocated(rqscuten_p)   ) deallocate(rqscuten_p   )
@@ -714,28 +714,28 @@
              kpbl            = kpbl_p                 , tke_pbl       = tkepbl_p        , &
              turb_len_scale  = elpbl_p                ,                                   &
              buoyx           = buoyx_p                , cnvcf         = cnvcf_p         , &
-             rthblten        = rthblten_p             , rqvblten      = rqvblten_p      , &       
+             rthblten        = rthblten_p             , rqvblten      = rqvblten_p      , &
              rthratenlw      = rthratenlw_p           , rthratensw    = rthratensw_p    , &
-             rthdyten        = rthdynten_p            , rqvdyten      = rqvdynten_p     , &    
+             rthdyten        = rthdynten_p            , rqvdyten      = rqvdynten_p     , &
              
              raincv          = raincv_p               , conprr        = pratec_p        , &
              lightn_dens     = lightn_dens_p          , sigma_deep    = sigma_deep_p    , &
-             rthcuten        = rthcuten_p             , rqvcuten      = rqvcuten_p      , & 
+             rthcuten        = rthcuten_p             , rqvcuten      = rqvcuten_p      , &
              rqccuten        = rqccuten_p             , rqicuten      = rqicuten_p      , &
              rucuten         = rucuten_p              , rvcuten       = rvcuten_p       , &
              rbuoyxcuten     = rbuoyxcuten_p          , rcnvcfcuten   = rcnvcfcuten_p   , &
 
-             sub3d_rthcuten  = sub3d_rthcuten_p       , sub3d_rqvcuten= sub3d_rqvcuten_p, & 
+             sub3d_rthcuten  = sub3d_rthcuten_p       , sub3d_rqvcuten= sub3d_rqvcuten_p, &
              sub3d_rucuten   = sub3d_rucuten_p        , sub3d_rvcuten = sub3d_rvcuten_p , &
 
              rupmfxcu        = rupmfxcu_p             , rdnmfxcu      = rdnmfxcu_p      , &
              
-             rmfxdpcu        = rmfxdpcu_p             , rmfxdncu      = rmfxdncu_p      , &        
+             rmfxdpcu        = rmfxdpcu_p             , rmfxdncu      = rmfxdncu_p      , &
              rmfxmdcu        = rmfxmdcu_p                                               , &
              rmfxshcu        = rmfxshcu_p             , rtopdpcu      = rtopdpcu_p      , &
              rtopmdcu        = rtopmdcu_p             , rtopshcu      = rtopshcu_p      , &
              rbotdpcu        = rbotdpcu_p                                               , &
-             var2d1          = v2d1_p                 , var2d2        = v2d2_p          , &               
+             var2d1          = v2d1_p                 , var2d2        = v2d2_p          , &
              var3d1          = v3d1_p                                                   , &
              ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde      , &
              ims = ims , ime = ime , jms = jms , jme = jme , kms = kds , kme = kme      , &
@@ -1006,8 +1006,8 @@
                rthratensw_p(i,k,j)  = rthratensw(k,i)
                rqvblten_p(i,k,j)    = rqvblten(k,i)
                rqvdynten_p(i,k,j)   = rqvdynten(k,i)
-               rbuoyxcuten_p(i,k,j) = rbuoyxcuten(k,i)
-               rcnvcfcuten_p(i,k,j) = rcnvcfcuten(k,i)
+               rbuoyxcuten_p(i,k,j) = 0.0
+               rcnvcfcuten_p(i,k,j) = 0.0
               
             enddo
          enddo
@@ -1332,7 +1332,8 @@
        do j = jts,jte
        do i = its,ite
           v2d1(i)  = v2d1_p(i,j)
-          v2d2(i)  = v2d2_p(i,j)
+         !--- used in sfclayer
+         !v2d2(i)  = v2d2_p(i,j)
           do k = kts,kte
              v3d1(k,i) = v3d1_p(i,k,j)
           enddo
