@@ -4875,38 +4875,50 @@ module mpas_isobaric_diagnostics
 
         if (NEED_rthblten) then
            !... rthblten:
-            do iCell = 1, nCells
-            do k = 1, nVertLevels
-               kk = nVertLevels+1-k
-               field_in(iCell,kk) = rthblten(k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+           !EGK: updating interpolation method
+           ! do iCell = 1, nCells
+           ! do k = 1, nVertLevels
+           !    kk = nVertLevels+1-k
+           !    field_in(iCell,kk) = rthblten(k,iCell)
+           ! enddo
+           ! enddo
+           ! call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
-            rthblten_15hPa(1:nCells) = field_interp(1:nCells,1)
-            rthblten_20hPa(1:nCells) = field_interp(1:nCells,2)
-            rthblten_30hPa(1:nCells) = field_interp(1:nCells,3)
-            rthblten_50hPa(1:nCells) = field_interp(1:nCells,4)
-            rthblten_70hPa(1:nCells) = field_interp(1:nCells,5)
-            rthblten_100hPa(1:nCells) = field_interp(1:nCells,6)
-            rthblten_150hPa(1:nCells) = field_interp(1:nCells,7)
-            rthblten_200hPa(1:nCells) = field_interp(1:nCells,8)
-            rthblten_250hPa(1:nCells) = field_interp(1:nCells,9)
-            rthblten_300hPa(1:nCells) = field_interp(1:nCells,10)
-            rthblten_400hPa(1:nCells) = field_interp(1:nCells,11)
-            rthblten_500hPa(1:nCells) = field_interp(1:nCells,12)
-            rthblten_600hPa(1:nCells) = field_interp(1:nCells,13)
-            rthblten_700hPa(1:nCells) = field_interp(1:nCells,14)
-            rthblten_825hPa(1:nCells) = field_interp(1:nCells,15)
-            rthblten_850hPa(1:nCells) = field_interp(1:nCells,16)
-            rthblten_875hPa(1:nCells) = field_interp(1:nCells,17)
-            rthblten_900hPa(1:nCells) = field_interp(1:nCells,18)
-            rthblten_925hPa(1:nCells) = field_interp(1:nCells,19)
-            rthblten_950hPa(1:nCells) = field_interp(1:nCells,20)
-            rthblten_975hPa(1:nCells) = field_interp(1:nCells,21)
-            rthblten_1000hPa(1:nCells) = field_interp(1:nCells,22)
+            call VerticalInterpolation_Single ( nCells                                    , & !1
+                                                nVertLevels                               , & !2
+                                                nVertLevels                               , & !3
+                                                nIsoLevelsT                               , & !4
+                                                nIsoLevelsT                               , & !5
+                                                rthblten    (1:nVertLevels,1:nCells)      , & !6
+                                                field_interp(1:nIsoLevelsT,1:nCells)      , & !7
+                                                pressure2   (1:nVertLevels,1:nCells)*100.0, & !8
+                                                t_iso_levels(1:nIsoLevelsT)               )   !9
+
+            rthblten_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+            rthblten_20hPa(1:nCells)   = field_interp(21,1:nCells)
+            rthblten_30hPa(1:nCells)   = field_interp(20,1:nCells)
+            rthblten_50hPa(1:nCells)   = field_interp(19,1:nCells)
+            rthblten_70hPa(1:nCells)   = field_interp(18,1:nCells)
+            rthblten_100hPa(1:nCells)  = field_interp(17,1:nCells)
+            rthblten_150hPa(1:nCells)  = field_interp(16,1:nCells)
+            rthblten_200hPa(1:nCells)  = field_interp(15,1:nCells)
+            rthblten_250hPa(1:nCells)  = field_interp(14,1:nCells)
+            rthblten_300hPa(1:nCells)  = field_interp(13,1:nCells)
+            rthblten_400hPa(1:nCells)  = field_interp(12,1:nCells)
+            rthblten_500hPa(1:nCells)  = field_interp(11,1:nCells)
+            rthblten_600hPa(1:nCells)  = field_interp(10,1:nCells)
+            rthblten_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+            rthblten_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+            rthblten_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+            rthblten_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+            rthblten_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+            rthblten_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+            rthblten_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+            rthblten_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+            rthblten_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
             ! call mpas_log_write('--- end interpolate rthblten:')
         end if
+        !EGK: new vertical interpolation done!
 
 
         if (NEED_RQVCUTEN) then
@@ -4953,38 +4965,50 @@ module mpas_isobaric_diagnostics
 
         if (NEED_RTHCUTEN) then
            !... rthcuten:
-            do iCell = 1, nCells
-            do k = 1, nVertLevels
-               kk = nVertLevels+1-k
-               field_in(iCell,kk) = rthcuten(k,iCell)
-            enddo
-            enddo
-            call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+           !EGK: updating interpolation method
+           ! do iCell = 1, nCells
+           ! do k = 1, nVertLevels
+           !    kk = nVertLevels+1-k
+           !   field_in(iCell,kk) = rthcuten(k,iCell)
+           ! enddo
+           ! enddo
+           ! call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
-            rthcuten_15hPa(1:nCells) = field_interp(1:nCells,1)
-            rthcuten_20hPa(1:nCells) = field_interp(1:nCells,2)
-            rthcuten_30hPa(1:nCells) = field_interp(1:nCells,3)
-            rthcuten_50hPa(1:nCells) = field_interp(1:nCells,4)
-            rthcuten_70hPa(1:nCells) = field_interp(1:nCells,5)
-            rthcuten_100hPa(1:nCells) = field_interp(1:nCells,6)
-            rthcuten_150hPa(1:nCells) = field_interp(1:nCells,7)
-            rthcuten_200hPa(1:nCells) = field_interp(1:nCells,8)
-            rthcuten_250hPa(1:nCells) = field_interp(1:nCells,9)
-            rthcuten_300hPa(1:nCells) = field_interp(1:nCells,10)
-            rthcuten_400hPa(1:nCells) = field_interp(1:nCells,11)
-            rthcuten_500hPa(1:nCells) = field_interp(1:nCells,12)
-            rthcuten_600hPa(1:nCells) = field_interp(1:nCells,13)
-            rthcuten_700hPa(1:nCells) = field_interp(1:nCells,14)
-            rthcuten_825hPa(1:nCells) = field_interp(1:nCells,15)
-            rthcuten_850hPa(1:nCells) = field_interp(1:nCells,16)
-            rthcuten_875hPa(1:nCells) = field_interp(1:nCells,17)
-            rthcuten_900hPa(1:nCells) = field_interp(1:nCells,18)
-            rthcuten_925hPa(1:nCells) = field_interp(1:nCells,19)
-            rthcuten_950hPa(1:nCells) = field_interp(1:nCells,20)
-            rthcuten_975hPa(1:nCells) = field_interp(1:nCells,21)
-            rthcuten_1000hPa(1:nCells) = field_interp(1:nCells,22)
+            call VerticalInterpolation_Single ( nCells                                    , & !1
+                                                nVertLevels                               , & !2
+                                                nVertLevels                               , & !3
+                                                nIsoLevelsT                               , & !4
+                                                nIsoLevelsT                               , & !5
+                                                rthcuten    (1:nVertLevels,1:nCells)      , & !6
+                                                field_interp(1:nIsoLevelsT,1:nCells)      , & !7
+                                                pressure2   (1:nVertLevels,1:nCells)*100.0, & !8
+                                                t_iso_levels(1:nIsoLevelsT)               )   !9
+
+            rthcuten_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
+            rthcuten_20hPa(1:nCells)   = field_interp(21,1:nCells)
+            rthcuten_30hPa(1:nCells)   = field_interp(20,1:nCells)
+            rthcuten_50hPa(1:nCells)   = field_interp(19,1:nCells)
+            rthcuten_70hPa(1:nCells)   = field_interp(18,1:nCells)
+            rthcuten_100hPa(1:nCells)  = field_interp(17,1:nCells)
+            rthcuten_150hPa(1:nCells)  = field_interp(16,1:nCells)
+            rthcuten_200hPa(1:nCells)  = field_interp(15,1:nCells)
+            rthcuten_250hPa(1:nCells)  = field_interp(14,1:nCells)
+            rthcuten_300hPa(1:nCells)  = field_interp(13,1:nCells)
+            rthcuten_400hPa(1:nCells)  = field_interp(12,1:nCells)
+            rthcuten_500hPa(1:nCells)  = field_interp(11,1:nCells)
+            rthcuten_600hPa(1:nCells)  = field_interp(10,1:nCells)
+            rthcuten_700hPa(1:nCells)  = field_interp( 9,1:nCells)
+            rthcuten_825hPa(1:nCells)  = field_interp( 8,1:nCells)
+            rthcuten_850hPa(1:nCells)  = field_interp( 7,1:nCells)
+            rthcuten_875hPa(1:nCells)  = field_interp( 6,1:nCells)
+            rthcuten_900hPa(1:nCells)  = field_interp( 5,1:nCells)
+            rthcuten_925hPa(1:nCells)  = field_interp( 4,1:nCells)
+            rthcuten_950hPa(1:nCells)  = field_interp( 3,1:nCells)
+            rthcuten_975hPa(1:nCells)  = field_interp( 2,1:nCells)
+            rthcuten_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
             ! call mpas_log_write('--- end interpolate rthcuten:')
         end if
+        !EGK: new vertical interpolation done!
 
 
         if (NEED_RTHRATENLW) then
