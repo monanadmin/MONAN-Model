@@ -1,4 +1,4 @@
-# MONAN-v1.1.0
+# MONAN-v1.1.2-rc
 
 ## Model for Ocean-laNd-Atmosphere predictioN
 
@@ -10,7 +10,9 @@ The MONAN Model is managed by a scientific committee appointed by INPE's directo
 History
 ====
 
-- Version 1.1.0 - Bug correction for CAMRAD and TKE MYNN, GF further tuning for operation and introduces the option of 3d lateral subsidence spread for use the grey zone scales.
+- Version 1.1.2-rc (Release Candidate) - Bugfix interpolation "diagnostics"; Improved vertical interpolation; Pressure correction, now using pressure2 instead of pressure.
+- Version 1.1.1-rc (Release Candidate) - New vertical interpolation; Some vars were only being written at 8 level, now they are written at 22 levels like the others; Geopotential now no longer shows values above 100%; Temperature (in levels) is now free from the impact of topography; Some negative precipitation values occur (need to be fixed).
+- Version 1.1.0-rc (Release Candidate) - Bug correction for CAMRAD and TKE MYNN, GF further tuning for operation and introduces the option of 3d lateral subsidence spread for use the grey zone scales.
 - Version 1.0.0 - Implementing the first physics MONAN package: GF scheme as in BRAMS, new cloud fraction, cold-pool scheme with 2-D transport, and new outputs.
 - Version 0.6.0 - Update MPAS-V8.1.0.
 - Version 0.5.1 - Bug fix: zgeo variable.
@@ -19,6 +21,7 @@ History
 - Version 0.3.0 - Included new levels for existing variables and included new variables.
 - Version 0.2.0 - Included variables and new isobaric levels.
 - Version 0.1.0 - Initial version structure (0.1.0) based on the dynamic core of the MPAS 8.0.1 Model.
+
 
 MPAS-v8.1.0
 ====
