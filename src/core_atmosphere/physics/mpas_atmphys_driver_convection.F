@@ -1630,9 +1630,9 @@
     endif
  enddo
  !CR: negative rainc values correction:
- where (rainc < 0._RKIND)
-   rainc = 0._RKIND
- endwhere
+ !where (rainc < 0._RKIND)
+ !  rainc = 0._RKIND
+ !endwhere
 
  call mpas_pool_get_config(configs,'config_convection_scheme',convection_scheme)
 

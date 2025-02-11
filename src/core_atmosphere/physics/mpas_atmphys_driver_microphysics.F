@@ -600,9 +600,9 @@
  enddo
  
  !CR: negative rainc values correction:
- where (rainnc < 0._RKIND)
-   rainnc = 0._RKIND
- endwhere
+ !where (rainnc < 0._RKIND)
+ !  rainnc = 0._RKIND
+ !endwhere
  
  
 
