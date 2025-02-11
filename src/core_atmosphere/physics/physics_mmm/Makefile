@@ -17,7 +17,8 @@ OBJS = \
 	mynn_shared.o \
 	sf_mynn.o \
 	sf_sfclayrev.o \
-	module_libmassv.o
+	module_libmassv.o \
+	module_sprayHFs.o
 
 physics_mmm: $(OBJS)
 	ar -ru ./../libphys.a $(OBJS)
@@ -37,7 +38,8 @@ mp_wsm6.o: \
 	module_libmassv.o
 
 sf_mynn.o: \
-	mynn_shared.o
+	mynn_shared.o \
+	module_sprayHFs.o
 
 clean:
 	$(RM) *.f90 *.o *.mod

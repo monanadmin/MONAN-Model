@@ -19,7 +19,7 @@ physics_monan: $(OBJS)
 	ar -ru ./../libphys.a $(OBJS)
 
 # DEPENDENCIES:
-module_cu_gf.monan.o:      \
+module_cu_gf.monan.o:   \
 	modVector.o             \
 	modConstants.o          \
 	modGate.o               \
