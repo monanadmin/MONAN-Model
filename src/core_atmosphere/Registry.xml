@@ -2534,6 +2534,13 @@
 
                         <var name="lbc_ni" name_in_code="ni" array_group="number" packages="bl_mynn_in;mp_thompson_in" units="m^{-3} s^{-1}"
                              description="Lateral boundary tendency of ice number concentration"/>
+                        
+                        <var name="lbc_cnvcf" name_in_code="cnvcf" array_group="convection" packages="gf_monan_pcvol" units="s^{-1}"
+                             description="Lateral boundary tendency of Convective cloud fraction"/>
+                        
+                        <var name="lbc_buoyx" name_in_code="buoyx" array_group="convection" packages="gf_monan_cporg" units="J kg^{-1} s^{-1}"
+                             description="Lateral boundary tendency of Buoyancy excess from the cold pool scheme"/>
+
                 </var_array>
         </var_struct>
 
