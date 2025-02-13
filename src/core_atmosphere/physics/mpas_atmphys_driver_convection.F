@@ -29,7 +29,6 @@
                             , satur_spec_hum
  use mpas_atm_dimensions, only : nVertLevels
  use mpas_dmpar, only : IO_NODE
- !!!!!!!!!!!!!!use mpas_atm_boundaries, only : nRelaxZone
  implicit none
  !--srf
  ! Abstract interface for routine used to communicate halos of fields
@@ -1413,15 +1412,15 @@
        !
        !-- fix convection outputs at the relaxation zone of limited-area model configurations
        !nRelaxZone
-       nullify(config_apply_lbcs)
        call mpas_pool_get_config(configs, 'config_apply_lbcs', config_apply_lbcs)
        if (config_apply_lbcs) then
 
           call mpas_pool_get_array(mesh,'bdyMaskCell',bdyMaskCell)
-          do i = 1, nCellsSolve
-
+          do i = its,ite
+            !!!cycle
             if(bdyMaskCell(i) > 0.) then
-                  factor_lbc = (6. - bdyMaskCell(i))/7. + 1./7.
+                  !factor_lbc = (6. - float(bdyMaskCell(i)))/7. + 1./7.
+                  factor_lbc = float(maxval(bdyMaskCell)-bdyMaskCell(i))/maxval(bdyMaskCell)
                   !factor_lbc = (real(nRelaxZone) -1 - bdyMaskCell(i))/real(nRelaxZone) + 1./real(nRelaxZone)
                   if(factor_lbc>1. .or. factor_lbc <0.) stop 'factor LBC'
                   !-- 1d var
@@ -1431,23 +1430,16 @@
                   rmfxdncu(i)    = rmfxdncu(i)    * factor_lbc
                   rmfxmdcu(i)    = rmfxmdcu(i)    * factor_lbc
                   rmfxshcu(i)    = rmfxshcu(i)    * factor_lbc
-                  rtopdpcu(i)    = rtopdpcu(i)    * factor_lbc
-                  rtopmdcu(i)    = rtopmdcu(i)    * factor_lbc
-                  rtopshcu(i)    = rtopshcu(i)    * factor_lbc
-                  rbotdpcu(i)    = rbotdpcu(i)    * factor_lbc
                   sigma_deep(i)  = sigma_deep(i)  * factor_lbc
                   lightn_dens(i) = lightn_dens(i) * factor_lbc
                   
                   !-- 2d var
-                  rthcuten(:,i) = rthcuten(:,i) * factor_lbc
-                  rqvcuten(:,i) = rqvcuten(:,i) * factor_lbc
-                  rqccuten(:,i) = rqccuten(:,i) * factor_lbc
-                  rqicuten(:,i) = rqicuten(:,i) * factor_lbc
-                  rucuten(:,i)  = rucuten(:,i)  * factor_lbc   
-                  rvcuten(:,i)  = rvcuten(:,i)  * factor_lbc   
-                  rupmfxcu(:,i) = rupmfxcu(:,i) * factor_lbc   
-                  rdnmfxcu(:,i) = rdnmfxcu(:,i) * factor_lbc   
-                  
+                  rthcuten(:,i)    = rthcuten(:,i)    * factor_lbc
+                  rqvcuten(:,i)    = rqvcuten(:,i)    * factor_lbc
+                  rqccuten(:,i)    = rqccuten(:,i)    * factor_lbc
+                  rqicuten(:,i)    = rqicuten(:,i)    * factor_lbc
+                  rucuten(:,i)     = rucuten(:,i)     * factor_lbc   
+                  rvcuten(:,i)     = rvcuten(:,i)     * factor_lbc                  
                   rbuoyxcuten(:,i) = rbuoyxcuten(:,i) * factor_lbc
                   rcnvcfcuten(:,i) = rcnvcfcuten(:,i) * factor_lbc
             endif 
@@ -1680,10 +1672,6 @@
        rainc(i)   = rainc(i) - bucket_rainc
     endif
  enddo
- !CR: negative rainc values correction:
- where (rainc < 0._RKIND)
-   rainc = 0._RKIND
- endwhere
 
  call mpas_pool_get_config(configs,'config_convection_scheme',convection_scheme)
 

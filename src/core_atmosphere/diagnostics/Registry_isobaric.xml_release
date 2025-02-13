@@ -217,11 +217,26 @@
         <var name="relhum_1000hPa" type="real" dimensions="nCells Time" units="percent"
              description="Relative humidity vertically interpolated to 1000s hPa"/>
 
+        <var name="dewpoint_15hPa" type="real" dimensions="nCells Time" units="K"
+             description="Dewpoint temperature vertically interpolated to 15 hPa"/>
+
+        <var name="dewpoint_20hPa" type="real" dimensions="nCells Time" units="K"
+             description="Dewpoint temperature vertically interpolated to 20 hPa"/>
+
+        <var name="dewpoint_30hPa" type="real" dimensions="nCells Time" units="K"
+             description="Dewpoint temperature vertically interpolated to 30 hPa"/>
+
         <var name="dewpoint_50hPa" type="real" dimensions="nCells Time" units="K"
              description="Dewpoint temperature vertically interpolated to 50 hPa"/>
 
+        <var name="dewpoint_70hPa" type="real" dimensions="nCells Time" units="K"
+             description="Dewpoint temperature vertically interpolated to 70 hPa"/>
+        
         <var name="dewpoint_100hPa" type="real" dimensions="nCells Time" units="K"
              description="Dewpoint temperature vertically interpolated to 100 hPa"/>
+
+        <var name="dewpoint_150hPa" type="real" dimensions="nCells Time" units="K"
+             description="Dewpoint temperature vertically interpolated to 150 hPa"/>
 
         <var name="dewpoint_200hPa" type="real" dimensions="nCells Time" units="K"
              description="Dewpoint temperature vertically interpolated to 200 hPa"/>
@@ -229,17 +244,44 @@
         <var name="dewpoint_250hPa" type="real" dimensions="nCells Time" units="K"
              description="Dewpoint temperature vertically interpolated to 250 hPa"/>
 
+        <var name="dewpoint_300hPa" type="real" dimensions="nCells Time" units="K"
+             description="Dewpoint temperature vertically interpolated to 300 hPa"/>
+
+        <var name="dewpoint_400hPa" type="real" dimensions="nCells Time" units="K"
+             description="Dewpoint temperature vertically interpolated to 400 hPa"/>
+
         <var name="dewpoint_500hPa" type="real" dimensions="nCells Time" units="K"
              description="Dewpoint temperature vertically interpolated to 500 hPa"/>
+
+        <var name="dewpoint_600hPa" type="real" dimensions="nCells Time" units="K"
+             description="Dewpoint temperature vertically interpolated to 600 hPa"/>
 
         <var name="dewpoint_700hPa" type="real" dimensions="nCells Time" units="K"
              description="Dewpoint temperature vertically interpolated to 700 hPa"/>
 
+        <var name="dewpoint_825hPa" type="real" dimensions="nCells Time" units="K"
+             description="Dewpoint temperature vertically interpolated to 825 hPa"/>
+
         <var name="dewpoint_850hPa" type="real" dimensions="nCells Time" units="K"
              description="Dewpoint temperature vertically interpolated to 850 hPa"/>
 
+        <var name="dewpoint_875hPa" type="real" dimensions="nCells Time" units="K"
+             description="Dewpoint temperature vertically interpolated to 875 hPa"/>
+
+        <var name="dewpoint_900hPa" type="real" dimensions="nCells Time" units="K"
+             description="Dewpoint temperature vertically interpolated to 900 hPa"/>
+
         <var name="dewpoint_925hPa" type="real" dimensions="nCells Time" units="K"
              description="Dewpoint temperature vertically interpolated to 925 hPa"/>
+
+        <var name="dewpoint_950hPa" type="real" dimensions="nCells Time" units="K"
+             description="Dewpoint temperature vertically interpolated to 950 hPa"/>
+
+        <var name="dewpoint_975hPa" type="real" dimensions="nCells Time" units="K"
+             description="Dewpoint temperature vertically interpolated to 975 hPa"/>
+
+        <var name="dewpoint_1000hPa" type="real" dimensions="nCells Time" units="K"
+             description="Dewpoint temperature vertically interpolated to 1000 hPa"/>
 
         <var name="height_15hPa" type="real" dimensions="nCells Time" units="m"
              description="Geometric height interpolated to 15 hPa"/>
@@ -2097,11 +2139,26 @@
         <var name="qi_1000hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
              description="Ice mixing ratio vertically interpolated to 1000s hPa"/>
 
+        <var name="vorticity_15hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
+             description="Relative vorticity vertically interpolated to 15 hPa"/>
+
+        <var name="vorticity_20hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
+             description="Relative vorticity vertically interpolated to 20 hPa"/>
+
+        <var name="vorticity_30hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
+             description="Relative vorticity vertically interpolated to 30 hPa"/>
+
         <var name="vorticity_50hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
              description="Relative vorticity vertically interpolated to 50 hPa"/>
 
+        <var name="vorticity_70hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
+             description="Relative vorticity vertically interpolated to 70 hPa"/>
+
         <var name="vorticity_100hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
              description="Relative vorticity vertically interpolated to 100 hPa"/>
+
+        <var name="vorticity_150hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
+             description="Relative vorticity vertically interpolated to 150 hPa"/>
 
         <var name="vorticity_200hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
              description="Relative vorticity vertically interpolated to 200 hPa"/>
@@ -2109,17 +2166,44 @@
         <var name="vorticity_250hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
              description="Relative vorticity vertically interpolated to 250 hPa"/>
 
+        <var name="vorticity_300hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
+             description="Relative vorticity vertically interpolated to 300 hPa"/>
+
+        <var name="vorticity_400hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
+             description="Relative vorticity vertically interpolated to 400 hPa"/>
+
         <var name="vorticity_500hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
              description="Relative vorticity vertically interpolated to 500 hPa"/>
+
+        <var name="vorticity_600hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
+             description="Relative vorticity vertically interpolated to 600 hPa"/>
 
         <var name="vorticity_700hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
              description="Relative vorticity vertically interpolated to 700 hPa"/>
 
+        <var name="vorticity_825hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
+             description="Relative vorticity vertically interpolated to 825 hPa"/>
+
         <var name="vorticity_850hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
              description="Relative vorticity vertically interpolated to 850 hPa"/>
 
+        <var name="vorticity_875hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
+             description="Relative vorticity vertically interpolated to 875 hPa"/>
+
+        <var name="vorticity_900hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
+             description="Relative vorticity vertically interpolated to 900 hPa"/>
+
         <var name="vorticity_925hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
              description="Relative vorticity vertically interpolated to 925 hPa"/>
+
+        <var name="vorticity_950hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
+             description="Relative vorticity vertically interpolated to 950 hPa"/>
+
+        <var name="vorticity_975hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
+             description="Relative vorticity vertically interpolated to 975 hPa"/>
+
+        <var name="vorticity_1000hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
+             description="Relative vorticity vertically interpolated to 1000 hPa"/>
 
         <var name="zgeo_15hPa" type="real" dimensions="nCells Time" units="m"
              description="Geopotential height vertically interpolated to 15 hPa"/>

@@ -598,13 +598,6 @@
 
  enddo
  enddo
- 
- !CR: negative rainc values correction:
- where (rainnc < 0._RKIND)
-   rainnc = 0._RKIND
- endwhere
- 
- 
 
 !variables specific to different cloud microphysics schemes:
  microp_select_init: select case(microp_scheme)
@@ -863,8 +856,8 @@ real(kind=rkind) :: opdepthu, opdepthd, dp, arg1, fac, prsctt, ratmix
 real(kind=rkind) :: arg2, agl_hgt, vt
 real(kind=rkind) :: p1, p2
 
-prs = 0.01_rkind*pres_p ! convert to hpa
-tk  = th_p * pi_p       ! temp in k
+prs(its:ite , kts:kte , jts:jte) = 0.01_rkind*pres_p(its:ite , kts:kte , jts:jte) ! convert to hpa
+tk(its:ite , kts:kte , jts:jte)  = th_p(its:ite , kts:kte , jts:jte) * pi_p(its:ite , kts:kte , jts:jte)       ! temp in k
 !ter(:,:) = ght(:,1,:)
 
 do j=jts, jte

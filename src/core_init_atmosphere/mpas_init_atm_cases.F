@@ -2779,7 +2779,6 @@ module init_atm_cases
       real (kind=RKIND), dimension(:,:), pointer :: uReconstructZ
       real (kind=RKIND), dimension(:,:), pointer :: uReconstructZonal
       real (kind=RKIND), dimension(:,:), pointer :: uReconstructMeridional
-      real (kind=RKIND), dimension(:,:), pointer :: rqvcuten
 
       real (kind=RKIND), dimension(:), pointer :: psfc
       real (kind=RKIND), dimension(:), pointer :: skintemp
@@ -2897,7 +2896,6 @@ module init_atm_cases
       call mpas_pool_get_array(diag, 'theta', theta)
       call mpas_pool_get_array(diag, 'rho', rho)
       call mpas_pool_get_array(diag_physics, 'precipw', precipw)
-      call mpas_pool_get_array(tend_physics, 'rqvcuten', rqvcuten)
       call mpas_pool_get_array(diag, 'uReconstructX', uReconstructX)
       call mpas_pool_get_array(diag, 'uReconstructY', uReconstructY)
       call mpas_pool_get_array(diag, 'uReconstructZ', uReconstructZ)
@@ -3429,7 +3427,7 @@ module init_atm_cases
             call mpas_log_write('minval, maxval of LANDSEA = $r $r', realArgs=(/minval(maskslab), maxval(maskslab)/))
 
          end if
-
+   
          deallocate(field % slab)
          call read_next_met_field(field, istatus)
       end do
