@@ -1,4 +1,4 @@
-# MONAN-v1.1.0
+# MONAN-v1.1.2-rc
 
 ## Model for Ocean-laNd-Atmosphere predictioN
 
