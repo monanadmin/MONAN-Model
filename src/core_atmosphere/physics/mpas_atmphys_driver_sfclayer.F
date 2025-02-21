@@ -89,8 +89,6 @@
 ! * updated the MYNN surface layer scheme to the sourcecode available from WRF version 4.6.
 !   Laura D. Fowler (laura@ucar.edu) / 2024-02-14.
 
-! * coupling gust front speed from downdrafts with surface winds 
-!   Saulo R. Freitas (saulo.freitas@inpe.br) / 2025-01-19
 
  contains
 
@@ -148,10 +146,8 @@
  if(.not.allocated(xland_p) ) allocate(xland_p(ims:ime,jms:jme) )
  if(.not.allocated(zol_p)   ) allocate(zol_p(ims:ime,jms:jme)   )
  if(.not.allocated(znt_p)   ) allocate(znt_p(ims:ime,jms:jme)   )
-    
+
  if(.not.allocated(sgsgustcu_p)) allocate(sgsgustcu_p(ims:ime,jms:jme) )
- if(.not.allocated(hfx_spr_p)  ) allocate(hfx_spr_p(ims:ime,jms:jme)   )
- if(.not.allocated(lh_spr_p)   ) allocate(lh_spr_p(ims:ime,jms:jme)    )
 
  if(config_frac_seaice) then
     if(.not.allocated(sst_p)      ) allocate(sst_p(ims:ime,jms:jme)      )
@@ -286,9 +282,7 @@
  if(allocated(zol_p)   ) deallocate(zol_p   )
  if(allocated(znt_p)   ) deallocate(znt_p   )
 
- if(allocated(sgsgustcu_p)) deallocate(sgsgustcu_p)
- if(allocated(hfx_spr_p)  ) deallocate(hfx_spr_p  )
- if(allocated(lh_spr_p)   ) deallocate(lh_spr_p   )
+ if(allocated(sgsgustcu_p)) deallocate(sgsgustcu_p   )
 
 
  if(config_frac_seaice) then
@@ -410,7 +404,8 @@
  real(kind=RKIND),dimension(:,:),pointer:: buoyx
  real(kind=RKIND),dimension(:,:,:),pointer:: scalars
  real :: wspd_local, factor1, factor2, gspd_local
-!-----------------------------------------------------------------------------------------------------------------
+!-srf: local variables and pointers specific to GF cumulus scheme: 
+!----------------------------------------------------------------------------------------------------------------- 
 
 !input variables:
  call mpas_pool_get_config(configs,'config_frac_seaice'    ,config_frac_seaice)
@@ -447,7 +442,6 @@
  call mpas_pool_get_array(diag_physics,'wspd'    ,wspd    )
  call mpas_pool_get_array(diag_physics,'znt'     ,znt     )
  call mpas_pool_get_array(diag_physics,'zol'     ,zol     )
-
 
  do j = jts,jte
  do i = its,ite
@@ -488,8 +482,6 @@
     th2m_p(i,j)   = 0._RKIND
     u10_p(i,j)    = 0._RKIND
     v10_p(i,j)    = 0._RKIND
-    hfx_spr_p(i,j)= 0._RKIND
-    lh_spr_p(i,j) = 0._RKIND
 
     !output variables (optional):
     cd_p(i,j)     = 0._RKIND
@@ -633,7 +625,7 @@
 
        call mpas_pool_get_array(diag_physics,'v2d2'       ,v2d2    )
 
-       if( (config_gf_gustf == 1 .or. config_gf_gustf == 2) .and. config_gf_cporg == 1) then 
+       if(config_gf_gustf == 1 .and. config_gf_cporg == 1) then 
          !--- coupled with the cold pool gustfront scheme
          call mpas_pool_get_dimension(state,'index_buoyx',index_buoyx)
          call mpas_pool_get_array(state,'scalars',scalars,time_lev)
@@ -645,9 +637,7 @@
          do i = its,ite
              factor1 = min (mx_buoy2,buoyx(kts,i))
              factor1 = min (factor1,mx_buoy2)/mx_buoy2
-            !factor2 = atan((factor1-0.05*mx_buoy1/mx_buoy2)*5.)
-             factor2 = atan((factor1-2.00*mx_buoy1/mx_buoy2)*5.)
-
+             factor2 = atan((factor1-0.05*mx_buoy1/mx_buoy2)*5.)
              factor2 = max (0.0,min(factor2,1.0))
    
              wspd_local = sqrt(u_p(i,kts,j)  *u_p(i,kts,j)   + v_p(i,kts,j)  *v_p(i,kts,j))
@@ -670,7 +660,7 @@
          enddo
          enddo
 
-       else if(config_gf_gustf == 3) then  
+       else if(config_gf_gustf == 2) then  
          !- gustiness parameterization based on Redelsperger et al (2000).
          !- using the downdraft mass flux from GF cumulus scheme (rmfxdncu) 
          call mpas_pool_get_array(diag_physics,'rmfxdncu'   ,rmfxdncu)
@@ -700,7 +690,6 @@
 
   end select convection_select
   !--------------------------------------------------------------------------
-
  end subroutine sfclayer_from_MPAS
 
 !=================================================================================================================
@@ -735,8 +724,6 @@
 !local pointers specific to mynn:
  real(kind=RKIND),dimension(:),pointer:: ch,qcg
 
- real(kind=RKIND),dimension(:),pointer:: lh_spr,hfx_spr
-
 !-----------------------------------------------------------------------------------------------------------------
 
  call mpas_pool_get_config(configs,'config_frac_seaice'    ,config_frac_seaice)
@@ -765,9 +752,6 @@
  call mpas_pool_get_array(diag_physics,'wspd'  ,wspd  )
  call mpas_pool_get_array(diag_physics,'znt'   ,znt   )
  call mpas_pool_get_array(diag_physics,'zol'   ,zol   )
- 
- call mpas_pool_get_array(diag_physics,'lh_spr' ,lh_spr )
- call mpas_pool_get_array(diag_physics,'hfx_spr',hfx_spr)
 
 !output variables:
  call mpas_pool_get_array(diag_physics,'q2'    ,q2    )
@@ -775,9 +759,6 @@
  call mpas_pool_get_array(diag_physics,'th2m'  ,th2m  )
  call mpas_pool_get_array(diag_physics,'u10'   ,u10   )
  call mpas_pool_get_array(diag_physics,'v10'   ,v10   )
-
- call mpas_pool_get_array(diag_physics,'hfx_spr',hfx_spr)
- call mpas_pool_get_array(diag_physics,'lh_spr' ,lh_spr )
 
 !output variables (optional):
  call mpas_pool_get_array(diag_physics,'cd'    ,cd    )
@@ -823,9 +804,6 @@
     th2m(i)   = th2m_p(i,j)
     u10(i)    = u10_p(i,j)
     v10(i)    = v10_p(i,j)
-    hfx_spr(i)= hfx_spr_p(i,j)
-    lh_spr(i) = lh_spr_p(i,j)
-
     !output variables (optional):
     cd(i)     = cd_p(i,j)
     cda(i)    = cda_p(i,j)
@@ -981,8 +959,6 @@
  character(len=StrKIND),pointer:: sfclayer_scheme
  real(kind=RKIND),dimension(:),pointer:: areaCell
 
- integer,pointer:: config_gf_gustf ! parameter to couple the gustfront speed with the 
-                                   ! surface layer fluxes
 !local variables:
  integer:: initflag
  real(kind=RKIND):: dx
@@ -1002,7 +978,6 @@
  call mpas_pool_get_config(configs,'config_do_restart'     ,config_do_restart )
  call mpas_pool_get_config(configs,'config_frac_seaice'    ,config_frac_seaice)
  call mpas_pool_get_config(configs,'config_sfclayer_scheme',sfclayer_scheme   )
- call mpas_pool_get_config(configs,'config_gf_gustf'       ,config_gf_gustf   )
 
  call mpas_pool_get_array(mesh,'areaCell',areaCell)
 
@@ -1082,70 +1057,70 @@
        call mpas_timer_start('sf_monin_obukhov_rev')
        call mpas_log_write('--- enter subroutine sfclayrev:')
        call sfclayrev( &
-               p3d         = pres_hyd_p   , psfc           = psfc_p         , t3d      = t_p                    , &
-               u3d         = u_p          , v3d            = v_p            , qv3d     = qv_p                   , &
-               dz8w        = dz_p         , cp             = cp             , g        = gravity                , &
-               rovcp       = rcp          , R              = R_d            , xlv      = xlv                    , &
-               chs         = chs_p        , chs2           = chs2_p         , cqs2     = cqs2_p                 , &
-               cpm         = cpm_p        , znt            = znt_p          , ust      = ust_p                  , &
-               pblh        = hpbl_p       , mavail         = mavail_p       , zol      = zol_p                  , &
-               mol         = mol_p        , regime         = regime_p       , psim     = psim_p                 , &
-               psih        = psih_p       , fm             = fm_p           , fh       = fh_p                   , &
-               xland       = xland_p      , hfx            = hfx_p          , qfx      = qfx_p                  , &
-               lh          = lh_p         , tsk            = tsk_p          , flhc     = flhc_p                 , &
-               flqc        = flqc_p       , qgh            = qgh_p          , qsfc     = qsfc_p                 , &
-               rmol        = rmol_p       , u10            = u10_p          , v10      = v10_p                  , &
-               th2         = th2m_p       , t2             = t2m_p          , q2       = q2_p                   , &
-               gz1oz0      = gz1oz0_p     , wspd           = wspd_p         , br       = br_p                   , &
-               isfflx      = isfflx       , dx             = dx_p           , svp1     = svp1                   , &
-               svp2        = svp2         , svp3           = svp3           , svpt0    = svpt0                  , &
-               ep1         = ep_1         , ep2            = ep_2           , karman   = karman                 , &
-               eomeg       = eomeg        , stbolt         = stbolt         , P1000mb  = P0                     , &
-               ustm        = ustm_p       , ck             = ck_p           , cka      = cka_p                  , &
-               cd          = cd_p         , cda            = cda_p          , isftcflx = isftcflx               , &
-               iz0tlnd     = iz0tlnd      , shalwater_z0   = shalwater_flag , shalwater_depth = shalwater_depth , &
-               water_depth = waterdepth_p , scm_force_flux = scm_force_flux                                     , &
-               errmsg      = errmsg       , errflg         = errflg                                             , &
-               ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde ,                            &
-               ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme ,                            &
-               its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte                              &
+               p3d          = pres_hyd_p     , psfc        = psfc_p       , t3d            = t_p            , &
+               u3d          = u_p            , v3d         = v_p          , qv3d           = qv_p           , &
+               dz8w         = dz_p           , cp          = cp           , g              = gravity        , &
+               rovcp        = rcp            , R           = R_d          , xlv            = xlv            , &
+               chs          = chs_p          , chs2        = chs2_p       , cqs2           = cqs2_p         , &
+               cpm          = cpm_p          , znt         = znt_p        , ust            = ust_p          , &
+               pblh         = hpbl_p         , mavail      = mavail_p     , zol            = zol_p          , &
+               mol          = mol_p          , regime      = regime_p     , psim           = psim_p         , &
+               psih         = psih_p         , fm          = fm_p         , fh             = fh_p           , &
+               xland        = xland_p        , hfx         = hfx_p        , qfx            = qfx_p          , &
+               lh           = lh_p           , tsk         = tsk_p        , flhc           = flhc_p         , &
+               flqc         = flqc_p         , qgh         = qgh_p        , qsfc           = qsfc_p         , &
+               rmol         = rmol_p         , u10         = u10_p        , v10            = v10_p          , &
+               th2          = th2m_p         , t2          = t2m_p        , q2             = q2_p           , &
+               gz1oz0       = gz1oz0_p       , wspd        = wspd_p       , br             = br_p           , &
+               isfflx       = isfflx         , dx          = dx_p         , svp1           = svp1           , &
+               svp2         = svp2           , svp3        = svp3         , svpt0          = svpt0          , &
+               ep1          = ep_1           , ep2         = ep_2         , karman         = karman         , &
+               p1000mb      = P0             , lakemask    = lakemask_p   , ustm           = ustm_p         , &
+               ck           = ck_p           , cka         = cka_p        , cd             = cd_p           , &
+               cda          = cda_p          , isftcflx    = isftcflx     , iz0tlnd        = iz0tlnd        , &
+               shalwater_z0 = shalwater_flag , water_depth = waterdepth_p , scm_force_flux = scm_force_flux , &
+               errmsg       = errmsg         , errflg      = errflg                                         , &
+               ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde                        , &
+               ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme                        , &
+               its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte                          &
                      )
+
        call mpas_log_write('--- end subroutine sfclayrev:')
 
        if(config_frac_seaice) then
           call mpas_log_write('--- enter subroutine sfclayrev seaice:')
           call sfclayrev( &
-                  p3d         = pres_hyd_p   , psfc           = psfc_p         , t3d             = t_p             , &
-                  u3d         = u_p          , v3d            = v_p            , qv3d            = qv_p            , &
-                  dz8w        = dz_p         , cp             = cp             , g               = gravity         , &
-                  rovcp       = rcp          , R              = R_d            , xlv             = xlv             , &
-                  chs         = chs_sea      , chs2           = chs2_sea       , cqs2            = cqs2_sea        , &
-                  cpm         = cpm_sea      , znt            = znt_sea        , ust             = ust_sea         , &
-                  pblh        = hpbl_p       , mavail         = mavail_sea     , zol             = zol_sea         , &
-                  mol         = mol_sea      , regime         = regime_sea     , psim            = psim_sea        , &
-                  psih        = psih_sea     , fm             = fm_sea         , fh              = fh_sea          , &
-                  xland       = xland_sea    , hfx            = hfx_sea        , qfx             = qfx_sea         , &
-                  lh          = lh_sea       , tsk            = tsk_sea        , flhc            = flhc_sea        , &
-                  flqc        = flqc_sea     , qgh            = qgh_sea        , qsfc            = qsfc_sea        , &
-                  rmol        = rmol_sea     , u10            = u10_sea        , v10             = v10_sea         , &
-                  th2         = th2m_sea     , t2             = t2m_sea        , q2              = q2_sea          , &
-                  gz1oz0      = gz1oz0_sea   , wspd           = wspd_sea       , br              = br_sea          , &
-                  isfflx      = isfflx       , dx             = dx_p           , svp1            = svp1            , &
-                  svp2        = svp2         , svp3           = svp3           , svpt0           = svpt0           , &
-                  ep1         = ep_1         , ep2            = ep_2           , karman          = karman          , &
-                  eomeg       = eomeg        , stbolt         = stbolt         , P1000mb         = P0              , &
-                  ustm        = ustm_sea     , ck             = ck_sea         , cka             = cka_sea         , &
-                  cd          = cd_sea       , cda            = cda_sea        , isftcflx        = isftcflx        , &
-                  iz0tlnd     = iz0tlnd      , shalwater_z0   = shalwater_flag , shalwater_depth = shalwater_depth , &
-                  water_depth = waterdepth_p , scm_force_flux = scm_force_flux                                     , &
-                  errmsg      = errmsg       , errflg         = errflg                                             , &
-                  ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde , &
-                  ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme , &
-                  its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte   &
+                  p3d          = pres_hyd_p     , psfc        = psfc_p       , t3d            = t_p            , &
+                  u3d          = u_p            , v3d         = v_p          , qv3d           = qv_p           , &
+                  dz8w         = dz_p           , cp          = cp           , g              = gravity        , &
+                  rovcp        = rcp            , R           = R_d          , xlv            = xlv            , &
+                  chs          = chs_sea        , chs2        = chs2_sea     , cqs2           = cqs2_sea       , &
+                  cpm          = cpm_sea        , znt         = znt_sea      , ust            = ust_sea        , &
+                  pblh         = hpbl_p         , mavail      = mavail_sea   , zol            = zol_sea        , &
+                  mol          = mol_sea        , regime      = regime_sea   , psim           = psim_sea       , &
+                  psih         = psih_sea       , fm          = fm_sea       , fh             = fh_sea         , &
+                  xland        = xland_sea      , hfx         = hfx_sea      , qfx            = qfx_sea        , &
+                  lh           = lh_sea         , tsk         = tsk_sea      , flhc           = flhc_sea       , &
+                  flqc         = flqc_sea       , qgh         = qgh_sea      , qsfc           = qsfc_sea       , &
+                  rmol         = rmol_sea       , u10         = u10_sea      , v10            = v10_sea        , &
+                  th2          = th2m_sea       , t2          = t2m_sea      , q2             = q2_sea         , &
+                  gz1oz0       = gz1oz0_sea     , wspd        = wspd_sea     , br             = br_sea         , &
+                  isfflx       = isfflx         , dx          = dx_p         , svp1           = svp1           , &
+                  svp2         = svp2           , svp3        = svp3         , svpt0          = svpt0          , &
+                  ep1          = ep_1           , ep2         = ep_2         , karman         = karman         , &
+                  p1000mb      = P0             , lakemask    = lakemask_p   , ustm           = ustm_sea       , &
+                  ck           = ck_sea         , cka         = cka_sea      , cd             = cd_sea         , &
+                  cda          = cda_sea        , isftcflx    = isftcflx     , iz0tlnd        = iz0tlnd        , &
+                  shalwater_z0 = shalwater_flag , water_depth = waterdepth_p , scm_force_flux = scm_force_flux , &
+                  errmsg       = errmsg         , errflg      = errflg                                         , &
+                  ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde                        , &
+                  ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme                        , &
+                  its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte                          &
                         )
           call mpas_log_write('--- end subroutine sfclayrev seaice:')
        endif
        call mpas_timer_stop('sf_monin_obukhov_rev')
+
 
     case("sf_mynn")
        call mpas_timer_start('sf_mynn')
@@ -1174,12 +1149,11 @@
                    qcg      = qcg_p      , spp_pbl   = spp_pbl  , isftcflx = isftcflx    , &
                    iz0tlnd  = iz0tlnd    , itimestep = initflag                          , &
                    errmsg   = errmsg     , errflg    = errflg                            , &
-                   sgsgustcu= sgsgustcu_p, hfx_spr   = hfx_spr_p, lh_spr   = lh_spr_p    , &                       
-                   config_gf_gustf = config_gf_gustf                                     , &
                    ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde , &
                    ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme , &
                    its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte   &
                        )
+
 
        if(config_frac_seaice) then
           call sfclay_mynn( &
@@ -1207,12 +1181,11 @@
                       qcg      = qcg_p      , spp_pbl   = spp_pbl  , isftcflx = isftcflx    , &
                       iz0tlnd  = iz0tlnd    , itimestep = initflag                          , &
                       errmsg   = errmsg     , errflg    = errflg                            , &
-                      sgsgustcu= sgsgustcu_p, hfx_spr   = hfx_spr_p, lh_spr   = lh_spr_p    , &  
-                      config_gf_gustf = config_gf_gustf                                     , &
                       ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde , &
                       ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme , &
                       its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte   &
                           )
+
        endif
        call mpas_timer_stop('sf_mynn')
 

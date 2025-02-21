@@ -93,7 +93,11 @@ module test_core
       use test_core_streams, only : test_core_streams_test
       use test_core_sorting, only : test_core_test_sorting
       use mpas_halo_testing, only : mpas_halo_tests
-   
+      use test_core_string_utils, only : mpas_test_string_utils
+      use mpas_test_core_dmpar, only : mpas_test_dmpar
+      use mpas_test_core_stream_inquiry, only : mpas_test_stream_inquiry
+      use mpas_test_core_openacc, only : mpas_test_openacc
+
       implicit none
    
       type (domain_type), intent(inout) :: domain
@@ -167,6 +171,34 @@ module test_core
          call mpas_log_write('Stream I/O tests: FAILURE', MPAS_LOG_ERR)
       end if
 
+      ! Run string util tests
+      call mpas_log_write('')
+      call mpas_test_string_utils(iErr)
+      call mpas_log_write('')
+
+      !
+      ! Run mpas_dmpar tests
+      !
+      call mpas_log_write('')
+      iErr = mpas_test_dmpar(domain % dminfo)
+      if (iErr == 0) then
+          call mpas_log_write('All tests PASSED')
+      else
+          call mpas_log_write('$i tests FAILED', intArgs=[iErr])
+      end if
+      call mpas_log_write('')
+
+      !
+      ! Run mpas_stream_inquiry tests
+      !
+      call mpas_log_write('')
+      iErr = mpas_test_stream_inquiry(domain % dminfo)
+      if (iErr == 0) then
+          call mpas_log_write('All tests PASSED')
+      else
+          call mpas_log_write('$i tests FAILED', intArgs=[iErr])
+      end if
+      call mpas_log_write('')
 
       call test_core_test_intervals(domain, threadErrs, iErr)
 
@@ -179,6 +211,23 @@ module test_core
       end do
 
       call mpas_stream_mgr_write(domain % streamManager, forceWriteNow=.true.)
+
+      !
+      ! Run mpas_test_openacc
+      !
+      call mpas_log_write('')
+#ifdef MPAS_OPENACC
+      iErr = mpas_test_openacc(domain)
+      if (iErr == 0) then
+          call mpas_log_write('All tests PASSED')
+      else
+          call mpas_log_write('$i tests FAILED', intArgs=[iErr])
+      end if
+#else
+      call mpas_log_write('MPAS_OPENACC not defined, skipping OpenACC tests')
+#endif
+      call mpas_log_write('')
+
 
       deallocate(threadErrs)
 
