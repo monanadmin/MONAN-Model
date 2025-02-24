@@ -19,6 +19,7 @@ module init_atm_cases
    use mpas_timer
    use mpas_init_atm_static
    use mpas_init_atm_surface
+   use mpas_init_atm_thompson_aerosols, only: init_atm_thompson_aerosols, init_atm_thompson_aerosols_lbc
    use mpas_atmphys_constants, only: svpt0,svp1,svp2,svp3
    use mpas_atmphys_functions
    use mpas_atmphys_initialize_real
@@ -59,7 +60,6 @@ module init_atm_cases
       type (mpas_pool_type), pointer :: state
       type (mpas_pool_type), pointer :: diag
       type (mpas_pool_type), pointer :: diag_physics
-      type (mpas_pool_type), pointer :: tend_physics
       type (mpas_pool_type), pointer :: lbc_state
 
       integer, pointer :: config_init_case
@@ -79,7 +79,7 @@ module init_atm_cases
       type (MPAS_Time_type)  :: curr_time, stop_time, start_time
       type (MPAS_TimeInterval_type)  :: clock_interval, lbc_stream_interval, surface_stream_interval
       type (MPAS_TimeInterval_type)  :: time_since_start
-      character(len=StrKIND) :: timeString
+      character(len=StrKIND) :: timeStart,timeString
 
       integer, pointer :: nCells
       integer, pointer :: nEdges
@@ -182,7 +182,6 @@ module init_atm_cases
             call mpas_pool_get_subpool(block_ptr % structs, 'state', state)
             call mpas_pool_get_subpool(block_ptr % structs, 'diag', diag)
             call mpas_pool_get_subpool(block_ptr % structs, 'diag_physics', diag_physics)
-            call mpas_pool_get_subpool(block_ptr % structs, 'tend_physics', tend_physics)
 
             call mpas_pool_get_dimension(block_ptr % dimensions, 'nCells', nCells)
             call mpas_pool_get_dimension(block_ptr % dimensions, 'nEdges', nEdges)
@@ -243,9 +242,10 @@ module init_atm_cases
             end if
 
             call init_atm_case_gfs(block_ptr, mesh, nCells, nEdges, nVertLevels, fg, state, &
-                                   diag, diag_physics, tend_physics, block_ptr % dimensions, block_ptr % configs)
+                                   diag, diag_physics, block_ptr % dimensions, block_ptr % configs)
             
             if (config_met_interp) then
+               call init_atm_thompson_aerosols(block_ptr, mesh, block_ptr % configs, diag, state)
                call physics_initialize_real(mesh, fg, domain % dminfo, block_ptr % dimensions, block_ptr % configs)
             end if
 
@@ -329,6 +329,9 @@ module init_atm_cases
 
                call init_atm_case_lbc(timeString, block_ptr, mesh, nCells, nEdges, nVertLevels, fg, state, &
                                       diag, lbc_state, block_ptr % dimensions, block_ptr % configs)
+
+               call mpas_get_time(start_time, dateTimeString=timeStart)
+               call init_atm_thompson_aerosols_lbc(timeString, timeStart, block_ptr, mesh, diag, state, lbc_state)
 
                block_ptr => block_ptr % next
             end do
@@ -2608,7 +2611,7 @@ module init_atm_cases
    end subroutine init_atm_case_mtn_wave
 
 
-   subroutine init_atm_case_gfs(block, mesh, nCells, nEdges, nVertLevels, fg, state, diag, diag_physics, tend_physics, dims, configs)
+   subroutine init_atm_case_gfs(block, mesh, nCells, nEdges, nVertLevels, fg, state, diag, diag_physics, dims, configs)
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    ! Real-data test case using GFS data
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2631,7 +2634,6 @@ module init_atm_cases
       type (mpas_pool_type), intent(inout) :: state
       type (mpas_pool_type), intent(inout) :: diag
       type (mpas_pool_type), intent(inout):: diag_physics
-      type (mpas_pool_type), intent(inout):: tend_physics
       type (mpas_pool_type), intent(inout):: dims
       type (mpas_pool_type), intent(inout):: configs
 
@@ -2779,7 +2781,6 @@ module init_atm_cases
       real (kind=RKIND), dimension(:,:), pointer :: uReconstructZ
       real (kind=RKIND), dimension(:,:), pointer :: uReconstructZonal
       real (kind=RKIND), dimension(:,:), pointer :: uReconstructMeridional
-      real (kind=RKIND), dimension(:,:), pointer :: rqvcuten
 
       real (kind=RKIND), dimension(:), pointer :: psfc
       real (kind=RKIND), dimension(:), pointer :: skintemp
@@ -2897,7 +2898,6 @@ module init_atm_cases
       call mpas_pool_get_array(diag, 'theta', theta)
       call mpas_pool_get_array(diag, 'rho', rho)
       call mpas_pool_get_array(diag_physics, 'precipw', precipw)
-      call mpas_pool_get_array(tend_physics, 'rqvcuten', rqvcuten)
       call mpas_pool_get_array(diag, 'uReconstructX', uReconstructX)
       call mpas_pool_get_array(diag, 'uReconstructY', uReconstructY)
       call mpas_pool_get_array(diag, 'uReconstructZ', uReconstructZ)
@@ -3429,7 +3429,7 @@ module init_atm_cases
             call mpas_log_write('minval, maxval of LANDSEA = $r $r', realArgs=(/minval(maskslab), maxval(maskslab)/))
 
          end if
-
+   
          deallocate(field % slab)
          call read_next_met_field(field, istatus)
       end do

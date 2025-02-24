@@ -14,6 +14,7 @@
  use mpas_atmphys_driver_convection
  use mpas_atmphys_driver_gwdo
  use mpas_atmphys_driver_lsm
+ use mpas_atmphys_driver_lsm_noahmp
  use mpas_atmphys_driver_pbl
  use mpas_atmphys_driver_radiation_lw
  use mpas_atmphys_driver_radiation_sw 
@@ -115,8 +116,11 @@
 ! * modified call to driver_cloudiness to accomodate the calculation of the cloud fraction with the Thompson
 !   cloud microphysics scheme.
 !   Laura D. Fowler (laura@ucar.edu) / 2016-06-04.
+! * added call to the Noah-MP land surface scheme.
+!   Laura D. Fowler (laura@ucar.edu) / 2024-03-11.
 ! * Added call to boundary layer mixing for 'extras' scalars (see routine driver_pbl_scalars)
 !   Saulo R. Freitas (saulo.freitas@inpe.br) / 2024-09-19
+
 
  contains
 
@@ -134,13 +138,15 @@
  type(domain_type),intent(inout):: domain
 
 !local pointers:
- type(mpas_pool_type),pointer::  configs,      &
-                                 mesh,         &
-                                 state,        &
-                                 diag,         &
-                                 diag_physics, &
-                                 tend_physics, &
-                                 atm_input,    &
+ type(mpas_pool_type),pointer::  configs,             &
+                                 mesh,                &
+                                 state,               &
+                                 diag,                &
+                                 diag_physics,        &
+                                 diag_physics_noahmp, &
+                                 output_noahmp,       &
+                                 tend_physics,        &
+                                 atm_input,           &
                                  sfc_input
 
  logical,pointer:: config_frac_seaice
@@ -194,18 +200,20 @@
  block => domain % blocklist
  do while(associated(block))
 
-    call mpas_pool_get_subpool(block%structs,'mesh'        ,mesh        )
-    call mpas_pool_get_subpool(block%structs,'state'       ,state       )
-    call mpas_pool_get_subpool(block%structs,'diag'        ,diag        )
-    call mpas_pool_get_subpool(block%structs,'diag_physics',diag_physics)
-    call mpas_pool_get_subpool(block%structs,'atm_input'   ,atm_input   )
-    call mpas_pool_get_subpool(block%structs,'sfc_input'   ,sfc_input   )
-    call mpas_pool_get_subpool(block%structs,'tend_physics',tend_physics)
+    call mpas_pool_get_subpool(block%structs,'mesh'               ,mesh               )
+    call mpas_pool_get_subpool(block%structs,'state'              ,state              )
+    call mpas_pool_get_subpool(block%structs,'diag'               ,diag               )
+    call mpas_pool_get_subpool(block%structs,'diag_physics'       ,diag_physics       )
+    call mpas_pool_get_subpool(block%structs,'diag_physics_noahmp',diag_physics_noahmp)
+    call mpas_pool_get_subpool(block%structs,'output_noahmp'      ,output_noahmp      )
+    call mpas_pool_get_subpool(block%structs,'atm_input'          ,atm_input          )
+    call mpas_pool_get_subpool(block%structs,'sfc_input'          ,sfc_input          )
+    call mpas_pool_get_subpool(block%structs,'tend_physics'       ,tend_physics       )
 
-    call mpas_pool_get_dimension(block % dimensions, 'nThreads', nThreads)
+    call mpas_pool_get_dimension(block%dimensions, 'nThreads', nThreads)
 
-    call mpas_pool_get_dimension(block % dimensions, 'cellSolveThreadStart', cellSolveThreadStart)
-    call mpas_pool_get_dimension(block % dimensions, 'cellSolveThreadEnd', cellSolveThreadEnd)
+    call mpas_pool_get_dimension(block%dimensions, 'cellSolveThreadStart', cellSolveThreadStart)
+    call mpas_pool_get_dimension(block%dimensions, 'cellSolveThreadEnd', cellSolveThreadEnd)
 
     !allocate arrays shared by all physics parameterizations:
     call allocate_forall_physics(block%configs)
@@ -291,14 +299,23 @@
 
     !call to land-surface scheme:
     if(config_lsm_scheme .ne. 'off') then
-       call allocate_lsm
+       if(config_lsm_scheme == 'sf_noah') then
+          call allocate_lsm
 !$OMP PARALLEL DO
-       do thread=1,nThreads
-          call driver_lsm(itimestep,block%configs,mesh,diag_physics,sfc_input, &
-                          cellSolveThreadStart(thread), cellSolveThreadEnd(thread))
-       end do
+          do thread=1,nThreads
+             call driver_lsm(itimestep,block%configs,mesh,diag_physics,sfc_input, &
+                             cellSolveThreadStart(thread), cellSolveThreadEnd(thread))
+          end do
 !$OMP END PARALLEL DO
        call deallocate_lsm
+
+       elseif(config_lsm_scheme == 'sf_noahmp') then
+          do thread=1,nThreads
+             call driver_lsm_noahmp(block%configs,mesh,state,time_lev,diag,diag_physics,   &
+                                    diag_physics_noahmp,output_noahmp,sfc_input,itimestep, &
+                                    cellSolveThreadStart(thread),cellSolveThreadEnd(thread))
+          enddo
+       endif
 
        call allocate_seaice
 !$OMP PARALLEL DO
