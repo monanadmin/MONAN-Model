@@ -3413,6 +3413,14 @@
                      description="wind speed at lowest model level"
                      packages="bl_mynn_in;bl_ysu_in"/>
 
+                <var name="hfx_spr" type="real" dimensions="nCells Time" units="W m^{-2}"
+                     description="upward heat flux at the surface from ocean spray"
+                     packages="bl_mynn_in;bl_ysu_in"/>
+
+                <var name="lh_spr" type="real" dimensions="nCells Time" units="W m^{-2}"
+                     description="latent heat flux at the surface from ocean spray"
+                     packages="bl_mynn_in;bl_ysu_in"/>
+
 
                 <!-- ... MONIN-OBUKHOV (SFCLAY): -->
                 <var name="fh" type="real" dimensions="nCells Time" units="unitless"
@@ -3439,14 +3447,6 @@
 
                 <var name="sm3d" type="real" dimensions="nVertLevels nCells Time" units="unitless"
                      description="stability function for moisture"
-                     packages="bl_mynn_in"/>
-
-                <var name="hfx_spr" type="real" dimensions="nCells Time" units="W m^{-2}"
-                     description="upward heat flux at the surface from ocean spray"
-                     packages="bl_mynn_in"/>
-
-                <var name="lh_spr" type="real" dimensions="nCells Time" units="W m^{-2}"
-                     description="latent heat flux at the surface from ocean spray"
                      packages="bl_mynn_in"/>
 
                 <!-- DIAGNOSTICS: -->
