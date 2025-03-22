@@ -829,7 +829,7 @@ contains
          do i = its, itf
             tke_mean(i) = 0.0
             total_dp = 0.0
-            do k = kts+1, kpbli(i)+1
+            do k = kts+1, kpbli(i)-1
                dp = -0.5*(po(k+1,i)-po(k-1,i))
                tke_mean(i) = tke_mean(i) + tke_pbl(i,k,j)*dp
                total_dp = total_dp + dp
@@ -4371,7 +4371,6 @@ contains
       real, parameter :: rhowater  = 1000.  ! density of liquid water at 0^oc (kg m^-3)
       real, parameter :: rhosnow   = 100.   ! density of snow (kg m^-3)
       real, parameter :: rhoair0   = 1.28   ! density of dry air at 0^oc and 1000mb pressure (kg m^-3)
-
       pwav    (:)   = 0.0
       psum    (:)   = 0.0
       psumh   (:)   = 0.0
@@ -4517,17 +4516,30 @@ contains
                pw (k,i)=pw(k,i)*zu(k,i)
 
             elseif (autoconv == 4 ) then
+
+             if(name == 'shallow') then
+              !min_liq  = qrc_crit * ( xland(i) + (1.-xland(i))*0.7 )    
+               min_liq  = qrc_crit * ( xland(i) + (1.-xland(i))*3.0 )    
+
+               cx0     = c0*DZ
+               !cx0  = 1.e-1 * float(JL)/5. *DZ * 1.e-3
+               qrc(k,i)= clw_all(k,i)/(1.+cx0)
+               pw (k,i)= cx0*max(0.,qrc(k,i) - min_liq)! units kg[rain]/kg[air]
+
+               !--- convert pw to normalized pw
+               pw (k,i)=pw(k,i)*zu(k,i)
+
+             else ! mid/deep
+
               !NC=300.e+6 over the land, NC=50.e+6 over the oceans
                Nc = n_cldrop *1.e+6 
                Nc = Nc*xland(i) + 3.*Nc*(1.0-xland(i))
                min_liq  = 4./3.*c_pi*rhowater*r0**3*Nc/rhoair0  ! 0.419e-3 -- .61e-3
               
-              if(clw_all(k,i) <= min_liq) then !=> more heating at upper levels, more detrained ice
-              
+               if(clw_all(k,i) <= min_liq) then !=> more heating at upper levels, more detrained ice
                   qrc(k,i)= clw_all(k,i)
                   pw(k,i) = 0.
-              
-              else
+               else
                  !w_upd = min(15.,max(vvel2d(k,i),4.))
                   w_upd = min(10.,max(vvel2d(k,i),2.))
                  
@@ -4543,7 +4555,7 @@ contains
                   !--- convert pw to normalized pw
                   pw (k,i)=pw(k,i)*zu(k,i)
                endif
-
+             endif
             elseif (autoconv == 5 ) then
                !  c0_deep     = 1.5e-3; c0_mid     = 1.5e-3 ; qrc_crit        = 1.e-4 !(kg/kg)
                min_liq  = qrc_crit * ( xland(i)*0.4 + (1.-xland(i))*1. )
@@ -6437,12 +6449,12 @@ contains
       real,    dimension(its:ite) :: tot_evap_bcb,eff_c_conv
 
       if(cumulus == 'shallow') then
-         RH_cr_OCEAN   = 1.
-         RH_cr_LAND    = 1.
+         RH_cr_OCEAN   = 1.0
+         RH_cr_LAND    = 0.9
          eff_c_conv(:) = min(0.2,max(xmb(:),c_conv))
       else
          RH_cr_OCEAN   = 0.99 !test 0.90
-         RH_cr_LAND    = 0.99 
+         RH_cr_LAND    = 0.90
          eff_c_conv(:) = c_conv
       endif
 
@@ -6737,7 +6749,9 @@ contains
       real    :: blqe,trash,tcold,fin,fsum,efic,thot,dp
       real    ,dimension (shall_closures)  :: xff_shal
       !-- tuning numbers for the TKE-based closure for shallow convection   
-      real,parameter :: p_k1 = 1.2, p_cloud_area = 0.15
+     !real,parameter :: p_k1 = 1.2, p_cloud_area = 0.15
+      real,parameter :: p_k1 = 1.2, p_cloud_area = 0.10
+
       !
       xmb       (:)     = 0.
       xf_dicycle(:)     = 0.
@@ -9951,10 +9965,10 @@ contains
       endif
 
       !-- inicializa as variáveis do módulo
-      icumulus_gf      = (/1, 1, 2/)
+      icumulus_gf      = (/1, 1, 0/)
       closure_choice   = (/10,10, 3/) 
       cum_entr_rate    = (/       &
-                           6.0e-4 & !deep
+                           8.0e-4 & !deep
                           ,3.0e-3 & !shallow
                           ,1.0e-3 & !mid
                          /)
@@ -9977,56 +9991,56 @@ contains
       add_coldpool_trig = 2
       add_coldpool_prop = 3 
       add_coldpool_diff = 3 
-      tau_ocea_cp       = 7200. 
-      tau_land_cp       = 7200. 
+      tau_ocea_cp       = 3600. 
+      tau_land_cp       = 1800. 
       mx_buoy1          = 250.5   ! J/kg (real(c_cp)*5.0 + real(c_alvl)*2.e-3)*0.025  
       mx_buoy2          = 20004.0 ! J/kg (real(c_cp)*10.+real(c_alvl)*4.e-3) 
       use_gustiness     = 0    
      
       use_sub3d         = 0
       use_scale_dep     = 1 
-      sig_factor        = 0.22 
+      sig_factor        = 0.65 
       
       dicycle           = 1 
-      cum_t_star        = (/4., -99., -99./)
+      cum_t_star        = (/30., -99., -99./)
       rh_dicycle        = 0 
       
       downdraft         = 1   
       use_rebcb         = 1 
       irainevap         = 0
-      cum_max_edt_land  = (/0.50, 0.00, 0.20/)
-      cum_max_edt_ocean = (/0.50, 0.00, 0.50/)
+      cum_max_edt_land  = (/0.30, 0.00, 0.80/)
+      cum_max_edt_ocean = (/0.60, 0.00, 0.40/)
       cum_use_excess    = (/1, 1, 1/)
-      cum_ave_layer     = (/50., 30., 30./)
+      cum_ave_layer     = (/30., 30., 30./)
       cum_min_cloud_depth=(/200., 70., 150./)
-      sgs_w_timescale   = 1 
+      sgs_w_timescale   = 2 
       tau_deep          = 3600.0  
       tau_mid           = 3600.0  
       lightning_diag    = 1
       liq_ice_number_conc=0
       apply_sub_mp      = 0 
       use_wetbulb       = 0 
-      overshoot         = 0.20
+      overshoot         = 0.0
 
       autoconv          = 4     
       c0_deep           = 1.0e-3
       c0_mid            = 1.5e-3
-      c0_shal           = 0.0    
-      qrc_crit          = 1.e-3 
+      c0_shal           = 1.e-3    
+      qrc_crit          = 1.e-4 
       n_cldrop          = 100.0  
 
       use_momentum_transp = 1   
       lambau_deep       = 0.0 
       lambau_shdn       = 2.0 
       
-      max_tq_tend       = 300.0   
+      max_tq_tend       = 200.0   
       use_smooth_prof   = 1      
       cum_use_smooth_tend = (/2, 2, 2/)     
 
       cum_hei_updf_land = (/0.55, 0.1, 0.55/)
       cum_hei_updf_ocean= (/0.55, 0.1, 0.55/)
-      cum_hei_down_land = (/0.60, 0.0, 0.35/)
-      cum_hei_down_ocean= (/0.50, 0.0, 0.35/) 
+      cum_hei_down_land = (/0.40, 0.0, 0.35/)
+      cum_hei_down_ocean= (/0.40, 0.0, 0.35/) 
 
       cum_fadj_massflx  = (/1.00, 1.00, 1.00/)
       moist_trigger     = 0   

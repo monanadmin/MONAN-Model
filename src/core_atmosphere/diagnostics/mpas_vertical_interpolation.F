@@ -7,7 +7,7 @@ MODULE VerticalInterpolation
                                ! r4 : Kind for 32-bits Real Numbers
                                ! i4 : Kind for 32-bits Integer Numbers
                                ! RKIND : Kind for 64-bits Real Numbers
-   !INTEGER, PARAMETER, PUBLIC :: r4 = SELECTED_REAL_KIND(6)
+   !INTEGER, PARAMETER, PUBLIC :: r4RKIND  = SELECTED_REAL_KIND(6)
    !INTEGER, PARAMETER, PUBLIC :: i4 = SELECTED_INT_KIND(9)
    !INTEGER, PARAMETER, PUBLIC :: RKIND = SELECTED_REAL_KIND(15)
    !INTEGER, PARAMETER, PUBLIC :: r16 = SELECTED_REAL_KIND(15)
@@ -57,10 +57,349 @@ MODULE VerticalInterpolation
 
    PUBLIC :: VerticalInterpolation_ZGEO
    PUBLIC :: VerticalInterpolation_Thermal
+   PUBLIC :: VerticalInterpolation_Humid
+   PUBLIC :: VerticalInterpolation_Thermal2
    PUBLIC :: VerticalInterpolation_Wind
    PUBLIC :: VerticalInterpolation_Single
 
 CONTAINS
+
+
+  SUBROUTINE VerticalInterpolation_Thermal2(nCells,nVertLevels,Lmax,pressure,temperature, tg, pmand)
+
+    IMPLICIT NONE
+    INTEGER, INTENT(IN) :: nCells
+    INTEGER, INTENT(IN) :: nVertLevels
+    INTEGER, INTENT(IN) :: Lmax
+
+    REAL (KIND=RKIND), INTENT(IN ) :: pressure   (nVertLevels,nCells)
+    REAL (KIND=RKIND), INTENT(IN ) :: temperature(nVertLevels,nCells)
+
+    REAL (KIND=RKIND), INTENT(OUT) :: tg         (Lmax,nCells)
+    REAL (KIND=RKIND), INTENT(IN ) :: pmand (Lmax)
+
+    INTEGER :: i, j, k
+    INTEGER :: kp
+    REAL (KIND=RKIND) :: alnpmd(Lmax)
+    REAL (KIND=RKIND) :: pref(Lmax)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    INTEGER           :: kk
+    INTEGER           :: kkstart
+    INTEGER           :: kkend(nCells)
+    INTEGER           :: ks   (Lmax,nCells)
+    REAL (KIND=RKIND) :: dpu
+    REAL (KIND=RKIND) :: dpl
+    INTEGER           :: kupper(Lmax,nCells)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    REAL (KIND=RKIND) :: ddp  (Lmax,nCells)
+    REAL (KIND=RKIND) :: pim  (nVertLevels  ,nCells)
+    REAL (KIND=RKIND) :: alnpm(nVertLevels  ,nCells)
+    REAL (KIND=RKIND) :: alnp (nVertLevels+1,nCells)
+    REAL (KIND=RKIND) :: pi   (nVertLevels+1,nCells)
+    REAL (KIND=RKIND) :: p    (nVertLevels+1,nCells)
+    REAL (KIND=RKIND) :: rdelp(nVertLevels-1,nCells)
+    REAL (KIND=RKIND) :: bt   (nVertLevels-1,nCells)
+
+    REAL (KIND=RKIND) :: wtl
+
+    wtl=LOG(max(Po,Pt))
+    
+    ! compute pressure on each sigma surface 
+
+       DO k=1,nVertLevels
+          DO i=1,nCells
+            ! transform from Pa to mbar
+             p(k,i)= 1.e-2_RKIND * pressure(k,i)
+          END DO
+       END DO    
+       ! set the top of the model at Pt (See Constants).
+       p(nVertLevels+1,:)=Pt
+
+
+       DO kp=1,Lmax
+            ! transform from Pa to mbar
+          pref(kp) = 1.e-2_RKIND * pmand (kp)
+       END DO
+
+    ! log of pressure and exner function on each sigma surface
+
+       DO k=1,nVertLevels+1
+          DO i=1,nCells
+             alnp(k,i)=LOG(MAX(p(k,i),Pt))
+             pi  (k,i)=EXP(RdByCp*(alnp(k,i)-wtl))
+          END DO
+       END DO
+
+       DO kp=1,Lmax
+          alnpmd(kp) = LOG(MAX(pref(kp),Pt))
+       END DO
+    ! mean value of the exner function, log of pim and
+    ! the log of the mean value of pressure in each layer
+
+       DO k=1,nVertLevels
+          DO i=1,nCells
+             pim(k,i)=(pi(k+1,i)-pi(k,i))/ &
+                  (RdByCp*(alnp(k+1,i)-alnp(k,i)))
+             alnpm(k,i)=wtl+CpByRd*LOG(max(pim(k,i),Pt))
+          END DO
+       END DO
+
+    ! return interpolated t absolute. ts replaced by temperature
+
+       DO k=1,nVertLevels-1
+          DO i=1,nCells
+             rdelp(k,i)=1.0_RKIND/(alnpm(k+1,i)-alnpm(k,i))
+             bt(k,i)=(temperature(k+1,i)-temperature(k,i))*rdelp(k,i)
+          END DO
+       END DO
+
+    ! heights to pressure surfaces  -  hydrostatic interpolation
+    ! winds and temps by linear interpolation with ln(p)
+    ! search for middle of sigma layer above kp
+
+       ks(:,:)=nVertLevels
+       DO kp=1,Lmax
+          DO k=1,nVertLevels-1
+             DO i=1,nCells
+	                                                !ref    >  model
+                IF ((ks(kp,i) == nVertLevels) .AND. (alnpmd(kp) > alnpm(k,i))) THEN
+                   ks(kp,i)=k
+                END IF
+             END DO
+          END DO
+       END DO
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    do k = 1, Lmax 
+       do i = 1, nCells
+          kupper(k,i) = nVertLevels  !model surface
+          kkend(i) = 1  !model surface
+       enddo
+    enddo
+
+    do k = 1, Lmax 
+       kkstart = nVertLevels !model top
+       do i = 1, nCells
+          kkstart = min0(kkstart,kkend(i))
+       enddo
+       ! kkstart => surface
+       !do kk     = surface                     , model_top
+       do kk = MIN(MAX(kkstart,1),nVertLevels-1), nVertLevels-1
+          do i = 1, nCells
+             if(pref(k).gt. p (kk  ,i) .and.&
+	        pref(k).le. p (kk+1,i)) then
+                kupper(k,i) = kk
+		kkend(i)    = kk
+             endif
+          enddo
+       enddo
+    enddo
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    ! find values and slopes for upward or downward extrapolation
+    ! as well as for interpolation away from tropopause
+    ! ts to temperature for absolute t
+
+       DO kp=1,Lmax
+          DO i=1,nCells
+             IF (ks(kp,i) /= 1) THEN
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                IF( kupper(kp,i) == nVertLevels )THEN
+                   ddp(kp,i)=alnpmd(kp)-alnpm(ks(kp,i),i)
+                   tg (kp,i)=temperature(ks(kp,i),i)+bt(ks(kp,i)-1,i)*ddp(kp,i)
+                else
+                   dpu = pref(kp)             - p   (kupper(kp,i),i) 
+                   dpl = p (kupper(kp,i)+1,i) - pref(kp)
+                   tg(kp,i) = (temperature(kupper(kp,i)  ,i)*dpl &
+                            +  temperature(kupper(kp,i)+1,i)*dpu)/(dpl + dpu)
+                end if 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+             ELSE
+                IF(.NOT.ExtrapoAdiabatica)THEN
+                   tg(kp,i)=temperature(1,i)
+                ELSE
+                   tg(kp,i)=temperature (1,i)*EXP(0.5_RKIND*RdByCp*ABS(alnpm(ks(kp,i),i)-alnpmd(kp)))  
+                END IF
+             END IF
+          END DO
+       END DO
+
+  END SUBROUTINE VerticalInterpolation_Thermal2
+
+  SUBROUTINE VerticalInterpolation_Humid(nCells,nVertLevels,Lmax,pressure, gsh,rq, pmand)
+
+    IMPLICIT NONE
+    INTEGER, INTENT(IN) :: nCells
+    INTEGER, INTENT(IN) :: nVertLevels
+    INTEGER, INTENT(IN) :: Lmax
+
+    REAL (KIND=RKIND), INTENT(IN ) :: pressure   (nVertLevels,nCells)
+    REAL (KIND=RKIND), INTENT(IN ) :: gsh        (nVertLevels,nCells)
+
+    REAL (KIND=RKIND), INTENT(OUT) :: rq         (Lmax,nCells)
+    REAL (KIND=RKIND), INTENT(IN ) :: pmand (Lmax)
+
+    INTEGER :: i, j, k
+    INTEGER :: kp
+    REAL (KIND=RKIND) :: alnpmd(Lmax)
+    REAL (KIND=RKIND) :: pref(Lmax)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    INTEGER           :: kk
+    INTEGER           :: kkstart
+    INTEGER           :: kkend(nCells)
+    REAL (KIND=RKIND) :: dpu
+    REAL (KIND=RKIND) :: dpl
+    INTEGER           :: kupper(Lmax,nCells)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    INTEGER           :: ks   (Lmax,nCells)
+
+    REAL (KIND=RKIND) :: ddp  (Lmax,nCells)
+ 
+    REAL (KIND=RKIND) :: pim  (nVertLevels  ,nCells)
+    REAL (KIND=RKIND) :: alnpm(nVertLevels  ,nCells)
+    REAL (KIND=RKIND) :: alnp (nVertLevels+1,nCells)
+    REAL (KIND=RKIND) :: pi   (nVertLevels+1,nCells)
+    REAL (KIND=RKIND) :: p    (nVertLevels+1,nCells)
+    REAL (KIND=RKIND) :: rdelp(nVertLevels-1,nCells)
+    REAL (KIND=RKIND) :: bqq  (nVertLevels-1,nCells)
+
+    REAL (KIND=RKIND) :: wtl
+
+    wtl=LOG(max(Po,Pt))
+    
+    ! compute pressure on each sigma surface 
+
+       DO k=1,nVertLevels
+          DO i=1,nCells
+            ! transform from Pa to mbar
+             p(k,i)= 1.e-2_RKIND * pressure(k,i)
+          END DO
+       END DO    
+       ! set the top of the model at Pt (See Constants).
+       p(nVertLevels+1,:)=Pt
+
+
+       DO kp=1,Lmax
+            ! transform from Pa to mbar
+          pref(kp) = 1.e-2_RKIND * pmand (kp)
+       END DO
+
+    ! log of pressure and exner function on each sigma surface
+
+       DO k=1,nVertLevels+1
+          DO i=1,nCells
+             alnp(k,i)=LOG(MAX(p(k,i),Pt))
+             pi  (k,i)=EXP(RdByCp*(alnp(k,i)-wtl))
+          END DO
+       END DO
+
+       DO kp=1,Lmax
+          alnpmd(kp) = LOG(MAX(pref(kp),Pt))
+       END DO
+    ! mean value of the exner function, log of pim and
+    ! the log of the mean value of pressure in each layer
+
+       DO k=1,nVertLevels
+          DO i=1,nCells
+             pim(k,i)=(pi(k+1,i)-pi(k,i))/ &
+                  (RdByCp*(alnp(k+1,i)-alnp(k,i)))
+             alnpm(k,i)=wtl+CpByRd*LOG(max(pim(k,i),Pt))
+          END DO
+       END DO
+
+    ! return interpolated t absolute. ts replaced by temperature
+
+       DO k=1,nVertLevels-1
+          DO i=1,nCells
+             rdelp(k,i)=1.0_RKIND/(alnpm(k+1,i)-alnpm(k,i))
+          END DO
+       END DO
+
+       DO k=1,nVertLevels-1
+          DO i=1,nCells
+             bqq(k,i)=(gsh(k+1,i)-gsh(k,i))*rdelp(k,i)
+          END DO
+       END DO
+
+    ! heights to pressure surfaces  -  hydrostatic interpolation
+    ! winds and temps by linear interpolation with ln(p)
+    ! search for middle of sigma layer above kp
+
+       ks(:,:)=nVertLevels
+       DO kp=1,Lmax
+          DO k=1,nVertLevels-1
+             DO i=1,nCells
+                IF ((ks(kp,i) == nVertLevels) .AND. (alnpmd(kp) > alnpm(k,i))) THEN
+                   ks(kp,i)=k
+                END IF
+             END DO
+          END DO
+       END DO
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    do k = 1, Lmax 
+       do i = 1, nCells
+          kupper(k,i) = nVertLevels  !model surface
+          kkend(i) = 1  !model surface
+       enddo
+    enddo
+
+    do k = 1, Lmax 
+       kkstart = nVertLevels !model top
+       do i = 1, nCells
+          kkstart = min0(kkstart,kkend(i))
+       enddo
+       ! kkstart => surface
+       !do kk     = surface                     , model_top
+       do kk = MIN(MAX(kkstart,1),nVertLevels-1), nVertLevels-1
+          do i = 1, nCells
+             if(pref(k).gt. p (kk  ,i) .and.&
+	        pref(k).le. p (kk+1,i)) then
+                kupper(k,i) = kk
+		kkend(i)    = kk
+             endif
+          enddo
+       enddo
+    enddo
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    ! find values and slopes for upward or downward extrapolation
+    ! as well as for interpolation away from tropopause
+    ! ts to temperature for absolute t
+
+       DO kp=1,Lmax
+          DO i=1,nCells
+             IF (ks(kp,i) /= 1) THEN
+                IF (pref(kp) < PRHcut) THEN
+                   rq(kp,i)=1.0e-12_RKIND
+                ELSE
+                 IF( kupper(kp,i) == nVertLevels )THEN
+                   IF (ks(kp,i) <= nVertLevels) THEN
+                      rq(kp,i)=gsh(ks(kp,i),i)+bqq(ks(kp,i)-1,i)*(alnpmd(kp)-alnpm(ks(kp,i),i))
+                   ELSE
+                      rq(kp,i)=gsh(nVertLevels,i)
+                   END IF
+                 else
+                   dpu = pref(kp)             - p   (kupper(kp,i),i) 
+                   dpl = p (kupper(kp,i)+1,i) - pref(kp)
+                   rq(kp,i) = (gsh(kupper(kp,i)  ,i)*dpl &
+                            +  gsh(kupper(kp,i)+1,i)*dpu)/(dpl + dpu)
+                 end if 
+
+ 
+                END IF
+                ddp(kp,i)=alnpmd(kp)-alnpm(ks(kp,i),i)
+             ELSE
+                IF(.NOT.ExtrapoAdiabatica)THEN
+                   rq(kp,i)=gsh(1,i)
+                ELSE
+                   rq(kp,i)=gsh(1,i)*EXP(0.5_RKIND*RdByCp*ABS(alnpm(ks(kp,i),i)-alnpmd(kp)))
+                END IF
+             END IF
+          END DO
+       END DO
+
+  END SUBROUTINE VerticalInterpolation_Humid
 
   SUBROUTINE VerticalInterpolation_Thermal(nCells,nVertLevels,Lmax,pressure,temperature, gsh, gss, tg, rg,rq, pmand)
 
@@ -83,7 +422,14 @@ CONTAINS
     INTEGER :: kp
     REAL (KIND=RKIND) :: alnpmd(Lmax)
     REAL (KIND=RKIND) :: pref(Lmax)
-
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    INTEGER           :: kk
+    INTEGER           :: kkstart
+    INTEGER           :: kkend(nCells)
+    REAL (KIND=RKIND) :: dpu
+    REAL (KIND=RKIND) :: dpl
+    INTEGER           :: kupper(Lmax,nCells)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     INTEGER           :: ks   (Lmax,nCells)
 
     REAL (KIND=RKIND) :: ddp  (Lmax,nCells)
@@ -102,7 +448,7 @@ CONTAINS
     REAL (KIND=RKIND) :: ee
     REAL (KIND=RKIND) :: wtl
 
-    wtl=LOG(Po)
+    wtl=LOG(max(Po,Pt))
     
     ! compute pressure on each sigma surface 
 
@@ -137,13 +483,13 @@ CONTAINS
 
        DO k=1,nVertLevels+1
           DO i=1,nCells
-             alnp(k,i)=LOG(MAX(p(k,i),0.00000001_RKIND))
+             alnp(k,i)=LOG(MAX(p(k,i),Pt))
              pi  (k,i)=EXP(RdByCp*(alnp(k,i)-wtl))
           END DO
        END DO
 
        DO kp=1,Lmax
-          alnpmd(kp) = LOG(MAX(pref(kp),0.00000001_RKIND))
+          alnpmd(kp) = LOG(MAX(pref(kp),Pt))
        END DO
     ! mean value of the exner function, log of pim and
     ! the log of the mean value of pressure in each layer
@@ -152,7 +498,7 @@ CONTAINS
           DO i=1,nCells
              pim(k,i)=(pi(k+1,i)-pi(k,i))/ &
                   (RdByCp*(alnp(k+1,i)-alnp(k,i)))
-             alnpm(k,i)=wtl+CpByRd*LOG(pim(k,i))
+             alnpm(k,i)=wtl+CpByRd*LOG(max(pim(k,i),Pt))
           END DO
        END DO
 
@@ -186,7 +532,32 @@ CONTAINS
              END DO
           END DO
        END DO
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    do k = 1, Lmax 
+       do i = 1, nCells
+          kupper(k,i) = nVertLevels  !model surface
+          kkend(i) = 1  !model surface
+       enddo
+    enddo
 
+    do k = 1, Lmax 
+       kkstart = nVertLevels !model top
+       do i = 1, nCells
+          kkstart = min0(kkstart,kkend(i))
+       enddo
+       ! kkstart => surface
+       !do kk     = surface                     , model_top
+       do kk = MIN(MAX(kkstart,1),nVertLevels-1), nVertLevels-1
+          do i = 1, nCells
+             if(pref(k).gt. p (kk  ,i) .and.&
+	        pref(k).le. p (kk+1,i)) then
+                kupper(k,i) = kk
+		kkend(i)    = kk
+             endif
+          enddo
+       enddo
+    enddo
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ! find values and slopes for upward or downward extrapolation
     ! as well as for interpolation away from tropopause
     ! ts to temperature for absolute t
@@ -195,19 +566,44 @@ CONTAINS
           DO i=1,nCells
              IF (ks(kp,i) /= 1) THEN
                 IF (pref(kp) < PRHcut) THEN
-                   rg(kp,i)=0.0_RKIND
-                   rq(kp,i)=1.0e-12_RKIND
+                   rg(kp,i)= 0.0_RKIND
+                   rq(kp,i)= 1.0e-12_RKIND
                 ELSE
-                   IF (ks(kp,i) <= nVertLevels) THEN
-                      rg(kp,i)=gss(ks(kp,i),i)+brh(ks(kp,i)-1,i)*(alnpmd(kp)-alnpm(ks(kp,i),i))
-                      rq(kp,i)=gsh(ks(kp,i),i)+bqq(ks(kp,i)-1,i)*(alnpmd(kp)-alnpm(ks(kp,i),i))
-                   ELSE
-                      rg(kp,i)=gss(nVertLevels,i)
-                      rq(kp,i)=gsh(nVertLevels,i)
-                   END IF
+
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                   IF( kupper(kp,i) == nVertLevels )THEN
+
+                      IF (ks(kp,i) <= nVertLevels) THEN
+                         rg(kp,i)=gss(ks(kp,i),i)+brh(ks(kp,i)-1,i)*(alnpmd(kp)-alnpm(ks(kp,i),i))
+                         rq(kp,i)=gsh(ks(kp,i),i)+bqq(ks(kp,i)-1,i)*(alnpmd(kp)-alnpm(ks(kp,i),i))
+                      ELSE
+                         rg(kp,i)=gss(nVertLevels,i)
+                         rq(kp,i)=gsh(nVertLevels,i)
+                      END IF
+                   else
+                      dpu = pref(kp)             - p   (kupper(kp,i),i) 
+                      dpl = p (kupper(kp,i)+1,i) - pref(kp)
+                      rg(kp,i) = (gss(kupper(kp,i)  ,i)*dpl &
+                               +  gss(kupper(kp,i)+1,i)*dpu)/(dpl + dpu)
+                      rq(kp,i) = (gsh(kupper(kp,i)  ,i)*dpl &
+                               +  gsh(kupper(kp,i)+1,i)*dpu)/(dpl + dpu)
+
+                   end if 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                  
                 END IF
-                ddp(kp,i)=alnpmd(kp)-alnpm(ks(kp,i),i)
-                tg (kp,i)=temperature(ks(kp,i),i)+bt(ks(kp,i)-1,i)*ddp(kp,i)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                IF( kupper(kp,i) == nVertLevels )THEN
+                   ddp(kp,i)=alnpmd(kp)-alnpm(ks(kp,i),i)
+                   tg (kp,i)=temperature(ks(kp,i),i)+bt(ks(kp,i)-1,i)*ddp(kp,i)
+                else
+                   dpu = pref(kp)             - p   (kupper(kp,i),i) 
+                   dpl = p (kupper(kp,i)+1,i) - pref(kp)
+                   tg(kp,i) = (temperature(kupper(kp,i)  ,i)*dpl &
+                            +  temperature(kupper(kp,i)+1,i)*dpu)/(dpl + dpu)
+                end if 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
              ELSE
                 IF(.NOT.ExtrapoAdiabatica)THEN
                    rg(kp,i)=gss(1,i)
@@ -225,7 +621,6 @@ CONTAINS
        END DO
 
   END SUBROUTINE VerticalInterpolation_Thermal
-
 
 
   SUBROUTINE VerticalInterpolation_Wind(nCells,nVertLevels,Lmax,pressure, pref, bfi1, bfo1, bfi2, bfo2, bfi3, bfo3)
@@ -252,6 +647,14 @@ CONTAINS
     INTEGER :: nb, i, j, k, kp
     REAL (KIND=RKIND) :: alnpmd (Lmax)
     REAL (KIND=RKIND) :: pmand   (Lmax)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    INTEGER           :: kk
+    INTEGER           :: kkstart
+    INTEGER           :: kkend(nCells)
+    REAL (KIND=RKIND) :: dpu
+    REAL (KIND=RKIND) :: dpl
+    INTEGER           :: kupper(Lmax,nCells)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
     INTEGER           :: ks    (Lmax         ,nCells)
 
@@ -287,7 +690,7 @@ CONTAINS
     END IF
 
 
-    wtl=LOG(Po)
+    wtl=LOG(max(Po,Pt))
 
     ! compute pressure on each sigma_z surface 
     ! set the highest to Pt (See Constants)
@@ -306,13 +709,13 @@ CONTAINS
 
     DO k=1,nVertLevels+1
        DO i=1,nCells
-          alnp(k,i)=LOG(MAX(p(k,i),0.00000001_RKIND))
+          alnp(k,i)=LOG(MAX(p(k,i),Pt))
           pi  (k,i)=EXP(RdByCp*(alnp(k,i)-wtl))
        END DO
     END DO
 
     DO kp=1,Lmax
-       alnpmd(kp)= LOG(MAX(pmand(kp),0.00000001_RKIND))
+       alnpmd(kp)= LOG(MAX(pmand(kp),Pt))
     END DO
 
     ! mean value of the exner function,
@@ -324,7 +727,7 @@ CONTAINS
        DO i=1,nCells
              pim(k,i) = (pi  (k+1,i)-pi  (k,i))/ &
                 (RdByCp*(alnp(k+1,i)-alnp(k,i)))
-             alnpm(k,i)=wtl+CpByRd*LOG(pim(k,i))
+             alnpm(k,i)=wtl+CpByRd*LOG(max(pim(k,i),Pt))
        END DO
     END DO
 
@@ -370,6 +773,32 @@ CONTAINS
           END DO
        END DO
     END DO
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    do k = 1, Lmax 
+       do i = 1, nCells
+          kupper(k,i) = nVertLevels  !model surface
+          kkend(i) = 1  !model surface
+       enddo
+    enddo
+
+    do k = 1, Lmax 
+       kkstart = nVertLevels !model top
+       do i = 1, nCells
+          kkstart = min0(kkstart,kkend(i))
+       enddo
+       ! kkstart => surface
+       !do kk     = surface                     , model_top
+       do kk = MIN(MAX(kkstart,1),nVertLevels-1), nVertLevels-1
+          do i = 1, nCells
+             if(pref(k).gt. p (kk  ,i) .and.&
+	        pref(k).le. p (kk+1,i)) then
+                kupper(k,i) = kk
+		kkend(i)    = kk
+             endif
+          enddo
+       enddo
+    enddo
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     ! find values and slopes for upward or downward extrapolation
     ! as well as for interpolation away from tropopause
@@ -378,10 +807,23 @@ CONTAINS
        DO kp=1,Lmax
           DO i=1,nCells
              IF (ks(kp,i) /= 1) THEN
-                ddp(kp,i)=alnpmd(kp)-alnpm(ks(kp,i),i)
-                bfo1(kp,i)=bfi1(ks(kp,i),i)+b1(ks(kp,i)-1,i)*ddp(kp,i)
-                bfo2(kp,i)=bfi2(ks(kp,i),i)+b2(ks(kp,i)-1,i)*ddp(kp,i)
-                bfo3(kp,i)=bfi3(ks(kp,i),i)+b3(ks(kp,i)-1,i)*ddp(kp,i)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                IF( kupper(kp,i) == nVertLevels )THEN
+                   ddp(kp,i)=alnpmd(kp)-alnpm(ks(kp,i),i)
+                   bfo1(kp,i)=bfi1(ks(kp,i),i)+b1(ks(kp,i)-1,i)*ddp(kp,i)
+                   bfo2(kp,i)=bfi2(ks(kp,i),i)+b2(ks(kp,i)-1,i)*ddp(kp,i)
+                   bfo3(kp,i)=bfi3(ks(kp,i),i)+b3(ks(kp,i)-1,i)*ddp(kp,i)
+                else
+                   dpu = pref(kp)             - p   (kupper(kp,i),i) 
+                   dpl = p (kupper(kp,i)+1,i) - pref(kp)
+                   bfo1(kp,i) = (bfi1(kupper(kp,i)  ,i)*dpl &
+                              +  bfi1(kupper(kp,i)+1,i)*dpu)/(dpl + dpu)
+                   bfo2(kp,i) = (bfi2(kupper(kp,i)  ,i)*dpl &
+                              +  bfi2(kupper(kp,i)+1,i)*dpu)/(dpl + dpu)
+                   bfo3(kp,i) = (bfi3(kupper(kp,i)  ,i)*dpl &
+                              +  bfi3(kupper(kp,i)+1,i)*dpu)/(dpl + dpu)
+                end if 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
              ELSE
                 bfo1(kp,i)=bfi1(1,i)
                 bfo2(kp,i)=bfi2(1,i)
@@ -393,9 +835,21 @@ CONTAINS
        DO kp=1,Lmax
           DO i=1,nCells
              IF (ks(kp,i) /= 1) THEN
-                ddp(kp,i)=alnpmd(kp)-alnpm(ks(kp,i),i)
-                bfo1(kp,i)=bfi1(ks(kp,i),i)+b1(ks(kp,i)-1,i)*ddp(kp,i)
-                bfo2(kp,i)=bfi2(ks(kp,i),i)+b2(ks(kp,i)-1,i)*ddp(kp,i)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                IF( kupper(kp,i) == nVertLevels )THEN
+                   ddp(kp,i)=alnpmd(kp)-alnpm(ks(kp,i),i)
+                   bfo1(kp,i)=bfi1(ks(kp,i),i)+b1(ks(kp,i)-1,i)*ddp(kp,i)
+                   bfo2(kp,i)=bfi2(ks(kp,i),i)+b2(ks(kp,i)-1,i)*ddp(kp,i)
+                else
+                   dpu = pref(kp)             - p   (kupper(kp,i),i) 
+                   dpl = p (kupper(kp,i)+1,i) - pref(kp)
+                   bfo1(kp,i) = (bfi1(kupper(kp,i)  ,i)*dpl &
+                              +  bfi1(kupper(kp,i)+1,i)*dpu)/(dpl + dpu)
+                   bfo2(kp,i) = (bfi2(kupper(kp,i)  ,i)*dpl &
+                              +  bfi2(kupper(kp,i)+1,i)*dpu)/(dpl + dpu)
+                end if 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
              ELSE
                 bfo1(kp,i)=bfi1(1,i)
                 bfo2(kp,i)=bfi2(1,i)
@@ -406,8 +860,18 @@ CONTAINS
        DO kp=1,Lmax
           DO i=1,nCells
              IF (ks(kp,i) /= 1) THEN
-                ddp(kp,i)=alnpmd(kp)-alnpm(ks(kp,i),i)
-                bfo1(kp,i)=bfi1(ks(kp,i),i)+b1(ks(kp,i)-1,i)*ddp(kp,i)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                IF( kupper(kp,i) == nVertLevels )THEN
+                   ddp(kp,i)=alnpmd(kp)-alnpm(ks(kp,i),i)
+                   bfo1(kp,i)=bfi1(ks(kp,i),i)+b1(ks(kp,i)-1,i)*ddp(kp,i)
+                else
+                   dpu = pref(kp)             - p   (kupper(kp,i),i) 
+                   dpl = p (kupper(kp,i)+1,i) - pref(kp)
+                   bfo1(kp,i) = (bfi1(kupper(kp,i)  ,i)*dpl &
+                              +  bfi1(kupper(kp,i)+1,i)*dpu)/(dpl + dpu)
+                end if 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
              ELSE
                 bfo1(kp,i)=bfi1(1,i)
              END IF
@@ -446,7 +910,7 @@ CONTAINS
 
     ! constants
 
-    wtl=LOG(Po)
+    wtl=LOG(max(Po,Pt))
 
     ! compute pressure on each hybrid sigma_z surface and
     ! set the top of the model at Pt (See Constants)
@@ -471,13 +935,13 @@ CONTAINS
 
        DO k=1,nVertLevels+1
           DO i=1,nCells
-             alnp(k,i)=LOG(p(k,i))
+             alnp(k,i)=LOG(max(p(k,i),Pt))
              pi  (k,i)=EXP(RdByCp*(alnp(k,i)-wtl))
           END DO
        END DO
 
        DO kp=1,Lmax
-          alnpmd(kp)= LOG(MAX(pref(kp),0.001_RKIND))
+          alnpmd(kp)= LOG(MAX(pref(kp),Pt))
        END DO
 
 
@@ -488,13 +952,13 @@ CONTAINS
           DO i=1,nCells
              IF((alnp(k+1,i)-alnp(k,i)) == 0.0_RKIND)THEN
                 pim(k,i) = pi(k,i)
-                alnpm(k,i)=wtl+CpByRd*LOG(pim(k,i))
+                alnpm(k,i)=wtl+CpByRd*LOG(max(pim(k,i),Pt))
 
 	     ELSE
 	     
                 pim(k,i) = (pi(k+1,i)-pi(k,i))/ &
                           (RdByCp*(alnp(k+1,i)-alnp(k,i))   )
-                alnpm(k,i)=wtl+CpByRd*LOG(pim(k,i))
+                alnpm(k,i)=wtl+CpByRd*LOG(max(pim(k,i),Pt))
              END IF 
           END DO
        END DO
@@ -609,13 +1073,6 @@ CONTAINS
     ! as well as for interpolation away from tropopause
     ! ts to tm for absolute t
 
-!       DO kp=1,Lmax
-!          DO i=1,nCells
-!!                zp(kp,i)=temperature(kp,i)
-!!                zp(kp,i)=pressure(kp,i)
-!                zp(kp,i)=top(i)
-!          END DO
-!       END DO
        DO kp=1,Lmax
           DO i=1,nCells
              IF (ks(kp,i) == 1) THEN
@@ -696,7 +1153,7 @@ CONTAINS
              DO i=1,nCells
                 IF (pmand(k) > pin(1,i)) THEN
                    work(k,i)=gausin(1,i)
-                   Above(i,k)=.TRUE.
+                   Above(k,i)=.TRUE.
                 END IF
              END DO
           END DO
