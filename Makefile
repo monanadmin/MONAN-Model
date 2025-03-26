@@ -1363,7 +1363,7 @@ mpi_f08_test:
 		mpi_f08_status=$$?; $\
 		rm -f mpi_f08.f90 mpi_f08.x; $\
 		if [ $$mpi_f08_status -eq 0 ]; then $\
-		    printf "1"; $\
+		    printf "0"; $\
 		else $\
 		    printf "0"; $\
 		fi $\
