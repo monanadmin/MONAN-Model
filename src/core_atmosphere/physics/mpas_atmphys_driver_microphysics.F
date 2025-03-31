@@ -598,6 +598,13 @@
 
  enddo
  enddo
+ 
+ !CR: negative rainc values correction:
+ !where (rainnc < 0._RKIND)
+ !  rainnc = 0._RKIND
+ !endwhere
+ 
+ 
 
 !variables specific to different cloud microphysics schemes:
  microp_select_init: select case(microp_scheme)
