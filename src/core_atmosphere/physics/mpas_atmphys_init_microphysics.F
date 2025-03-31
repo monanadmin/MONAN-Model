@@ -68,9 +68,9 @@
 !is set to 100 per cc (100.E6 m^-3) for maritime cases and 300 per cc (300.E6 m^-3) for continental cases.
  do iCell = 1, nCellsSolve
     if(landmask(iCell) .eq. 1) then
-       nt_c(iCell) = 300.e6 
+       nt_c(iCell) = 500.e6  !srf 300.e6 
     elseif(landmask(iCell) .eq. 0) then
-       nt_c(iCell) = 100.e6
+       nt_c(iCell) = 200.e6  !srf 100.e6
     endif
     mu_c(iCell) = MIN(15., (1000.e6/nt_c(iCell) + 2.))
  enddo

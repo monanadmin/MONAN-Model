@@ -4875,14 +4875,7 @@ module mpas_isobaric_diagnostics
 
         if (NEED_rthblten) then
            !... rthblten:
-           !EGK: updating interpolation method
-           ! do iCell = 1, nCells
-           ! do k = 1, nVertLevels
-           !    kk = nVertLevels+1-k
-           !    field_in(iCell,kk) = rthblten(k,iCell)
-           ! enddo
-           ! enddo
-           ! call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+           !EGK: PR 13
 
             call VerticalInterpolation_Single ( nCells                                    , & !1
                                                 nVertLevels                               , & !2
@@ -4918,7 +4911,7 @@ module mpas_isobaric_diagnostics
             rthblten_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
             ! call mpas_log_write('--- end interpolate rthblten:')
         end if
-        !EGK: new vertical interpolation done!
+        !EGK: PR 13
 
 
         if (NEED_RQVCUTEN) then
@@ -4965,14 +4958,7 @@ module mpas_isobaric_diagnostics
 
         if (NEED_RTHCUTEN) then
            !... rthcuten:
-           !EGK: updating interpolation method
-           ! do iCell = 1, nCells
-           ! do k = 1, nVertLevels
-           !    kk = nVertLevels+1-k
-           !   field_in(iCell,kk) = rthcuten(k,iCell)
-           ! enddo
-           ! enddo
-           ! call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
+           !EGK: PR 13
 
             call VerticalInterpolation_Single ( nCells                                    , & !1
                                                 nVertLevels                               , & !2
@@ -5008,7 +4994,7 @@ module mpas_isobaric_diagnostics
             rthcuten_1000hPa(1:nCells) = field_interp( 1,1:nCells) !surface
             ! call mpas_log_write('--- end interpolate rthcuten:')
         end if
-        !EGK: new vertical interpolation done!
+        !EGK: PR 13
 
 
         if (NEED_RTHRATENLW) then
