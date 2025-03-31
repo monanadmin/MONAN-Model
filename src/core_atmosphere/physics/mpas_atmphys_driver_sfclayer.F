@@ -765,6 +765,9 @@
  call mpas_pool_get_array(diag_physics,'wspd'  ,wspd  )
  call mpas_pool_get_array(diag_physics,'znt'   ,znt   )
  call mpas_pool_get_array(diag_physics,'zol'   ,zol   )
+
+ call mpas_pool_get_array(diag_physics,'lh_spr' ,lh_spr )
+ call mpas_pool_get_array(diag_physics,'hfx_spr',hfx_spr)
  
 !output variables:
  call mpas_pool_get_array(diag_physics,'q2'    ,q2    )

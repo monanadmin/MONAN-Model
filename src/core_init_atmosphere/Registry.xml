@@ -1287,4 +1287,10 @@
                      description="precipitable water"
                      packages="met_stage_out"/>
         </var_struct>
+
+        <var_struct name="tend_physics" time_levs="1">
+                <var name="rqvcuten" type="real" dimensions="nVertLevels nCells Time" units="kg kg^{-1} s^{-1}"
+                     description="tendency of water vapor mixing ratio due to cumulus convection"
+                     packages="met_stage_out"/>
+        </var_struct>
 </registry>
