@@ -64,7 +64,7 @@ module mpas_isobaric_diagnostics
                need_qi_15, need_qi_20, need_qi_30, need_qi_50, need_qi_70, need_qi_100, need_qi_150, need_qi_200, need_qi_250, need_qi_300, need_qi_400, need_qi_500, need_qi_600, need_qi_700, need_qi_825, need_qi_850, need_qi_875, need_qi_900, need_qi_925, need_qi_950, need_qi_975, need_qi_1000, &
                need_vorticity_15, need_vorticity_20, need_vorticity_30, need_vorticity_50, need_vorticity_70, need_vorticity_100, need_vorticity_150, need_vorticity_200, need_vorticity_250, need_vorticity_300, need_vorticity_400, need_vorticity_500, need_vorticity_600, need_vorticity_700, need_vorticity_825, need_vorticity_850, need_vorticity_875, need_vorticity_900, need_vorticity_925, need_vorticity_950, need_vorticity_975, need_vorticity_1000, &
                need_zgeo_15, need_zgeo_20, need_zgeo_30, need_zgeo_50, need_zgeo_70, need_zgeo_100, need_zgeo_150, need_zgeo_200, need_zgeo_250, need_zgeo_300, need_zgeo_400, need_zgeo_500, need_zgeo_600, need_zgeo_700, need_zgeo_825, need_zgeo_850, need_zgeo_875, need_zgeo_900, need_zgeo_925, need_zgeo_950, need_zgeo_975, need_zgeo_1000, &
-               need_t_isobaric, need_z_isobaric, need_meanT_500_300,&
+               need_t_isobaric, need_z_isobaric, need_u_isobaric,need_meanT_500_300,&
                need_rthcuten_15, need_rthcuten_20, need_rthcuten_30, need_rthcuten_50, need_rthcuten_70, need_rthcuten_100, need_rthcuten_150, need_rthcuten_200, need_rthcuten_250, need_rthcuten_300, need_rthcuten_400, need_rthcuten_500, need_rthcuten_600, need_rthcuten_700, need_rthcuten_825, need_rthcuten_850, need_rthcuten_875, need_rthcuten_900, need_rthcuten_925, need_rthcuten_950, need_rthcuten_975, need_rthcuten_1000
 
     logical :: need_temp, need_relhum, need_dewpoint, need_w, need_uzonal, need_umeridional, need_vorticity, & 
@@ -2510,6 +2510,8 @@ module mpas_isobaric_diagnostics
         need_any_diags = need_any_diags .or. need_t_isobaric
         need_z_isobaric = MPAS_field_will_be_written('z_isobaric')
         need_any_diags = need_any_diags .or. need_z_isobaric
+        need_u_isobaric = MPAS_field_will_be_written('uvel_isobaric')
+        need_any_diags = need_any_diags .or. need_u_isobaric
         need_meanT_500_300 = MPAS_field_will_be_written('meanT_500_300')
         need_any_diags = need_any_diags .or. need_meanT_500_300
         need_zgeo_isobaric = MPAS_field_will_be_written('zgeo_isobaric')
@@ -2541,6 +2543,8 @@ module mpas_isobaric_diagnostics
         type (mpas_pool_type), intent(inout) :: tend_physics
        
        !local variables:
+
+        integer :: nIsoLevelsU
         integer :: iCell,iVert,iVertD,k,kk
         integer, pointer :: nCells, nCellsSolve, nVertLevels, nVertices, vertexDegree, nIsoLevelsT, nIsoLevelsZ
         integer :: nVertLevelsP1
@@ -2566,6 +2570,7 @@ module mpas_isobaric_diagnostics
        
         real (kind=RKIND), dimension(:), pointer :: t_iso_levels
         real (kind=RKIND), dimension(:), pointer :: z_iso_levels
+        real (kind=RKIND), dimension(:  ), pointer :: u_iso_levels
         real (kind=RKIND), dimension(:,:), pointer :: t_isobaric
         real (kind=RKIND), dimension(:,:), pointer :: z_isobaric
         real (kind=RKIND), dimension(:), pointer :: meanT_500_300
@@ -3441,6 +3446,7 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_array(diag, 'zgeo_isobaric', zgeo_isobaric)
     
         call mpas_pool_get_array(diag, 't_iso_levels', t_iso_levels)
+        call mpas_pool_get_array(diag, 'u_iso_levels', u_iso_levels)
         call mpas_pool_get_array(diag, 'z_iso_levels', z_iso_levels)
         call mpas_pool_get_array(diag, 't_isobaric', t_isobaric)
         call mpas_pool_get_array(diag, 'z_isobaric', z_isobaric)
@@ -4272,24 +4278,31 @@ module mpas_isobaric_diagnostics
                                        3000.0,     &
                                        2000.0,     &
                                        1500.0      /) !CR: top
-                                       
+              z_iso_levels = t_iso_levels
+              u_iso_levels = t_iso_levels
         end if
        
         if (need_z_isobaric) then
-            z_iso_levels(1)  = 30000.0
-            z_iso_levels(2)  = 35000.0
-            z_iso_levels(3)  = 40000.0
-            z_iso_levels(4)  = 45000.0
-            z_iso_levels(5)  = 50000.0
-            z_iso_levels(6)  = 55000.0
-            z_iso_levels(7)  = 60000.0
-            z_iso_levels(8)  = 65000.0
-            z_iso_levels(9)  = 70000.0
-            z_iso_levels(10) = 75000.0
-            z_iso_levels(11) = 80000.0
-            z_iso_levels(12) = 85000.0
-            z_iso_levels(13) = 90000.0
+           z_iso_levels = t_iso_levels
+            nIsoLevelsZ = size(z_iso_levels)
+           !PK z_iso_levels(1)  = 30000.0
+           !PK z_iso_levels(2)  = 35000.0
+           !PK z_iso_levels(3)  = 40000.0
+           !PK z_iso_levels(4)  = 45000.0
+           !PK z_iso_levels(5)  = 50000.0
+           !PK z_iso_levels(6)  = 55000.0
+           !PK z_iso_levels(7)  = 60000.0
+           !PK z_iso_levels(8)  = 65000.0
+           !PK z_iso_levels(9)  = 70000.0
+           !PK z_iso_levels(10) = 75000.0
+           !PK z_iso_levels(11) = 80000.0
+           !PK z_iso_levels(12) = 85000.0
+           !PK z_iso_levels(13) = 90000.0
        end if
+        if (need_u_isobaric) then
+            u_iso_levels = t_iso_levels
+            nIsoLevelsU = size(u_iso_levels)
+        end if
        
        !calculation of total pressure at cell centers (at mass points):
         do iCell = 1, nCells
@@ -5690,6 +5703,8 @@ module mpas_isobaric_diagnostics
                                             nIsoLevelsT                               , & !6
                                             field_interp(1:nIsoLevelsT,1:nCells)      , & !7
                                             t_iso_levels(1:nIsoLevelsT)               )   !8
+            
+	    zgeo_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
 
             geoph_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
             geoph_20hPa(1:nCells)   = field_interp(21,1:nCells)
