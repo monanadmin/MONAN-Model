@@ -6431,7 +6431,7 @@ contains
       real, parameter :: alpha1=5.44e-4 & !1/sec
                         ,alpha2=5.09e-3 & !unitless
                         ,alpha3=0.5777  & !unitless
-                        ,c_conv=0.05      !conv fraction area, unitless
+                        ,c_conv=0.10      !conv fraction area, unitless
 
       character*(*)           ,intent(in)    :: cumulus
       integer                 ,intent(in)    :: itf,ktf, its,ite, kts,kte
@@ -6449,9 +6449,10 @@ contains
       real,    dimension(its:ite) :: tot_evap_bcb,eff_c_conv
 
       if(cumulus == 'shallow') then
-         RH_cr_OCEAN   = 1.0
-         RH_cr_LAND    = 0.9
-         eff_c_conv(:) = min(0.2,max(xmb(:),c_conv))
+         RH_cr_OCEAN   = 0.99
+         RH_cr_LAND    = 0.90
+         eff_c_conv(:) = min(0.3,max(xmb(:),c_conv))
+
       else
          RH_cr_OCEAN   = 0.99 !test 0.90
          RH_cr_LAND    = 0.90
@@ -9437,8 +9438,10 @@ contains
                                  zdo(k,i  )*(hcdo(k,i  )-heo_cup(k,i  ) ) )*c_grav/dp*edto(i)
 
                   !---meltglac-------------------------------------------------
-                  dellah(k,i) = dellah(k,i) + c_xlf*((1.-p_liq_ice(k,i))*0.5*(qrco(k+1,i)+qrco(k,i)) &
-                              - melting(k,i))*c_grav/dp
+                  !dellah(k,i) = dellah(k,i) + c_xlf*((1.-p_liq_ice(k,i))*0.5*(qrco(k+1,i)+qrco(k,i)) &
+                  !            - melting(k,i))*c_grav/dp
+                  dellah(k,i) = dellah(k,i) - c_xlf*melting(k,i)*c_grav/dp
+
 
                   !-- for output only
                   subten_H(k,i) = -(zuo(k+1,i)*(-heo_cup(k+1,i)) - zuo(k,i)*(-heo_cup(k,i)))*c_grav/dp       &
@@ -9561,8 +9564,9 @@ contains
                                +(zdo(k+1,i)*(hcdo(k+1,i)-heo_cup(k+1,i) ) -          &
                                  zdo(k,i  )*(hcdo(k,i  )-heo_cup(k,i  ) ) )*c_grav/dp*edto(i)
 
-                  dellah(k,i) = dellah(k,i) + c_xlf*((1.-p_liq_ice(k,i))* &
-                              0.5*(qrco(k+1,i)+qrco(k,i)) - melting(k,i))*c_grav/dp
+                  !dellah(k,i) = dellah(k,i) + c_xlf*((1.-p_liq_ice(k,i))* &
+                  !            0.5*(qrco(k+1,i)+qrco(k,i)) - melting(k,i))*c_grav/dp
+                  dellah(k,i) = dellah(k,i) -  c_xlf*melting(k,i)*c_grav/dp
 
                   !--- for output only
                   subten_H(k,i) = -(zuo(k+1,i)*(-heo_cup(k+1,i)) - zuo(k,i)*(-heo_cup(k,i)))*c_grav/dp       &
@@ -9590,8 +9594,10 @@ contains
                   dellah(k,i) =-( zuo(k+1,i)*hco (k+1,i) - zuo(k,i)*hco (k,i) )*c_grav/dp      &
                                +( zdo(k+1,i)*hcdo(k+1,i) - zdo(k,i)*hcdo(k,i) )*c_grav/dp*edto(i)
 
-                  dellah(k,i) = dellah(k,i) + c_xlf*((1.-p_liq_ice(k,i))* &
-                              0.5*(qrco(k+1,i)+qrco(k,i)) - melting(k,i))*c_grav/dp
+                  !dellah(k,i) = dellah(k,i) + c_xlf*((1.-p_liq_ice(k,i))* &
+                  !            0.5*(qrco(k+1,i)+qrco(k,i)) - melting(k,i))*c_grav/dp
+                  dellah(k,i) = dellah(k,i) -  c_xlf*melting(k,i)*c_grav/dp
+
                   !- update with subsidence term from the FCT scheme
                   dellah(k,i) = dellah(k,i) + sub_tend(k,1)
                   !--- for output only
@@ -10008,8 +10014,8 @@ contains
       downdraft         = 1   
       use_rebcb         = 1 
       irainevap         = 0
-      cum_max_edt_land  = (/0.30, 0.00, 0.80/)
-      cum_max_edt_ocean = (/0.60, 0.00, 0.40/)
+      cum_max_edt_land  = (/0.40, 0.00, 0.80/)
+      cum_max_edt_ocean = (/0.50, 0.00, 0.40/)
       cum_use_excess    = (/1, 1, 1/)
       cum_ave_layer     = (/30., 30., 30./)
       cum_min_cloud_depth=(/200., 70., 150./)
@@ -10020,14 +10026,14 @@ contains
       liq_ice_number_conc=0
       apply_sub_mp      = 0 
       use_wetbulb       = 0 
-      overshoot         = 0.0
+      overshoot         = 0.10
 
       autoconv          = 4     
       c0_deep           = 1.0e-3
       c0_mid            = 1.5e-3
       c0_shal           = 1.e-3    
-      qrc_crit          = 1.e-4 
-      n_cldrop          = 100.0  
+      qrc_crit          = 1.e-5 
+      n_cldrop          = 200.0  
 
       use_momentum_transp = 1   
       lambau_deep       = 0.0 
@@ -10037,10 +10043,10 @@ contains
       use_smooth_prof   = 1      
       cum_use_smooth_tend = (/2, 2, 2/)     
 
-      cum_hei_updf_land = (/0.55, 0.1, 0.55/)
-      cum_hei_updf_ocean= (/0.55, 0.1, 0.55/)
-      cum_hei_down_land = (/0.40, 0.0, 0.35/)
-      cum_hei_down_ocean= (/0.40, 0.0, 0.35/) 
+      cum_hei_updf_land = (/0.45, 0.1, 0.55/)
+      cum_hei_updf_ocean= (/0.45, 0.1, 0.55/)
+      cum_hei_down_land = (/0.45, 0.0, 0.35/)
+      cum_hei_down_ocean= (/0.35, 0.0, 0.35/) 
 
       cum_fadj_massflx  = (/1.00, 1.00, 1.00/)
       moist_trigger     = 0   

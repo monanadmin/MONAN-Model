@@ -1,5 +1,4 @@
 &GF_NML
-
   icumulus_gf   = 1,1,0,                != trimodal plume (deep ,shallow ,congestus)
   
   closure_choice    = 10,10,3,              != closure for the mass flux at the cloud base
@@ -47,8 +46,8 @@
 !---
 !--- controls rainfall evaporation
   use_rebcb         = 1,               != 0/1: turn ON/OFF rainfall evap below cloud base
-  cum_MAX_EDT_LAND  = 0.3, 0.0, 0.8,   !-(deep ,shallow ,congestus)
-  cum_MAX_EDT_OCEAN = 0.6, 0.0, 0.4,
+  cum_MAX_EDT_LAND  = 0.4, 0.0, 0.8,   !-(deep ,shallow ,congestus)
+  cum_MAX_EDT_OCEAN = 0.5, 0.0, 0.4,
 !----
 
 !---- boundary condition specification
@@ -57,16 +56,16 @@
 !----
 
 !---- for mass flux profiles - (deep ,shallow ,congestus)
-  cum_HEI_UPDF_LAND = 0.55, 0.1, 0.55,  != height of maximum Z_updraft
-  cum_HEI_UPDF_OCEAN= 0.55, 0.1, 0.55,
+  cum_HEI_UPDF_LAND = 0.45, 0.1, 0.55,  != height of maximum Z_updraft
+  cum_HEI_UPDF_OCEAN= 0.45, 0.1, 0.55,
 
-  cum_HEI_DOWN_LAND = 0.40, 0.0, 0.35,  != height of maximum Z_downdraft 
-  cum_HEI_DOWN_OCEAN= 0.40, 0.0, 0.35, 
+  cum_HEI_DOWN_LAND = 0.45, 0.0, 0.35,  != height of maximum Z_downdraft 
+  cum_HEI_DOWN_OCEAN= 0.35, 0.0, 0.35, 
 
   use_random_num      = 0., != stochastic pertubation for the height of maximum Zu
   use_smooth_prof     = 1,  != 1 makes the normalized mass flux, entr and detraiment profiles smoother
   cum_use_smooth_tend = 2,2,2,  != integer number of layers for smoothing the tendencies
-  overshoot         = 0.0,  != real value ~0.0 to 0.2
+  overshoot         = 0.10,  != real value ~0.0 to 0.2
 
   use_linear_subcl_mf = 1,  !-- for shallow convection only
   beta_sh             = 2.2,!-- for shallow convection only
@@ -74,12 +73,12 @@
 
 !---- the 'cloud microphysics'
   autoconv          = 4,
-  qrc_crit          = 1.0e-4,
+  qrc_crit          = 1.0e-5,
 
   c0_deep           = 1.0e-3,
   c0_shal           = 1.0e-3,
   c0_mid            = 1.5e-3, 
-  n_cldrop          = 100.,
+  n_cldrop          = 200.,
 
 !   c0_deep    = 2.e-3,
 !   c0_mid     = 2.e-3, 
