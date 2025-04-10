@@ -1047,6 +1047,7 @@
                         <var name="uzonal_15hPa"/>
                         <var name="uzonal_20hPa"/>
                         <var name="uzonal_30hPa"/>
+                        <var name="uzonal_50hPa"/>
                         <var name="uzonal_70hPa"/>
                         <var name="uzonal_100hPa"/>
                         <var name="uzonal_150hPa"/>
