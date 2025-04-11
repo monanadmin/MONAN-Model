@@ -64,7 +64,7 @@ module mpas_isobaric_diagnostics
                need_qi_15, need_qi_20, need_qi_30, need_qi_50, need_qi_70, need_qi_100, need_qi_150, need_qi_200, need_qi_250, need_qi_300, need_qi_400, need_qi_500, need_qi_600, need_qi_700, need_qi_825, need_qi_850, need_qi_875, need_qi_900, need_qi_925, need_qi_950, need_qi_975, need_qi_1000, &
                need_vorticity_15, need_vorticity_20, need_vorticity_30, need_vorticity_50, need_vorticity_70, need_vorticity_100, need_vorticity_150, need_vorticity_200, need_vorticity_250, need_vorticity_300, need_vorticity_400, need_vorticity_500, need_vorticity_600, need_vorticity_700, need_vorticity_825, need_vorticity_850, need_vorticity_875, need_vorticity_900, need_vorticity_925, need_vorticity_950, need_vorticity_975, need_vorticity_1000, &
                need_zgeo_15, need_zgeo_20, need_zgeo_30, need_zgeo_50, need_zgeo_70, need_zgeo_100, need_zgeo_150, need_zgeo_200, need_zgeo_250, need_zgeo_300, need_zgeo_400, need_zgeo_500, need_zgeo_600, need_zgeo_700, need_zgeo_825, need_zgeo_850, need_zgeo_875, need_zgeo_900, need_zgeo_925, need_zgeo_950, need_zgeo_975, need_zgeo_1000, &
-               need_t_isobaric, need_z_isobaric, need_u_isobaric,need_meanT_500_300,&
+               need_t_isobaric, need_z_isobaric, need_u_isobaric, need_meanT_500_300,&
                need_rthcuten_15, need_rthcuten_20, need_rthcuten_30, need_rthcuten_50, need_rthcuten_70, need_rthcuten_100, need_rthcuten_150, need_rthcuten_200, need_rthcuten_250, need_rthcuten_300, need_rthcuten_400, need_rthcuten_500, need_rthcuten_600, need_rthcuten_700, need_rthcuten_825, need_rthcuten_850, need_rthcuten_875, need_rthcuten_900, need_rthcuten_925, need_rthcuten_950, need_rthcuten_975, need_rthcuten_1000
 
     logical :: need_temp, need_relhum, need_dewpoint, need_w, need_uzonal, need_umeridional, need_vorticity, & 
@@ -72,8 +72,19 @@ module mpas_isobaric_diagnostics
                need_kzq, need_kzh, need_kzm, need_rthratensw, need_rublten, need_cldfrac, & 
                need_ni, need_nr, need_qr, need_qs, need_qv, need_qc, need_qg, need_qi, &
                need_mp_thompson, need_cu_grell_freitas, need_bl_mynn, need_omega, &
-               need_zgeo_isobaric, &
-               need_zgeo, need_rthcuten,need_rthblten
+               need_zgeo, need_rthcuten, need_rthblten, &
+               need_cldfrac_isobaric, need_temperature_isobaric, need_dewpoint_isobaric, &
+               need_relhum_isobaric, need_w_isobaric,need_uzonal_isobaric, &
+               need_umeridional_isobaric, need_vorticity_isobaric, need_height_isobaric, &
+               need_spechum_isobaric, need_omega_isobaric, &
+               need_rqvblten_isobaric, need_rthblten_isobaric, need_rqvcuten_isobaric, &
+               need_rthcuten_isobaric, need_rthratenlw_isobaric, need_rthratensw_isobaric, &
+               need_rucuten_isobaric, need_rvcuten_isobaric, need_rvblten_isobaric, &
+               need_rublten_isobaric, need_kzq_isobaric, need_kzh_isobaric, &
+               need_kzm_isobaric, need_ni_isobaric, need_nr_isobaric, &
+               need_qr_isobaric, need_qs_isobaric, need_qv_isobaric, &
+               need_qc_isobaric, need_qg_isobaric, need_qi_isobaric, &
+               need_zgeo_isobaric
 
 
     contains
@@ -211,8 +222,40 @@ module mpas_isobaric_diagnostics
         need_qc = .false.
         need_qg = .false.
         need_qi = .false.
-        need_zgeo_isobaric = .false.
         need_zgeo = .false.
+        need_zgeo_isobaric = .false.
+        need_cldfrac_isobaric = .false.
+        need_temperature_isobaric = .false.
+        need_dewpoint_isobaric = .false.
+        need_relhum_isobaric = .false.
+        need_w_isobaric = .false.
+        need_uzonal_isobaric = .false.
+        need_umeridional_isobaric = .false.
+        need_vorticity_isobaric = .false.
+        need_height_isobaric = .false.
+        need_spechum_isobaric = .false.
+        need_omega_isobaric = .false.
+        need_rqvblten_isobaric = .false.
+        need_rthblten_isobaric = .false.
+        need_rqvcuten_isobaric = .false.
+        need_rthcuten_isobaric = .false.
+        need_rthratenlw_isobaric = .false.
+        need_rthratensw_isobaric = .false.
+        need_rucuten_isobaric = .false.
+        need_rvcuten_isobaric = .false.
+        need_rvblten_isobaric = .false.
+        need_rublten_isobaric = .false.
+        need_kzq_isobaric = .false.
+        need_kzh_isobaric = .false.
+        need_kzm_isobaric = .false.
+        need_ni_isobaric = .false.
+        need_nr_isobaric = .false.
+        need_qr_isobaric = .false.
+        need_qs_isobaric = .false.
+        need_qv_isobaric = .false.
+        need_qc_isobaric = .false.
+        need_qg_isobaric = .false.
+        need_qi_isobaric = .false.
 
         need_mslp = MPAS_field_will_be_written('mslp')
         need_any_diags = need_any_diags .or. need_mslp
@@ -2517,6 +2560,72 @@ module mpas_isobaric_diagnostics
         need_zgeo_isobaric = MPAS_field_will_be_written('zgeo_isobaric')
         need_any_diags = need_any_diags .or. need_zgeo_isobaric
 
+
+        need_cldfrac_isobaric = MPAS_field_will_be_written('cldfrac_isobaric')
+        need_any_diags = need_any_diags .or. need_cldfrac_isobaric
+        need_temperature_isobaric = MPAS_field_will_be_written('temperature_isobaric')
+        need_any_diags = need_any_diags .or. need_temperature_isobaric
+        need_dewpoint_isobaric = MPAS_field_will_be_written('dewpoint_isobaric')
+        need_any_diags = need_any_diags .or. need_dewpoint_isobaric
+        need_relhum_isobaric = MPAS_field_will_be_written('relhum_isobaric')
+        need_any_diags = need_any_diags .or. need_relhum_isobaric
+        need_w_isobaric = MPAS_field_will_be_written('w_isobaric')
+        need_any_diags = need_any_diags .or. need_w_isobaric
+        need_uzonal_isobaric = MPAS_field_will_be_written('uzonal_isobaric')
+        need_any_diags = need_any_diags .or. need_uzonal_isobaric
+        need_umeridional_isobaric = MPAS_field_will_be_written('umeridional_isobaric')
+        need_any_diags = need_any_diags .or. need_umeridional_isobaric
+        need_vorticity_isobaric = MPAS_field_will_be_written('vorticity_isobaric')
+        need_any_diags = need_any_diags .or. need_vorticity_isobaric
+        need_height_isobaric = MPAS_field_will_be_written('height_isobaric')
+        need_any_diags = need_any_diags .or. need_height_isobaric
+        need_spechum_isobaric = MPAS_field_will_be_written('spechum_isobaric')
+        need_any_diags = need_any_diags .or. need_spechum_isobaric
+        need_omega_isobaric = MPAS_field_will_be_written('omega_isobaric')
+        need_any_diags = need_any_diags .or. need_omega_isobaric
+        need_rqvblten_isobaric = MPAS_field_will_be_written('rqvblten_isobaric')
+        need_any_diags = need_any_diags .or. need_rqvblten_isobaric
+        need_rthblten_isobaric = MPAS_field_will_be_written('rthblten_isobaric')
+        need_any_diags = need_any_diags .or. need_rthblten_isobaric
+        need_rqvcuten_isobaric = MPAS_field_will_be_written('rqvcuten_isobaric')
+        need_any_diags = need_any_diags .or. need_rqvcuten_isobaric
+        need_rthcuten_isobaric = MPAS_field_will_be_written('rthcuten_isobaric')
+        need_any_diags = need_any_diags .or. need_rthcuten_isobaric
+        need_rthratenlw_isobaric = MPAS_field_will_be_written('rthratenlw_isobaric')
+        need_any_diags = need_any_diags .or. need_rthratenlw_isobaric
+        need_rthratensw_isobaric = MPAS_field_will_be_written('rthratensw_isobaric')
+        need_any_diags = need_any_diags .or. need_rthratensw_isobaric
+        need_rucuten_isobaric = MPAS_field_will_be_written('rucuten_isobaric')
+        need_any_diags = need_any_diags .or. need_rucuten_isobaric
+        need_rvcuten_isobaric = MPAS_field_will_be_written('rvcuten_isobaric')
+        need_any_diags = need_any_diags .or. need_rvcuten_isobaric
+        need_rvblten_isobaric = MPAS_field_will_be_written('rvblten_isobaric')
+        need_any_diags = need_any_diags .or. need_rvblten_isobaric
+        need_rublten_isobaric = MPAS_field_will_be_written('rublten _isobaric')
+        need_any_diags = need_any_diags .or. need_rublten_isobaric
+        need_kzq_isobaric = MPAS_field_will_be_written('kzq_isobaric')
+        need_any_diags = need_any_diags .or. need_kzq_isobaric
+        need_kzh_isobaric = MPAS_field_will_be_written('kzh_isobaric')
+        need_any_diags = need_any_diags .or. need_kzh_isobaric
+        need_kzm_isobaric = MPAS_field_will_be_written('kzm_isobaric')
+        need_any_diags = need_any_diags .or. need_kzm_isobaric
+        need_ni_isobaric = MPAS_field_will_be_written('ni_isobaric')
+        need_any_diags = need_any_diags .or. need_ni_isobaric
+        need_nr_isobaric = MPAS_field_will_be_written('nr_isobaric')
+        need_any_diags = need_any_diags .or. need_nr_isobaric
+        need_qr_isobaric = MPAS_field_will_be_written('qr_isobaric')
+        need_any_diags = need_any_diags .or. need_qr_isobaric
+        need_qs_isobaric = MPAS_field_will_be_written('qs_isobaric')
+        need_any_diags = need_any_diags .or. need_qs_isobaric
+        need_qv_isobaric = MPAS_field_will_be_written('qv_isobaric')
+        need_any_diags = need_any_diags .or. need_qv_isobaric
+        need_qc_isobaric = MPAS_field_will_be_written('qc_isobaric')
+        need_any_diags = need_any_diags .or. need_qc_isobaric
+        need_qg_isobaric = MPAS_field_will_be_written('qg_isobaric')
+        need_any_diags = need_any_diags .or. need_qg_isobaric
+        need_qi_isobaric = MPAS_field_will_be_written('qi_isobaric')
+        need_any_diags = need_any_diags .or. need_qi_isobaric
+
 !        print *, "mp_thompson2=", need_mp_thompson
 !        print *, "cu_grell_freitas2=", need_cu_grell_freitas
 !        print *, "bl_mynn2=", need_bl_mynn
@@ -2574,8 +2683,40 @@ module mpas_isobaric_diagnostics
         real (kind=RKIND), dimension(:,:), pointer :: t_isobaric
         real (kind=RKIND), dimension(:,:), pointer :: z_isobaric
         real (kind=RKIND), dimension(:), pointer :: meanT_500_300
-
         real (kind=RKIND), dimension(:,:), pointer :: zgeo_isobaric
+
+        real (kind=RKIND), dimension(:,:), pointer :: cldfrac_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: temperature_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: dewpoint_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: relhum_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: w_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: uzonal_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: umeridional_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: vorticity_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: height_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: spechum_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: omega_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: rqvblten_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: rthblten_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: rqvcuten_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: rthcuten_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: rthratenlw_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: rthratensw_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: rucuten_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: rvcuten_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: rvblten_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: rublten_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: kzq_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: kzh_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: kzm_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: ni_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: nr_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: qr_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: qs_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: qv_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: qc_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: qg_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: qi_isobaric
 
         real (kind=RKIND), dimension(:), pointer :: cldfrac_15hPa
         real (kind=RKIND), dimension(:), pointer :: cldfrac_20hPa
@@ -3368,7 +3509,6 @@ module mpas_isobaric_diagnostics
        
         real (kind=RKIND), dimension(:,:), allocatable :: pressure, pressureCp1, pressure2, pressure_v, temperature
         real (kind=RKIND), dimension(:,:), allocatable :: dewpoint, spechum, geoph
-!        real (kind=RKIND), dimension(:,:), allocatable :: zgeo_isobaric
        
        !local interpolated fields:
         integer :: nIntP
@@ -3451,7 +3591,40 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_array(diag, 't_isobaric', t_isobaric)
         call mpas_pool_get_array(diag, 'z_isobaric', z_isobaric)
         call mpas_pool_get_array(diag, 'meanT_500_300', meanT_500_300)
-      
+
+        call mpas_pool_get_array(diag, 'cldfrac_isobaric', cldfrac_isobaric)
+        call mpas_pool_get_array(diag, 'temperature_isobaric', temperature_isobaric)
+        call mpas_pool_get_array(diag, 'dewpoint_isobaric', dewpoint_isobaric)
+        call mpas_pool_get_array(diag, 'relhum_isobaric', relhum_isobaric)
+        call mpas_pool_get_array(diag, 'w_isobaric', w_isobaric)
+        call mpas_pool_get_array(diag, 'uzonal_isobaric', uzonal_isobaric)
+        call mpas_pool_get_array(diag, 'umeridional_isobaric', umeridional_isobaric)
+        call mpas_pool_get_array(diag, 'vorticity_isobaric', vorticity_isobaric)
+        call mpas_pool_get_array(diag, 'height_isobaric', height_isobaric)
+        call mpas_pool_get_array(diag, 'spechum_isobaric', spechum_isobaric)
+        call mpas_pool_get_array(diag, 'omega_isobaric', omega_isobaric)
+        call mpas_pool_get_array(diag, 'rqvblten_isobaric', rqvblten_isobaric)
+        call mpas_pool_get_array(diag, 'rthblten_isobaric', rthblten_isobaric)
+        call mpas_pool_get_array(diag, 'rqvcuten_isobaric', rqvcuten_isobaric)
+        call mpas_pool_get_array(diag, 'rthcuten_isobaric', rthcuten_isobaric)
+        call mpas_pool_get_array(diag, 'rthratenlw_isobaric', rthratenlw_isobaric)
+        call mpas_pool_get_array(diag, 'rthratensw_isobaric', rthratensw_isobaric)
+        call mpas_pool_get_array(diag, 'rucuten_isobaric', rucuten_isobaric)
+        call mpas_pool_get_array(diag, 'rvcuten_isobaric', rvcuten_isobaric)
+        call mpas_pool_get_array(diag, 'rvblten_isobaric', rvblten_isobaric)
+        call mpas_pool_get_array(diag, 'rublten_isobaric', rublten_isobaric)
+        call mpas_pool_get_array(diag, 'kzq_isobaric', kzq_isobaric)
+        call mpas_pool_get_array(diag, 'kzh_isobaric', kzh_isobaric)
+        call mpas_pool_get_array(diag, 'kzm_isobaric', kzm_isobaric)
+        call mpas_pool_get_array(diag, 'ni_isobaric', ni_isobaric)
+        call mpas_pool_get_array(diag, 'nr_isobaric', nr_isobaric)
+        call mpas_pool_get_array(diag, 'qr_isobaric', qr_isobaric)
+        call mpas_pool_get_array(diag, 'qs_isobaric', qs_isobaric)
+        call mpas_pool_get_array(diag, 'qv_isobaric', qv_isobaric)
+        call mpas_pool_get_array(diag, 'qc_isobaric', qc_isobaric)
+        call mpas_pool_get_array(diag, 'qg_isobaric', qg_isobaric)
+        call mpas_pool_get_array(diag, 'qi_isobaric', qi_isobaric)
+ 
         call mpas_pool_get_array(diag, 'cldfrac_15hPa'  , cldfrac_15hPa)
         call mpas_pool_get_array(diag, 'cldfrac_20hPa'  , cldfrac_20hPa)
         call mpas_pool_get_array(diag, 'cldfrac_30hPa'  , cldfrac_30hPa)
@@ -4441,6 +4614,7 @@ module mpas_isobaric_diagnostics
                                              pressure2   (1:nVertLevels,1:nCells)*100.0, & !8
                                              t_iso_levels(1:nIsoLevelsT)               )   !9
                                                 
+            cldfrac_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells) 
 
             cldfrac_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
             cldfrac_20hPa(1:nCells)   = field_interp(21,1:nCells)
@@ -4481,6 +4655,8 @@ module mpas_isobaric_diagnostics
                                                  temperature (1:nVertLevels,1:nCells)      , & !5
                                                  field_interp(1:nIsoLevelsT,1:nCells)      , & !6
                                                  t_iso_levels(1:nIsoLevelsT)               )   !7
+
+            temperature_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
 
             temperature_15hPa(1:nCells)   =  field_interp(22,1:nCells) !top
             temperature_20hPa(1:nCells)   =  field_interp(21,1:nCells)
@@ -4525,7 +4701,9 @@ module mpas_isobaric_diagnostics
                                                    pressure2       (1:nVertLevels,1:nCells)*100.0, & !8
                                                    t_iso_levels    (1:nIsoLevelsT)               )   !9
                 
-    
+
+               ni_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
+ 
                ni_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
                ni_20hPa(1:nCells)   = field_interp(21,1:nCells)
                ni_30hPa(1:nCells)   = field_interp(20,1:nCells)
@@ -4569,6 +4747,8 @@ module mpas_isobaric_diagnostics
                                                    pressure2       (1:nVertLevels,1:nCells)*100.0, & !8
                                                    t_iso_levels    (1:nIsoLevelsT)               )   !9
 
+
+               nr_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
  
                nr_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
                nr_20hPa(1:nCells)   = field_interp(21,1:nCells)
@@ -4612,7 +4792,9 @@ module mpas_isobaric_diagnostics
                                                 pressure2       (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels    (1:nIsoLevelsT)               )   !9
             
-            
+
+            qr_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
+ 
             qr_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
             qr_20hPa(1:nCells)   = field_interp(21,1:nCells)
             qr_30hPa(1:nCells)   = field_interp(20,1:nCells)
@@ -4653,7 +4835,9 @@ module mpas_isobaric_diagnostics
                                                 field_interp    (1:nIsoLevelsT,1:nCells)      , & !7
                                                 pressure2       (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels    (1:nIsoLevelsT)               )   !9
-            
+
+            qs_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
+ 
             qs_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
             qs_20hPa(1:nCells)   = field_interp(21,1:nCells)
             qs_30hPa(1:nCells)   = field_interp(20,1:nCells)
@@ -4694,7 +4878,9 @@ module mpas_isobaric_diagnostics
                                                 field_interp    (1:nIsoLevelsT,1:nCells)      , & !7
                                                 pressure2       (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels    (1:nIsoLevelsT)               )   !9
-            
+
+            qv_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
+ 
             qv_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
             qv_20hPa(1:nCells)   = field_interp(21,1:nCells)
             qv_30hPa(1:nCells)   = field_interp(20,1:nCells)
@@ -4735,7 +4921,9 @@ module mpas_isobaric_diagnostics
                                                 field_interp    (1:nIsoLevelsT,1:nCells)      , & !7
                                                 pressure2       (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels    (1:nIsoLevelsT)               )   !9
-            
+
+            qc_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
+
             qc_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
             qc_20hPa(1:nCells)   = field_interp(21,1:nCells)
             qc_30hPa(1:nCells)   = field_interp(20,1:nCells)
@@ -4776,7 +4964,9 @@ module mpas_isobaric_diagnostics
                                                 field_interp    (1:nIsoLevelsT,1:nCells)      , & !7
                                                 pressure2       (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels    (1:nIsoLevelsT)               )   !9
-            
+
+            qg_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
+ 
             qg_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
             qg_20hPa(1:nCells)   = field_interp(21,1:nCells)
             qg_30hPa(1:nCells)   = field_interp(20,1:nCells)
@@ -4817,7 +5007,9 @@ module mpas_isobaric_diagnostics
                                                 field_interp    (1:nIsoLevelsT,1:nCells)      , & !7
                                                 pressure2       (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels    (1:nIsoLevelsT)               )   !9
-            
+
+            qi_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
+
             qi_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
             qi_20hPa(1:nCells)   = field_interp(21,1:nCells)
             qi_30hPa(1:nCells)   = field_interp(20,1:nCells)
@@ -4858,7 +5050,9 @@ module mpas_isobaric_diagnostics
                                                 field_interp(1:nIsoLevelsT,1:nCells)      , & !7
                                                 pressure2   (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels(1:nIsoLevelsT)               )   !9
-            
+
+            rqvblten_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
+ 
             rqvblten_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
             rqvblten_20hPa(1:nCells)   = field_interp(21,1:nCells)
             rqvblten_30hPa(1:nCells)   = field_interp(20,1:nCells)
@@ -4907,6 +5101,8 @@ module mpas_isobaric_diagnostics
                                                 pressure2   (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels(1:nIsoLevelsT)               )   !9
 
+            rthblten_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
+
             rthblten_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
             rthblten_20hPa(1:nCells)   = field_interp(21,1:nCells)
             rthblten_30hPa(1:nCells)   = field_interp(20,1:nCells)
@@ -4948,6 +5144,8 @@ module mpas_isobaric_diagnostics
                                                 field_interp(1:nIsoLevelsT,1:nCells)      , & !7
                                                 pressure2   (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels(1:nIsoLevelsT)               )   !9
+
+            rqvcuten_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
 
             rqvcuten_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
             rqvcuten_20hPa(1:nCells)   = field_interp(21,1:nCells)
@@ -4997,6 +5195,8 @@ module mpas_isobaric_diagnostics
                                                 pressure2   (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels(1:nIsoLevelsT)               )   !9
 
+            rthcuten_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
+
             rthcuten_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
             rthcuten_20hPa(1:nCells)   = field_interp(21,1:nCells)
             rthcuten_30hPa(1:nCells)   = field_interp(20,1:nCells)
@@ -5038,7 +5238,9 @@ module mpas_isobaric_diagnostics
                                                 field_interp(1:nIsoLevelsT,1:nCells)      , & !7
                                                 pressure2   (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels(1:nIsoLevelsT)               )   !9
-            
+
+            rthratenlw_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
+ 
             rthratenlw_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
             rthratenlw_20hPa(1:nCells)   = field_interp(21,1:nCells)
             rthratenlw_30hPa(1:nCells)   = field_interp(20,1:nCells)
@@ -5079,7 +5281,9 @@ module mpas_isobaric_diagnostics
                                                 field_interp(1:nIsoLevelsT,1:nCells)      , & !7
                                                 pressure2   (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels(1:nIsoLevelsT)               ) !9
-            
+
+            rthratensw_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
+ 
             rthratensw_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
             rthratensw_20hPa(1:nCells)   = field_interp(21,1:nCells)
             rthratensw_30hPa(1:nCells)   = field_interp(20,1:nCells)
@@ -5122,7 +5326,9 @@ module mpas_isobaric_diagnostics
                                                 field_interp(1:nIsoLevelsT,1:nCells)      , & !7
                                                 pressure2   (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels(1:nIsoLevelsT)               ) !9
-            
+
+            rucuten_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
+ 
             rucuten_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
             rucuten_20hPa(1:nCells)   = field_interp(21,1:nCells)
             rucuten_30hPa(1:nCells)   = field_interp(20,1:nCells)
@@ -5163,7 +5369,9 @@ module mpas_isobaric_diagnostics
                                                 field_interp(1:nIsoLevelsT,1:nCells)      , & !7
                                                 pressure2   (1:nVertLevels,1:nCells)*100.0, & !8  
                                                 t_iso_levels(1:nIsoLevelsT)               ) !9
-          
+
+            rvcuten_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
+ 
           rvcuten_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
           rvcuten_20hPa(1:nCells)   = field_interp(21,1:nCells)
           rvcuten_30hPa(1:nCells)   = field_interp(20,1:nCells)
@@ -5205,7 +5413,9 @@ module mpas_isobaric_diagnostics
                                                 field_interp(1:nIsoLevelsT,1:nCells)      , & !7
                                                 pressure2   (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels(1:nIsoLevelsT)               )   !9
-          
+
+            rublten_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
+ 
           rublten_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
           rublten_20hPa(1:nCells)   = field_interp(21,1:nCells)
           rublten_30hPa(1:nCells)   = field_interp(20,1:nCells)
@@ -5247,7 +5457,9 @@ module mpas_isobaric_diagnostics
                                                 field_interp(1:nIsoLevelsT,1:nCells)      , & !7
                                                 pressure2   (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels(1:nIsoLevelsT)               )   !9
-          
+
+            rvblten_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
+ 
           rvblten_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
           rvblten_20hPa(1:nCells)   = field_interp(21,1:nCells)
           rvblten_30hPa(1:nCells)   = field_interp(20,1:nCells)
@@ -5287,7 +5499,8 @@ module mpas_isobaric_diagnostics
                                                field_interp(1:nIsoLevelsT,1:nCells)      , & !6
                                                t_iso_levels(1:nIsoLevelsT)               ) !7
                                              
-             
+
+            relhum_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)             
             
             relhum_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
             relhum_20hPa(1:nCells)   = field_interp(21,1:nCells)
@@ -5329,7 +5542,9 @@ module mpas_isobaric_diagnostics
                                                 field_interp(1:nIsoLevelsT,1:nCells)      , & !7
                                                 pressure2   (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels(1:nIsoLevelsT)               )   !9
-            
+
+            kzq_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
+ 
             kzq_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
             kzq_20hPa(1:nCells)   = field_interp(21,1:nCells)
             kzq_30hPa(1:nCells)   = field_interp(20,1:nCells)
@@ -5370,7 +5585,9 @@ module mpas_isobaric_diagnostics
                                                 field_interp(1:nIsoLevelsT,1:nCells)      , & !7
                                                 pressure2   (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels(1:nIsoLevelsT)               )   !9
-            
+
+            kzh_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
+ 
             kzh_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
             kzh_20hPa(1:nCells)   = field_interp(21,1:nCells)
             kzh_30hPa(1:nCells)   = field_interp(20,1:nCells)
@@ -5411,7 +5628,9 @@ module mpas_isobaric_diagnostics
                                                 field_interp(1:nIsoLevelsT,1:nCells)      , & !7
                                                 pressure2   (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels(1:nIsoLevelsT)               )   !9
-            
+
+            kzm_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
+ 
             kzm_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
             kzm_20hPa(1:nCells)   = field_interp(21,1:nCells)
             kzm_30hPa(1:nCells)   = field_interp(20,1:nCells)
@@ -5452,6 +5671,8 @@ module mpas_isobaric_diagnostics
                                                   dewpoint    (1:nVertLevels,1:nCells)      , & !5
                                                   field_interp(1:nIsoLevelsT,1:nCells)      , & !6
                                                   t_iso_levels(1:nIsoLevelsT)               )   !7
+
+            dewpoint_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
             
             dewpoint_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
             dewpoint_20hPa(1:nCells)   = field_interp(21,1:nCells)
@@ -5494,6 +5715,8 @@ module mpas_isobaric_diagnostics
                                               field_interp(1:nIsoLevelsT,1:nCells)      )   !7. 
             
 
+            uzonal_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
+
             uzonal_15hPa(1:nCells)    = field_interp(22,1:nCells) !top
             uzonal_20hPa(1:nCells)    = field_interp(21,1:nCells)
             uzonal_30hPa(1:nCells)    = field_interp(20,1:nCells)
@@ -5535,6 +5758,8 @@ module mpas_isobaric_diagnostics
                                              field_interp(1:nIsoLevelsT,1:nCells)      )   !7. 
 
 
+            umeridional_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
+
             umeridional_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
             umeridional_20hPa(1:nCells)   = field_interp(21,1:nCells)
             umeridional_30hPa(1:nCells)   = field_interp(20,1:nCells)
@@ -5573,7 +5798,9 @@ module mpas_isobaric_diagnostics
                                              spechum     (1:nVertLevels,1:nCells)      , & !5
                                              field_interp(1:nIsoLevelsT,1:nCells)      , & !6
                                              t_iso_levels(1:nIsoLevelsT)               )   !7
-            
+
+            spechum_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
+ 
             spechum_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
             spechum_20hPa(1:nCells)   = field_interp(21,1:nCells)
             spechum_30hPa(1:nCells)   = field_interp(20,1:nCells)
@@ -5623,6 +5850,8 @@ module mpas_isobaric_diagnostics
                                                 pressure2    (1:nVertLevels,1:nCells)*100.0, & !8
                                                 t_iso_levels(1:nIsoLevelsT)               )   !9
 
+            height_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
+
             height_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
             height_20hPa(1:nCells)   = field_interp(21,1:nCells)
             height_30hPa(1:nCells)   = field_interp(20,1:nCells)
@@ -5659,6 +5888,8 @@ module mpas_isobaric_diagnostics
                                              t_iso_levels(1:nIsoLevelsT)               , & !5. 
                                              vvel        (1:nVertLevels,1:nCells)      , & !6. 
                                              field_interp(1:nIsoLevelsT,1:nCells)      )   !7.
+
+            w_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
 
             w_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
             w_20hPa(1:nCells)   = field_interp(21,1:nCells)
@@ -5704,7 +5935,7 @@ module mpas_isobaric_diagnostics
                                             field_interp(1:nIsoLevelsT,1:nCells)      , & !7
                                             t_iso_levels(1:nIsoLevelsT)               )   !8
             
-	    zgeo_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
+            zgeo_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
 
             geoph_15hPa(1:nCells)   = field_interp(22,1:nCells) !top
             geoph_20hPa(1:nCells)   = field_interp(21,1:nCells)
@@ -5749,6 +5980,7 @@ module mpas_isobaric_diagnostics
                                              field_interp(1:nIsoLevelsT,1:nCells)      )   !7.
 
 
+            omega_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
 
             omega_15hPa(1:nCells)   = w_15hPa(1:nCells)  * field_interp(22,1:nCells) *grav *(-1) !top
             omega_20hPa(1:nCells)   = w_20hPa(1:nCells)  * field_interp(21,1:nCells) *grav *(-1)

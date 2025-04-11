@@ -90,7 +90,7 @@
              description="horizontal cloud fraction vertically interpolated to 975 hPa"/>
 
         <var name="cldfrac_1000hPa" type="real" dimensions="nCells Time" units="unitless"
-		description="horizontal cloud fraction vertically interpolated to 1000s hPa"/>
+             description="horizontal cloud fraction vertically interpolated to 1000 hPa"/>
 
         <var name="temperature_15hPa" type="real" dimensions="nCells Time" units="K"
              description="Temperature vertically interpolated to 15 hPa"/>
@@ -156,7 +156,7 @@
              description="Temperature vertically interpolated to 975 hPa"/>
 
         <var name="temperature_1000hPa" type="real" dimensions="nCells Time" units="K"
-		description="Temperature vertically interpolated to 1000s hPa"/>
+             description="Temperature vertically interpolated to 1000 hPa"/>
 
         <var name="relhum_15hPa" type="real" dimensions="nCells Time" units="percent"
              description="Relative humidity vertically interpolated to 15 hPa"/>
@@ -222,7 +222,7 @@
              description="Relative humidity vertically interpolated to 975 hPa"/>
 
         <var name="relhum_1000hPa" type="real" dimensions="nCells Time" units="percent"
-             description="Relative humidity vertically interpolated to 1000s hPa"/>
+             description="Relative humidity vertically interpolated to 1000 hPa"/>
 
         <var name="dewpoint_15hPa" type="real" dimensions="nCells Time" units="K"
              description="Dewpoint temperature vertically interpolated to 15 hPa"/>
@@ -354,7 +354,7 @@
              description="Geometric height interpolated to 975 hPa"/>
 
         <var name="height_1000hPa" type="real" dimensions="nCells Time" units="m"
-             description="Geometric height interpolated to 1000s hPa"/>
+             description="Geometric height interpolated to 1000 hPa"/>
 
         <var name="uzonal_15hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
              description="Reconstructed zonal wind at cell centers, vertically interpolated to 15 hPa"/>
@@ -486,7 +486,7 @@
              description="Reconstructed meridional wind at cell centers, vertically interpolated to 975 hPa"/>
 
         <var name="umeridional_1000hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
-             description="Reconstructed meridional wind at cell centers, vertically interpolated to 1000s hPa"/>
+             description="Reconstructed meridional wind at cell centers, vertically interpolated to 1000 hPa"/>
 
         <var name="spechum_15hPa" type="real" dimensions="nCells Time" units="kg kg^{-1}"
              description="Specific humidity vertically interpolated to 15 hPa"/>
@@ -552,7 +552,7 @@
              description="Specific humidity vertically interpolated to 975 hPa"/>
 
         <var name="spechum_1000hPa" type="real" dimensions="nCells Time" units="kg kg^{-1}"
-             description="Specific humidity vertically interpolated to 1000s hPa"/>
+             description="Specific humidity vertically interpolated to 1000 hPa"/>
 
         <var name="w_15hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
              description="Vertical velocity vertically interpolated to 15 hPa"/>
@@ -618,7 +618,7 @@
              description="Vertical velocity vertically interpolated to 975 hPa"/>
 
         <var name="w_1000hPa" type="real" dimensions="nCells Time" units="m s^{-1}"
-             description="Vertical velocity vertically interpolated to 1000s hPa"/>
+             description="Vertical velocity vertically interpolated to 1000 hPa"/>
        
         <var name="geoph_15hPa" type="real" dimensions="nCells Time" units="m"
              description="Geopotential height vertically interpolated to 15 hPa"/>
@@ -684,8 +684,7 @@
              description="Geopotential height vertically interpolated to 975 hPa"/>
 
         <var name="geoph_1000hPa" type="real" dimensions="nCells Time" units="m"
-             description="Geopotential height vertically interpolated to 1000s hPa"/>
-
+             description="Geopotential height vertically interpolated to 1000 hPa"/>
 
         <var name="omega_15hPa" type="real" dimensions="nCells Time" units="hPa/s"
              description="Omega vertically interpolated to 15 hPa"/>
@@ -751,8 +750,7 @@
              description="Omega vertically interpolated to 975 hPa"/>
 
         <var name="omega_1000hPa" type="real" dimensions="nCells Time" units="hPa/s"
-             description="Omega vertically interpolated to 1000s hPa"/>
-
+             description="Omega vertically interpolated to 1000 hPa"/>
 
         <var name="rthblten_15hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
              description="Tendency of meridional wind due to pbl processes vertically interpolated to 15 hPa"/>
@@ -818,7 +816,7 @@
              description="Tendency of meridional wind due to pbl processes vertically interpolated to 975 hPa"/>
 
         <var name="rthblten_1000hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
-             description="Tendency of meridional wind due to pbl processes vertically interpolated to 1000s hPa"/>
+             description="Tendency of meridional wind due to pbl processes vertically interpolated to 1000 hPa"/>
 
         <var name="rthcuten_15hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
              description="Tendency of meridional wind due to cumulus convection vertically interpolated to 15 hPa"/>
@@ -884,8 +882,7 @@
              description="Tendency of meridional wind due to cumulus convection vertically interpolated to 975 hPa"/>
 
         <var name="rthcuten_1000hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
-          description="Tendency of meridional wind due to cumulus convection vertically interpolated to 1000s hPa"/>
-
+             description="Tendency of meridional wind due to cumulus convection vertically interpolated to 1000 hPa"/>
 
         <var name="rqvblten_15hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
              description="Tendency of meridional wind due to pbl processes vertically interpolated to 15 hPa"/>
@@ -951,7 +948,7 @@
              description="Tendency of meridional wind due to pbl processes vertically interpolated to 975 hPa"/>
 
         <var name="rqvblten_1000hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
-             description="Tendency of meridional wind due to pbl processes vertically interpolated to 1000s hPa"/>
+             description="Tendency of meridional wind due to pbl processes vertically interpolated to 1000 hPa"/>
 
         <var name="rqvcuten_15hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
              description="Tendency of meridional wind due to cumulus convection vertically interpolated to 15 hPa"/>
@@ -1017,7 +1014,7 @@
              description="Tendency of meridional wind due to cumulus convection vertically interpolated to 975 hPa"/>
 
         <var name="rqvcuten_1000hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
-		description="Tendency of meridional wind due to cumulus convection vertically interpolated to 1000s hPa"/>
+             description="Tendency of meridional wind due to cumulus convection vertically interpolated to 1000 hPa"/>
 
         <var name="rthratenlw_15hPa" type="real" dimensions="nCells Time" units="K s^{-1}"
              description="Tendency of potential temperature due to long wave radiation vertically interpolated to 15 hPa"/>
@@ -1083,7 +1080,7 @@
              description="Tendency of potential temperature due to long wave radiation vertically interpolated to 975 hPa"/>
 
         <var name="rthratenlw_1000hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
-             description="Tendency of potential temperature due to long wave radiation vertically interpolated to 1000s hPa"/>
+             description="Tendency of potential temperature due to long wave radiation vertically interpolated to 1000 hPa"/>
 
 
         <var name="rthratensw_15hPa" type="real" dimensions="nCells Time" units="K s^{-1}"
@@ -1150,7 +1147,7 @@
              description="Tendency of potential temperature due to short wave radiation vertically interpolated to 975 hPa"/>
 
         <var name="rthratensw_1000hPa" type="real" dimensions="nCells Time"  units="K s^{-1}"
-             description="Tendency of potential temperature due to short wave radiation vertically interpolated to 1000s hPa"/>
+             description="Tendency of potential temperature due to short wave radiation vertically interpolated to 1000 hPa"/>
 
         <var name="rucuten_15hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
              description="Tendency of zonal wind due to cumulus convection 15 hPa"/>
@@ -1216,7 +1213,7 @@
              description="Tendency of zonal wind due to cumulus convection 975 hPa"/>
 
         <var name="rucuten_1000hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
-		description="Tendency of zonal wind due to cumulus convection 1000s hPa"/>
+             description="Tendency of zonal wind due to cumulus convection 1000 hPa"/>
 
         <var name="rvcuten_15hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
              description="Tendency of meridional wind due to cumulus convection 15 hPa"/>
@@ -1282,8 +1279,7 @@
              description="Tendency of meridional wind due to cumulus convection 975 hPa"/>
 
         <var name="rvcuten_1000hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
-		description="Tendency of meridional wind due to cumulus convection 1000 hPa"/>
-
+             description="Tendency of meridional wind due to cumulus convection 1000 hPa"/>
 
         <var name="rublten_15hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
              description="tendency of zonal wind due to pbl processes 15 hPa"/>
@@ -1349,10 +1345,7 @@
              description="tendency of zonal wind due to pbl processes 975 hPa"/>
 
         <var name="rublten_1000hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
-		description="tendency of zonal wind due to pbl processes 1000s hPa"/>
-
-
-
+             description="tendency of zonal wind due to pbl processes 1000 hPa"/>
 
         <var name="rvblten_15hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
              description="Tendency of meridional wind due to pbl processes 15 hPa"/>
@@ -1418,7 +1411,7 @@
              description="Tendency of meridional wind due to pbl processes 975 hPa"/>
 
         <var name="rvblten_1000hPa" type="real" dimensions="nCells Time"  units="m s^{-1} s^{-1}"
-		description="Tendency of meridional wind due to pbl processes 1000 hPa"/>
+             description="Tendency of meridional wind due to pbl processes 1000 hPa"/>
 
         <var name="kzq_15hPa" type="real" dimensions="nCells Time"  units="m^{2} s^{-1}"
              description="Vertical diffusion coefficient of water vapor and cloud condensates vertically interpolated to 15 hPa"/>
@@ -1484,9 +1477,9 @@
              description="Vertical diffusion coefficient of water vapor and cloud condensates vertically interpolated to 975 hPa"/>
 
         <var name="kzq_1000hPa" type="real" dimensions="nCells Time"  units="m^{2} s^{-1}"
-             description="Vertical diffusion coefficient of water vapor and cloud condensates vertically interpolated to 1000s hPa"/>
+             description="Vertical diffusion coefficient of water vapor and cloud condensates vertically interpolated to 1000 hPa"/>
           
-         <var name="kzh_15hPa" type="real" dimensions="nCells Time"  units="m^{2} s^{-1}"
+        <var name="kzh_15hPa" type="real" dimensions="nCells Time"  units="m^{2} s^{-1}"
              description="Vertical diffusion coefficient of potential temperature vertically interpolated to 15 hPa"/>
 
         <var name="kzh_20hPa" type="real" dimensions="nCells Time"  units="m^{2} s^{-1}"
@@ -1550,7 +1543,7 @@
              description="Vertical diffusion coefficient of potential temperature vertically interpolated to 975 hPa"/>
 
         <var name="kzh_1000hPa" type="real" dimensions="nCells Time"  units="m^{2} s^{-1}"
-             description="Vertical diffusion coefficient of potential temperature vertically interpolated to 1000s hPa"/>
+             description="Vertical diffusion coefficient of potential temperature vertically interpolated to 1000 hPa"/>
 
          <var name="kzm_15hPa" type="real" dimensions="nCells Time"  units="m^{2} s^{-1}"
              description="Vertical diffusion coefficient of mommentum vertically interpolated to 15 hPa"/>
@@ -1616,9 +1609,9 @@
              description="Vertical diffusion coefficient of mommentum vertically interpolated to 975 hPa"/>
 
         <var name="kzm_1000hPa" type="real" dimensions="nCells Time"  units="m^{2} s^{-1}"
-             description="Vertical diffusion coefficient of mommentum vertically interpolated to 1000s hPa"/>
+             description="Vertical diffusion coefficient of mommentum vertically interpolated to 1000 hPa"/>
 
-         <var name="ni_15hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+        <var name="ni_15hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
              description="Cloud ice number concentration vertically interpolated to 15 hPa"/>
 
         <var name="ni_20hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
@@ -1682,9 +1675,9 @@
              description="Cloud ice number concentration vertically interpolated to 975 hPa"/>
 
         <var name="ni_1000hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
-             description="Cloud ice number concentration vertically interpolated to 1000s hPa"/>
+             description="Cloud ice number concentration vertically interpolated to 1000 hPa"/>
 
-         <var name="nr_15hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+        <var name="nr_15hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
              description="Rain number concentration vertically interpolated to 15 hPa"/>
 
         <var name="nr_20hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
@@ -1748,9 +1741,9 @@
              description="Rain number concentration vertically interpolated to 975 hPa"/>
 
         <var name="nr_1000hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
-             description="Rain number concentration vertically interpolated to 1000s hPa"/>
+             description="Rain number concentration vertically interpolated to 1000 hPa"/>
           
-          <var name="qr_15hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
+        <var name="qr_15hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
              description="Rain number concentration vertically interpolated to 15 hPa"/>
 
         <var name="qr_20hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
@@ -1814,7 +1807,7 @@
              description="Rain number concentration vertically interpolated to 975 hPa"/>
 
         <var name="qr_1000hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
-             description="Rain number concentration vertically interpolated to 1000s hPa"/>
+             description="Rain number concentration vertically interpolated to 1000 hPa"/>
 
         <var name="qs_15hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
              description="Rain number concentration vertically interpolated to 15 hPa"/>
@@ -1880,7 +1873,7 @@
              description="Rain number concentration vertically interpolated to 975 hPa"/>
 
         <var name="qs_1000hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
-             description="Rain number concentration vertically interpolated to 1000s hPa"/>
+             description="Rain number concentration vertically interpolated to 1000 hPa"/>
 
         <var name="qv_15hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
              description="Rain number concentration vertically interpolated to 15 hPa"/>
@@ -1946,7 +1939,7 @@
              description="Rain number concentration vertically interpolated to 975 hPa"/>
 
         <var name="qv_1000hPa" type="real" dimensions="nCells Time" units="nb kg^{-1}"
-             description="Rain number concentration vertically interpolated to 1000s hPa"/>
+             description="Rain number concentration vertically interpolated to 1000 hPa"/>
 
         <var name="qc_15hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
              description="Cloud water mixing ratio vertically interpolated to 15 hPa"/>
@@ -2012,7 +2005,7 @@
              description="Cloud water mixing ratio vertically interpolated to 975 hPa"/>
 
         <var name="qc_1000hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
-             description="Cloud water mixing ratio vertically interpolated to 1000s hPa"/>
+             description="Cloud water mixing ratio vertically interpolated to 1000 hPa"/>
 
         <var name="qg_15hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
              description="Graupel mixing ratio vertically interpolated to 15 hPa"/>
@@ -2078,7 +2071,7 @@
              description="Graupel mixing ratio vertically interpolated to 975 hPa"/>
 
         <var name="qg_1000hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
-             description="Graupel mixing ratio vertically interpolated to 1000s hPa"/>
+             description="Graupel mixing ratio vertically interpolated to 1000 hPa"/>
 
         <var name="qi_15hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
              description="Ice mixing ratio vertically interpolated to 15 hPa"/>
@@ -2144,7 +2137,7 @@
              description="Ice mixing ratio vertically interpolated to 975 hPa"/>
 
         <var name="qi_1000hPa" type="real" dimensions="nCells Time"  units="kg kg^{-1}"
-             description="Ice mixing ratio vertically interpolated to 1000s hPa"/>
+             description="Ice mixing ratio vertically interpolated to 1000 hPa"/>
 
         <var name="vorticity_15hPa" type="real" dimensions="nVertices Time" units="s^{-1}"
              description="Relative vorticity vertically interpolated to 15 hPa"/>
@@ -2276,18 +2269,18 @@
              description="Geopotential height vertically interpolated to 975 hPa"/>
 
         <var name="zgeo_1000hPa" type="real" dimensions="nCells Time" units="m"
-             description="Geopotential height vertically interpolated to 1000s hPa"/>
+             description="Geopotential height vertically interpolated to 1000 hPa"/>
 
-        <var name="zgeo_isobaric"    type="real" dimensions="t_iso_levels nCells Time" units="m"
+        <var name="zgeo_isobaric" type="real" dimensions="t_iso_levels nCells Time" units="m"
              description="Geopotential height interpolated to isobaric surfaces defined in t_iso_levels"/>     
 
-        <var name="t_isobaric"       type="real" dimensions="nIsoLevelsT nCells Time" units="K"
+        <var name="t_isobaric" type="real" dimensions="nIsoLevelsT nCells Time" units="K"
              description="Temperature interpolated to isobaric surfaces defined in t_iso_levels"/>
 
-        <var name="z_isobaric"       type="real" dimensions="nIsoLevelsZ nCells Time" units="m"
+        <var name="z_isobaric" type="real" dimensions="nIsoLevelsZ nCells Time" units="m"
              description="Height interpolated to isobaric surfaces defined in z_iso_levels"/>
 
-        <var name="meanT_500_300"    type="real" dimensions="nCells Time" units="K"
+        <var name="meanT_500_300" type="real" dimensions="nCells Time" units="K"
              description="Mean temperature in the 300 hPa - 500 hPa layer"/>
 
         <var name="t_iso_levels" type="real" dimensions="nIsoLevelsT" units="Pa"
@@ -2298,5 +2291,101 @@
 
         <var name="u_iso_levels" type="real" dimensions="u_iso_levels" units="Pa"
              description="Levels for vertical interpolation of winds to isobaric surfaces"/>
+
+        <var name="cldfrac_isobaric" type="real" dimensions="t_iso_levels nCells Time" units="unitless"
+             description="Horizontal cloud fraction interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="temperature_isobaric" type="real" dimensions="nIsoLevelsT nCells Time" units="K"
+             description="Temperature interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="dewpoint_isobaric" type="real" dimensions="nIsoLevelsT nCells Time" units="K"
+             description="Dewpoint temperature interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="relhum_isobaric" type="real" dimensions="t_iso_levels nCells Time" units="percent"
+             description="Relative humidity interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="w_isobaric" type="real" dimensions="u_iso_levels nCells Time" units="m s^{-1}"
+             description="Vertical velocity interpolated to isobaric surfaces defined in u_iso_levels"/>
+
+        <var name="uzonal_isobaric" type="real" dimensions="u_iso_levels nCells Time" units="m s^{-1}"
+             description="Reconstructed zonal wind at cell centers, interpolated to isobaric surfaces defined in u_iso_levels"/>
+
+        <var name="umeridional_isobaric" type="real" dimensions="u_iso_levels nCells Time" units="m s^{-1}"
+             description="Reconstructed meridional wind at cell centers, interpolated to isobaric surfaces defined in u_iso_levels"/>
+
+        <var name="vorticity_isobaric" type="real" dimensions="nIsoLevelsT nVertices Time" units="s^{-1}"
+             description="Relative vorticity at vertices interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="height_isobaric" type="real" dimensions="t_iso_levels nCells Time" units="m"
+             description="Geometric height interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="spechum_isobaric" type="real" dimensions="nIsoLevelsT nCells Time" units="kg kg^{-1}"
+             description="Specific humidity interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="omega_isobaric" type="real" dimensions="nIsoLevelsT nCells Time" units="hPa/s"
+             description="Omega interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="rqvblten_isobaric" type="real" dimensions="nIsoLevelsT nCells Time"  units="kg kg^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="rthblten_isobaric" type="real" dimensions="nIsoLevelsT nCells Time"  units="k s^{-1}"
+             description="Tendency of potential temperature due to pbl processes interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="rqvcuten_isobaric" type="real" dimensions="nIsoLevelsT nCells Time"  units="kg kg^{-1} s^{-1}"
+             description="Tendency of water vapor mixing ratio due to cumulus convection interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="rthcuten_isobaric" type="real" dimensions="nIsoLevelsT nCells Time"  units="k s^{-1}"
+             description="Tendency of potential temperature due to cumulus convection interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="rthratenlw_isobaric" type="real" dimensions="nIsoLevelsT nCells Time"  units="K s^{-1}"
+             description="Tendency of potential temperature due to long wave radiation interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="rthratensw_isobaric" type="real" dimensions="nIsoLevelsT nCells Time" units="K s^{-1}"
+             description="Tendency of potential temperature due to short wave radiation interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="rucuten_isobaric" type="real" dimensions="nIsoLevelsT nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to cumulus convection interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="rvcuten_isobaric" type="real" dimensions="nIsoLevelsT nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to cumulus convection interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="rvblten_isobaric" type="real" dimensions="nIsoLevelsT nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of meridional wind due to pbl processes interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="rublten_isobaric" type="real" dimensions="nIsoLevelsT nCells Time"  units="m s^{-1} s^{-1}"
+             description="Tendency of zonal wind due to pbl processes interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="kzq_isobaric" type="real" dimensions="nIsoLevelsT nCells Time"  units="m^{2} s^{-1}"
+             description="Vertical diffusion coefficient of water vapor and cloud condensates interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="kzh_isobaric" type="real" dimensions="nIsoLevelsT nCells Time"  units="m^{2} s^{-1}"
+             description="Vertical diffusion coefficient of potential temperature interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="kzm_isobaric" type="real" dimensions="nIsoLevelsT nCells Time"  units="m^{2} s^{-1}"
+             description="Vertical diffusion coefficient of mommentum interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="ni_isobaric" type="real" dimensions="nIsoLevelsT nCells Time" units="nb kg^{-1}"
+             description="Cloud ice number concentration interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="nr_isobaric" type="real" dimensions="t_iso_levels nCells Time" units="nb kg^{-1}"
+             description="Rain number concentration interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="qr_isobaric" type="real" dimensions="t_iso_levels nCells Time" units="kg kg^{-1}"
+             description="Rain water mixing ratio interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="qs_isobaric" type="real" dimensions="t_iso_levels nCells Time" units="kg kg^{-1}"
+             description="Snow mixing ratio interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="qv_isobaric" type="real" dimensions="t_iso_levels nCells Time" units="kg kg^{-1}"
+             description="Water vapor mixing ratio interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="qc_isobaric" type="real" dimensions="t_iso_levels nCells Time"  units="kg kg^{-1}"
+             description="Cloud water mixing ratio interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="qg_isobaric" type="real" dimensions="t_iso_levels nCells Time"  units="kg kg^{-1}"
+             description="Graupel mixing ratio interpolated to isobaric surfaces defined in t_iso_levels"/>
+
+        <var name="qi_isobaric" type="real" dimensions="t_iso_levels nCells Time"  units="kg kg^{-1}"
+             description="Ice mixing ratio interpolated to isobaric surfaces defined in t_iso_levels"/>
 
 </var_struct>
