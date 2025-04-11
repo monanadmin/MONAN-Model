@@ -2277,9 +2277,6 @@
         <var name="t_isobaric" type="real" dimensions="nIsoLevelsT nCells Time" units="K"
              description="Temperature interpolated to isobaric surfaces defined in t_iso_levels"/>
 
-        <var name="z_isobaric" type="real" dimensions="nIsoLevelsZ nCells Time" units="m"
-             description="Height interpolated to isobaric surfaces defined in z_iso_levels"/>
-
         <var name="meanT_500_300" type="real" dimensions="nCells Time" units="K"
              description="Mean temperature in the 300 hPa - 500 hPa layer"/>
 
@@ -2292,79 +2289,82 @@
         <var name="u_iso_levels" type="real" dimensions="u_iso_levels" units="Pa"
              description="Levels for vertical interpolation of winds to isobaric surfaces"/>
 
+        <var name="z_isobaric" type="real" dimensions="t_iso_levels nCells Time" units="m"
+             description="Height interpolated to isobaric surfaces defined in z_iso_levels"/>
+
         <var name="cldfrac_isobaric" type="real" dimensions="t_iso_levels nCells Time" units="unitless"
              description="Horizontal cloud fraction interpolated to isobaric surfaces defined in t_iso_levels"/>
 
-        <var name="temperature_isobaric" type="real" dimensions="nIsoLevelsT nCells Time" units="K"
+        <var name="temperature_isobaric" type="real" dimensions="t_iso_levels nCells Time" units="K"
              description="Temperature interpolated to isobaric surfaces defined in t_iso_levels"/>
 
-        <var name="dewpoint_isobaric" type="real" dimensions="nIsoLevelsT nCells Time" units="K"
+        <var name="dewpoint_isobaric" type="real" dimensions="t_iso_levels nCells Time" units="K"
              description="Dewpoint temperature interpolated to isobaric surfaces defined in t_iso_levels"/>
 
         <var name="relhum_isobaric" type="real" dimensions="t_iso_levels nCells Time" units="percent"
              description="Relative humidity interpolated to isobaric surfaces defined in t_iso_levels"/>
 
-        <var name="w_isobaric" type="real" dimensions="u_iso_levels nCells Time" units="m s^{-1}"
+        <var name="w_isobaric" type="real" dimensions="t_iso_levels nCells Time" units="m s^{-1}"
              description="Vertical velocity interpolated to isobaric surfaces defined in u_iso_levels"/>
 
-        <var name="uzonal_isobaric" type="real" dimensions="u_iso_levels nCells Time" units="m s^{-1}"
+        <var name="uzonal_isobaric" type="real" dimensions="t_iso_levels nCells Time" units="m s^{-1}"
              description="Reconstructed zonal wind at cell centers, interpolated to isobaric surfaces defined in u_iso_levels"/>
 
-        <var name="umeridional_isobaric" type="real" dimensions="u_iso_levels nCells Time" units="m s^{-1}"
+        <var name="umeridional_isobaric" type="real" dimensions="t_iso_levels nCells Time" units="m s^{-1}"
              description="Reconstructed meridional wind at cell centers, interpolated to isobaric surfaces defined in u_iso_levels"/>
 
-        <var name="vorticity_isobaric" type="real" dimensions="nIsoLevelsT nVertices Time" units="s^{-1}"
+        <var name="vorticity_isobaric" type="real" dimensions="t_iso_levels nVertices Time" units="s^{-1}"
              description="Relative vorticity at vertices interpolated to isobaric surfaces defined in t_iso_levels"/>
 
         <var name="height_isobaric" type="real" dimensions="t_iso_levels nCells Time" units="m"
              description="Geometric height interpolated to isobaric surfaces defined in t_iso_levels"/>
 
-        <var name="spechum_isobaric" type="real" dimensions="nIsoLevelsT nCells Time" units="kg kg^{-1}"
+        <var name="spechum_isobaric" type="real" dimensions="t_iso_levels nCells Time" units="kg kg^{-1}"
              description="Specific humidity interpolated to isobaric surfaces defined in t_iso_levels"/>
 
-        <var name="omega_isobaric" type="real" dimensions="nIsoLevelsT nCells Time" units="hPa/s"
+        <var name="omega_isobaric" type="real" dimensions="t_iso_levels nCells Time" units="hPa/s"
              description="Omega interpolated to isobaric surfaces defined in t_iso_levels"/>
 
-        <var name="rqvblten_isobaric" type="real" dimensions="nIsoLevelsT nCells Time"  units="kg kg^{-1} s^{-1}"
+        <var name="rqvblten_isobaric" type="real" dimensions="t_iso_levels nCells Time"  units="kg kg^{-1} s^{-1}"
              description="Tendency of meridional wind due to pbl processes interpolated to isobaric surfaces defined in t_iso_levels"/>
 
-        <var name="rthblten_isobaric" type="real" dimensions="nIsoLevelsT nCells Time"  units="k s^{-1}"
+        <var name="rthblten_isobaric" type="real" dimensions="t_iso_levels nCells Time"  units="k s^{-1}"
              description="Tendency of potential temperature due to pbl processes interpolated to isobaric surfaces defined in t_iso_levels"/>
 
-        <var name="rqvcuten_isobaric" type="real" dimensions="nIsoLevelsT nCells Time"  units="kg kg^{-1} s^{-1}"
+        <var name="rqvcuten_isobaric" type="real" dimensions="t_iso_levels nCells Time"  units="kg kg^{-1} s^{-1}"
              description="Tendency of water vapor mixing ratio due to cumulus convection interpolated to isobaric surfaces defined in t_iso_levels"/>
 
-        <var name="rthcuten_isobaric" type="real" dimensions="nIsoLevelsT nCells Time"  units="k s^{-1}"
+        <var name="rthcuten_isobaric" type="real" dimensions="t_iso_levels nCells Time"  units="k s^{-1}"
              description="Tendency of potential temperature due to cumulus convection interpolated to isobaric surfaces defined in t_iso_levels"/>
 
-        <var name="rthratenlw_isobaric" type="real" dimensions="nIsoLevelsT nCells Time"  units="K s^{-1}"
+        <var name="rthratenlw_isobaric" type="real" dimensions="t_iso_levels nCells Time"  units="K s^{-1}"
              description="Tendency of potential temperature due to long wave radiation interpolated to isobaric surfaces defined in t_iso_levels"/>
 
-        <var name="rthratensw_isobaric" type="real" dimensions="nIsoLevelsT nCells Time" units="K s^{-1}"
+        <var name="rthratensw_isobaric" type="real" dimensions="t_iso_levels nCells Time" units="K s^{-1}"
              description="Tendency of potential temperature due to short wave radiation interpolated to isobaric surfaces defined in t_iso_levels"/>
 
-        <var name="rucuten_isobaric" type="real" dimensions="nIsoLevelsT nCells Time"  units="m s^{-1} s^{-1}"
+        <var name="rucuten_isobaric" type="real" dimensions="t_iso_levels nCells Time"  units="m s^{-1} s^{-1}"
              description="Tendency of zonal wind due to cumulus convection interpolated to isobaric surfaces defined in t_iso_levels"/>
 
-        <var name="rvcuten_isobaric" type="real" dimensions="nIsoLevelsT nCells Time"  units="m s^{-1} s^{-1}"
+        <var name="rvcuten_isobaric" type="real" dimensions="t_iso_levels nCells Time"  units="m s^{-1} s^{-1}"
              description="Tendency of meridional wind due to cumulus convection interpolated to isobaric surfaces defined in t_iso_levels"/>
 
-        <var name="rvblten_isobaric" type="real" dimensions="nIsoLevelsT nCells Time"  units="m s^{-1} s^{-1}"
+        <var name="rvblten_isobaric" type="real" dimensions="t_iso_levels nCells Time"  units="m s^{-1} s^{-1}"
              description="Tendency of meridional wind due to pbl processes interpolated to isobaric surfaces defined in t_iso_levels"/>
 
-        <var name="rublten_isobaric" type="real" dimensions="nIsoLevelsT nCells Time"  units="m s^{-1} s^{-1}"
+        <var name="rublten_isobaric" type="real" dimensions="t_iso_levels nCells Time"  units="m s^{-1} s^{-1}"
              description="Tendency of zonal wind due to pbl processes interpolated to isobaric surfaces defined in t_iso_levels"/>
 
-        <var name="kzq_isobaric" type="real" dimensions="nIsoLevelsT nCells Time"  units="m^{2} s^{-1}"
+        <var name="kzq_isobaric" type="real" dimensions="t_iso_levels nCells Time"  units="m^{2} s^{-1}"
              description="Vertical diffusion coefficient of water vapor and cloud condensates interpolated to isobaric surfaces defined in t_iso_levels"/>
 
-        <var name="kzh_isobaric" type="real" dimensions="nIsoLevelsT nCells Time"  units="m^{2} s^{-1}"
+        <var name="kzh_isobaric" type="real" dimensions="t_iso_levels nCells Time"  units="m^{2} s^{-1}"
              description="Vertical diffusion coefficient of potential temperature interpolated to isobaric surfaces defined in t_iso_levels"/>
 
-        <var name="kzm_isobaric" type="real" dimensions="nIsoLevelsT nCells Time"  units="m^{2} s^{-1}"
+        <var name="kzm_isobaric" type="real" dimensions="t_iso_levels nCells Time"  units="m^{2} s^{-1}"
              description="Vertical diffusion coefficient of mommentum interpolated to isobaric surfaces defined in t_iso_levels"/>
 
-        <var name="ni_isobaric" type="real" dimensions="nIsoLevelsT nCells Time" units="nb kg^{-1}"
+        <var name="ni_isobaric" type="real" dimensions="t_iso_levels nCells Time" units="nb kg^{-1}"
              description="Cloud ice number concentration interpolated to isobaric surfaces defined in t_iso_levels"/>
 
         <var name="nr_isobaric" type="real" dimensions="t_iso_levels nCells Time" units="nb kg^{-1}"
