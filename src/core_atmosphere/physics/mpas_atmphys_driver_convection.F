@@ -1238,6 +1238,8 @@
  real(kind=RKIND),dimension(:,:),pointer:: w0avg
  real(kind=RKIND),dimension(:,:),pointer:: rthcuten,rqvcuten,rqccuten,rqicuten,rqrcuten,rqscuten
  real(kind=RKIND),dimension(:,:),pointer:: rucuten,rvcuten
+ logical, pointer :: config_apply_lbcs
+ integer,dimension(:),pointer:: bdyMaskCell
  !local pointers specific for gf_monan convection scheme
  integer,pointer:: config_gf_sub3d,nCellsSolve
  integer, dimension(:), pointer:: nEdgesOnCell
@@ -1249,7 +1251,7 @@
  real(kind=RKIND),dimension(:,:),pointer:: rcnvcfcuten, rbuoyxcuten
  real(kind=RKIND),dimension(:,:),pointer:: rupmfxcu, rdnmfxcu
  real(kind=RKIND),dimension(:,:),pointer:: sub3d_rucuten,sub3d_rvcuten,sub3d_rthcuten,sub3d_rqvcuten
-
+ real(kind=RKIND) :: factor_lbc
 !-----------------------------------------------------------------------------------------------------------------
 
  call mpas_pool_get_config(configs,'config_convection_scheme',convection_scheme)
@@ -1407,6 +1409,47 @@
             enddo
 
        endif
+       !
+       !-- fix convection outputs at the relaxation zone of limited-area model configurations
+       !nRelaxZone
+       call mpas_pool_get_config(configs, 'config_apply_lbcs', config_apply_lbcs)
+       if (config_apply_lbcs) then
+
+          call mpas_pool_get_array(mesh,'bdyMaskCell',bdyMaskCell)
+          do i = its,ite
+            !!!cycle
+            if(bdyMaskCell(i) > 0.) then
+                  !factor_lbc = (6. - float(bdyMaskCell(i)))/7. + 1./7.
+                  factor_lbc = float(maxval(bdyMaskCell)-bdyMaskCell(i))/maxval(bdyMaskCell)
+                  !factor_lbc = (real(nRelaxZone) -1 - bdyMaskCell(i))/real(nRelaxZone) + 1./real(nRelaxZone)
+                  if(factor_lbc>1. .or. factor_lbc <0.) stop 'factor LBC'
+                  !-- 1d var
+                  raincv(i)      = raincv(i)      * factor_lbc
+                  cuprec(i)      = cuprec(i)      * factor_lbc
+                  rmfxdpcu(i)    = rmfxdpcu(i)    * factor_lbc
+                  rmfxdncu(i)    = rmfxdncu(i)    * factor_lbc
+                  rmfxmdcu(i)    = rmfxmdcu(i)    * factor_lbc
+                  rmfxshcu(i)    = rmfxshcu(i)    * factor_lbc
+                  sigma_deep(i)  = sigma_deep(i)  * factor_lbc
+                  lightn_dens(i) = lightn_dens(i) * factor_lbc
+                  
+                  !-- 2d var
+                  rthcuten(:,i)    = rthcuten(:,i)    * factor_lbc
+                  rqvcuten(:,i)    = rqvcuten(:,i)    * factor_lbc
+                  rqccuten(:,i)    = rqccuten(:,i)    * factor_lbc
+                  rqicuten(:,i)    = rqicuten(:,i)    * factor_lbc
+                  rucuten(:,i)     = rucuten(:,i)     * factor_lbc   
+                  rvcuten(:,i)     = rvcuten(:,i)     * factor_lbc                  
+                  rbuoyxcuten(:,i) = rbuoyxcuten(:,i) * factor_lbc
+                  rcnvcfcuten(:,i) = rcnvcfcuten(:,i) * factor_lbc
+            endif 
+          enddo
+          !if(config_gf_sub3d > 0) then (think later if this is really needed)
+          !   do i = 1, nCellsSolve
+          !         factor_lbc = (6. - bdyMaskCell(i))/7. + 1./7.
+          !   (...)   
+          !endif
+       endif  ! of LBC 
 
     case ("cu_grell_freitas")
        call mpas_pool_get_array(diag_physics,'cubot'        ,cubot        )

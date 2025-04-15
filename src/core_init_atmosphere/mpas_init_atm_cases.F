@@ -3429,7 +3429,7 @@ module init_atm_cases
             call mpas_log_write('minval, maxval of LANDSEA = $r $r', realArgs=(/minval(maskslab), maxval(maskslab)/))
 
          end if
-
+   
          deallocate(field % slab)
          call read_next_met_field(field, istatus)
       end do

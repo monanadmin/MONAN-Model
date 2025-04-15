@@ -368,6 +368,7 @@ module atm_time_integration
 
       integer, pointer :: num_scalars, index_qv, nCells, nCellsSolve, nEdges, nEdgesSolve, nVertices, nVerticesSolve, nVertLevels
       integer, pointer :: index_qc, index_qr, index_qi, index_qs, index_qg, index_nr, index_ni
+      integer, pointer :: index_buoyx, index_cnvcf
 
       character(len=StrKIND), pointer :: config_IAU_option
 
@@ -471,6 +472,9 @@ module atm_time_integration
          call mpas_pool_get_dimension(state, 'index_qg', index_qg)  
          call mpas_pool_get_dimension(state, 'index_nr', index_nr)
          call mpas_pool_get_dimension(state, 'index_ni', index_ni)
+         call mpas_pool_get_dimension(state, 'index_buoyx', index_buoyx)
+         call mpas_pool_get_dimension(state, 'index_cnvcf', index_cnvcf)
+
       endif
 
       !
@@ -927,6 +931,12 @@ module atm_time_integration
                   if (index_ni > 0) then
                      scalars_driving(index_ni,1:nVertLevels,1:nCells+1) = mpas_atm_get_bdy_state( clock, block, nVertLevels, nCells, 'ni', rk_timestep(rk_step) )
                   end if
+                  if (index_cnvcf > 0) then
+                     scalars_driving(index_cnvcf,1:nVertLevels,1:nCells+1) = mpas_atm_get_bdy_state( clock, block, nVertLevels, nCells, 'cnvcf', rk_timestep(rk_step) )
+                  end if
+                  if (index_buoyx > 0) then
+                     scalars_driving(index_buoyx,1:nVertLevels,1:nCells+1) = mpas_atm_get_bdy_state( clock, block, nVertLevels, nCells, 'buoyx', rk_timestep(rk_step) )
+                  end if
                   
                   !$OMP PARALLEL DO
                   do thread=1,nThreads
@@ -1094,7 +1104,13 @@ module atm_time_integration
                if (index_ni > 0) then
                   scalars_driving(index_ni,1:nVertLevels,1:nCells+1) = mpas_atm_get_bdy_state( clock, block, nVertLevels, nCells, 'ni', rk_timestep(rk_step) )
                end if
-               
+               if (index_cnvcf > 0) then
+                  scalars_driving(index_cnvcf,1:nVertLevels,1:nCells+1) = mpas_atm_get_bdy_state( clock, block, nVertLevels, nCells, 'cnvcf', rk_timestep(rk_step) )
+               end if
+               if (index_buoyx > 0) then
+                  scalars_driving(index_buoyx,1:nVertLevels,1:nCells+1) = mpas_atm_get_bdy_state( clock, block, nVertLevels, nCells, 'buoyx', rk_timestep(rk_step) )
+               end if
+                
 !$OMP PARALLEL DO
                do thread=1,nThreads
                   call atm_bdy_adjust_scalars( state, diag, mesh, block % configs, scalars_driving, nVertLevels, dt, rk_timestep(rk_step), &
@@ -1254,6 +1270,12 @@ module atm_time_integration
          end if
          if (index_ni > 0) then
             scalars_driving(index_ni,1:nVertLevels,1:nCells+1) = mpas_atm_get_bdy_state( clock, block, nVertLevels, nCells, 'ni', dt )
+         end if
+         if (index_cnvcf > 0) then
+            scalars_driving(index_cnvcf,1:nVertLevels,1:nCells+1) = mpas_atm_get_bdy_state( clock, block, nVertLevels, nCells, 'cnvcf', dt )
+         end if
+         if (index_buoyx > 0) then
+            scalars_driving(index_buoyx,1:nVertLevels,1:nCells+1) = mpas_atm_get_bdy_state( clock, block, nVertLevels, nCells, 'buoyx', dt )
          end if
       
 !$OMP PARALLEL DO

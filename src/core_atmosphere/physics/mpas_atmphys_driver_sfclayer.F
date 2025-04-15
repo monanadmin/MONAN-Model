@@ -765,10 +765,10 @@
  call mpas_pool_get_array(diag_physics,'wspd'  ,wspd  )
  call mpas_pool_get_array(diag_physics,'znt'   ,znt   )
  call mpas_pool_get_array(diag_physics,'zol'   ,zol   )
- 
+
  call mpas_pool_get_array(diag_physics,'lh_spr' ,lh_spr )
  call mpas_pool_get_array(diag_physics,'hfx_spr',hfx_spr)
-
+ 
 !output variables:
  call mpas_pool_get_array(diag_physics,'q2'    ,q2    )
  call mpas_pool_get_array(diag_physics,'t2m'   ,t2m   )
@@ -823,6 +823,7 @@
     th2m(i)   = th2m_p(i,j)
     u10(i)    = u10_p(i,j)
     v10(i)    = v10_p(i,j)
+    !- srf
     hfx_spr(i)= hfx_spr_p(i,j)
     lh_spr(i) = lh_spr_p(i,j)
 

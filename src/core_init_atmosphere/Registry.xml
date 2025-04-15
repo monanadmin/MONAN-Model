@@ -1293,5 +1293,4 @@
                      description="tendency of water vapor mixing ratio due to cumulus convection"
                      packages="met_stage_out"/>
         </var_struct>
-
 </registry>
