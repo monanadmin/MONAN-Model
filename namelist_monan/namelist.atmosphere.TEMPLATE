@@ -1,0 +1,77 @@
+&nhyd_model
+    config_time_integration_order = 3
+    config_dt = #CONFIG_DT#
+    config_start_time = '#LABELI#'
+    config_run_duration = '#FCSTS#'
+    config_split_dynamics_transport = true
+    config_number_of_sub_steps = 2
+    config_dynamics_split_steps = 3
+    config_h_mom_eddy_visc2 = 0.0
+    config_h_mom_eddy_visc4 = 0.0
+    config_v_mom_eddy_visc2 = 0.0
+    config_h_theta_eddy_visc2 = 0.0
+    config_h_theta_eddy_visc4 = 0.0
+    config_v_theta_eddy_visc2 = 0.0
+    config_horiz_mixing = '2d_smagorinsky'
+    config_len_disp = #CONFIG_LEN_DISP#
+    config_visc4_2dsmag = 0.05
+    config_w_adv_order = 3
+    config_theta_adv_order = 3
+    config_scalar_adv_order = 3
+    config_u_vadv_order = 3
+    config_w_vadv_order = 3
+    config_theta_vadv_order = 3
+    config_scalar_vadv_order = 3
+    config_scalar_advection = true
+    config_positive_definite = false
+    config_monotonic = true
+    config_coef_3rd_order = 0.25
+    config_epssm = 0.1
+    config_smdiv = 0.1
+/
+&damping
+    config_zd = 22000.0
+    config_xnutr = 0.2
+/
+&limited_area
+    config_apply_lbcs = false
+/
+&io
+    config_pio_num_iotasks = 0
+    config_pio_stride = 1
+/
+&decomposition
+    config_block_decomp_file_prefix = 'x1.#RES#.graph.info.part.'
+/
+&restart
+    config_do_restart = false
+/
+&printout
+    config_print_global_minmax_vel = true
+    config_print_detailed_minmax_vel = false
+/
+&IAU
+    config_IAU_option = 'off'
+    config_IAU_window_length_s = 21600.
+/
+&physics
+    config_sst_update = false
+    config_sstdiurn_update = false
+    config_deepsoiltemp_update = false
+    config_radtlw_interval = '00:30:00'
+    config_radtsw_interval = '00:30:00'
+    config_conv_interval = '#CONFIG_CONV_INTERVAL#'
+    config_bucket_update = 'none'
+    config_physics_suite = 'convection_permitting_monan'     
+    config_mynn_edmf = 0
+/
+&gf_monan
+    config_gf_pcvol = 0
+    config_gf_cporg = 1
+    config_gf_gustf = 1
+    config_gf_sub3d = 0
+/
+
+&soundings
+    config_sounding_interval = 'none'
+/
