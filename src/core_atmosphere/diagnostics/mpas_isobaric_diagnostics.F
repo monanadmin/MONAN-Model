@@ -4537,13 +4537,14 @@ module mpas_isobaric_diagnostics
            enddo
         enddo
        
-        if (NEED_TEMP .or. NEED_RELHUM .or. NEED_SPECHUM .or. NEED_DEWPOINT .or. need_mslp &
-           .or. need_zgeo_15 .or. need_zgeo_20 .or. need_zgeo_30 .or. need_zgeo_50 &
-           .or. need_zgeo_70 .or. need_zgeo_100 .or. need_zgeo_150 .or. need_zgeo_200 &
-           .or. need_zgeo_250 .or. need_zgeo_300 .or. need_zgeo_400 .or. need_zgeo_500 &
-           .or. need_zgeo_600 .or. need_zgeo_700 .or. need_zgeo_825 .or. need_zgeo_850 &
-           .or. need_zgeo_875 .or. need_zgeo_900 .or. need_zgeo_925 .or. need_zgeo_950 &
-           .or. need_zgeo_975 .or. need_zgeo_1000) then
+!        if (NEED_TEMP .or. NEED_RELHUM .or. NEED_SPECHUM .or. NEED_DEWPOINT .or. need_mslp &
+!           .or. need_zgeo_15 .or. need_zgeo_20 .or. need_zgeo_30 .or. need_zgeo_50 &
+!           .or. need_zgeo_70 .or. need_zgeo_100 .or. need_zgeo_150 .or. need_zgeo_200 &
+!           .or. need_zgeo_250 .or. need_zgeo_300 .or. need_zgeo_400 .or. need_zgeo_500 &
+!           .or. need_zgeo_600 .or. need_zgeo_700 .or. need_zgeo_825 .or. need_zgeo_850 &
+!           .or. need_zgeo_875 .or. need_zgeo_900 .or. need_zgeo_925 .or. need_zgeo_950 &
+!           .or. need_zgeo_975 .or. need_zgeo_1000) then
+        if (NEED_TEMP .or. NEED_RELHUM .or. NEED_SPECHUM .or. NEED_DEWPOINT .or. need_mslp) then
            !calculation of temperature at cell centers:
             do iCell = 1,nCells
             do k = 1,nVertLevels
@@ -5980,7 +5981,7 @@ module mpas_isobaric_diagnostics
                                              field_interp(1:nIsoLevelsT,1:nCells)      )   !7.
 
 
-            omega_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
+            omega_isobaric(1:nIsoLevelsT,1:nCells) =  w_isobaric(1:nIsoLevelsT,1:nCells) * field_interp(1:nIsoLevelsT,1:nCells) *grav *(-1)
 
             omega_15hPa(1:nCells)   = w_15hPa(1:nCells)  * field_interp(22,1:nCells) *grav *(-1) !top
             omega_20hPa(1:nCells)   = w_20hPa(1:nCells)  * field_interp(21,1:nCells) *grav *(-1)
