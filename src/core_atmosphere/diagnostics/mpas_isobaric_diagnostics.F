@@ -33,8 +33,7 @@ module mpas_isobaric_diagnostics
     logical :: need_mslp, need_bl_mynn, need_cu_grell_freitas, need_mp_thompson, &
                need_t_isobaric, need_z_isobaric, need_u_isobaric, need_meanT_500_300
 
-    logical :: need_zgeo, &
-               need_cldfrac_isobaric, need_temperature_isobaric, need_dewpoint_isobaric, &
+    logical :: need_cldfrac_isobaric, need_temperature_isobaric, need_dewpoint_isobaric, &
                need_relhum_isobaric, need_w_isobaric,need_uzonal_isobaric, &
                need_umeridional_isobaric, need_vorticity_isobaric, need_height_isobaric, &
                need_spechum_isobaric, need_omega_isobaric, &
@@ -150,7 +149,6 @@ module mpas_isobaric_diagnostics
 
         need_any_diags = .false.
 
-        need_zgeo = .false.
         need_zgeo_isobaric = .false.
         need_cldfrac_isobaric = .false.
         need_temperature_isobaric = .false.
@@ -241,7 +239,7 @@ module mpas_isobaric_diagnostics
         need_any_diags = need_any_diags .or. need_rvcuten_isobaric
         need_rvblten_isobaric = MPAS_field_will_be_written('rvblten_isobaric')
         need_any_diags = need_any_diags .or. need_rvblten_isobaric
-        need_rublten_isobaric = MPAS_field_will_be_written('rublten _isobaric')
+        need_rublten_isobaric = MPAS_field_will_be_written('rublten_isobaric')
         need_any_diags = need_any_diags .or. need_rublten_isobaric
         need_kzq_isobaric = MPAS_field_will_be_written('kzq_isobaric')
         need_any_diags = need_any_diags .or. need_kzq_isobaric
@@ -525,20 +523,8 @@ module mpas_isobaric_diagnostics
         if (need_z_isobaric) then
            z_iso_levels = t_iso_levels
             nIsoLevelsZ = size(z_iso_levels)
-           !PK z_iso_levels(1)  = 30000.0
-           !PK z_iso_levels(2)  = 35000.0
-           !PK z_iso_levels(3)  = 40000.0
-           !PK z_iso_levels(4)  = 45000.0
-           !PK z_iso_levels(5)  = 50000.0
-           !PK z_iso_levels(6)  = 55000.0
-           !PK z_iso_levels(7)  = 60000.0
-           !PK z_iso_levels(8)  = 65000.0
-           !PK z_iso_levels(9)  = 70000.0
-           !PK z_iso_levels(10) = 75000.0
-           !PK z_iso_levels(11) = 80000.0
-           !PK z_iso_levels(12) = 85000.0
-           !PK z_iso_levels(13) = 90000.0
-       end if
+        end if
+
         if (need_u_isobaric) then
             u_iso_levels = t_iso_levels
             nIsoLevelsU = size(u_iso_levels)
