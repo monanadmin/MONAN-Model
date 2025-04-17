@@ -31,7 +31,6 @@ module mpas_isobaric_diagnostics
     private
 
     logical :: need_mslp, need_bl_mynn, need_cu_grell_freitas, need_mp_thompson, &
-               need_zgeo_15, need_zgeo_20, need_zgeo_30, need_zgeo_50, need_zgeo_70, need_zgeo_100, need_zgeo_150, need_zgeo_200, need_zgeo_250, need_zgeo_300, need_zgeo_400, need_zgeo_500, need_zgeo_600, need_zgeo_700, need_zgeo_825, need_zgeo_850, need_zgeo_875, need_zgeo_900, need_zgeo_925, need_zgeo_950, need_zgeo_975, need_zgeo_1000, &
                need_t_isobaric, need_z_isobaric, need_u_isobaric, need_meanT_500_300
 
     logical :: need_zgeo, &
@@ -190,72 +189,6 @@ module mpas_isobaric_diagnostics
         need_any_diags = need_any_diags .or. need_mslp
         
 
-        need_zgeo_15 = MPAS_field_will_be_written('zgeo_15hPa')
-        need_zgeo = need_zgeo .or. need_zgeo_15
-        need_any_diags = need_any_diags .or. need_zgeo_15
-        need_zgeo_20 = MPAS_field_will_be_written('zgeo_20hPa')
-        need_zgeo = need_zgeo .or. need_zgeo_20
-        need_any_diags = need_any_diags .or. need_zgeo_20
-        need_zgeo_30 = MPAS_field_will_be_written('zgeo_30hPa')
-        need_zgeo = need_zgeo .or. need_zgeo_30
-        need_any_diags = need_any_diags .or. need_zgeo_30
-        need_zgeo_50 = MPAS_field_will_be_written('zgeo_50hPa')
-        need_zgeo = need_zgeo .or. need_zgeo_50
-        need_any_diags = need_any_diags .or. need_zgeo_50
-        need_zgeo_70 = MPAS_field_will_be_written('zgeo_70hPa')
-        need_zgeo = need_zgeo .or. need_zgeo_70
-        need_any_diags = need_any_diags .or. need_zgeo_70
-        need_zgeo_100 = MPAS_field_will_be_written('zgeo_100hPa')
-        need_zgeo = need_zgeo .or. need_zgeo_100
-        need_any_diags = need_any_diags .or. need_zgeo_100
-        need_zgeo_150 = MPAS_field_will_be_written('zgeo_150hPa')
-        need_zgeo = need_zgeo .or. need_zgeo_150
-        need_any_diags = need_any_diags .or. need_zgeo_150
-        need_zgeo_200 = MPAS_field_will_be_written('zgeo_200hPa')
-        need_zgeo = need_zgeo .or. need_zgeo_200
-        need_any_diags = need_any_diags .or. need_zgeo_200
-        need_zgeo_250 = MPAS_field_will_be_written('zgeo_250hPa')
-        need_zgeo = need_zgeo .or. need_zgeo_250
-        need_any_diags = need_any_diags .or. need_zgeo_250
-        need_zgeo_300 = MPAS_field_will_be_written('zgeo_300hPa')
-        need_zgeo = need_zgeo .or. need_zgeo_300
-        need_any_diags = need_any_diags .or. need_zgeo_300
-        need_zgeo_400 = MPAS_field_will_be_written('zgeo_400hPa')
-        need_zgeo = need_zgeo .or. need_zgeo_400
-        need_any_diags = need_any_diags .or. need_zgeo_400
-        need_zgeo_500 = MPAS_field_will_be_written('zgeo_500hPa')
-        need_zgeo = need_zgeo .or. need_zgeo_500
-        need_any_diags = need_any_diags .or. need_zgeo_500
-        need_zgeo_600 = MPAS_field_will_be_written('zgeo_600hPa')
-        need_zgeo = need_zgeo .or. need_zgeo_600
-        need_any_diags = need_any_diags .or. need_zgeo_600
-        need_zgeo_700 = MPAS_field_will_be_written('zgeo_700hPa')
-        need_zgeo = need_zgeo .or. need_zgeo_700
-        need_any_diags = need_any_diags .or. need_zgeo_700
-        need_zgeo_825 = MPAS_field_will_be_written('zgeo_825hPa')
-        need_zgeo = need_zgeo .or. need_zgeo_825
-        need_any_diags = need_any_diags .or. need_zgeo_825
-        need_zgeo_850 = MPAS_field_will_be_written('zgeo_850hPa')
-        need_zgeo = need_zgeo .or. need_zgeo_850
-        need_any_diags = need_any_diags .or. need_zgeo_850
-        need_zgeo_875 = MPAS_field_will_be_written('zgeo_875hPa')
-        need_zgeo = need_zgeo .or. need_zgeo_875
-        need_any_diags = need_any_diags .or. need_zgeo_875
-        need_zgeo_900 = MPAS_field_will_be_written('zgeo_900hPa')
-        need_zgeo = need_zgeo .or. need_zgeo_900
-        need_any_diags = need_any_diags .or. need_zgeo_900
-        need_zgeo_925 = MPAS_field_will_be_written('zgeo_925hPa')
-        need_zgeo = need_zgeo .or. need_zgeo_925
-        need_any_diags = need_any_diags .or. need_zgeo_925
-        need_zgeo_950 = MPAS_field_will_be_written('zgeo_950hPa')
-        need_zgeo = need_zgeo .or. need_zgeo_950
-        need_any_diags = need_any_diags .or. need_zgeo_950
-        need_zgeo_975 = MPAS_field_will_be_written('zgeo_975hPa')
-        need_zgeo = need_zgeo .or. need_zgeo_975
-        need_any_diags = need_any_diags .or. need_zgeo_975
-        need_zgeo_1000 = MPAS_field_will_be_written('zgeo_1000hPa')
-        need_zgeo = need_zgeo .or. need_zgeo_1000
-        need_any_diags = need_any_diags .or. need_zgeo_1000
         need_t_isobaric = MPAS_field_will_be_written('t_isobaric')
         need_any_diags = need_any_diags .or. need_t_isobaric
         need_z_isobaric = MPAS_field_will_be_written('z_isobaric')
@@ -426,29 +359,6 @@ module mpas_isobaric_diagnostics
         real (kind=RKIND), dimension(:,:), pointer :: qi_isobaric
          
        
-        real (kind=RKIND), dimension(:), pointer :: zgeo_15hPa
-        real (kind=RKIND), dimension(:), pointer :: zgeo_20hPa
-        real (kind=RKIND), dimension(:), pointer :: zgeo_30hPa
-        real (kind=RKIND), dimension(:), pointer :: zgeo_50hPa
-        real (kind=RKIND), dimension(:), pointer :: zgeo_70hPa
-        real (kind=RKIND), dimension(:), pointer :: zgeo_100hPa
-        real (kind=RKIND), dimension(:), pointer :: zgeo_150hPa
-        real (kind=RKIND), dimension(:), pointer :: zgeo_200hPa
-        real (kind=RKIND), dimension(:), pointer :: zgeo_250hPa
-        real (kind=RKIND), dimension(:), pointer :: zgeo_300hPa
-        real (kind=RKIND), dimension(:), pointer :: zgeo_400hPa
-        real (kind=RKIND), dimension(:), pointer :: zgeo_500hPa
-        real (kind=RKIND), dimension(:), pointer :: zgeo_600hPa
-        real (kind=RKIND), dimension(:), pointer :: zgeo_700hPa
-        real (kind=RKIND), dimension(:), pointer :: zgeo_825hPa
-        real (kind=RKIND), dimension(:), pointer :: zgeo_850hPa
-        real (kind=RKIND), dimension(:), pointer :: zgeo_875hPa
-        real (kind=RKIND), dimension(:), pointer :: zgeo_900hPa
-        real (kind=RKIND), dimension(:), pointer :: zgeo_925hPa
-        real (kind=RKIND), dimension(:), pointer :: zgeo_950hPa
-        real (kind=RKIND), dimension(:), pointer :: zgeo_975hPa
-        real (kind=RKIND), dimension(:), pointer :: zgeo_1000hPa
-
         real (kind=RKIND) :: evp
        
        !--------------------
@@ -574,29 +484,6 @@ module mpas_isobaric_diagnostics
         call mpas_pool_get_array(diag, 'qi_isobaric', qi_isobaric)
  
 
-        call mpas_pool_get_array(diag, 'zgeo_15hPa', zgeo_15hPa)
-        call mpas_pool_get_array(diag, 'zgeo_20hPa', zgeo_20hPa)
-        call mpas_pool_get_array(diag, 'zgeo_30hPa', zgeo_30hPa)
-        call mpas_pool_get_array(diag, 'zgeo_50hPa', zgeo_50hPa)
-        call mpas_pool_get_array(diag, 'zgeo_70hPa', zgeo_70hPa)
-        call mpas_pool_get_array(diag, 'zgeo_100hPa', zgeo_100hPa)
-        call mpas_pool_get_array(diag, 'zgeo_150hPa', zgeo_150hPa)
-        call mpas_pool_get_array(diag, 'zgeo_200hPa', zgeo_200hPa)
-        call mpas_pool_get_array(diag, 'zgeo_250hPa', zgeo_250hPa)
-        call mpas_pool_get_array(diag, 'zgeo_300hPa', zgeo_300hPa)
-        call mpas_pool_get_array(diag, 'zgeo_400hPa', zgeo_400hPa)
-        call mpas_pool_get_array(diag, 'zgeo_500hPa', zgeo_500hPa)
-        call mpas_pool_get_array(diag, 'zgeo_600hPa', zgeo_600hPa)
-        call mpas_pool_get_array(diag, 'zgeo_700hPa', zgeo_700hPa)
-        call mpas_pool_get_array(diag, 'zgeo_825hPa', zgeo_825hPa)
-        call mpas_pool_get_array(diag, 'zgeo_850hPa', zgeo_850hPa)
-        call mpas_pool_get_array(diag, 'zgeo_875hPa', zgeo_875hPa)
-        call mpas_pool_get_array(diag, 'zgeo_900hPa', zgeo_900hPa)
-        call mpas_pool_get_array(diag, 'zgeo_925hPa', zgeo_925hPa)
-        call mpas_pool_get_array(diag, 'zgeo_950hPa', zgeo_950hPa)
-        call mpas_pool_get_array(diag, 'zgeo_975hPa', zgeo_975hPa)
-        call mpas_pool_get_array(diag, 'zgeo_1000hPa', zgeo_1000hPa)
-
        
         call mpas_pool_get_array(diag, 'mslp', mslp)
        
@@ -608,12 +495,7 @@ module mpas_isobaric_diagnostics
         if(.not.allocated(spechum)  ) allocate(spechum(nVertLevels,nCells)    ) !LFR
         if(.not.allocated(dewpoint) ) allocate(dewpoint(nVertLevels,nCells)   ) 
        
-        if (need_t_isobaric .or. need_zgeo_15 .or. need_zgeo_20 .or. need_zgeo_30 .or. need_zgeo_50 &
-            .or. need_zgeo_70 .or. need_zgeo_100 .or. need_zgeo_150 .or. need_zgeo_200 &
-            .or. need_zgeo_250 .or. need_zgeo_300 .or. need_zgeo_400 .or. need_zgeo_500 &
-            .or. need_zgeo_600 .or. need_zgeo_700 .or. need_zgeo_825 .or. need_zgeo_850 &
-            .or. need_zgeo_875 .or. need_zgeo_900 .or. need_zgeo_925 .or. need_zgeo_950 &
-            .or. need_zgeo_975 .or. need_zgeo_1000) then
+        if (need_t_isobaric .or. need_zgeo_isobaric) then
                 t_iso_levels(:) = (/   100000.0,   & !CR: surface 
                                        97500.0,    &
                                        95000.0,    &
@@ -1459,28 +1341,6 @@ module mpas_isobaric_diagnostics
             
             zgeo_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
 
-            zgeo_15hPa(1:nCells)  = zgeo_isobaric(1,1:nCells)
-            zgeo_20hPa(1:nCells)  = zgeo_isobaric(2,1:nCells)
-            zgeo_30hPa(1:nCells)  = zgeo_isobaric(3,1:nCells)
-            zgeo_50hPa(1:nCells)  = zgeo_isobaric(4,1:nCells)
-            zgeo_70hPa(1:nCells)  = zgeo_isobaric(5,1:nCells)
-            zgeo_100hPa(1:nCells) = zgeo_isobaric(6,1:nCells)
-            zgeo_150hPa(1:nCells) = zgeo_isobaric(7,1:nCells)
-            zgeo_200hPa(1:nCells) = zgeo_isobaric(8,1:nCells)
-            zgeo_250hPa(1:nCells) = zgeo_isobaric(9,1:nCells)
-            zgeo_300hPa(1:nCells) = zgeo_isobaric(10,1:nCells)
-            zgeo_400hPa(1:nCells) = zgeo_isobaric(11,1:nCells)
-            zgeo_500hPa(1:nCells) = zgeo_isobaric(12,1:nCells)
-            zgeo_600hPa(1:nCells) = zgeo_isobaric(13,1:nCells)
-            zgeo_700hPa(1:nCells) = zgeo_isobaric(14,1:nCells)
-            zgeo_825hPa(1:nCells) = zgeo_isobaric(15,1:nCells)
-            zgeo_850hPa(1:nCells) = zgeo_isobaric(16,1:nCells)
-            zgeo_875hPa(1:nCells) = zgeo_isobaric(17,1:nCells)
-            zgeo_900hPa(1:nCells) = zgeo_isobaric(18,1:nCells)
-            zgeo_925hPa(1:nCells) = zgeo_isobaric(19,1:nCells)
-            zgeo_950hPa(1:nCells) = zgeo_isobaric(20,1:nCells)
-            zgeo_975hPa(1:nCells) = zgeo_isobaric(21,1:nCells)
-            zgeo_1000hPa(1:nCells)= zgeo_isobaric(22,1:nCells)
 
            ! call mpas_log_write('--- end interpolate zgeo:')
            !CR: new vertical interpolation done! 29

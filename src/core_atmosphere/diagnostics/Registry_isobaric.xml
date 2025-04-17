@@ -26,75 +26,8 @@
         <var name="mslp" type="real" dimensions="nCells Time" units="Pa"
              description="Mean sea-level pressure"/>
 
-        <var name="zgeo_15hPa" type="real" dimensions="nCells Time" units="m"
-             description="Geopotential height vertically interpolated to 15 hPa"/>
-
-        <var name="zgeo_20hPa" type="real" dimensions="nCells Time" units="m"
-             description="Geopotential height vertically interpolated to 20 hPa"/>
-
-        <var name="zgeo_30hPa" type="real" dimensions="nCells Time" units="m"
-             description="Geopotential height vertically interpolated to 30 hPa"/>             
-        
-        <var name="zgeo_50hPa" type="real" dimensions="nCells Time" units="m"
-             description="Geopotential height vertically interpolated to 50 hPa"/>
-        
-        <var name="zgeo_70hPa" type="real" dimensions="nCells Time" units="m"
-             description="Geppercential height vertically interpolated to 70 hPa"/>
-
-        <var name="zgeo_100hPa" type="real" dimensions="nCells Time" units="m"
-             description="Geopotential height vertically interpolated to 100 hPa"/>
-
-        <var name="zgeo_150hPa" type="real" dimensions="nCells Time" units="m"
-             description="Geopotential height vertically interpolated to 150 hPa"/>
-
-        <var name="zgeo_200hPa" type="real" dimensions="nCells Time" units="m"
-             description="Geopotential height vertically interpolated to 200 hPa"/>     
-
-        <var name="zgeo_250hPa" type="real" dimensions="nCells Time" units="m"
-             description="Geopotential height vertically interpolated to 250 hPa"/>
-
-        <var name="zgeo_300hPa" type="real" dimensions="nCells Time" units="m"
-             description="Geopotential height vertically interpolated to 300 hPa"/>
-
-        <var name="zgeo_400hPa" type="real" dimensions="nCells Time" units="m"
-             description="Geopotential height vertically interpolated to 400 hPa"/>
-
-        <var name="zgeo_500hPa" type="real" dimensions="nCells Time" units="m"
-             description="Geopotential height vertically interpolated to 500 hPa"/>
-
-        <var name="zgeo_600hPa" type="real" dimensions="nCells Time" units="m"
-             description="Geopotential height vertically interpolated to 600 hPa"/>
-
-        <var name="zgeo_700hPa" type="real" dimensions="nCells Time" units="m"
-             description="Geopotential height vertically interpolated to 700 hPa"/>
-
-        <var name="zgeo_825hPa" type="real" dimensions="nCells Time" units="m"
-             description="Geopotential height vertically interpolated to 825 hPa"/>
-
-        <var name="zgeo_850hPa" type="real" dimensions="nCells Time" units="m"
-             description="Geopotential height vertically interpolated to 850 hPa"/>
-
-        <var name="zgeo_875hPa" type="real" dimensions="nCells Time" units="m"
-             description="Geopotential height vertically interpolated to 875 hPa"/>
-
-        <var name="zgeo_900hPa" type="real" dimensions="nCells Time" units="m"
-             description="Geopotential height vertically interpolated to 900 hPa"/>
-
-        <var name="zgeo_925hPa" type="real" dimensions="nCells Time" units="m"
-             description="Geopotential height vertically interpolated to 925 hPa"/>
-
-        <var name="zgeo_950hPa" type="real" dimensions="nCells Time" units="m"
-             description="Geopotential height vertically interpolated to 950 hPa"/>
-
-        <var name="zgeo_975hPa" type="real" dimensions="nCells Time" units="m"
-             description="Geopotential height vertically interpolated to 975 hPa"/>
-
-        <var name="zgeo_1000hPa" type="real" dimensions="nCells Time" units="m"
-             description="Geopotential height vertically interpolated to 1000 hPa"/>
-
         <var name="zgeo_isobaric" type="real" dimensions="t_iso_levels nCells Time" units="m"
              description="Geopotential height interpolated to isobaric surfaces defined in t_iso_levels"/>     
-
         <var name="t_isobaric" type="real" dimensions="nIsoLevelsT nCells Time" units="K"
              description="Temperature interpolated to isobaric surfaces defined in t_iso_levels"/>
 
