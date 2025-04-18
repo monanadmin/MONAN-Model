@@ -5968,7 +5968,7 @@ module mpas_isobaric_diagnostics
                                               pressure2      (1:nVertLevels        ,1:nCells)*100.0,&
                                               t_iso_levels   (1:nIsoLevelsT)                       ,&
                                               height         (1:nVertLevels        ,1:nCells)      ,&
-                                              z_isobaric     (1:nIsoLevelsT        ,1:nCells)       )
+                                              z_isobaric     (1:nIsoLevelsZ        ,1:nCells)       )
       
             !PK do k=1,nIsoLevelsZ
             !PK   z_isobaric(k,1:nCells) = field_interp(1:nCells,k)
