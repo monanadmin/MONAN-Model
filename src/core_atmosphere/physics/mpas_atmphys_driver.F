@@ -258,7 +258,7 @@
     endif
 
     !call to accumulate long- and short-wave diagnostics if needed:
-     if(config_bucket_update /= 'none' .and. config_bucket_radt .gt. 0._RKIND) then
+     if(config_bucket_update /= 'none' .or. config_bucket_radt .gt. 0._RKIND) then
 !$OMP PARALLEL DO
        do thread=1,nThreads
           call update_radiation_diagnostics(block%configs,mesh,diag_physics, &
