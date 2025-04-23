@@ -650,9 +650,6 @@ module mpas_isobaric_diagnostics
         if (NEED_CLDFRAC_ISOBARIC) then
          !... cldfrac:
          
-         !CR: 1o single
-         !CR: before: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
-            
          call VerticalInterpolation_Single ( nCells                                    , & !1
                                              nVertLevels                               , & !2
                                              nVertLevels                               , & !3 CR:duvida: ta certo?
@@ -667,13 +664,10 @@ module mpas_isobaric_diagnostics
 
             ! call mpas_log_write('--- end interpolate cldfrac:')
         end if
-        !CR: new vertical interpolation done! 1
 
 
         if (NEED_TEMPERATURE_ISOBARIC) then
            !... temperature:
-           !CR: 2o thermal2
-           !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
            call VerticalInterpolation_Thermal2 ( nCells                                    , & !1
                                                  nVertLevels                               , & !2
@@ -687,14 +681,11 @@ module mpas_isobaric_diagnostics
 
             ! call mpas_log_write('--- end interpolate temperature:')
         end if
-        !CR: new vertical interpolation done! 2
 
 
         if (need_mp_thompson .eqv. .true. .or. need_bl_mynn .eqv. .true.) then
            if (NEED_NI_ISOBARIC) then
                !... ni:
-               !CR: 3o single
-               !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
                 
                call VerticalInterpolation_Single ( nCells                                        , & !1
                                                    nVertLevels                                   , & !2
@@ -712,13 +703,10 @@ module mpas_isobaric_diagnostics
                ! call mpas_log_write('--- end interpolate ni:')
             end if
         end if
-        !CR: new vertical interpolation done! 3
 
         if (need_mp_thompson .eqv. .true.) then
             if (NEED_NR_ISOBARIC) then
                !... nr:
-               !CR: 4o single
-               !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
                 
                call VerticalInterpolation_Single ( nCells                                        , & !1
                                                    nVertLevels                                   , & !2
@@ -736,12 +724,9 @@ module mpas_isobaric_diagnostics
                ! call mpas_log_write('--- end interpolate nr:')
             end if
         end if
-        !CR: new vertical interpolation done! 4
 
          if (NEED_QR_ISOBARIC) then
             !... qr:
-            !CR: 5o single
-            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
             call VerticalInterpolation_Single ( nCells                                        , & !1
                                                 nVertLevels                                   , & !2
@@ -758,12 +743,9 @@ module mpas_isobaric_diagnostics
  
             ! call mpas_log_write('--- end interpolate qr:')
         end if
-        !CR: new vertical interpolation done! 5
 
          if (NEED_QS_ISOBARIC) then
             !... qs:
-            !CR: 6o single
-            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
             call VerticalInterpolation_Single ( nCells                                        , & !1
                                                 nVertLevels                                   , & !2
@@ -779,12 +761,9 @@ module mpas_isobaric_diagnostics
  
             ! call mpas_log_write('--- end interpolate qs:')
         end if
-        !CR: new vertical interpolation done! 6
 
         if (NEED_QV_ISOBARIC) then
            !... qv:
-            !CR: 7o single
-            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
             call VerticalInterpolation_Single ( nCells                                        , & !1
                                                 nVertLevels                                   , & !2
@@ -800,12 +779,9 @@ module mpas_isobaric_diagnostics
  
             ! call mpas_log_write('--- end interpolate qv:')
         end if
-        !CR: new vertical interpolation done! 7
 
         if (NEED_QC_ISOBARIC) then
            !... qc:
-            !CR: 8o single
-            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
             call VerticalInterpolation_Single ( nCells                                        , & !1
                                                 nVertLevels                                   , & !2
@@ -821,12 +797,9 @@ module mpas_isobaric_diagnostics
 
             ! call mpas_log_write('--- end interpolate qc:')
         end if
-        !CR: new vertical interpolation done! 8
 
         if (NEED_QG_ISOBARIC) then
            !... qg:
-            !CR: 9o single
-            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
             call VerticalInterpolation_Single ( nCells                                        , & !1
                                                 nVertLevels                                   , & !2
@@ -842,12 +815,9 @@ module mpas_isobaric_diagnostics
  
             ! call mpas_log_write('--- end interpolate qg:')
         end if
-        !CR: new vertical interpolation done! 9
 
         if (NEED_QI_ISOBARIC) then
            !... qi:
-            !CR: 10o single
-            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
             call VerticalInterpolation_Single ( nCells                                        , & !1
                                                 nVertLevels                                   , & !2
@@ -863,12 +833,9 @@ module mpas_isobaric_diagnostics
 
             ! call mpas_log_write('--- end interpolate qi:')
         end if
-        !CR: new vertical interpolation done! 10
 
         if (NEED_RQVBLTEN_ISOBARIC) then
            !... rqvblten:
-            !CR: 11o single
-            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
             call VerticalInterpolation_Single ( nCells                                    , & !1
                                                 nVertLevels                               , & !2
@@ -884,19 +851,10 @@ module mpas_isobaric_diagnostics
  
             ! call mpas_log_write('--- end interpolate rqvblten:')
         end if
-        !CR: new vertical interpolation done! 11
         
 
         if (NEED_RTHBLTEN_ISOBARIC) then
            !... rthblten:
-           !EGK: updating interpolation method
-           ! do iCell = 1, nCells
-           ! do k = 1, nVertLevels
-           !    kk = nVertLevels+1-k
-           !    field_in(iCell,kk) = rthblten(k,iCell)
-           ! enddo
-           ! enddo
-           ! call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
             call VerticalInterpolation_Single ( nCells                                    , & !1
                                                 nVertLevels                               , & !2
@@ -912,13 +870,10 @@ module mpas_isobaric_diagnostics
 
             ! call mpas_log_write('--- end interpolate rthblten:')
         end if
-        !EGK: new vertical interpolation done!
 
 
         if (NEED_RQVCUTEN_ISOBARIC) then
            !... rqvcuten:
-            !CR: 12o single
-            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
             call VerticalInterpolation_Single ( nCells                                    , & !1
                                                 nVertLevels                               , & !2
@@ -934,19 +889,10 @@ module mpas_isobaric_diagnostics
 
             ! call mpas_log_write('--- end interpolate rqvcuten:')
         end if
-        !CR: new vertical interpolation done! 12
 
 
         if (NEED_RTHCUTEN_ISOBARIC) then
            !... rthcuten:
-           !EGK: updating interpolation method
-           ! do iCell = 1, nCells
-           ! do k = 1, nVertLevels
-           !    kk = nVertLevels+1-k
-           !   field_in(iCell,kk) = rthcuten(k,iCell)
-           ! enddo
-           ! enddo
-           ! call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
             call VerticalInterpolation_Single ( nCells                                    , & !1
                                                 nVertLevels                               , & !2
@@ -962,13 +908,10 @@ module mpas_isobaric_diagnostics
 
             ! call mpas_log_write('--- end interpolate rthcuten:')
         end if
-        !EGK: new vertical interpolation done!
 
 
         if (NEED_RTHRATENLW_ISOBARIC) then
            !... rthratenlw:
-            !CR: 13o single
-            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
             call VerticalInterpolation_Single ( nCells                                    , & !1
                                                 nVertLevels                               , & !2
@@ -984,12 +927,9 @@ module mpas_isobaric_diagnostics
  
             ! call mpas_log_write('--- end interpolate rthratenlw:')
         end if
-        !CR: new vertical interpolation done! 13
 
         if (NEED_RTHRATENSW_ISOBARIC) then
            !... rthratenlw:
-            !CR: 14o single
-            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
             call VerticalInterpolation_Single ( nCells                                    , & !1
                                                 nVertLevels                               , & !2
@@ -1005,14 +945,11 @@ module mpas_isobaric_diagnostics
  
             ! call mpas_log_write('--- end interpolate rthratenlw:')
         end if
-        !CR: new vertical interpolation done! 14
 
 
 
          if (NEED_RUCUTEN_ISOBARIC) then
             !... rucuten:
-            !CR: 15o single
-            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
             call VerticalInterpolation_Single ( nCells                                    , & !1
                                                 nVertLevels                               , & !2
@@ -1028,12 +965,9 @@ module mpas_isobaric_diagnostics
  
             ! call mpas_log_write('--- end interpolate rucuten:')
         end if
-        !CR: new vertical interpolation done! 15
 
          if (NEED_RVCUTEN_ISOBARIC) then
             !... rvcuten:
-            !CR: 16o single
-            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
             call VerticalInterpolation_Single ( nCells                                    , & !1
                                                 nVertLevels                               , & !2
@@ -1049,12 +983,9 @@ module mpas_isobaric_diagnostics
  
           ! call mpas_log_write('--- end interpolate rvcuten:')
         end if
-        !CR: new vertical interpolation done! 16
 
         if (NEED_RUBLTEN_ISOBARIC) then
             !... rublten:
-            !CR: 17o single
-            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
 
             call VerticalInterpolation_Single ( nCells                                    , & !1
@@ -1071,13 +1002,10 @@ module mpas_isobaric_diagnostics
  
           ! call mpas_log_write('--- end interpolate rublten:')
         end if
-        !CR: new vertical interpolation done! 17
 
      
         if (NEED_RVBLTEN_ISOBARIC) then
             !... rvblten:
-            !CR: 18o single
-            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
             call VerticalInterpolation_Single ( nCells                                    , & !1
                                                 nVertLevels                               , & !2
@@ -1093,12 +1021,9 @@ module mpas_isobaric_diagnostics
  
           ! call mpas_log_write('--- end interpolate rvblten:')
         end if
-        !CR: new vertical interpolation done! 18
 
         if (NEED_RELHUM_ISOBARIC) then
            !... relative humidity:
-            !CR: 19o Humid
-            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
             
             call VerticalInterpolation_Humid ( nCells                                    , & !1
                                                nVertLevels                               , & !2
@@ -1113,12 +1038,9 @@ module mpas_isobaric_diagnostics
             
            ! call mpas_log_write('--- end interpolate relative humidity:')
         end if
-        !CR: new vertical interpolation done! 19
        
         if (NEED_KZQ_ISOBARIC) then
            !... kzq:
-            !CR: 20o single
-            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
             call VerticalInterpolation_Single ( nCells                                    , & !1
                                                 nVertLevels                               , & !2
@@ -1134,12 +1056,9 @@ module mpas_isobaric_diagnostics
  
             ! call mpas_log_write('--- end interpolate kzq:')
         end if
-        !CR: new vertical interpolation done! 20
 
         if (NEED_KZH_ISOBARIC) then
            !... kzh:
-            !CR: 21o single
-            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
             call VerticalInterpolation_Single ( nCells                                    , & !1
                                                 nVertLevels                               , & !2
@@ -1155,12 +1074,9 @@ module mpas_isobaric_diagnostics
  
             ! call mpas_log_write('--- end interpolate kzh:')
         end if
-        !CR: new vertical interpolation done! 21
 
         if (NEED_KZM_ISOBARIC) then
            !... kzm:
-            !CR: 22o single
-            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
             call VerticalInterpolation_Single ( nCells                                    , & !1
                                                 nVertLevels                               , & !2
@@ -1176,14 +1092,10 @@ module mpas_isobaric_diagnostics
  
             ! call mpas_log_write('--- end interpolate kzm:')
         end if
-        !CR: new vertical interpolation done! 22
 
 
         if (NEED_DEWPOINT_ISOBARIC) then
            !... dewpoint
-            !CR: 23o Thermal2
-            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
-            !CR: dewpoint was in 8 levels = now its 22, like the others!
             
             call VerticalInterpolation_Thermal2 ( nCells                                    , & !1
                                                   nVertLevels                               , & !2
@@ -1197,13 +1109,10 @@ module mpas_isobaric_diagnostics
             
            ! call mpas_log_write('--- end interpolate relative humidity:')
         end if
-        !CR: new vertical interpolation done! 23
         
        
         if (NEED_UZONAL_ISOBARIC) then
            !... u zonal wind:
-           !CR: 24o Wind 
-            !CR: oldone: call interp_tofixed_pressure(1.nCells, 2.nVertLevels, 3.nIntP, 4.press_in, 5.field_in, 6.press_interp, 7.field_interp)
 
             call VerticalInterpolation_Wind ( nCells                                    , & !1. 
                                               nVertLevels                               , & !2. 
@@ -1219,12 +1128,9 @@ module mpas_isobaric_diagnostics
 
                        ! call mpas_log_write('--- end interpolate zonal wind:')
         end if
-        !CR: new vertical interpolation done! 24
        
         if (NEED_UMERIDIONAL_ISOBARIC) then
            !... u meridional wind:
-           !CR: 25o Wind
-            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
             call VerticalInterpolation_Wind (nCells                                    , & !1. 
                                              nVertLevels                               , & !2. 
@@ -1239,12 +1145,9 @@ module mpas_isobaric_diagnostics
 
            ! call mpas_log_write('--- end interpolate meridional wind:')
         end if
-        !CR: new vertical interpolation done! 25
        
         if (NEED_SPECHUM_ISOBARIC) then
            !... spechum:
-           !CR: 26o Humid
-           !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
             call VerticalInterpolation_Humid(nCells                                    , & !1
                                              nVertLevels                               , & !2
@@ -1258,7 +1161,6 @@ module mpas_isobaric_diagnostics
  
            ! call mpas_log_write('--- end interpolate spechum:')
         end if
-        !CR: new vertical interpolation done! 26
 
 
 
@@ -1271,8 +1173,6 @@ module mpas_isobaric_diagnostics
            !velocity points:
             if(.not.allocated(press_in)) allocate(press_in(nCells,nVertLevelsP1))
        
-           !CR: 27o Single
-            !CR: call interp_tofixed_pressure(nCells,nVertLevelsP1,nIntP,press_in,field_in,press_interp,field_interp)
 
             call VerticalInterpolation_Single ( nCells                                    , & !1
                                                 nVertLevels                               , & !2
@@ -1287,11 +1187,8 @@ module mpas_isobaric_diagnostics
             height_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
 
            ! call mpas_log_write('--- end interpolate height:')
-           !CR: new vertical interpolation done! 27
         
            !... vertical velocity
-            !CR: 28o Wind
-            !CR: call interp_tofixed_pressure(nCells,nVertLevelsP1,nIntP,press_in,field_in,press_interp,field_interp)
 
             call VerticalInterpolation_Wind (nCells                                    , & !1. 
                                              nVertLevels                               , & !2. 
@@ -1304,7 +1201,6 @@ module mpas_isobaric_diagnostics
             w_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
 
            ! call mpas_log_write('--- end interpolate vertical velocity:')
-           !CR: new vertical interpolation done! 28
 
 
 
@@ -1313,8 +1209,6 @@ module mpas_isobaric_diagnostics
             if(allocated(field_in)) deallocate(field_in)
             !CR:if(.not.allocated(field_in)) allocate(field_in(nCells,nVertLevelsP1))
 
-            !CR: 29o zgeo
-            !CR: call interp_tofixed_pressure(nCells,nVertLevelsP1,nIntP,press_in,field_in,press_interp,field_interp)
 
             call VerticalInterpolation_ZGEO(nVertLevels                               , & !1
                                             nCells                                    , & !2
@@ -1329,7 +1223,6 @@ module mpas_isobaric_diagnostics
 
 
            ! call mpas_log_write('--- end interpolate zgeo:')
-           !CR: new vertical interpolation done! 29
 
 
             !CR:? ...omega:
@@ -1337,8 +1230,6 @@ module mpas_isobaric_diagnostics
             if(allocated(field_in)) deallocate(field_in)
             !CR:if(.not.allocated(field_in)) allocate(field_in(nCells,nVertLevels))
 
-            !CR: 30o Wind
-            !CR: call interp_tofixed_pressure(nCells,nVertLevels,nIntP,press_in,field_in,press_interp,field_interp)
 
             call VerticalInterpolation_Wind (nCells                                    , & !1. 
                                              nVertLevels                               , & !2. 
@@ -1352,7 +1243,6 @@ module mpas_isobaric_diagnostics
             omega_isobaric(1:nIsoLevelsT,1:nCells) =  w_isobaric(1:nIsoLevelsT,1:nCells) * field_interp(1:nIsoLevelsT,1:nCells) *grav *(-1)
 
            ! call mpas_log_write('--- end interpolat omega:')
-           !CR: new vertical interpolation done! 30
             
             
             
@@ -1522,7 +1412,7 @@ module mpas_isobaric_diagnostics
                                               pressure2      (1:nVertLevels        ,1:nCells)*100.0,&
                                               t_iso_levels   (1:nIsoLevelsT)                       ,&
                                               height         (1:nVertLevels        ,1:nCells)      ,&
-                                              z_isobaric     (1:nIsoLevelsT        ,1:nCells)       )
+                                              z_isobaric     (1:nIsoLevelsZ        ,1:nCells)       )
       
             !PK do k=1,nIsoLevelsZ
             !PK   z_isobaric(k,1:nCells) = field_interp(1:nCells,k)
