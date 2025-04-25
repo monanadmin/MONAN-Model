@@ -490,6 +490,7 @@
     v10_p(i,j)    = 0._RKIND
     hfx_spr_p(i,j)= 0._RKIND
     lh_spr_p(i,j) = 0._RKIND
+    sgsgustcu_p(i,j) = 0.0_RKIND
 
     !output variables (optional):
     cd_p(i,j)     = 0._RKIND
