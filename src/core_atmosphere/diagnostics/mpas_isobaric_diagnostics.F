@@ -494,16 +494,11 @@ module mpas_isobaric_diagnostics
         if(.not.allocated(dewpoint) ) allocate(dewpoint(nVertLevels,nCells)   ) 
        
         if (need_t_isobaric .or. need_zgeo_isobaric) then
-                t_iso_levels(:) = (/   100000.0,   & !CR: surface 
-                                       97500.0,    &
-                                       95000.0,    &
+                t_iso_levels(:) = (/   100000.0,   & !EGK: surface 
                                        92500.0,    &
-                                       90000.0,    &
-                                       87500.0,    &
                                        85000.0,    &
-                                       82500.0,    &
+                                       77500.0,    &
                                        70000.0,    &
-                                       60000.0,    &
                                        50000.0,    &
                                        40000.0,    &
                                        30000.0,    &
@@ -515,7 +510,8 @@ module mpas_isobaric_diagnostics
                                        5000.0,     &
                                        3000.0,     &
                                        2000.0,     &
-                                       1500.0      /) !CR: top
+                                       1000.0,     &
+                                       300.0      /) !EGK: top
               z_iso_levels = t_iso_levels
               u_iso_levels = t_iso_levels
         end if
