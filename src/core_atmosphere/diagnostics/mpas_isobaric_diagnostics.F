@@ -616,28 +616,24 @@ module mpas_isobaric_diagnostics
         if(.not.allocated(field_interp)) allocate(field_interp(nIsoLevelsT, nCells) )
         if(.not.allocated(press_interp)) allocate(press_interp(nCells,nIsoLevelsT) ) !CR: not used!
         do iCell = 1, nCells
-           press_interp(iCell, 1) = 15.0_RKIND
-           press_interp(iCell, 2) = 20.0_RKIND
-           press_interp(iCell, 3) = 30.0_RKIND
-           press_interp(iCell, 4) = 50.0_RKIND
-           press_interp(iCell, 5) = 70.0_RKIND
-           press_interp(iCell, 6) = 100.0_RKIND
-           press_interp(iCell, 7) = 150.0_RKIND
-           press_interp(iCell, 8) = 200.0_RKIND
-           press_interp(iCell, 9) = 250.0_RKIND
-           press_interp(iCell,10) = 300.0_RKIND
-           press_interp(iCell,11) = 400.0_RKIND
-           press_interp(iCell,12) = 500.0_RKIND
-           press_interp(iCell,13) = 600.0_RKIND
+           press_interp(iCell, 1) = 3.0_RKIND    !EGK: top
+           press_interp(iCell, 2) = 10.0_RKIND
+           press_interp(iCell, 3) = 20.0_RKIND
+           press_interp(iCell, 4) = 30.0_RKIND
+           press_interp(iCell, 5) = 50.0_RKIND
+           press_interp(iCell, 6) = 70.0_RKIND
+           press_interp(iCell, 7) = 100.0_RKIND
+           press_interp(iCell, 8) = 150.0_RKIND
+           press_interp(iCell, 9) = 200.0_RKIND
+           press_interp(iCell,10) = 250.0_RKIND
+           press_interp(iCell,11) = 300.0_RKIND
+           press_interp(iCell,12) = 400.0_RKIND
+           press_interp(iCell,13) = 500.0_RKIND
            press_interp(iCell,14) = 700.0_RKIND
-           press_interp(iCell,15) = 825.0_RKIND
+           press_interp(iCell,15) = 775.0_RKIND
            press_interp(iCell,16) = 850.0_RKIND
-           press_interp(iCell,17) = 875.0_RKIND
-           press_interp(iCell,18) = 900.0_RKIND
-           press_interp(iCell,19) = 925.0_RKIND
-           press_interp(iCell,20) = 950.0_RKIND
-           press_interp(iCell,21) = 975.0_RKIND
-           press_interp(iCell,22) = 1000.0_RKIND
+           press_interp(iCell,17) = 925.0_RKIND
+           press_interp(iCell,18) = 1000.0_RKIND !EGK: surface
         enddo
        
        
