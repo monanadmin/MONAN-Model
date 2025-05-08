@@ -331,7 +331,7 @@ module init_atm_cases
                                       diag, lbc_state, block_ptr % dimensions, block_ptr % configs)
 
                call mpas_get_time(start_time, dateTimeString=timeStart)
-               call init_atm_thompson_aerosols_lbc(timeString, timeStart, block_ptr, mesh, diag, state, lbc_state)
+               call init_atm_thompson_aerosols_lbc(timeString, timeStart, block_ptr, mesh, diag, lbc_state)
 
                block_ptr => block_ptr % next
             end do
@@ -3560,6 +3560,7 @@ module init_atm_cases
                ! many unique levels are found using the code above
                !
                if (too_many_fg_levs) then
+                  deallocate(field % slab)
                   call read_next_met_field(field, istatus)
                   cycle
                end if
@@ -5296,6 +5297,7 @@ call mpas_log_write('Done with soil consistency check')
                ! many unique levels are found using the code above
                !
                if (too_many_fg_levs) then
+                  deallocate(field % slab)
                   call read_next_met_field(field, istatus)
                   cycle
                end if
@@ -6699,7 +6701,7 @@ call mpas_log_write('Done with soil consistency check')
             dzs(iSoil,iCell) =   0.0
          end do
       
-         !monthly climatological surface albedo and greeness fraction:
+         !monthly climatological surface albedo and greenness fraction:
          do iMonth = 1, nMonths
             albedo12m(iMonth,iCell) = 0.08
             greenfrac(iMonth,iCell) = 0.0

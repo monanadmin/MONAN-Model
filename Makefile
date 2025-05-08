@@ -9,9 +9,9 @@ dummy:
 
 gnu:   # BUILDTARGET GNU Fortran, C, and C++ compilers
 	( $(MAKE) all \
-	"FC_PARALLEL = /opt/ohpc/pub/mpi/openmpi4-gnu9/4.1.1/bin/mpif90" \
-	"CC_PARALLEL = /opt/ohpc/pub/mpi/openmpi4-gnu9/4.1.1/bin/mpicc" \
-	"CXX_PARALLEL = /opt/ohpc/pub/mpi/openmpi4-gnu9/4.1.1/bin/mpicxx" \
+	"FC_PARALLEL = mpif90" \
+	"CC_PARALLEL = mpicc" \
+	"CXX_PARALLEL = mpicxx" \
 	"FC_SERIAL = gfortran" \
 	"CC_SERIAL = gcc" \
 	"CXX_SERIAL = g++" \
@@ -380,9 +380,9 @@ intel-mpi:   # BUILDTARGET Intel compiler suite with Intel MPI library
 
 gfortran:   # BUILDTARGET GNU Fortran, C, and C++ compilers
 	( $(MAKE) all \
-	"FC_PARALLEL = /opt/ohpc/pub/mpi/openmpi4-gnu9/4.1.1/bin/mpif90" \
-	"CC_PARALLEL = /opt/ohpc/pub/mpi/openmpi4-gnu9/4.1.1/bin/mpicc" \
-	"CXX_PARALLEL = /opt/ohpc/pub/mpi/openmpi4-gnu9/4.1.1/bin/mpicxx" \
+	"FC_PARALLEL = mpif90" \
+	"CC_PARALLEL = mpicc" \
+	"CXX_PARALLEL = mpicxx" \
 	"FC_SERIAL = gfortran" \
 	"CC_SERIAL = gcc" \
 	"CXX_SERIAL = g++" \
