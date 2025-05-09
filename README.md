@@ -1,4 +1,4 @@
-# MONAN-v1.3.1-rc
+# MONAN-v1.4.0-rc
 
 ## Model for Ocean-laNd-Atmosphere predictioN
 
@@ -9,6 +9,7 @@ The MONAN Model is managed by a scientific committee appointed by INPE's directo
 
 History
 ====
+- Version 1.4.0-rc (Release Candidate) - Changing the number of isobaric levels from 22 to 18. 
 - Version 1.3.1-rc (Release Candidate) - All 2d vars (_15hPa to _1000hPa) were converted into isobaric 3D vars. All ac* vars now are being accumulated.
 - Version 1.3.0-rc (Release Candidate) - This should be the base of the first pre-operational version of MONAN. This version contains GF retuning and a few more changes for limited area runs. It defaults the suite 'convection_permitting_monan' for the pre-operational implementation by the DIPTC. It also contains changes in the 'diagnostic' directory.
 - Version 1.2.0-rc (Release Candidate) - Bugs correction's and new parameterization: new output variables CTT, precipci for comparison with remote sensing data; the seaspray parameterization based on Barr et al 2024; a new approach to scale awareness of the conv parameterization (3d -subsidence); new output vars for PBL and convection tendencies; a tuning for cloud fraction using the monan formulation; bug fix for cold pool tendency; coupling of the downdrafts gust front speed with the surface fluxes; a soil moisture tuning for operational forecast; tuning for the convection parameterization; new formulation for the time scale for instability removal. 
