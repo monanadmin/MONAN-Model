@@ -1026,7 +1026,7 @@ module mpas_isobaric_diagnostics
 !                                               t_iso_levels(1:nIsoLevelsT)               ) !7
 
 
-!CR+PK: New RELHUM:         
+!PK: New RELHUM:         
          call VerticalInterpolation_Thermal( nCells                                        ,  &
                                              nVertLevels                                   ,  &
                                              nIsoLevelsT                                   ,  &
