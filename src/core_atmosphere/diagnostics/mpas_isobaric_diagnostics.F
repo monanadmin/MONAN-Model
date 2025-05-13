@@ -1027,9 +1027,9 @@ module mpas_isobaric_diagnostics
 
 
 !CR+PK: New RELHUM:         
-         call VerticalInterpolation_Thermal( nCells,
-                                             nVertLevels,
-                                             nIsoLevelsT,
+         call VerticalInterpolation_Thermal( nCells                                        ,  &
+                                             nVertLevels                                   ,  &
+                                             nIsoLevelsT                                   ,  &
                                              pressure2       (1:nVertLevels,1:nCells)*100.0,  &
                                              temperature     (1:nVertLevels,1:nCells)      ,  &
                                              scalars(index_qv,1:nVertLevels,1:nCells)      ,  &
