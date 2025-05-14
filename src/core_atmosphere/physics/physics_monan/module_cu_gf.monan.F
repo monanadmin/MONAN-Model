@@ -424,8 +424,9 @@ contains
               ,ids, ide, jds, jde, kds, kde   &
               ,ims, ime, jms, jme, kms, kme   &
               ,its, ite, jts, jte, kts, kte   &
-              ,itimestep             &
-              ,mynum                 )
+              ,itimestep                      &
+              ,mynum                          &
+              ,dp_dens, sh_dens, cg_dens      )
 
 ! --- vars need to be implemented
                            ! ,TRACER                &
@@ -459,6 +460,7 @@ contains
                                                            ,rthdyten,rqvdyten
       !-- intent in,out arguments
       real,dimension(ims:ime,jms:jme)         ,intent(inout):: raincv,conprr,wlpool,lightn_dens,sigma_deep
+      real,dimension(ims:ime,jms:jme)         ,intent(inout):: dp_dens,sh_dens,cg_dens
       real,dimension(ims:ime,kms:kme,jms:jme) ,intent(inout):: rthcuten,rqvcuten,rqccuten,rqicuten &
                                                               ,rucuten,rvcuten,rbuoyxcuten,rcnvcfcuten
 
@@ -654,6 +656,9 @@ contains
           raincv     (:,j) = 0.0
           lightn_dens(:,j) = 0.0
           sigma_deep (:,j) = 0.0
+          dp_dens    (:,j) = 0.0
+          sh_dens    (:,j) = 0.0
+          cg_dens    (:,j) = 0.0
          
          !-- initialization
          ztexec   (:) = 0.0
@@ -1139,15 +1144,18 @@ contains
                rmfxdncu(i,j)   = xmb4d(i,j,deep)*edt4d(i,j,deep) !-- downdraft mass flux @ its initiation level(kg/m2/s)
                rtopdpcu(i,j)   = zo(ktop4d (i,j,deep),i)         !-- cloud top height above msl (m)
                rbotdpcu(i,j)   = zo(kbcon4d(i,j,deep),i)         !-- cloud base height above msl (m)
+               dp_dens  (i,j)  = 1.0
                sigma_deep(i,j) = sigma4d(i,j,deep)
              endif
              if(ierr4d (i,j,mid ) == 0 ) then
                rmfxmdcu(i,j) = xmb4d(i,j,mid) 
                rtopmdcu(i,j) = zo(ktop4d(i,j,mid),i)
+               cg_dens (i,j) = 1.0
              endif
              if(ierr4d (i,j,shal) == 0 ) then
                rmfxshcu(i,j) = xmb4d(i,j,shal) 
                rtopshcu(i,j) = zo(ktop4d(i,j,shal),i)
+               sh_dens (i,j) = 1.0
              endif
              !if(rtopdpcu(i,j)<1000. .and. rtopdpcu(i,j)>10. ) print*,'top',i,mynum,rtopdpcu(i,j),rbotdpcu(i,j)
          enddo
@@ -2888,7 +2896,8 @@ contains
       !
       !-- cold pool parameterization and convective memory
       !
-      if (convection_tracer == 1 .and. trim(cumulus) == 'deep') then
+!     if (convection_tracer == 1 .and. trim(cumulus) == 'deep') then
+      if (convection_tracer == 1 .and. trim(cumulus) /= 'shallow') then
          call coldPoolConvMem(cumulus,its, itf, kts, kte, ktf, aa2_, entr_rate_input, ztexec, zqexec&
                             , xland, po, buoy_exc, ierr, cap_max, wlpool, aa3_, x_add_buoy          &
                             , min_entr_rate, entr_rate)
@@ -3054,7 +3063,8 @@ contains
       if(convection_tracer == 1) then 
             wlpool_bcon  (:) = wlpool(:)
             ke_gustfront (:) = 0.5 * max(wlpool_bcon(:)**2,  zws(:)**2) + 1.e-6
-            if(cumulus == 'deep')then
+ !           if(cumulus == 'deep')then
+            if(cumulus /= 'shallow')then
                call cup_up_aa0(cin1,zo_cup,zuo,dbyo ,GAMMAo_CUP   ,tn_cup  ,k22,klcl,kbcon,ktop &
                               ,ierr,itf,ktf,its,ite, kts,kte,'CIN')
             
@@ -3371,7 +3381,7 @@ contains
       if(cumulus == 'mid') &
             call cup_forcing_ens_mid(aa0,aa1,xaa0,mbdt,dtime,ierr ,po_cup,ktop,k22,kbcon,kpbl,ichoice    &
                                     ,maxens,maxens3,itf,ktf,its,ite, kts,kte,tau_ecmwf,aa1_bl,xf_dicycle &
-                                    ,dhdt,xff_mid,zws,hc,hco,he_cup,heo_cup,wlpool_bcon,xf_coldpool)
+                                    ,dhdt,xff_mid,zws,hc,hco,he_cup,heo_cup,wlpool_bcon,xf_coldpool,cin1)
 
       if(cumulus == 'shallow') then
             call cup_up_cape_cin(cape,zo_cup,zuo,dby,gamma_cup,t_cup,klcl,k22,kbcon,ktop,ierr    &
@@ -4145,7 +4155,7 @@ contains
    subroutine cup_forcing_ens_mid(aa0,aa1,xaa0,mbdt,dtime,ierr,po_cup,ktop,k22,kbcon,kpbl &
                                  ,ichoice, maxens,maxens3,itf,ktf,its,ite, kts,kte        &
                                  ,tau_ecmwf,aa1_bl,xf_dicycle, dhdt,xff_mid,zws,hc,hco    &
-                                 ,he_cup,heo_cup,wlpool,xf_coldpool)
+                                 ,he_cup,heo_cup,wlpool,xf_coldpool,cin1)
 
       implicit none
       ! aa0     = cloud work function without forcing effects
@@ -4158,23 +4168,25 @@ contains
       ! ichoice = flag if only want one closure
       ! name    = deep,mid or shallow convection flag
       !
-      integer  ,intent (in   )    :: itf,ktf,its,ite, kts,kte,maxens,maxens3
+      integer                  ,intent (in) :: itf,ktf,its,ite, kts,kte,maxens,maxens3
       integer, dimension (:)   ,intent (in) :: k22,kbcon,ktop,kpbl
       real,    dimension (:,:) ,intent (in) :: po_cup,dhdt,hc,hco,he_cup,heo_cup
       real,    dimension (:)   ,intent (in) :: xaa0
       real,    dimension (:)   ,intent (in) :: aa1,zws,mbdt,  aa0
       real                     ,intent (in) :: dtime
       integer                  ,intent (in) :: ichoice
-      real,    dimension (:)   ,intent (in) :: aa1_bl,tau_ecmwf,wlpool
+      real,    dimension (:)   ,intent (in) :: aa1_bl,tau_ecmwf,wlpool,cin1
       integer, dimension (:)   ,intent (inout) :: ierr
       real,    dimension (:)   ,intent (inout) :: xf_dicycle,xf_coldpool
       real,    dimension (:,:) ,intent (out)   :: xff_mid
       !
       !  local variables in this routine
       !
-      real,    dimension (1:maxens) :: xk
+      real, dimension (its:ite)     :: xk
       integer                       :: i,k,vtp_index
       real                          :: xff_dicycle, trash, blqe,xff_ens1,mf_ens1
+      real                          :: KE_gf,W_cb
+      real, parameter               :: c1 = 0.06, c2 = 1., c3 = 0.28,  c4 = 0.0 !0.64 
 
       !-initialization
       xff_mid     (:,:)= 0.
@@ -4183,13 +4195,13 @@ contains
       do vtp_index = get_num_elements(vec_ok),1,-1
          i = get_data_value(vec_ok,vtp_index)
 
-         xk(1)=(xaa0(i)-(aa1(i)))/mbdt(i)
+         xk(i)=(xaa0(i)-(aa1(i)))/mbdt(i)
 
-         if(xk(1).le.0.and.xk(1).gt.-0.1*mbdt(i)) xk(1)=-0.1*mbdt(i)
-         if(xk(1).gt.0.and.xk(1).lt.1.e-2       ) xk(1)=1.e-2
+         if(xk(i).le.0.and.xk(i).gt.-0.1*mbdt(i)) xk(i)=-0.1*mbdt(i)
+         if(xk(i).gt.0.and.xk(i).lt.1.e-2       ) xk(i)=1.e-2
 
          !- closure 3 for mid
-         if(xk(1) < 0.) xff_mid(i,3)=max(0., -(aa1(i)/tau_ecmwf(i))/xk(1))
+         if(xk(i) < 0.) xff_mid(i,3)=max(0., -(aa1(i)/tau_ecmwf(i))/xk(i))
       enddo
 
       do vtp_index = get_num_elements(vec_ok),1,-1
@@ -4209,7 +4221,32 @@ contains
          !- W* closure (Grant,2001)
          xff_mid(i,1)=0.03*zws(i)
       enddo
-      
+      !-----------------------------------------------------
+      !-
+      !- add the mass flux associated to the vertical velocity
+      !- at leading edge of the cold pool gust front as a surplus
+      !- for the mass flux already determined.
+      !-
+      if(convection_tracer == 1 .and. add_coldpool_clos > 0) then 
+         if(add_coldpool_clos == 1 )then
+            do vtp_index = get_num_elements(vec_ok),1,-1
+               i = get_data_value(vec_ok,vtp_index)
+               ke_gf = 0.5*wlpool(i)**2 + 1.0e-6
+               w_cb = c3*sqrt(ke_gf) + c4
+               xf_coldpool(i) = c1 * w_cb * exp (-c2* abs(min(cin1(i),0.))/ke_gf)
+            enddo
+            !if(maxval(xf_coldpool) > 0.1) print*,'xf_coldpool',maxval(xf_coldpool)
+
+         endif
+         if(add_coldpool_clos == 2 )then
+            do vtp_index = get_num_elements(vec_ok),1,-1
+               i = get_data_value(vec_ok,vtp_index)
+               if(xk(i) >= 0.) cycle
+               xf_coldpool(i) = -(0.5*wlpool(i)**2/tau_ecmwf(i)) /xk(i)
+            enddo
+         endif
+      endif 
+
    end subroutine cup_forcing_ens_mid
    !------------------------------------------------------------------------------------
    subroutine cup_minimi(array,ks,kend,kt,ierr,itf,ktf,its,ite, kts,kte  )
@@ -7389,9 +7426,9 @@ contains
             use_memory        = 0
          else
             convection_tracer = 1
-            add_coldpool_clos = 2
-            add_coldpool_trig = 2
-            use_memory        = 222
+            add_coldpool_clos = 0
+            add_coldpool_trig = 0
+            use_memory        = 0
          endif
       endif
       if(present(config_gf_pcvol)) then
