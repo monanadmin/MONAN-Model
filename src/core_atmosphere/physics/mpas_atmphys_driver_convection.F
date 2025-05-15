@@ -1652,7 +1652,6 @@
  character(len=StrKIND),pointer:: convection_scheme
  real(kind=RKIND),pointer:: bucket_rainc
  real(kind=RKIND),dimension(:),pointer:: cuprec,rainc,lightn_dens,acc_lightn_dens
-
  real(kind=RKIND),dimension(:),pointer:: xland
  real(kind=RKIND),dimension(:),pointer:: wlpool,vcpool,u_gustfront,v_gustfront
  real(kind=RKIND),dimension(:),pointer:: dp_dens,sh_dens,cg_dens

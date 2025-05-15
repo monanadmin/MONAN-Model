@@ -4232,7 +4232,8 @@ contains
             do vtp_index = get_num_elements(vec_ok),1,-1
                i = get_data_value(vec_ok,vtp_index)
                ke_gf = 0.5*wlpool(i)**2 + 1.0e-6
-               w_cb = c3*sqrt(ke_gf) + c4
+               !w_cb = c3*sqrt(ke_gf) + c4
+               w_cb = wlpool(i)
                xf_coldpool(i) = c1 * w_cb * exp (-c2* abs(min(cin1(i),0.))/ke_gf)
             enddo
             !if(maxval(xf_coldpool) > 0.1) print*,'xf_coldpool',maxval(xf_coldpool)
@@ -6230,8 +6231,12 @@ contains
             do vtp_index = get_num_elements(vec_ok),1,-1
                i = get_data_value(vec_ok,vtp_index)
                ke_gf = 0.5*wlpool(i)**2 + 1.0e-6
-               w_cb = c3*sqrt(ke_gf) + c4
+               !w_cb = c3*sqrt(ke_gf) + c4
+               w_cb = wlpool(i)
                xf_coldpool(i) = c1 * w_cb * exp (-c2* abs(min(cin1(i),0.))/ke_gf)
+               if(xf_coldpool(i)> 0.05)&
+               print*,'xfcp', xf_coldpool(i), w_cb , cin1(i), ke_gf
+
             enddo
             !if(maxval(xf_coldpool) > 0.1) print*,'xf_coldpool',maxval(xf_coldpool)
 
@@ -7426,9 +7431,9 @@ contains
             use_memory        = 0
          else
             convection_tracer = 1
-            add_coldpool_clos = 0
-            add_coldpool_trig = 0
-            use_memory        = 0
+         !   add_coldpool_clos = 2
+         !   add_coldpool_trig = 2
+         !   use_memory        = 222
          endif
       endif
       if(present(config_gf_pcvol)) then
@@ -7999,12 +8004,14 @@ contains
       
       ! Local variables:
       integer :: i, vtp_index
+      real    :: local_ave_layer
 
       if(USE_MEMORY >= 0) then 
+         local_ave_layer = ave_layer ! local_ave_layer=20.
          do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
 
-            call get_cloud_bc(cumulus,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i) &
+            call get_cloud_bc(cumulus,local_ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i) &
                              ,buoy_exc (kts:kte,i),x_add_buoy (i),kts)
             !- for gate soundings
             !x_add_buoy (i) = float(JL*40)
