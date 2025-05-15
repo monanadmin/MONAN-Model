@@ -4232,8 +4232,7 @@ contains
             do vtp_index = get_num_elements(vec_ok),1,-1
                i = get_data_value(vec_ok,vtp_index)
                ke_gf = 0.5*wlpool(i)**2 + 1.0e-6
-               !w_cb = c3*sqrt(ke_gf) + c4
-               w_cb = wlpool(i)
+               w_cb = c3*sqrt(ke_gf) + c4
                xf_coldpool(i) = c1 * w_cb * exp (-c2* abs(min(cin1(i),0.))/ke_gf)
             enddo
             !if(maxval(xf_coldpool) > 0.1) print*,'xf_coldpool',maxval(xf_coldpool)
@@ -4246,8 +4245,29 @@ contains
                xf_coldpool(i) = -(0.5*wlpool(i)**2/tau_ecmwf(i)) /xk(i)
             enddo
          endif
-      endif 
-
+         if(add_coldpool_clos == 3 )then
+            do vtp_index = get_num_elements(vec_ok),1,-1
+               i = get_data_value(vec_ok,vtp_index)
+               ke_gf = 0.5*wlpool(i)**2 + 1.0e-6
+               w_cb = wlpool(i)
+               xf_coldpool(i) = c1 * w_cb * exp (-c2* abs(min(cin1(i),0.))/ke_gf)
+               if(xf_coldpool(i)> 0.05)&
+               print*,'xfcp', xf_coldpool(i), w_cb , cin1(i), ke_gf
+            enddo
+            !if(maxval(xf_coldpool) > 0.1) print*,'xf_coldpool',maxval(xf_coldpool)
+         endif
+         if(add_coldpool_clos == 4 )then
+            do vtp_index = get_num_elements(vec_ok),1,-1
+               i = get_data_value(vec_ok,vtp_index)
+               if(xk(i) < 0.) then 
+                 ke_gf = 0.5*wlpool(i)**2 + 1.0e-6
+                 w_cb  = wlpool(i) * exp (-c2* abs(min(cin1(i),0.))/ke_gf)
+                 ke_gf = 0.5*w_cb**2.
+                 xff_mid(i,3)= xff_mid(i,3) + (-(ke_gf/tau_ecmwf(i))/xk(i))
+               endif
+            enddo
+          endif
+       endif 
    end subroutine cup_forcing_ens_mid
    !------------------------------------------------------------------------------------
    subroutine cup_minimi(array,ks,kend,kt,ierr,itf,ktf,its,ite, kts,kte  )
@@ -6231,15 +6251,10 @@ contains
             do vtp_index = get_num_elements(vec_ok),1,-1
                i = get_data_value(vec_ok,vtp_index)
                ke_gf = 0.5*wlpool(i)**2 + 1.0e-6
-               !w_cb = c3*sqrt(ke_gf) + c4
-               w_cb = wlpool(i)
+               w_cb = c3*sqrt(ke_gf) + c4
                xf_coldpool(i) = c1 * w_cb * exp (-c2* abs(min(cin1(i),0.))/ke_gf)
-               if(xf_coldpool(i)> 0.05)&
-               print*,'xfcp', xf_coldpool(i), w_cb , cin1(i), ke_gf
-
             enddo
             !if(maxval(xf_coldpool) > 0.1) print*,'xf_coldpool',maxval(xf_coldpool)
-
          endif
          if(add_coldpool_clos == 2 )then
             do vtp_index = get_num_elements(vec_ok),1,-1
@@ -6248,6 +6263,30 @@ contains
                xf_coldpool(i) = -(0.5*wlpool(i)**2/tau_ecmwf(i)) /xk(i)
             enddo
          endif
+         if(add_coldpool_clos == 3 )then
+            do vtp_index = get_num_elements(vec_ok),1,-1
+               i = get_data_value(vec_ok,vtp_index)
+               ke_gf = 0.5*wlpool(i)**2 + 1.0e-6
+               w_cb = wlpool(i)
+               xf_coldpool(i) = c1 * w_cb * exp (-c2* abs(min(cin1(i),0.))/ke_gf)
+               if(xf_coldpool(i)> 0.05)&
+               print*,'xfcp', xf_coldpool(i), w_cb , cin1(i), ke_gf
+            enddo
+            !if(maxval(xf_coldpool) > 0.1) print*,'xf_coldpool',maxval(xf_coldpool)
+         endif
+         if(add_coldpool_clos == 4 )then
+            do vtp_index = get_num_elements(vec_ok),1,-1
+               i = get_data_value(vec_ok,vtp_index)
+               if(xk(i) < 0.) then 
+                 ke_gf = 0.5*wlpool(i)**2 + 1.0e-6
+                 w_cb  = wlpool(i) * exp (-c2* abs(min(cin1(i),0.))/ke_gf)
+                 ke_gf = 0.5*w_cb**2.
+                 xf_ens(i,10)    = xf_ens(i,10) + (-(ke_gf/tau_ecmwf(i))/xk(i))
+                 xf_ens(i,11:13) = xf_ens(i,10)
+                 if(ichoice.ge.1) xf_ens(i,1:16) = xf_ens(i,ichoice)
+               endif
+            enddo
+         endif 
       endif 
    end subroutine cup_forcing_ens_deep
    !------------------------------------------------------------------------------------
