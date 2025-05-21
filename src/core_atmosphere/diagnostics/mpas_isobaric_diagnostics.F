@@ -1042,7 +1042,7 @@ module mpas_isobaric_diagnostics
 
                                              
 
-            relhum_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)             
+            relhum_isobaric(1:nIsoLevelsT,1:nCells) =  100.0 * field_interp(1:nIsoLevelsT,1:nCells)             
             
            ! call mpas_log_write('--- end interpolate relative humidity:')
         end if
