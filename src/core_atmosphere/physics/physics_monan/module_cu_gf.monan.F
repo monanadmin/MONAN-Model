@@ -1318,7 +1318,7 @@ contains
 
          !--'convective_cloud_area_fraction', adimensional: Tiedtke formulation  
          !-version using the detrained cloud mass 
-         if(use_pass_cloudvol == 1 .or. use_pass_cloudvol == 2) then 
+         if(use_pass_cloudvol == 1 .or. use_pass_cloudvol == 2 .or. use_pass_cloudvol == 12) then 
             do i = its,itf
                if(do_this_column(i,j) == 0) cycle
                do k = kts,kte
@@ -3188,13 +3188,13 @@ contains
       !
       !--- time-scale of cape removal
       !
-      if(cumulus=='deep') then
+      if(cumulus == 'deep') then
                tau_ecmwf(:)=tau_deep;   wmean(:) = 3. !  mean vertical velocity m/s
       else
                tau_ecmwf(:)=tau_mid ;   wmean(:) = 3. 
       endif
       !--- Bechtold et al (2008) time-scale of cape removal
-      if(sgs_w_timescale == 1 .and. cumulus=='deep') then
+      if(sgs_w_timescale == 1 .and. cumulus /= 'shallow') then
          do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
             !- mean vertical velocity based on integration of vertical veloc equation
@@ -3207,7 +3207,7 @@ contains
          enddo
       endif
       !--- time-scale cape removal of IFS 2023
-      if(sgs_w_timescale == 2 .and. cumulus=='deep') then
+      if(sgs_w_timescale == 2 .and. cumulus /= 'shallow') then
          dx_ref = 125.e+3 ! meters
          do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
@@ -4251,8 +4251,8 @@ contains
                ke_gf = 0.5*wlpool(i)**2 + 1.0e-6
                w_cb = wlpool(i)
                xf_coldpool(i) = c1 * w_cb * exp (-c2* abs(min(cin1(i),0.))/ke_gf)
-               if(xf_coldpool(i)> 0.05)&
-               print*,'xfcp', xf_coldpool(i), w_cb , cin1(i), ke_gf
+               !if(xf_coldpool(i)> 0.05)&
+               !print*,'xfcp', xf_coldpool(i), w_cb , cin1(i), ke_gf
             enddo
             !if(maxval(xf_coldpool) > 0.1) print*,'xf_coldpool',maxval(xf_coldpool)
          endif
@@ -5183,10 +5183,10 @@ contains
       adj_cp_entr = 1.
       if(draft == "deep_up" .and. (use_memory == 22 .or. use_memory == 222)) then
            !-- higher hei_max_zu_updraft, lower effec entrainment, lower precip
-   !22v2=>        ! adj_cp_entr = min(1.3,max(1.0, 2.-coldPoolStart(x_add_buoy)))
+            adj_cp_entr = min(1.3,max(1.0, 2.-coldPoolStart(x_add_buoy)))
            !
            !-- lower hei_max_zu_updraft, larger effec entrainment, larger precip
-             adj_cp_entr = min(1.0,max(0.7,    coldPoolStart(x_add_buoy)))
+            ! adj_cp_entr = min(1.0,max(0.7,    coldPoolStart(x_add_buoy)))
 
       endif
       
@@ -6269,8 +6269,8 @@ contains
                ke_gf = 0.5*wlpool(i)**2 + 1.0e-6
                w_cb = wlpool(i)
                xf_coldpool(i) = c1 * w_cb * exp (-c2* abs(min(cin1(i),0.))/ke_gf)
-               if(xf_coldpool(i)> 0.05)&
-               print*,'xfcp', xf_coldpool(i), w_cb , cin1(i), ke_gf
+               !if(xf_coldpool(i)> 0.05)&
+               !print*,'xfcp', xf_coldpool(i), w_cb , cin1(i), ke_gf
             enddo
             !if(maxval(xf_coldpool) > 0.1) print*,'xf_coldpool',maxval(xf_coldpool)
          endif
@@ -8078,6 +8078,8 @@ contains
                i = get_data_value(vec_ok,vtp_index)
                !entr_rate(i) = max(0.7, 1.-coldPoolStart_orig(x_add_buoy(i))) * entr_rate(i) 
                 entr_rate(i) =             coldPoolStart     (x_add_buoy(i))  * entr_rate(i) 
+               !if(coldPoolStart     (x_add_buoy(i)) < 0.9) 
+               ! print*,'entr=', coldPoolStart     (x_add_buoy(i)) , entr_rate(i)*1000.
             enddo
       endif
 
@@ -8559,6 +8561,7 @@ contains
             do k=kts,ktf
                entr_rate_2d(k,i)=entr_rate(i)*entr_frh2d(k,i)*max(min(1.,(qeso_cup(max(k,klcl(i)),i)&
                                                                          /qeso_cup(klcl(i),i))**1) ,0.1)
+               entr_rate_2d(k,i) = max(entr_rate_2d(k,i),min_entr_rate)
                cd(k,i)=0.75*entr_rate_2d(k,i)!+0.5e-3
             enddo
          endif
