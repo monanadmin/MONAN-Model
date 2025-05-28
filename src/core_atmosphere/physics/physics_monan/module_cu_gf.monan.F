@@ -2878,6 +2878,9 @@ contains
       !- initial entrainment/detrainment
       entr_rate   (:  ) = entr_rate_input
       min_entr_rate     = entr_rate_input * 0.1
+      
+      !print*,'en1',trim(cumulus),maxval(entr_rate),minval(entr_rate)
+
       !
       !-- controls of LCL and PBL turbulence on the entrainment rate
       if(use_lcl_ctrl_entr > 0 ) then 
@@ -2890,9 +2893,9 @@ contains
       !
       !--- determine the entrainment dependent on environmental moist (here relative humidity)
       !--- also the controls of RH on the diurnal cycle (see Tian et al 2022 GRL)
-      if(cumulus == 'deep') &
-          call rh_controls(whoami_all,itf,ktf,its,ite,kts,kte,ierr,tn,po,qo,qeso,po_cup,cumulus,rh_entr_factor, &
-                           rh_dicycle_fct,entr_rate_input, entr_rate ,xlons,dtime)         
+ !     if(cumulus == 'deep') &
+ !         call rh_controls(whoami_all,itf,ktf,its,ite,kts,kte,ierr,tn,po,qo,qeso,po_cup,cumulus,rh_entr_factor, &
+ !                          rh_dicycle_fct,entr_rate_input, entr_rate ,xlons,dtime)         
       !
       !-- cold pool parameterization and convective memory
       !
@@ -2933,6 +2936,9 @@ contains
       call set_entr_detr_rates(cumulus,its,ite,itf,kts,kte,ktf,ierr,klcl,min_entr_rate,entr_rate &
                               ,entr_rate_2d,cd,mentrd_rate,cdd,qo_cup, qeso_cup,cnvcf)
       !
+       !     print*,'en2',trim(cumulus),maxval(entr_rate),minval(entr_rate)
+
+
       !
       !--- determine the moist static energy of air parcels at source level
       !
@@ -8482,7 +8488,7 @@ contains
    end subroutine LCL_and_PBL_ctrl_on_entrainment
    
    !---------------------------------------------------------------------------------------------------
-   subroutine set_entr_detr_rates(cumulus,its,ite,itf,kts,kte,ktf,ierr,klcl               &
+   subroutine set_entr_detr_rates1(cumulus,its,ite,itf,kts,kte,ktf,ierr,klcl               &
                                  ,min_entr_rate,entr_rate,entr_rate_2d,cd,mentrd_rate,cdd &
                                  ,qo_cup, qeso_cup, cnvcf)
       implicit none
@@ -8544,7 +8550,7 @@ contains
          i = get_data_value(vec_ok,vtp_index)
 
          if(cumulus /= 'shallow') then
-
+!print*,"cumulus",trim(cumulus)
             do k=kts,ktf
                
                if(k >= klcl(i)) then
@@ -8552,8 +8558,12 @@ contains
                else
                      entr_rate_2d(k,i)=entr_rate(i)*entr_frh2d(k,i)
                endif
-               cd(k,i)=0.75e-4*detr_frh2d(k,i)               
+               
+              !sprint*,k, klcl(i), (qeso_cup(k,i)/qeso_cup(klcl(i),i))**1.25,entr_rate_2d(k,i)
+               
+
                entr_rate_2d(k,i) = max(entr_rate_2d(k,i),min_entr_rate)
+               cd(k,i)=0.75e-4*detr_frh2d(k,i)               
             enddo
 
          else
@@ -8571,7 +8581,96 @@ contains
         cdd        (:,i) = mentrd_rate(i)
       enddo
 
+   end subroutine set_entr_detr_rates1
+   !---------------------------------------------------------------------------------------------------
+   subroutine set_entr_detr_rates(cumulus,its,ite,itf,kts,kte,ktf,ierr,klcl               &
+                                 ,min_entr_rate,entr_rate,entr_rate_2d,cd,mentrd_rate,cdd &
+                                 ,qo_cup, qeso_cup, cnvcf)
+      implicit none
+      character *(*)   ,intent (in) :: cumulus  
+      integer  ,intent (in )                 :: its,ite,itf,kts,kte,ktf
+      integer  ,intent (in ), dimension(:)   :: ierr, klcl
+      real     ,intent (in )                 :: min_entr_rate
+      real     ,intent (in ), dimension(:)   :: entr_rate
+      real     ,intent (in ), dimension(:,:) :: qo_cup, qeso_cup,cnvcf
+
+      real     ,intent (out), dimension(:)   :: mentrd_rate
+      real     ,intent (out), dimension(:,:) :: entr_rate_2d ,cd, cdd
+
+      !-- local vars
+      integer :: i,k,vtp_index
+      real    :: crh1 = 1.3, crh2 = 1.6
+      real, dimension(kts:kte,its:ite) :: rh2d,entr_frh2d,detr_frh2d
+
+      do i=its,itf
+        entr_rate_2d(:,i) = entr_rate  (i)
+        cd          (:,i) = entr_rate  (i)
+      enddo
+      
+      if(use_rhu_ctrl_entr == 1) then
+
+         !-- get the environmental relative humidity
+         do vtp_index = get_num_elements(vec_ok),1,-1
+           i = get_data_value(vec_ok,vtp_index)
+           rh2d(:,i) = min(qo_cup(:,i)/qeso_cup(:,i),1.)
+         enddo
+      
+         if(use_pass_cloudvol == 1 .or. use_pass_cloudvol == 12 .or. use_pass_cloudvol == 3) then
+            crh1 = 1.6 ; crh2 = 1.9
+            !-- The Role of Passive Cloud Volumes in the Transition 
+            !-- From Shallow to Deep Atmospheric Convection - GRL 2023
+            do vtp_index = get_num_elements(vec_ok),1,-1
+               i = get_data_value(vec_ok,vtp_index)
+               !--effective RH =   environmental         + saturated 
+               rh2d(:,i) = (1. - cnvcf(:,i)) * rh2d(:,i) + cnvcf(:,i)*1.0 
+            enddo
+         endif
+
+         !--- get the relative humidity factor following Bechtold et al (2008)
+         do vtp_index = get_num_elements(vec_ok),1,-1
+               i = get_data_value(vec_ok,vtp_index)
+               entr_frh2d(:,i) = crh1 - rh2d(:,i)
+               detr_frh2d(:,i) = crh2 - rh2d(:,i)
+         enddo
+      
+      else ! no RH control on entr/detr rates
+
+         entr_frh2d(:,:) = 1.0
+         detr_frh2d(:,:) = 1.0
+      endif
+
+      do vtp_index = get_num_elements(vec_ok),1,-1
+         i = get_data_value(vec_ok,vtp_index)
+         do k=kts,ktf
+               
+            entr_rate_2d(k,i) = entr_rate(i)*entr_frh2d(k,i)*max(min(1.,(qeso_cup(max(k,klcl(i)),i)&
+                                                                      /qeso_cup(klcl(i),i))**1.25) ,0.1)
+            entr_rate_2d(k,i) = max(entr_rate_2d(k,i),min_entr_rate)
+
+         enddo
+      enddo
+
+      if(cumulus /= 'shallow') then
+         do vtp_index = get_num_elements(vec_ok),1,-1
+            i = get_data_value(vec_ok,vtp_index)
+            cd(:,i)=0.75e-4*detr_frh2d(:,i)               
+         enddo
+      else
+         do vtp_index = get_num_elements(vec_ok),1,-1
+            i = get_data_value(vec_ok,vtp_index)
+            cd(:,i)=0.75*entr_rate_2d(:,i)!+0.5e-3
+         enddo
+      endif
+      
+      !--- define entrainment/detrainment profiles for downdrafts
+      do vtp_index = get_num_elements(vec_ok),1,-1
+            i = get_data_value(vec_ok,vtp_index)
+            mentrd_rate(i  ) =   entr_rate(i)*0.3
+            cdd        (:,i) = mentrd_rate(i)
+      enddo
+
    end subroutine set_entr_detr_rates
+   !---------------------------------------------------------------------------------------------------
    !---------------------------------------------------------------------------------------------------
    subroutine set_scale_dep_factor(cumulus,use_scale_dep,downdraft,its,ite,itf,kts,kte,ktf&
                                   ,ierr,sig_factor,stochastic_sig,dx,sig,sigd)
