@@ -109,7 +109,8 @@ module module_cu_gf_monan
       ,add_coldpool_clos,add_coldpool_trig,mx_buoy1, mx_buoy2, cum_t_star&
       ,add_coldpool_diff,n_cldrop,use_gustiness, use_random_num          &
       ,dcape_threshold,modConvParGF_initialized,use_pass_cloudvol        &
-      ,use_lcl_ctrl_entr,use_rhu_ctrl_entr,cum_min_cloud_depth,use_sub3d 
+      ,use_lcl_ctrl_entr,use_rhu_ctrl_entr,cum_min_cloud_depth,use_sub3d &
+      ,cum_fr_min_entr
 
    public convParGFDriver,makeDropletNumber,makeIceNumber,FractLiqF      &
       ,coldPoolStart,readGFConvParNML,initModConvParGF,cu_gf_monan_driver&
@@ -253,6 +254,8 @@ module module_cu_gf_monan
                                                    
    real,   dimension(maxiens) :: cum_t_star        != scale temperature for the diurnal cycle closure
 
+   real,   dimension(maxiens) :: cum_fr_min_entr  != fraction of the minimum entrainment rate
+   
    integer,dimension(maxiens) :: cum_use_excess    != use t,q excess sub-grid scale variability
 
    integer :: moist_trigger  != relative humidity effects on the cap_max trigger function
@@ -295,6 +298,7 @@ module module_cu_gf_monan
    real    ::  max_edt_land      != default= 0.9 - maximum evap fraction allowed over the land
    real    ::  max_edt_ocean     != default= 0.9 - maximum evap fraction allowed over the ocean
    real    ::  fadj_massflx      != default= 1.0 - multiplicative factor for the mass flux at cloud base
+   real    ::  fr_min_entr
    real    ::  t_star            != scale temperature for the dc closure
    real    ::  ave_layer         != layer depth for average the properties of source air parcels (mbar)
    real    ::  c0                != autoconversion constant
@@ -1009,6 +1013,8 @@ contains
             use_excess     =  cum_use_excess     (plume)
             ave_layer      =  cum_ave_layer      (plume)
             T_star         =  cum_t_star         (plume)
+            fr_min_entr    =  cum_fr_min_entr    (plume)
+
             !
             !-- set the temp and water vapor anomalies from the sub-grid scale variability 
             call set_Tq_pertub (use_excess,its,ite,itf,xlandi,ztexec,zqexec,cum_ztexec,cum_zqexec)
@@ -2063,6 +2069,7 @@ contains
             use_excess     =  cum_use_excess     (plume)
             ave_layer      =  cum_ave_layer      (plume)
             T_star         =  cum_t_star         (plume)
+            fr_min_entr    =  cum_fr_min_entr    (plume)
             !print*,"plume=",plume,shal,mid,deep
 
             !-- set minimum/max for excess of T and Q
@@ -2877,9 +2884,9 @@ contains
       !
       !- initial entrainment/detrainment
       entr_rate   (:  ) = entr_rate_input
-      min_entr_rate     = entr_rate_input * 0.1
-      
-      !print*,'en1',trim(cumulus),maxval(entr_rate),minval(entr_rate)
+      min_entr_rate     = entr_rate_input * fr_min_entr
+
+      !print*,'en1',trim(cumulus),maxval(entr_rate),minval(entr_rate), fr_min_entr
 
       !
       !-- controls of LCL and PBL turbulence on the entrainment rate
@@ -2890,6 +2897,10 @@ contains
                                              ,entr_rate,zlcl_sfc,turb_len_scale,entr_rate_input &
                                              ,AA0_,AA1_,AA1_BL_)
       endif
+
+      !print*,'en2',trim(cumulus),maxval(entr_rate),minval(entr_rate)
+
+
       !
       !--- determine the entrainment dependent on environmental moist (here relative humidity)
       !--- also the controls of RH on the diurnal cycle (see Tian et al 2022 GRL)
@@ -2906,6 +2917,10 @@ contains
                             , min_entr_rate, entr_rate)
       end if
       !
+
+      !print*,'en3',trim(cumulus),maxval(entr_rate),minval(entr_rate)
+
+
       !-- determine LCL for the air parcels around K22
       !
       call get_lcl(cumulus,convection_tracer,use_memory,ave_layer,its,ite,itf,kts,kte,ktf,ierr &
@@ -2936,8 +2951,8 @@ contains
       call set_entr_detr_rates(cumulus,its,ite,itf,kts,kte,ktf,ierr,klcl,min_entr_rate,entr_rate &
                               ,entr_rate_2d,cd,mentrd_rate,cdd,qo_cup, qeso_cup,cnvcf)
       !
-       !     print*,'en2',trim(cumulus),maxval(entr_rate),minval(entr_rate)
 
+      print*,'en4',trim(cumulus),maxval(entr_rate),minval(entr_rate)
 
       !
       !--- determine the moist static energy of air parcels at source level
@@ -7448,7 +7463,7 @@ contains
          ,use_memory, add_coldpool_prop ,mx_buoy1, mx_buoy2,max_tq_tend           &
          ,add_coldpool_clos,add_coldpool_trig,add_coldpool_diff,n_cldrop          &
          ,output_sound,use_pass_cloudvol,use_lcl_ctrl_entr,use_rhu_ctrl_entr      &
-         ,cum_min_cloud_depth,use_sub3d
+         ,cum_min_cloud_depth,use_sub3d,cum_fr_min_entr
 
       if(present(IO_NODE)) then 
          local_io_node = IO_NODE
@@ -7483,8 +7498,8 @@ contains
       endif
       if(present(config_gf_pcvol)) then
          if(config_gf_pcvol == 0) then
-            use_pass_cloudvol = 0
-            use_lcl_ctrl_entr = 0
+          !  use_pass_cloudvol = 0
+          !  use_lcl_ctrl_entr = 0
          !else
          !
          endif
@@ -7513,6 +7528,7 @@ contains
          print*,"!---- the main controls"
          print*, 'icumulus_gf        ' , icumulus_gf
          print*, 'cum_entr           ' , real(cum_entr_rate      ,4)
+         print*, 'cum_fr_min_entr    ' , real(cum_fr_min_entr    ,4)
          print*, 'cum_min_cloud_depth' , real(cum_min_cloud_depth,4)
          print*, 'closure_choice     ' , closure_choice
          print*, 'use_sub3d          ' , use_sub3d
@@ -8451,7 +8467,7 @@ contains
       real            :: k_lcl_entr,k_tls_entr,ax,bx,ax_lcl,ax_tls,tls_max
       bx = 1.0
 
-      ax_tls = 0.5 ! 1 for NN, 0.5 MY
+      ax_tls = 1.0 ! 1 for NN, 0.5 MY
       ax_lcl = 2.0
       if(trim(cumulus) == 'deep') ax_lcl = 3.0
       do i=its,itf
@@ -8463,9 +8479,10 @@ contains
          
          if    (use_lcl_ctrl_entr == 1) then
             entr_rate(i) = k_tls_entr * entr_rate(i)
-         
+
          elseif(use_lcl_ctrl_entr == 2) then
             entr_rate(i) = k_lcl_entr * entr_rate(i)
+            !if(trim(cumulus) == 'deep') print*,'Zlcl',i,zlcl_sfc(i),k_lcl_entr
          
          elseif(use_lcl_ctrl_entr == 3) then
             entr_rate(i) = min(k_lcl_entr,k_tls_entr) * entr_rate(i)
@@ -8484,7 +8501,10 @@ contains
           AA1_(i)   = k_lcl_entr*1000.
          endif
       enddo
-     
+     ! print*,'LCL ',trim(cumulus),maxval(entr_rate(:))/entr_rate_input,minval(entr_rate(:))/entr_rate_input
+
+
+
    end subroutine LCL_and_PBL_ctrl_on_entrainment
    
    !---------------------------------------------------------------------------------------------------
@@ -10198,6 +10218,7 @@ contains
       downdraft         = 1   
       use_rebcb         = 1 
       irainevap         = 0
+      cum_fr_min_entr   = (/0.1, 0.1, 0.1/)
       cum_max_edt_land  = (/0.30, 0.00, 0.80/)
       cum_max_edt_ocean = (/0.60, 0.00, 0.40/)
       cum_use_excess    = (/1, 1, 1/)
