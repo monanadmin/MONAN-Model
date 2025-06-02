@@ -1670,7 +1670,7 @@
 !local variables and arrays for the 'cu_gf_monan':
  integer:: i,k,j,k_amb_wind
  real(kind=RKIND),parameter:: alp = 0.5                      ! semi-implicit, 1=explicit
- real(kind=RKIND),parameter:: tau_cloud_diss0 = 1.0e-3       ! seconds^(-1)
+ real(kind=RKIND),parameter:: tau_cloud_diss0 = 2.*60.       ! seconds
  real(kind=RKIND),parameter:: width  = 1000.                 ! meters
  real(kind=RKIND),parameter:: turncf = 2000.                 ! meters above local terrain
  real(kind=RKIND),parameter:: Kfr = 0.9                      ! internal Froude number 
@@ -1746,8 +1746,8 @@
               do k = kts,kte
                 !-- this goes from 1 to 0.1 as the height goes from the local surface height to the upper levels
                 vert_scale_diss = 1._RKIND/(1.5_RKIND+atan(2._RKIND*(zgrid(k,i) - htopx - turncf)/width))/3.      
-                vert_scale_diss = max(min (vert_scale_diss,1.) , 0.1_RKIND) ! = 1. to turn off vertical variation
-                tau_cloud_diss = 1._RKIND/(vert_scale_diss*tau_cloud_diss0)
+                vert_scale_diss = max(min (vert_scale_diss,1.) , 0.15_RKIND) ! = 1. to turn off vertical variation
+                tau_cloud_diss = tau_cloud_diss0/vert_scale_diss
                 
                 !---- sink term for cloud fraction
                 snk = dt_dyn * (1._RKIND/tau_cloud_diss) * (1.0_RKIND - 0.01_RKIND*rh(k,i)) * abs(cnvcf(k,i))
