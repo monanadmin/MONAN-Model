@@ -2952,7 +2952,7 @@ contains
                               ,entr_rate_2d,cd,mentrd_rate,cdd,qo_cup, qeso_cup,cnvcf)
       !
 
-      print*,'en4',trim(cumulus),maxval(entr_rate),minval(entr_rate)
+     ! print*,'en4',trim(cumulus),maxval(entr_rate),minval(entr_rate)
 
       !
       !--- determine the moist static energy of air parcels at source level
@@ -3247,19 +3247,19 @@ contains
 
       ! 
       !--- diurnal cycle section
-      !
-      !--- Implements the Bechtold et al (2014)
-      !
-      do vtp_index = get_num_elements(vec_ok),1,-1
-         i = get_data_value(vec_ok,vtp_index)
-         umean= 2.0+sqrt(0.5*(us(1,i)**2+vs(1,i)**2+us(kbcon(i),i)**2+vs(kbcon(i),i)**2))
-         !--                    - over land -            -          over ocean       s   -
-         tau_bl(i)=(1.-xland(i))*tau_ecmwf(i) + xland(i)*(zo_cup(kbcon(i),i)- z1(i)) /umean
-      enddo
-      !
-      !-- calculate "pcape" or equivalent cloud work function from the BL forcing only
-      !
-      if( dicycle <= 2 .and. cumulus == 'deep') then
+      if( dicycle <= 3 .and. cumulus == 'deep') then
+         !
+         !--- Implements the Bechtold et al (2014)
+         !
+         do vtp_index = get_num_elements(vec_ok),1,-1
+           i = get_data_value(vec_ok,vtp_index)
+           umean= 2.0+sqrt(0.5*(us(1,i)**2+vs(1,i)**2+us(kbcon(i),i)**2+vs(kbcon(i),i)**2))
+           !--                    - over land -            -          over ocean       s   -
+           tau_bl(i)=(1.-xland(i))*tau_ecmwf(i) + xland(i)*(zo_cup(kbcon(i),i)- z1(i)) /umean
+         enddo
+         !
+         !-- calculate "pcape" or equivalent cloud work function from the BL forcing only
+         !
          iversion=0
          call cup_up_aa1bl(iversion,aa1_bl,aa1_fa,aa1,t,tn,q,qo,dtime,po_cup,zo_cup,zuo,dbyo        &
                           ,gammao_cup,tn_cup,rho,klcl,kpbl,kbcon,ktop,ierr,itf,ktf,its,ite, kts,kte & 
@@ -3269,13 +3269,22 @@ contains
          do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
             aa1_bl(i) = (aa1_bl(i)/T_star) * tau_bl(i) ! units J/kg
-           !aa1_bl(i) = (aa1_bl(i)/T_star) * tau_bl(i) - cin1(i)
             aa1_bl(i) = min(2000., abs(aa1_bl(i)))*sign(1.,aa1_bl(i))
          enddo
+         
+         if( dicycle == 3 ) then
+            do vtp_index = get_num_elements(vec_ok),1,-1
+               i = get_data_value(vec_ok,vtp_index)
+               if(aa1(i) - aa1_bl(i) < 0.0) then
+                  ierr(i)=34 ; is_removed  = remove(vec_ok, i)
+                  ierrc(i)='deep:  aa1 - aa1bl < zero'
+               endif
+            enddo
+         endif
          !
          !--- Adds Becker et al (2021) closure, part 2
          !
-         if(dicycle==2) then
+         if( dicycle==2 ) then
             call get_Qadv(cumulus,itf,ktf,its,ite,kts,kte,ierr,dtime,q,qo,qo_adv,po,po_cup &
                          ,qeso, q_adv,col_sat_adv,alpha_adv,tau_bl,zo_cup,kbcon,ktop)
          endif
