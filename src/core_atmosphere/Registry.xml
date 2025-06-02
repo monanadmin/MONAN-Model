@@ -530,6 +530,7 @@
 			<var name="isice_lu"/>
 			<var name="iswater_lu"/>
 			<var name="landmask"/>
+			<var name="ter"/>
 			<var name="shdmin"/>
 			<var name="shdmax"/>
 			<var name="snoalb"/>
