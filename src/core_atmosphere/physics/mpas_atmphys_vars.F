@@ -393,7 +393,10 @@
     ctt_p        ,&
     dp_dens_p    ,&
     sh_dens_p    ,&
-    cg_dens_p
+    cg_dens_p    ,&
+    dp_ierr_p    ,&
+    sh_ierr_p    ,&
+    cg_ierr_p
 
  real(kind=RKIND),dimension(:,:,:),allocatable:: &
     sub3d_rthcuten_p,        &!

@@ -1,6 +1,6 @@
 module module_cu_gf_monan
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   !! ## Grell-Freitas Convective parameterization
+   !! ## Grell-Freitas Convective Parameterization
    !!
    !! ![](https://i.ibb.co/LNqGy3S/logo-Monan-Color-75x75.png)
    !! ## MONAN
@@ -383,8 +383,8 @@ contains
               ,cnvcf                 &
               ,rthblten              & ! tendency of potential temperature due to pbl processes
               ,rqvblten              & ! tendency of water vapor mixing ratio due to pbl processes
-              ,rthratenlw            & ! tendency of potential temperature due to radiation (lw)
-              ,rthratensw            & ! tendency of potential temperature due to radiation (sw)
+              ,rthratenlw            & ! tendency of potential temperature due to long-wave radiation
+              ,rthratensw            & ! tendency of potential temperature due to short-wave radiation
               ,rthdyten              & ! tendency of potential temperature due to dynamics plus filters
               ,rqvdyten              & ! tendency of water vapor mixing ration due to dynamics plus filters
               !---- output ----
@@ -426,7 +426,9 @@ contains
               ,its, ite, jts, jte, kts, kte   &
               ,itimestep                      &
               ,mynum                          &
-              ,dp_dens, sh_dens, cg_dens      )
+              ,dp_dens, sh_dens, cg_dens      &
+              ,dp_ierr, sh_ierr, cg_ierr      )
+
 
 ! --- vars need to be implemented
                            ! ,TRACER                &
@@ -461,6 +463,8 @@ contains
       !-- intent in,out arguments
       real,dimension(ims:ime,jms:jme)         ,intent(inout):: raincv,conprr,wlpool,lightn_dens,sigma_deep
       real,dimension(ims:ime,jms:jme)         ,intent(inout):: dp_dens,sh_dens,cg_dens
+      real,dimension(ims:ime,jms:jme)         ,intent(inout):: dp_ierr,sh_ierr,cg_ierr
+
       real,dimension(ims:ime,kms:kme,jms:jme) ,intent(inout):: rthcuten,rqvcuten,rqccuten,rqicuten &
                                                               ,rucuten,rvcuten,rbuoyxcuten,rcnvcfcuten
 
@@ -1137,12 +1141,15 @@ contains
          !
          !-- output
          do i=its,itf
+             dp_ierr(i,j) = ierr4d(i,j,deep)
+             sh_ierr(i,j) = ierr4d(i,j,shal)
+             cg_ierr(i,j) = ierr4d(i,j,mid)
              if(ierr4d (i,j,deep) == 0 ) then
-               rmfxdpcu(i,j)   = xmb4d(i,j,deep)                 !-- updraft mass flux @ cloud base (kg/m2/s)
-               rmfxdncu(i,j)   = xmb4d(i,j,deep)*edt4d(i,j,deep) !-- downdraft mass flux @ its initiation level(kg/m2/s)
-               rtopdpcu(i,j)   = zo(ktop4d (i,j,deep),i)         !-- cloud top height above msl (m)
-               rbotdpcu(i,j)   = zo(kbcon4d(i,j,deep),i)         !-- cloud base height above msl (m)
-               dp_dens (i,j)   = 1.0
+               rmfxdpcu(i,j) = xmb4d(i,j,deep)                 !-- updraft mass flux @ cloud base (kg/m2/s)
+               rmfxdncu(i,j) = xmb4d(i,j,deep)*edt4d(i,j,deep) !-- downdraft mass flux @ its initiation level(kg/m2/s)
+               rtopdpcu(i,j) = zo(ktop4d (i,j,deep),i)         !-- cloud top height above msl (m)
+               rbotdpcu(i,j) = zo(kbcon4d(i,j,deep),i)         !-- cloud base height above msl (m)
+               dp_dens (i,j) = 1.0
                sigma_deep(i,j) = sigma4d(i,j,deep)
              endif
              if(ierr4d (i,j,mid ) == 0 ) then
@@ -2082,7 +2089,7 @@ contains
                   do vtp_index = get_num_elements(vec_ok),1,-1
                       i = get_data_value(vec_ok,vtp_index)
                       if (ke_gustfront(i) < abs( min(cin1(i), 0.))) then
-                        ierr(i)=500; is_removed = remove(vec_ok, i)
+                        ierr(i)=22; is_removed = remove(vec_ok, i)
                         ierrc(i)="ke_gustfront less than -cin1"
                       endif 
                   enddo
@@ -2253,7 +2260,7 @@ contains
             do vtp_index = get_num_elements(vec_ok),1,-1
                i = get_data_value(vec_ok,vtp_index)
                if(aa1(i) - aa1_bl(i) < 0.0) then
-                  ierr(i)=34 ; is_removed  = remove(vec_ok, i)
+                  ierr(i)=24 ; is_removed  = remove(vec_ok, i)
                   ierrc(i)='deep:  aa1 - aa1bl < zero'
                endif
             enddo
@@ -2331,7 +2338,7 @@ contains
                i = get_data_value(vec_ok,vtp_index)
                call get_delmix(cumulus,kts,kte,ktf,xland(i),start_level(i),po(kts:kte,i) &
                               ,xhe_cup (kts:kte,i), xhc (kts:kte,i))
-           enddo
+            enddo
       endif
       !--- moist static energy inside cloud - part 2
       do vtp_index = get_num_elements(vec_ok),1,-1
@@ -2834,11 +2841,11 @@ contains
          end do
 
          if(pwev(i) >= 0.)then
-            ierr(i)=70 ; is_removed = remove(vec_ok, i)
+            ierr(i)=34 ; is_removed = remove(vec_ok, i)
             ierrc(i)=" pwev >= 0 in cup_dd_moisture"
          endif
          if(bu(i) >= 0.)then
-            ierr(i)=73 ; is_removed = remove(vec_ok, i)
+            ierr(i)=27 ; is_removed = remove(vec_ok, i)
             ierrc(i)=" bu >= 0   in cup_dd_moisture"
          endif
 
@@ -2853,7 +2860,7 @@ contains
                   qcd(k,i) = qrcd(k,i) + dq_eva
                end do
                if(pwev(i) >= 0.)then
-                  ierr(i)=75 ; is_removed = remove(vec_ok, i)
+                  ierr(i)=28 ; is_removed = remove(vec_ok, i)
                   ierrc(i)=" pwev >= 0 in cup_dd_moisture"
                endif
          endif
@@ -3652,7 +3659,7 @@ contains
 
          enddo
          if(pwav(i) < 0.) then
-               ierr(i)=66 ; is_removed = remove(vec_ok, i)
+               ierr(i)=29 ; is_removed = remove(vec_ok, i)
                ierrc(i)="pwav negative"
          endif
 
@@ -4382,7 +4389,7 @@ contains
 
       if( maxval(zu(kts:min(kte,kt+1)),1) <= 0.0) then
          zu=0.0
-         ierr=51  ; is_removed = remove(vec_ok, vtp_index) !ierr(i)=51
+         ierr=19  ; is_removed = remove(vec_ok, vtp_index) !ierr(i)=51
       else
          !- normalize ZU
          zu(kts:min(kte,kt+1))= zu(kts:min(kte,kt+1))/ (1.e-9+maxval(zu(kts:min(kte,kt+1)),1))
@@ -4584,7 +4591,7 @@ contains
          enddo loop1
          !--- last check for kbcon
          if(kbcon(i) == kts) then
-            ierr(i)=33 ; is_removed = remove(vec_ok, i)
+            ierr(i)=30 ; is_removed = remove(vec_ok, i)
             ierrc(i)="could not find reasonable kbcon in cup_kbcon = kts"
          endif
       enddo loop0
@@ -4611,7 +4618,7 @@ contains
             endif
          enddo
          if(ktop(i) <= kbcon(i)+1) then
-              ierr(i)=41 ; is_removed = remove(vec_ok, i)
+              ierr(i)=31 ; is_removed = remove(vec_ok, i)
          endif 
 
          !----------------
@@ -4738,8 +4745,7 @@ contains
          vvel2d(:,i)= sqrt(max(0.1,vvel2d(:,i)))
 
          if(maxval(vvel2d(:,i)) < 1.0) then
-            ierr(i)=54 ; is_removed = remove(vec_ok, i)
-         !  print*,"ierr=54",maxval(vvel2d(:,i))
+            ierr(i)=32 ; is_removed = remove(vec_ok, i)
          endif
 
 
@@ -5376,7 +5382,7 @@ contains
          !~ p_liq_ice    (:,:) = 1.
          !~ melting_layer(:,:) = 0.
       end if
-   end  subroutine get_partition_liq_ice
+   end subroutine get_partition_liq_ice
    !------------------------------------------------------------------------------------
    subroutine get_melting_profile(ierr,tn_cup,po_cup, p_liq_ice,melting_layer,qrco      &
                                  ,pwo,edto,pwdo,melting,itf,ktf,its,ite, kts,kte, cumulus)
@@ -5453,9 +5459,9 @@ contains
          !-- no melting allowed in this run
          melting     (:,:) = 0.
       endif
-   end  subroutine get_melting_profile
+   end subroutine get_melting_profile
    !------------------------------------------------------------------------------------
-   subroutine  ke_to_heating(itf,ktf,its,ite, kts,kte,ktop,ierr,po_cup,us,vs,dellu,dellv,dellat)
+   subroutine ke_to_heating(itf,ktf,its,ite, kts,kte,ktop,ierr,po_cup,us,vs,dellu,dellv,dellat)
 
       implicit none
       integer                  ,intent (in   ) :: itf,ktf,its,ite, kts,kte
@@ -5488,7 +5494,7 @@ contains
          endif
       enddo
 
-   end subroutine  ke_to_heating
+   end subroutine ke_to_heating
    !---------------------------------------------------------------------------------------------------
 
    subroutine rain_evap_below_cloudbase(cumulus,itf,ktf, its,ite, kts,kte,ierr,kbcon,ktop     &
@@ -5650,8 +5656,8 @@ contains
             !STOP 'problem with water balance'
             !endif
       enddo
-   end   subroutine get_precip_fluxes
-   !---------------------------------------------------------------------------------------------------
+   end subroutine get_precip_fluxes
+   !---------get_precip_fluxes------------------------------------------------------------------------------------------
    subroutine get_jmin(cumulus,itf,ktf,its,ite, kts,kte,ierr,kdet,ktop,kbcon,jmin,ierrc  &
                       ,beta,depth_min,heso_cup,zo_cup,melting_layer)
 
@@ -7660,7 +7666,7 @@ contains
             i = get_data_value(vec_ok,vtp_index)
             cloud_depth =  po_cup(kbcon(i),i)-po_cup(ktop(i),i)
             if(po_cup(ktop(i),i) > 750. .or. cloud_depth < min_cloud_depth) then
-               ierr(i)=55 ; is_removed = remove(vec_ok, i)
+               ierr(i)=33 ; is_removed = remove(vec_ok, i)
                ierrc(i)='cloud top or cloud_depth too low for mid'
             endif
          enddo
@@ -7683,7 +7689,7 @@ contains
             !if(icumulus_gf(mid) == OFF) min_shall_top=550.
             cloud_depth =  po_cup(kbcon(i),i)-po_cup(ktop(i),i)
             if(po_cup(ktop(i),i) < min_shall_top .or. cloud_depth < min_cloud_depth ) then
-               ierr(i)=26 ; is_removed = remove(vec_ok, i)
+               ierr(i)=36 ; is_removed = remove(vec_ok, i)
                ierrc(i)='cloud top too high or cloud_depth too low for shallow' 
             endif
          enddo
@@ -7696,7 +7702,7 @@ contains
                i = get_data_value(vec_ok,vtp_index)
                cloud_depth =  po_cup(kbcon(i),i)-po_cup(ktop(i),i)
                if(po_cup(ktop(i),i) > min_deep_top .or. cloud_depth < min_cloud_depth ) then
-                  ierr(i)=55 ; is_removed = remove(vec_ok, i)
+                  ierr(i)=33 ; is_removed = remove(vec_ok, i)
                   ierrc(i)='cloud top or cloud_depth too low for deep'
                endif
             enddo
@@ -7814,7 +7820,7 @@ contains
 
             if( k800 <= kts .or. k800 >= ktf - 4) then
                k_inv_layers(shal,i)= ktf
-               !ierr(i)=8; is_removed = remove(vec_ok, i)
+               !ierr(i)=16; is_removed = remove(vec_ok, i)
             else
                !-save k800 in the k_inv_layers array
                k_inv_layers(shal,i)=local_k_inv_layers(k800,i) +extralayer
@@ -7839,7 +7845,7 @@ contains
             endif
          else
             k_inv_layers(:,i)=1
-            ierr(i)=88 ; is_removed = remove(vec_ok, i)
+            ierr(i)=35 ; is_removed = remove(vec_ok, i)
          endif
 
       enddo
@@ -8330,7 +8336,7 @@ contains
          end do
       endif 
 
-   end  subroutine smooth_tend
+   end subroutine smooth_tend
    !----------------------------------------------------------------------
    subroutine get_env_change(coupl_mphysics,itf,ktf, its,ite, kts,kte,ierr &
                             ,heo,qo,tn,p_liq_ice,mbdt,dellu, dellv, dellah &
@@ -10452,8 +10458,39 @@ contains
 !- end of section for atmospheric composition
 !---------------------------------------------------------------------------------------------!
 !---------------------------------------------------------------------------------------------!
+!- list of ierr reasons:
+! ierr(i)=21   ==>  ierrc(i)='for shallow convection:  LCL height < PBL height'
+! ierr(i)=22   ==>  ierrc(i)="ke_gustfront less than -cin1"
+! ierr(i)=24   ==>  ierrc(i)='deep:  aa1 - aa1bl < zero'
+! ierr(i)=34   ==>  ierrc(i)=" pwev >= 0 in cup_dd_moisture"
+! ierr(i)=27   ==>  ierrc(i)=" bu >= 0   in cup_dd_moisture"
+! ierr(i)=28   ==>  ierrc(i)=" pwev >= 0 in cup_dd_moisture"
+! ierr(i)=29   ==>  ierrc(i)="pwav negative"
+! ierr=19      ==>  if( maxval(zu(kts:min(kte,kt+1)),1) <= 0.0) then
+! ierr(i)=3    ==>  ierrc(i)="could not find reasonable kbcon in cup_kbcon : above kbmax+2 "
+! ierr(i)=30   ==>  ierrc(i)="could not find reasonable kbcon in cup_kbcon = kts"
+! ierr(i)=31   ==>  if(ktop(i) <= kbcon(i)+1) then
+! ierr(i)=32   ==>  if(maxval(vvel2d(:,i)) < 1.0) then
+! ierr(i)=13   ==>  if(xmb(i) .le. 0.)then
+! ierr(i)=14   ==>  if(xmb(i) == 0. ) then 
+! ierr(i)=15   ==>  if(xmb(i) > 100.) then 
+! ierr(i)=9    ==>  ierrc(i) = "could not find jmini9"
+! ierr(i)=4    ==>  ierrc(i) = "could not find jmini4"
+! ierr(i)=6    ==>  ierrc(i)="cloud depth very shallow"
+! ierr(i)=2    ==>  ierrc(i)="could not find k22"
+! ierr(i)=25   ==>  ierrc(i)='mid convection with cloud top above 450 hpa (~ 7km asl)'
+! ierr(i)=33   ==>  ierrc(i)='cloud top or cloud_depth too low for mid' _or_ ierrc(i)='cloud top or cloud_depth too low for deep'
+! ierr(i)=36   ==>  ierrc(i)='cloud top too high or cloud_depth too low for shallow' 
+! ierr(i)=8    ==>  if( k550 <= kts .or. k550 >= ktf - 4) for MID
+! ierr(i)=12   ==>  if(  k_inv_layers(mid,i) <= kts .or. k_inv_layers(mid,i) >= ktf-4) then
+! ierr(i)=35   ==>  k_inv_layers(:,i)=1 for MID
+! ierr(i)=7    ==>  ierrc(i)='downdraft is not negatively buoyant ' (bud(i) > 0.)
+! ierr(i)=18   ==>  ierrc(i)="total normalized condensate too small"
+!---------------------------------------------------------------------------------------------!
 
 end  module module_cu_gf_monan
+
+
 
 
 

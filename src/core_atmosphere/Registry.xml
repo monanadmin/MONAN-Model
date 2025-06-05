@@ -3063,6 +3063,18 @@
                      packages="cu_grell_freitas_in;cu_gf_monan_in"/>
 
                 <!-- ... GF MONAN ONLY: -->
+                <var name="dp_ierr" type="real" dimensions="nCells Time" units=""
+                      description="reason deep convection was not activated"
+                      packages="cu_gf_monan_in"/>
+                
+                <var name="cg_ierr" type="real" dimensions="nCells Time" units=""
+                      description="reason congestus convection was not activated"
+                      packages="cu_gf_monan_in"/>
+
+                <var name="sh_ierr" type="real" dimensions="nCells Time" units=""
+                      description="reason shallow convection was not activated"
+                      packages="cu_gf_monan_in"/>
+
                 <var name="dp_dens" type="real" dimensions="nCells Time" units=""
                       description="number of times deep convection was activated"
                       packages="cu_gf_monan_in"/>

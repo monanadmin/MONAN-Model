@@ -203,6 +203,9 @@
        if(.not.allocated(dp_dens_p)      ) allocate(dp_dens_p(ims:ime,jms:jme)          )
        if(.not.allocated(sh_dens_p)      ) allocate(sh_dens_p(ims:ime,jms:jme)          )
        if(.not.allocated(cg_dens_p)      ) allocate(cg_dens_p(ims:ime,jms:jme)          )
+       if(.not.allocated(dp_ierr_p)      ) allocate(dp_ierr_p(ims:ime,jms:jme)          )
+       if(.not.allocated(sh_ierr_p)      ) allocate(sh_ierr_p(ims:ime,jms:jme)          )
+       if(.not.allocated(cg_ierr_p)      ) allocate(cg_ierr_p(ims:ime,jms:jme)          )
 
        if(.not.allocated(sigma_deep_p)   ) allocate(sigma_deep_p(ims:ime,jms:jme)       )
 
@@ -499,6 +502,9 @@
        if(allocated(dp_dens_p)      ) deallocate(dp_dens_p      )
        if(allocated(sh_dens_p)      ) deallocate(sh_dens_p      )
        if(allocated(cg_dens_p)      ) deallocate(cg_dens_p      )
+       if(allocated(dp_ierr_p)      ) deallocate(dp_ierr_p      )
+       if(allocated(sh_ierr_p)      ) deallocate(sh_ierr_p      )
+       if(allocated(cg_ierr_p)      ) deallocate(cg_ierr_p      )
        if(allocated(sigma_deep_p)   ) deallocate(sigma_deep_p   )
 
        if(allocated(rthblten_p)     ) deallocate(rthblten_p     )
@@ -749,7 +755,9 @@
              its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte      , &
              itimestep       = itimestep              , mynum         = dminfo%my_proc_id,&
              dp_dens         = dp_dens_p              , sh_dens       = sh_dens_p        ,&
-             cg_dens         = cg_dens_p                                                 )                  
+             cg_dens         = cg_dens_p                                                 ,&                  
+             dp_ierr         = dp_ierr_p              , sh_ierr       = sh_ierr_p        ,&
+             cg_ierr         = cg_ierr_p                                                 )                  
 
        call mpas_timer_stop('Grell-Freitas-MONAN')
 
@@ -915,6 +923,7 @@
  real(kind=RKIND),dimension(:),pointer  :: areaCell,meshDensity
  real(kind=RKIND),dimension(:),pointer  :: nca,cubot,cutop,cuprec,raincv,wlpool,lightn_dens,sigma_deep
  real(kind=RKIND),dimension(:),pointer  :: dp_dens,sh_dens,cg_dens
+ real(kind=RKIND),dimension(:),pointer  :: dp_ierr,sh_ierr,cg_ierr
  real(kind=RKIND),dimension(:),pointer  :: gsw,hfx,qfx,xland,t2m,cape,cin
  real(kind=RKIND),dimension(:),pointer  :: xmb_total,xmb_shallow
  real(kind=RKIND),dimension(:),pointer  :: latCell,lonCell
@@ -982,6 +991,10 @@
          call mpas_pool_get_array(diag_physics,'dp_dens'    ,dp_dens )
          call mpas_pool_get_array(diag_physics,'sh_dens'    ,sh_dens )
          call mpas_pool_get_array(diag_physics,'cg_dens'    ,cg_dens )
+         call mpas_pool_get_array(diag_physics,'dp_ierr'    ,dp_ierr )
+         call mpas_pool_get_array(diag_physics,'sh_ierr'    ,sh_ierr )
+         call mpas_pool_get_array(diag_physics,'cg_ierr'    ,cg_ierr )
+
 
          call mpas_pool_get_array(diag_physics,'sigma_deep' ,sigma_deep)
 
@@ -1011,6 +1024,9 @@
             dp_dens_p(i,j)       = dp_dens(i)
             sh_dens_p(i,j)       = sh_dens(i)
             cg_dens_p(i,j)       = cg_dens(i)
+            dp_ierr_p(i,j)       = dp_ierr(i)
+            sh_ierr_p(i,j)       = sh_ierr(i)
+            cg_ierr_p(i,j)       = cg_ierr(i)
 
             xlat_p(i,j)          = latCell(i) / degrad
             xlon_p(i,j)          = lonCell(i) / degrad
@@ -1252,6 +1268,7 @@
  integer,dimension(:),pointer:: k22_shallow,kbcon_shallow,ktop_shallow,ktop_deep
  real(kind=RKIND),dimension(:),pointer  :: nca,cubot,cutop,cuprec,raincv,lightn_dens,sigma_deep
  real(kind=RKIND),dimension(:),pointer  :: dp_dens,sh_dens,cg_dens
+ real(kind=RKIND),dimension(:),pointer  :: dp_ierr,sh_ierr,cg_ierr
  real(kind=RKIND),dimension(:),pointer  :: xmb_total,xmb_shallow
  real(kind=RKIND),dimension(:,:),pointer:: qc_cu,qi_cu
  real(kind=RKIND),dimension(:,:),pointer:: w0avg
@@ -1312,6 +1329,9 @@
        call mpas_pool_get_array(diag_physics,'dp_dens'     ,dp_dens    )
        call mpas_pool_get_array(diag_physics,'sh_dens'     ,sh_dens    )
        call mpas_pool_get_array(diag_physics,'cg_dens'     ,cg_dens    )
+       call mpas_pool_get_array(diag_physics,'dp_ierr'     ,dp_ierr    )
+       call mpas_pool_get_array(diag_physics,'sh_ierr'     ,sh_ierr    )
+       call mpas_pool_get_array(diag_physics,'cg_ierr'     ,cg_ierr    )
        call mpas_pool_get_array(diag_physics,'sigma_deep'  ,sigma_deep )
 
        call mpas_pool_get_array(diag_physics,'rupmfxcu'    ,rupmfxcu   )
@@ -1344,6 +1364,9 @@
           dp_dens(i)  = dp_dens_p(i,j)
           sh_dens(i)  = sh_dens_p(i,j)
           cg_dens(i)  = cg_dens_p(i,j)
+          dp_ierr(i)  = dp_ierr_p(i,j)
+          sh_ierr(i)  = sh_ierr_p(i,j)
+          cg_ierr(i)  = cg_ierr_p(i,j)
           rmfxdpcu(i) = rmfxdpcu_p(i,j)  
           rmfxdncu(i) = rmfxdncu_p(i,j)  
           rmfxmdcu(i) = rmfxmdcu_p(i,j)  
