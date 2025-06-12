@@ -4463,7 +4463,7 @@ contains
 
       implicit none
       character *(*)            ,intent (in   ) ::  name
-      character(len=128)             ,intent (inout) :: ierrc(:)
+      character(len=128)        ,intent (inout) :: ierrc(:)
       integer                   ,intent (in   ) :: itf,ktf,its,ite, kts,kte,use_excess
       integer, dimension (:)    ,intent (in   ) :: kbmax,start_level_
       integer, dimension (:)    ,intent (inout) :: kbcon,ierr,ktop,klcl,k22
