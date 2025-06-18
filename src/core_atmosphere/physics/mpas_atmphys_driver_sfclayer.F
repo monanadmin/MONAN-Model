@@ -661,7 +661,7 @@
              !--- where there is     cold pool, sgsgustcu_p -> gspd_local
              sgsgustcu_p(i,j) = (1.-factor2)*wspd_local + factor2*gspd_local
              !--- temporary for output only
-             v2d2(i) =  sgsgustcu_p(i,j)
+             !v2d2(i) =  sgsgustcu_p(i,j)
              
              !--- subtract from the env wind speed, as the sgsgustcu_p will later be 
              !--- summed with "wspd" in routine 'sf_mynn_run'. See in this routine the line
@@ -684,7 +684,7 @@
              sgsgustcu_p(i,j) = 0.0_RKIND
            endif 
             !--- temporary for output only
-            v2d2(i) =  sgsgustcu_p(i,j)
+            !v2d2(i) =  sgsgustcu_p(i,j)
          enddo
          enddo
 
