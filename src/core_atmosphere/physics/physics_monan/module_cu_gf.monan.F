@@ -254,7 +254,7 @@ module module_cu_gf_monan
    real,   dimension(maxiens) :: cum_t_star        != scale temperature for the diurnal cycle closure
 
    real,   dimension(maxiens) :: cum_fr_min_entr  != fraction of the minimum entrainment rate
-   
+
    integer,dimension(maxiens) :: cum_use_excess    != use t,q excess sub-grid scale variability
 
    integer :: moist_trigger  != relative humidity effects on the cap_max trigger function
@@ -424,7 +424,7 @@ contains
               ,ids, ide, jds, jde, kds, kde   &
               ,ims, ime, jms, jme, kms, kme   &
               ,its, ite, jts, jte, kts, kte   &
-              ,itimestep                      &
+              ,itimestep             &
               ,mynum                          &
               ,dp_dens, sh_dens, cg_dens      &
               ,dp_ierr, sh_ierr, cg_ierr      )
@@ -989,7 +989,7 @@ contains
                c0 = c0_shal
                if(icumulus_gf(shal) == 2 ) where(ierr4d(:,j,deep) == 0) ierr4d(:,j,shal) = -99
               !if(icumulus_gf(shal) == 2 ) c0 = 0.0
-           endif
+            endif
             if(ii_plume == 3) then
                plume = mid
                c0 = c0_mid
@@ -1146,10 +1146,10 @@ contains
              sh_ierr(i,j) = ierr4d(i,j,shal)
              cg_ierr(i,j) = ierr4d(i,j,mid)
              if(ierr4d (i,j,deep) == 0 ) then
-               rmfxdpcu(i,j) = xmb4d(i,j,deep)                 !-- updraft mass flux @ cloud base (kg/m2/s)
-               rmfxdncu(i,j) = xmb4d(i,j,deep)*edt4d(i,j,deep) !-- downdraft mass flux @ its initiation level(kg/m2/s)
-               rtopdpcu(i,j) = zo(ktop4d (i,j,deep),i)         !-- cloud top height above msl (m)
-               rbotdpcu(i,j) = zo(kbcon4d(i,j,deep),i)         !-- cloud base height above msl (m)
+               rmfxdpcu(i,j)   = xmb4d(i,j,deep)                 !-- updraft mass flux @ cloud base (kg/m2/s)
+               rmfxdncu(i,j)   = xmb4d(i,j,deep)*edt4d(i,j,deep) !-- downdraft mass flux @ its initiation level(kg/m2/s)
+               rtopdpcu(i,j)   = zo(ktop4d (i,j,deep),i)         !-- cloud top height above msl (m)
+               rbotdpcu(i,j)   = zo(kbcon4d(i,j,deep),i)         !-- cloud base height above msl (m)
                dp_dens (i,j) = 1.0
                sigma_deep(i,j) = sigma4d(i,j,deep)
              endif
@@ -1734,11 +1734,11 @@ contains
       real :: day,dz,dzo,radius,entrd_rate,zcutdown,depth_min,zkbmax,z_detr,zktop       &
         ,massfld,dh,trash,frh,xlamdd,radiusd,frhd,effec_entrain,detdo1,detdo2,entdo     &
         ,dp,subin,detdo,entup,detup,subdown,entdoj,entupk,detupk,totmas,min_entr_rate   &
-        ,tot_time_hr,beta,env_mf,env_mf_p,env_mf_m,dts,denom,denomU,umean
+        ,tot_time_hr,beta,env_mf,env_mf_p,env_mf_m,dts,denom,denomU,umean,xh_env_eff
 
       integer :: iversion
       integer :: ipr=0,jpr=0
-      integer :: k,i,iedt,nens,nens3,kii,kff
+      integer :: k,i,iedt,nens,nens3
       integer :: vtp_index
       
       integer, dimension (its:ite) :: kzdown,kdet,kb, kbmax,start_level
@@ -1761,8 +1761,6 @@ contains
         ,vvel1d, x_add_buoy,lambau_dn,lambau_dp,q_wetbulb,t_wetbulb,col_sat_adv &
         ,Q_adv,alpha_adv,aa1_radpbl,aa1_adv,p_cwv_ave,cape, depth_neg_buoy,frh_bcon &
         ,check_sig,random,rh_entr_factor,rntot,delqev,delq2,qevap,rn,qcond,rainevap
-
-      real,    dimension (kts:kte) ::xh_env_eff
 
       real,    dimension (kts:kte,its:ite) ::                                         &
           entr_rate_2d,mentrd_rate_2d, he, hes, qes, z,heo,heso,qeso,zo               &
@@ -1957,8 +1955,8 @@ contains
       !
       call cup_cloud_limits(cumulus,ierrc,ierr,cap_max_increment,cap_max,heo_cup,heso_cup,qo_cup   &
                            ,qeso_cup,po,po_cup,zo_cup,heo,hkbo,qo,qeso,entr_rate_2d,hcot,k22,kbmax &
-                           ,klcl,kbcon,ktop,depth_neg_buoy,frh_bcon,Tpert,start_level,use_excess   &
-                           ,zqexec,ztexec,x_add_buoy,xland,cnvcf,heso,itf,ktf,its,ite, kts,kte)
+                           ,klcl,kbcon,ktop,depth_neg_buoy,frh_bcon,Tpert,start_level              &
+                           ,use_excess,zqexec,ztexec,x_add_buoy,xland,itf,ktf,its,ite, kts,kte)
       !
       !--- scale dependence factor (sig)
       !
@@ -2045,7 +2043,7 @@ contains
       if(.not. FIRST_GUESS_W) then
          !--- calculate in-cloud/updraft air temperature for vertical velocity
          !
-         !tempco (:,:) = tn_cup(:,:)
+         tempco (:,:) = tn_cup(:,:)
          do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
             do k=kts,ktf
@@ -2168,11 +2166,10 @@ contains
       !
       endif  
       !-----------------------------------------------------------------------------------------
-
       !
       !--- time-scale of cape removal
       !
-      if(cumulus == 'deep') then
+      if(cumulus=='deep') then
                tau_ecmwf(:)=tau_deep;   wmean(:) = 3. !  mean vertical velocity m/s
       else
                tau_ecmwf(:)=tau_mid ;   wmean(:) = 3. 
@@ -2204,27 +2201,25 @@ contains
                alpha_cats = 1. + (log(1.e+4/dx(i)))**2
             endif
             tau_ecmwf(i)=alpha_cats*(zo_cup(ktop(i),i)- zo_cup(kbcon(i),i)) / wmean(i)
-            !tau_ecmwf(i)= min(10800., max(720.,tau_ecmwf(i)))
-             tau_ecmwf(i)= min(10800., max(1200.,tau_ecmwf(i)))
-
+            tau_ecmwf(i)= min(10800., max(720.,tau_ecmwf(i)))
          enddo
       endif
 
       ! 
       !--- diurnal cycle section
       if( dicycle >= 0 .and. cumulus == 'deep') then
-         !
-         !--- Implements the Bechtold et al (2014)
-         !
-         do vtp_index = get_num_elements(vec_ok),1,-1
-           i = get_data_value(vec_ok,vtp_index)
-           umean= 2.0+sqrt(0.5*(us(1,i)**2+vs(1,i)**2+us(kbcon(i),i)**2+vs(kbcon(i),i)**2))
-           !--                    - over land -            -          over ocean       s   -
-           tau_bl(i)=(1.-xland(i))*tau_ecmwf(i) + xland(i)*(zo_cup(kbcon(i),i)- z1(i)) /umean
-         enddo
-         !
-         !-- calculate "pcape" or equivalent cloud work function from the BL forcing only
-         !
+      !
+      !--- Implements the Bechtold et al (2014)
+      !
+      do vtp_index = get_num_elements(vec_ok),1,-1
+         i = get_data_value(vec_ok,vtp_index)
+         umean= 2.0+sqrt(0.5*(us(1,i)**2+vs(1,i)**2+us(kbcon(i),i)**2+vs(kbcon(i),i)**2))
+         !--                    - over land -            -          over ocean       s   -
+         tau_bl(i)=(1.-xland(i))*tau_ecmwf(i) + xland(i)*(zo_cup(kbcon(i),i)- z1(i)) /umean
+      enddo
+      !
+      !-- calculate "pcape" or equivalent cloud work function from the BL forcing only
+      !
          iversion=0
          call cup_up_aa1bl(iversion,aa1_bl,aa1_fa,aa1,t,tn,q,qo,dtime,po_cup,zo_cup,zuo,dbyo        &
                           ,gammao_cup,tn_cup,rho,klcl,kpbl,kbcon,ktop,ierr,itf,ktf,its,ite, kts,kte & 
@@ -2237,16 +2232,7 @@ contains
             aa1_bl(i) = min(2000., abs(aa1_bl(i)))*sign(1.,aa1_bl(i))
          enddo
          
-         if( dicycle == 2 ) then
-            do vtp_index = get_num_elements(vec_ok),1,-1
-               i = get_data_value(vec_ok,vtp_index)
-               if(aa1(i) - aa1_bl(i) < 0.0) then
-                  ierr(i)=24 ; is_removed  = remove(vec_ok, i)
-                  ierrc(i)='deep:  aa1 - aa1bl < zero'
-               endif
-            enddo
-         endif
-         !
+      !
       endif
       !
       !
@@ -2319,23 +2305,24 @@ contains
                i = get_data_value(vec_ok,vtp_index)
                call get_delmix(cumulus,kts,kte,ktf,xland(i),start_level(i),po(kts:kte,i) &
                               ,xhe_cup (kts:kte,i), xhc (kts:kte,i))
-            enddo
+           enddo
       endif
       !--- moist static energy inside cloud - part 2
       do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
-            
-            kii=start_level(i)+1 ; kff=ktop(i)+1
-            if(use_pass_cloudvol == 2) then 
-                xh_env_eff(kii:kff) = (1.-cnvcf(kii:kff,i))*xhe(kii:kff,i) + cnvcf(kii:kff,i)*xhes(kii:kff,i)
-            else
-                xh_env_eff(kii:kff) = xhe(kii:kff,i)
-            endif
          
             do k=start_level(i) + 1,ktop(i) + 1 
               denom= (zuo(k-1,i)-.5*up_massdetro(k-1,i)+up_massentro(k-1,i)) +1.e-12
-              xhc(k,i)=(xhc(k-1,i)*zuo(k-1,i)-.5*up_massdetro(k-1,i)*xhc(k-1,i)+ &
-                                                 up_massentro(k-1,i)*xh_env_eff(k-1)) / denom
+              
+              if(use_pass_cloudvol == 2 .or. use_pass_cloudvol == 12 .or. use_pass_cloudvol == 3) then 
+                  xh_env_eff = (1.-cnvcf(k-1,i))*xhe(k-1,i) + cnvcf(k-1,i)*xhes(k-1,i)
+                  xhc(k,i)=(xhc(k-1,i)*zuo(k-1,i)-.5*up_massdetro(k-1,i)*xhc(k-1,i)+ &
+                                                     up_massentro(k-1,i)*xh_env_eff) / denom
+
+              else
+                  xhc(k,i)=(xhc(k-1,i)*zuo(k-1,i)-.5*up_massdetro(k-1,i)*xhc(k-1,i)+ &
+                                                     up_massentro(k-1,i)*xhe(k-1,i)) / denom
+              endif
 
               if(k==start_level(i)+1)  then
                      x_add = (c_alvl*zqexec(i)+c_cp*ztexec(i)) +  x_add_buoy(i)
@@ -2483,7 +2470,7 @@ contains
       !
       !--------------------------------------------------------------------------------------------!
       !-- section for atmospheric composition convective tracer and wet removal
-      if(use_tracer_transp == 1)  then  
+      if(use_tracer_transp==1)  then  
         call tracerConvTransGF(its, itf, jl, jmin, ite, kts, kte, ktf, mtp, chem_name_mask, ave_layer, ierr, k22, ktop &
                               ,   start_level, dd_massdetro, dd_massentro, dtime, edto, fscav, po, po_cup, pw_up_chem &
                               ,   pwavo, pwevo, pwdo, pwo, qrco, sc_up_chem, tempco, tot_pw_up_chem &
@@ -2533,16 +2520,13 @@ contains
       !--- for outputs (only deep plume)
       !
       if( trim(cumulus) == 'deep') then
-         do i=its,itf
-            var2d1(i) = x_add_buoy(i)
-            trash = 1.e-12
-            do k=kts,ktf-1             
-               !--- for output CNVCF vertically integrated.
-               dp=100.*(po_cup(k,i)-po_cup(k+1,i))
-               trash=trash+dp/c_grav
-               var2d2(i) = var2d2(i) + cnvcf(k,i)*dp/c_grav
+      do vtp_index = get_num_elements(vec_ok),1,-1
+            i = get_data_value(vec_ok,vtp_index)
+            var2d(i) = p_cwv_ave(i)
+            do k=kts,ktop(i)+1
+               prfil_gf  (k,i) = prec_flx(k,i)
+               var3d_agf (k,i) = vvel2d  (k,i)
             enddo
-            var2d2(i) = var2d2(i)/trash 
          enddo
       endif
       !--- for output/debug/diag only 
@@ -2689,7 +2673,7 @@ contains
    subroutine cup_dd_moisture(cumulus,ierrc,zd,hcd,hes_cup,qcd,qes_cup                &
                              ,pwd,q_cup,z_cup,dd_massentr,dd_massdetr,jmin,ierr       &
                              ,gamma_cup,pwev,bu,qrcd, q,he,t_cup,t_wetbulb            &
-                             ,q_wetbulb,qco,pwavo,tempcdo,itf,ktf,its,ite, kts,kte    )
+                             ,q_wetbulb,qco,pwavo,tempcdo,itf,ktf,its,ite, kts,kte            )
 
       implicit none
 
@@ -3141,7 +3125,7 @@ contains
       ! ichoice = flag if only want one closure
       ! name    = deep,mid or shallow convection flag
       !
-      integer                  ,intent (in) :: itf,ktf,its,ite, kts,kte,maxens,maxens3
+      integer  ,intent (in   )    :: itf,ktf,its,ite, kts,kte,maxens,maxens3
       integer, dimension (:)   ,intent (in) :: k22,kbcon,ktop,kpbl
       real,    dimension (:,:) ,intent (in) :: po_cup,dhdt,hc,hco,he_cup,heo_cup
       real,    dimension (:)   ,intent (in) :: xaa0
@@ -3209,7 +3193,7 @@ contains
                xf_coldpool(i) = c1 * w_cb * exp (-c2* abs(min(cin1(i),0.))/ke_gf)
             enddo
             !if(maxval(xf_coldpool) > 0.1) print*,'xf_coldpool',maxval(xf_coldpool)
-
+      
          endif
          if(add_coldpool_clos == 2 )then
             do vtp_index = get_num_elements(vec_ok),1,-1
@@ -3389,11 +3373,11 @@ contains
       !
       !  local variables in this routine
       !
-      integer :: iounit,iprop,i,k,k1,k2,n,nsteps,vtp_index,kii,kff
+      integer :: iounit,iprop,i,k,k1,k2,n,nsteps,vtp_index
       real :: dp,rhoc,dh,qrch,dz,radius,berryc0,q1,berryc
       real :: qaver,denom,aux,cx0,qrci,step,cbf,qrc_crit_BF,min_liq,qavail
       real :: delt,tem1,qrc_0,cup,hei,qrc_crit_yin,dz1m,vs,Nc,w_upd,Faut
-      real, dimension(kts:kte) :: q_env_eff
+      real :: q_env_eff
       integer, parameter :: n_smooth=1
       real, parameter :: qrc_crit_yin_ref=-500.*log(2000./9500)*1.e-6/0.93
       real, parameter :: peaut     = .55       ! collection efficiency
@@ -3431,13 +3415,6 @@ contains
       do vtp_index = get_num_elements(vec_ok),1,-1
          i = get_data_value(vec_ok,vtp_index)
 
-         kii=start_level(i)+1 ; kff=ktop(i)+1
-         if(use_pass_cloudvol == 2) then 
-              q_env_eff(kii:kff) = (1.-cnvcf(kii:kff,i))*q(kii:kff,i) + cnvcf(kii:kff,i)*qes(kii:kff,i)
-         else
-              q_env_eff(kii:kff) = q(kii:kff,i)
-         endif
-
          do k=start_level(i) + 1,ktop(i) + 1
             dz=z_cup(k+1,i)-z_cup(k,i)
             !
@@ -3448,8 +3425,17 @@ contains
             !--- steady state plume equation, for what could be in cloud without condensation
             denom =  (zu(k-1,i)-.5*up_massdetr(k-1,i)+up_massentr(k-1,i)) + 1.e-12
             
-            qc (k,i)  = (qc (k-1,i)*zu(k-1,i)-.5*up_massdetr(k-1,i)* qc(k-1,i) +   &
-                                                 up_massentr(k-1,i)* q_env_eff(k-1))/ denom
+            if(use_pass_cloudvol == 2 .or. use_pass_cloudvol == 12 .or. use_pass_cloudvol == 3) then 
+               q_env_eff = (1.-cnvcf(k-1,i))*q (k-1,i) + cnvcf(k-1,i)*qes(k-1,i)
+
+               qc (k,i)  = (qc (k-1,i)*zu(k-1,i)-.5*up_massdetr(k-1,i)* qc(k-1,i) +   &
+                                                    up_massentr(k-1,i)* q_env_eff)/ denom
+            else
+               qc (k,i)=  (qc (k-1,i)*zu(k-1,i)-.5*up_massdetr(k-1,i)* qc(k-1,i) +   &
+                                                   up_massentr(k-1,i)* q (k-1,i))/ denom
+            endif
+            
+
 
             if(k==start_level(i)+1) &
             qc(k,i)= qc(k,i) + (zqexec(i) + FRACT*x_add_buoy(i)/c_alvl) * up_massentr(k-1,i)/denom
@@ -3628,7 +3614,7 @@ contains
 
          enddo
          if(pwav(i) < 0.) then
-               ierr(i)=29 ; is_removed = remove(vec_ok, i)
+               ierr(i)=66 ; is_removed = remove(vec_ok, i)
                ierrc(i)="pwav negative"
          endif
 
@@ -4154,10 +4140,10 @@ contains
       adj_cp_entr = 1.
       if(draft == "deep_up" .and. (use_memory == 22 .or. use_memory == 222)) then
            !-- higher hei_max_zu_updraft, lower effec entrainment, lower precip
-            adj_cp_entr = min(1.3,max(1.0, 2.-coldPoolStart(x_add_buoy)))
+             adj_cp_entr = min(1.3,max(1.0, 2.-coldPoolStart(x_add_buoy)))
            !
            !-- lower hei_max_zu_updraft, larger effec entrainment, larger precip
-            ! adj_cp_entr = min(1.0,max(0.7,    coldPoolStart(x_add_buoy)))
+           ! adj_cp_entr = min(1.0,max(0.7,    coldPoolStart(x_add_buoy)))
 
       endif
       
@@ -4424,24 +4410,24 @@ contains
       enddo
    end subroutine cup_up_cape_cin
    !------------------------------------------------------------------------------------
-   subroutine cup_cloud_limits(name,ierrc,ierr,cap_inc,cap_max_in,heo_cup,heso_cup,qo_cup   &
-                              ,qeso_cup,po,po_cup,z_cup,heo,hkbo,qo,qeso,entr_rate_2d,hcot  &
-                              ,k22,kbmax,klcl,kbcon,ktop,depth_neg_buoy,frh,Tpert           &
-                              ,start_level_,use_excess,zqexec,ztexec,x_add_buoy,xland,cnvcf &
-                              ,heso,itf,ktf,its,ite, kts,kte)
+   subroutine cup_cloud_limits(name,ierrc,ierr,cap_inc,cap_max_in,heo_cup,heso_cup,qo_cup &
+                              ,qeso_cup,po,po_cup,z_cup,heo,hkbo,qo,qeso,entr_rate_2d,hcot&
+                              ,k22,kbmax,klcl,kbcon,ktop,depth_neg_buoy,frh,Tpert         &
+                              ,start_level_,use_excess,zqexec,ztexec, x_add_buoy,xland    &
+                              ,itf,ktf,its,ite, kts,kte)
 
       implicit none
       character *(*)            ,intent (in   ) ::  name
-      character(len=128)        ,intent (inout) :: ierrc(:)
+      character(len=128)             ,intent (inout) :: ierrc(:)
       integer                   ,intent (in   ) :: itf,ktf,its,ite, kts,kte,use_excess
       integer, dimension (:)    ,intent (in   ) :: kbmax,start_level_
       integer, dimension (:)    ,intent (inout) :: kbcon,ierr,ktop,klcl,k22
       real,    dimension (:,:)  ,intent (in   ) :: heo_cup,heso_cup,po_cup,z_cup,heo &
-                                                  ,qo_cup,qeso_cup,po,qo,qeso,Tpert, heso
+                                                  ,qo_cup,qeso_cup,po,qo,qeso,Tpert
       real,    dimension (:)    ,intent (in   ) :: cap_max_in,cap_inc,xland
       real,    dimension (:)    ,intent (in   ) :: zqexec,ztexec,x_add_buoy
       real,    dimension (:)    ,intent (inout) :: hkbo,depth_neg_buoy,frh
-      real,    dimension (:,:)  ,intent (in)    :: entr_rate_2d,cnvcf
+      real,    dimension (:,:)  ,intent (in)    :: entr_rate_2d
       real,    dimension (:,:)  ,intent (inout) :: hcot
 
       !  local variables in this routine
@@ -4452,9 +4438,9 @@ contains
                                                   !--- the severity of the thunderstorm.
       real,    dimension (its:ite) ::   cap_max
       integer                      ::   i,k,k1,k2,kfinalzu,vtp_index
-      real                         ::   plus,hetest,dz,dbythresh,denom      &
+      real                         ::   plus,hetest,dz,dbythresh,denom &
                                        ,dzh,del_cap_max,fx,x_add,Z_overshoot,frh_crit
-      real   , dimension (kts:kte) ::   dby,h_env_eff
+      real   , dimension (kts:kte) ::   dby
       integer, dimension (its:ite) ::   start_level
 
       delz_oversh = OVERSHOOT
@@ -4462,6 +4448,7 @@ contains
       ktop       (:) = 0 !ktf-1
       dby        (:) = 0.0
       cap_max    (:) = cap_max_in(:)
+      hcot       (:,:) = 0.0
 
       do vtp_index = get_num_elements(vec_ok),1,-1
          i = get_data_value(vec_ok,vtp_index)
@@ -4477,34 +4464,25 @@ contains
          depth_neg_buoy(i) = 0.
 
          if(ierr(i) /= 0) cycle
-         
-         if(use_pass_cloudvol == 2) then
-             h_env_eff(:) = (1.-cnvcf(:,i))*heo(:,i) + cnvcf(:,i)*heso(:,i)
-         else
-             h_env_eff(:) = heo(:,i)
-         endif
-      
-         !
-         !loop0: do vtp_index = get_num_elements(vec_ok),1,-1
-         !  i = get_data_value(vec_ok,vtp_index)
+      !
+      !loop0: do vtp_index = get_num_elements(vec_ok),1,-1
+      !  i = get_data_value(vec_ok,vtp_index)
 
          loop1:  do while(ierr(i) == 0)
 
             kbcon(i)=start_level(i)
             do k=start_level(i)+1,KBMAX(i)+3
                dz=z_cup(k,i)-z_cup(k-1,i)
-               
-               hcot(k,i)= ( (1.-0.5*entr_rate_2d(k-1,i)*dz)*hcot      (k-1,i)   &
-                                  + entr_rate_2d(k-1,i)*dz *h_env_eff (k-1) ) / &
+               hcot(k,i)= ( (1.-0.5*entr_rate_2d(k-1,i)*dz)*hcot(k-1,i)     &
+                                  + entr_rate_2d(k-1,i)*dz *heo (k-1,i) ) / &
                           (  1.+0.5*entr_rate_2d(k-1,i)*dz)
-               
                if(k==start_level(i)+1) then
                   x_add    = (c_alvl*zqexec(i)+c_cp*ztexec(i)) + x_add_buoy(i)
                   hcot(k,i)= hcot(k,i) +  x_add
                endif
             enddo
 
-            loop2:      do while (hcot(kbcon(i),i) < heso_cup(kbcon(i),i))
+            loop2:      do while (hcot(kbcon(i),i) < HESO_cup(kbcon(i),i))
                kbcon(i)=kbcon(i)+1
                if(kbcon(i).gt.kbmax(i)+2) then
                   ierr(i)=3 ; is_removed = remove(vec_ok, i)
@@ -4584,7 +4562,7 @@ contains
          do k=start_level(i)+1,ktf-1
             dz=z_cup(k,i)-z_cup(k-1,i)
             denom = 1.+0.5*entr_rate_2d(k-1,i)*dz + 1.e-12
-            hcot(k,i)=( (1.-0.5*entr_rate_2d(k-1,i)*dz)*hcot      (k-1,i)  &
+            hcot(k,i)=( (1.-0.5*entr_rate_2d(k-1,i)*dz)*hcot(k-1,i)    &
                                +entr_rate_2d(k-1,i)*dz *h_env_eff (k-1)   )/ denom
          enddo
          do k=start_level(i)+1,ktf-1
@@ -5256,7 +5234,7 @@ contains
                  if(ichoice.ge.1) xf_ens(i,1:16) = xf_ens(i,ichoice)
                endif
             enddo
-         endif 
+         endif
       endif 
    end subroutine cup_forcing_ens_deep
    !------------------------------------------------------------------------------------
@@ -5359,7 +5337,7 @@ contains
          !~ p_liq_ice    (:,:) = 1.
          !~ melting_layer(:,:) = 0.
       end if
-   end subroutine get_partition_liq_ice
+   end  subroutine get_partition_liq_ice
    !------------------------------------------------------------------------------------
    subroutine get_melting_profile(ierr,tn_cup,po_cup, p_liq_ice,melting_layer,qrco      &
                                  ,pwo,edto,pwdo,melting,itf,ktf,its,ite, kts,kte, cumulus)
@@ -5436,9 +5414,9 @@ contains
          !-- no melting allowed in this run
          melting     (:,:) = 0.
       endif
-   end subroutine get_melting_profile
+   end  subroutine get_melting_profile
    !------------------------------------------------------------------------------------
-   subroutine ke_to_heating(itf,ktf,its,ite, kts,kte,ktop,ierr,po_cup,us,vs,dellu,dellv,dellat)
+   subroutine  ke_to_heating(itf,ktf,its,ite, kts,kte,ktop,ierr,po_cup,us,vs,dellu,dellv,dellat)
 
       implicit none
       integer                  ,intent (in   ) :: itf,ktf,its,ite, kts,kte
@@ -5471,7 +5449,7 @@ contains
          endif
       enddo
 
-   end subroutine ke_to_heating
+   end subroutine  ke_to_heating
    !---------------------------------------------------------------------------------------------------
 
    subroutine rain_evap_below_cloudbase(cumulus,itf,ktf, its,ite, kts,kte,ierr,kbcon,ktop     &
@@ -5633,7 +5611,7 @@ contains
             !STOP 'problem with water balance'
             !endif
       enddo
-   end subroutine get_precip_fluxes
+   end   subroutine get_precip_fluxes
    !---------get_precip_fluxes------------------------------------------------------------------------------------------
    subroutine get_jmin(cumulus,itf,ktf,its,ite, kts,kte,ierr,kdet,ktop,kbcon,jmin,ierrc  &
                       ,beta,depth_min,heso_cup,zo_cup,melting_layer)
@@ -6777,6 +6755,89 @@ contains
 
       return
    end function make_RainNumber
+   !----------------------------------------------------------------------
+   subroutine rh_controls(mynum,itf,ktf,its,ite,kts,kte,ierr,t,po,qo,qeso,po_cup,cumulus  &
+                       ,rh_entr_factor,rh_dicycle_fct,entr_rate_input, entr_rate,xlons,dt)
+           
+      implicit none
+      character *(*), intent (in)             :: cumulus
+      integer  ,intent (in )                  :: mynum,itf,ktf, its,ite, kts,kte
+      integer  ,intent (in )  ,dimension(:)   :: ierr
+      real     ,intent (in )                  :: entr_rate_input,dt
+      real     ,intent (in )  ,dimension(:)   :: xlons
+      real     ,intent (in )  ,dimension(:,:) :: t,po,qo,po_cup,qeso
+      real     ,intent (inout),dimension(:)   :: entr_rate 
+      real     ,intent (inout),dimension(:)   :: rh_entr_factor,rh_dicycle_fct
+
+      !--locals
+      integer :: i,k,vtp_index
+      real(8)  :: y,x
+      real    :: dpg, trash, dayhr, p_start = 1000.
+      real    ,dimension(its:ite) :: frh,dayhrr
+      real    ,parameter :: ref_local_time = 8., ftun3=0.25
+      logical ,parameter :: free_troposphere = .true. 
+      
+   if(moist_trigger > 1) then 
+      
+      !-- ave rh from 1000 -> 450 hPa, following Tian et al 2022 GRL.
+      ! OR
+      !-- ave rh from 800 -> 450 hPa accounts only for the ´free troposphere'
+      if(free_troposphere) p_start = 800. 
+
+      do vtp_index = get_num_elements(vec_ok),1,-1
+         i = get_data_value(vec_ok,vtp_index)
+         
+         frh(i) = 0.
+         trash  = 0.
+         loopN:    do k=kts,ktf
+            if( po(k,i) .gt. p_start .and. po(k,i) .lt. 450.) cycle loopN
+            dpg=100.*(po_cup(k,i)-po_cup(k+1,i))/c_grav
+            trash=trash+dpg
+            frh(i)= frh(i) + (qo(k,i)/qeso(k,i))*dpg 
+         enddo loopN
+         
+         !--average relative humidity
+         frh(i) =   100.*frh(i)/(1.e-8+trash) ! no unit
+         frh(i) = max(1., min(100., frh(i)))
+         !
+         !--- this is for the moist_trigger = 2
+         x = dble(frh(i))          
+         y = 9.192833D0 - 0.2529055D0*x + 0.002344832d0*x**2 &
+           - 0.000007230408D0*x**3
+         
+         !--- if RH increases, rh_entr_factor decreases => entr decreases
+         if(moist_trigger == 2) rh_entr_factor(i) = max(0.5,min(1.0,real(y,4)))
+         
+         !--- if RH increases, rh_entr_factor increases => entr increases
+         if(moist_trigger == 3) rh_entr_factor(i) = max(0.1,min(1.0,frh(i)*0.01))
+
+         entr_rate(i) = entr_rate(i) * rh_entr_factor(i)    
+      enddo
+   endif  
+   if(rh_dicycle == 1) then 
+      do vtp_index = get_num_elements(vec_ok),1,-1
+         i = get_data_value(vec_ok,vtp_index)
+          !--- local time
+          dayhr  = (time_in / 3600. + float(itime1_in/100)+float(mod(itime1_in,100))/60.) 
+          dayhrr(i) = mod(dayhr+xlons(i)/15.+24., 24.)
+
+         if(abs ( dayhrr(i) - ref_local_time) < 1. .or. time_in < dt+1. ) &  
+           !--- ftun3 controls the domain of the dicycle closure 
+           !    ftun3 => 1 the closure is insensitive to the mean tropospheric RH
+           !    ftun3 => 0 it depends on the RH, with mininum = ftun3
+           rh_dicycle_fct(i) = ftun3 +(1. - ftun3)*&
+                            (1.-(atan((frh(i)-55.)/10.)+atan(55.))/3.1016)
+      enddo
+   endif
+      !-- code to test the atan function
+      !  do i = 1 ,100 !relative humidity
+      !      y = 0.25 +0.75*(1.-(atan((float(i)-60.)/10.)+atan(50.))/3.1016)/0.9523154
+      !      print*,i,y
+      !  enddo
+      
+      !print*,"FRH",maxval(frh),minval(frh),maxval(rh_dicycle_fct),minval(rh_dicycle_fct)
+      !call flush(6)
+   end subroutine rh_controls
    !------------------------------------------------------------------------------------
    real function coldPoolStart(CNV_TR)
       implicit none
@@ -6928,14 +6989,12 @@ contains
       
       ! Local variables:
       integer :: i, vtp_index
-      real    :: local_ave_layer
 
       if(USE_MEMORY >= 0) then 
-         local_ave_layer = ave_layer ! local_ave_layer=20.
          do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
 
-            call get_cloud_bc(cumulus,local_ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i) &
+            call get_cloud_bc(cumulus,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i) &
                              ,buoy_exc (kts:kte,i),x_add_buoy (i),kts)
             !- for gate soundings
             !x_add_buoy (i) = float(JL*40)
@@ -6963,8 +7022,6 @@ contains
                i = get_data_value(vec_ok,vtp_index)
                !entr_rate(i) = max(0.7, 1.-coldPoolStart_orig(x_add_buoy(i))) * entr_rate(i) 
                 entr_rate(i) =             coldPoolStart     (x_add_buoy(i))  * entr_rate(i) 
-               !if(coldPoolStart     (x_add_buoy(i)) < 0.9) 
-               ! print*,'entr=', coldPoolStart     (x_add_buoy(i)) , entr_rate(i)*1000.
             enddo
       endif
 
@@ -6976,7 +7033,13 @@ contains
                cap_max(i) = cap_max(i) + (1.-coldPoolStart(x_add_buoy(i))) * 35./0.3
             enddo
       endif
-
+      !--- temporary for output
+      AA3_(:)=x_add_buoy(:) 
+            
+      if(use_gustiness == 1 )  then 
+                x_add_buoy(:) = 0.0
+                AA3_(:)=c_cp*ztexec(:)+c_alvl*zqexec(:)
+      endif
    end subroutine coldPoolConvMem
    !------------------------------------------------------------------------------------
 
@@ -7111,10 +7174,10 @@ contains
       if(cumulus == 'deep'    ) then
          do i=its,itf
             if(xland(i) > 0.99 ) then !- over water
-               edtmin(i)=0.3
+               edtmin(i)=0.2
                edtmax(i)=MAX_EDT_OCEAN  !
             else!- over land
-               edtmin(i)=0.3
+               edtmin(i)=0.2
                edtmax(i)=MAX_EDT_LAND  !
             endif
          enddo
@@ -7324,7 +7387,7 @@ contains
       real            :: k_lcl_entr,k_tls_entr,ax,bx,ax_lcl,ax_tls,tls_max
       bx = 1.0
 
-      ax_tls = 1.0 ! 1 for NN, 0.5 MY
+      ax_tls = 0.5 ! 1 for NN, 0.5 MY
       ax_lcl = 2.0
       if(trim(cumulus) == 'deep') ax_lcl = 3.0
       do i=its,itf
@@ -7336,10 +7399,9 @@ contains
          
          if    (use_lcl_ctrl_entr == 1) then
             entr_rate(i) = k_tls_entr * entr_rate(i)
-
+         
          elseif(use_lcl_ctrl_entr == 2) then
             entr_rate(i) = k_lcl_entr * entr_rate(i)
-            !if(trim(cumulus) == 'deep') print*,'Zlcl',i,zlcl_sfc(i),k_lcl_entr
          
          elseif(use_lcl_ctrl_entr == 3) then
             entr_rate(i) = min(k_lcl_entr,k_tls_entr) * entr_rate(i)
@@ -7352,17 +7414,15 @@ contains
          
          endif
 
-         !if(trim(cumulus)=='deep') then 
-         ! AA1_BL_(i)= entr_rate(i)/entr_rate_input
-         ! AA0_(i)   = k_tls_entr*1000.
-         ! AA1_(i)   = k_lcl_entr*1000.
-         !endif
+         if(trim(cumulus)=='deep') then 
+          AA1_BL_(i)= entr_rate(i)/entr_rate_input
+          AA0_(i)   = k_tls_entr*1000.
+          AA1_(i)   = k_lcl_entr*1000.
+         endif
       enddo
-     ! print*,'LCL ',trim(cumulus),maxval(entr_rate(:))/entr_rate_input,minval(entr_rate(:))/entr_rate_input
-
-
-
+     
    end subroutine LCL_and_PBL_ctrl_on_entrainment
+   
    !---------------------------------------------------------------------------------------------------
    subroutine set_entr_detr_rates(cumulus,its,ite,itf,kts,kte,ktf,ierr,klcl               &
                                  ,min_entr_rate,entr_rate,entr_rate_2d,cd,mentrd_rate,cdd &
@@ -7396,8 +7456,8 @@ contains
            rh2d(:,i) = min(qo_cup(:,i)/qeso_cup(:,i),1.)
          enddo
       
-         if(use_pass_cloudvol == 1) then
-            crh1 = 1.3 ; crh2 = 1.6
+         if(use_pass_cloudvol == 1 .or. use_pass_cloudvol == 12 .or. use_pass_cloudvol == 3) then
+            crh1 = 1.6 ; crh2 = 1.9
             !-- The Role of Passive Cloud Volumes in the Transition 
             !-- From Shallow to Deep Atmospheric Convection - GRL 2023
             do vtp_index = get_num_elements(vec_ok),1,-1
@@ -7420,38 +7480,39 @@ contains
          detr_frh2d(:,:) = 1.0
       endif
 
+      !do i=its,itf
+      !   if(ierr(i) /= 0) cycle
       do vtp_index = get_num_elements(vec_ok),1,-1
          i = get_data_value(vec_ok,vtp_index)
-         do k=kts,ktf
+
+         if(cumulus /= 'shallow') then
+
+            do k=kts,ktf
                
-            entr_rate_2d(k,i) = entr_rate(i)*entr_frh2d(k,i)*max(min(1.,(qeso_cup(max(k,klcl(i)),i)&
-                                                                      /qeso_cup(klcl(i),i))**1.25) ,0.1)
-            entr_rate_2d(k,i) = max(entr_rate_2d(k,i),min_entr_rate)
+               if(k >= klcl(i)) then
+                     entr_rate_2d(k,i)=entr_rate(i)*entr_frh2d(k,i)*(qeso_cup(k,i)/qeso_cup(klcl(i),i))**1.25
+               else
+                     entr_rate_2d(k,i)=entr_rate(i)*entr_frh2d(k,i)
+               endif
+               cd(k,i)=0.75e-4*detr_frh2d(k,i)               
+               entr_rate_2d(k,i) = max(entr_rate_2d(k,i),min_entr_rate)
+            enddo
 
-         enddo
-      enddo
+         else
+            !-- for shallow 
+            do k=kts,ktf
+               entr_rate_2d(k,i)=entr_rate(i)*entr_frh2d(k,i)*max(min(1.,(qeso_cup(max(k,klcl(i)),i)&
+                                                                         /qeso_cup(klcl(i),i))**1) ,0.1)
+               cd(k,i)=0.75*entr_rate_2d(k,i)!+0.5e-3
+            enddo
+         endif
 
-      if(cumulus /= 'shallow') then
-         do vtp_index = get_num_elements(vec_ok),1,-1
-            i = get_data_value(vec_ok,vtp_index)
-            cd(:,i)=0.75e-4*detr_frh2d(:,i)               
-         enddo
-      else
-         do vtp_index = get_num_elements(vec_ok),1,-1
-            i = get_data_value(vec_ok,vtp_index)
-            cd(:,i)=0.75*entr_rate_2d(:,i)!+0.5e-3
-         enddo
-      endif
-      
-      !--- define entrainment/detrainment profiles for downdrafts
-      do vtp_index = get_num_elements(vec_ok),1,-1
-            i = get_data_value(vec_ok,vtp_index)
-            mentrd_rate(i  ) =   entr_rate(i)*0.3
-            cdd        (:,i) = mentrd_rate(i)
+        !--- define entrainment/detrainment profiles for downdrafts
+        mentrd_rate(i  ) =   entr_rate(i)*0.3
+        cdd        (:,i) = mentrd_rate(i)
       enddo
 
    end subroutine set_entr_detr_rates
-   !---------------------------------------------------------------------------------------------------
    !---------------------------------------------------------------------------------------------------
    subroutine set_scale_dep_factor(cumulus,use_scale_dep,downdraft,its,ite,itf,kts,kte,ktf&
                                   ,ierr,sig_factor,stochastic_sig,dx,sig,sigd)
@@ -7541,7 +7602,7 @@ contains
             i = get_data_value(vec_ok,vtp_index)
             cloud_depth =  po_cup(kbcon(i),i)-po_cup(ktop(i),i)
             if(po_cup(ktop(i),i) > 750. .or. cloud_depth < min_cloud_depth) then
-               ierr(i)=33 ; is_removed = remove(vec_ok, i)
+               ierr(i)=55 ; is_removed = remove(vec_ok, i)
                ierrc(i)='cloud top or cloud_depth too low for mid'
             endif
          enddo
@@ -7564,7 +7625,7 @@ contains
             !if(icumulus_gf(mid) == OFF) min_shall_top=550.
             cloud_depth =  po_cup(kbcon(i),i)-po_cup(ktop(i),i)
             if(po_cup(ktop(i),i) < min_shall_top .or. cloud_depth < min_cloud_depth ) then
-               ierr(i)=36 ; is_removed = remove(vec_ok, i)
+               ierr(i)=26 ; is_removed = remove(vec_ok, i)
                ierrc(i)='cloud top too high or cloud_depth too low for shallow' 
             endif
          enddo
@@ -7577,7 +7638,7 @@ contains
                i = get_data_value(vec_ok,vtp_index)
                cloud_depth =  po_cup(kbcon(i),i)-po_cup(ktop(i),i)
                if(po_cup(ktop(i),i) > min_deep_top .or. cloud_depth < min_cloud_depth ) then
-                  ierr(i)=33 ; is_removed = remove(vec_ok, i)
+                  ierr(i)=55 ; is_removed = remove(vec_ok, i)
                   ierrc(i)='cloud top or cloud_depth too low for deep'
                endif
             enddo
@@ -7695,7 +7756,7 @@ contains
 
             if( k800 <= kts .or. k800 >= ktf - 4) then
                k_inv_layers(shal,i)= ktf
-               !ierr(i)=16; is_removed = remove(vec_ok, i)
+               !ierr(i)=8; is_removed = remove(vec_ok, i)
             else
                !-save k800 in the k_inv_layers array
                k_inv_layers(shal,i)=local_k_inv_layers(k800,i) +extralayer
@@ -7720,7 +7781,7 @@ contains
             endif
          else
             k_inv_layers(:,i)=1
-            ierr(i)=35 ; is_removed = remove(vec_ok, i)
+            ierr(i)=88 ; is_removed = remove(vec_ok, i)
          endif
 
       enddo
@@ -7827,9 +7888,8 @@ contains
       real     ,intent (inout), dimension(:)   :: hkbo
       real     ,intent (out  ), dimension(:,:) :: hco
       !-- local vars
-      integer :: i,k,vtp_index,kii,kff
-      real :: denom,x_add
-      real, dimension(kts:kte) :: h_env_eff
+      integer :: i,k,vtp_index
+      real :: denom,x_add,h_env_eff
 
       !
       !--- 1st guess for moist static energy and dbyo (not including ice phase)
@@ -7844,21 +7904,25 @@ contains
          do k=kts,start_level(i)
                hco(k,i) = hkbo(i)
          enddo
-         
-         kii=start_level(i)+1 ; kff=ktop(i)+1
-         if(use_pass_cloudvol == 2) then
-              h_env_eff(kii:kff) = (1.-cnvcf(kii:kff,i))*heo(kii:kff,i) + cnvcf(kii:kff,i)*heso(kii:kff,i)
-         else
-              h_env_eff(kii:kff) = heo(kii:kff,i)
-         endif
 
          do k=start_level(i) + 1,ktop(i) + 1 
             denom=(zu(k-1,i)-.5*up_massdetro(k-1,i)+up_massentro(k-1,i)) + 1.e-12
 
-            hco(k,i)=(hco(k-1,i)*zuo(k-1,i)-.5*up_massdetro(k-1,i)*hco(k-1,i) + &
-                                               up_massentro(k-1,i)*h_env_eff(k-1))/ denom
+            if(use_pass_cloudvol == 2 .or. use_pass_cloudvol == 12 .or. use_pass_cloudvol == 3) then
+                  h_env_eff = (1.-cnvcf(k-1,i))*heo(k-1,i) + cnvcf(k-1,i)*heso(k-1,i)
+                  
+                  hco(k,i)=(hco(k-1,i)*zuo(k-1,i)-.5*up_massdetro(k-1,i)*hco(k-1,i) + &
+                                                     up_massentro(k-1,i)*h_env_eff)/ denom
             
-            if(k==start_level(i)+1) hco(k,i)= hco(k,i) + x_add*up_massentro(k-1,i)/denom
+            else
+                  hco(k,i)=(hco(k-1,i)*zuo(k-1,i)-.5*up_massdetro(k-1,i)*hco(k-1,i) + &
+                                                     up_massentro(k-1,i)*heo(k-1,i))/ denom
+            endif
+
+            if(k==start_level(i)+1) then
+                  !x_add = (c_alvl*zqexec(i)+c_cp*ztexec(i)) +  x_add_buoy(i)
+                  hco(k,i)= hco(k,i) + x_add*up_massentro(k-1,i)/denom
+            endif
          enddo
          do k=ktop(i)+2,ktf
             hco (k,i)=heso_cup(k,i)
@@ -7886,9 +7950,8 @@ contains
       real     ,intent (inout), dimension(:)   :: hkb,hkbo
       real     ,intent (inout), dimension(:,:) :: zuo,hc,uc,vc,hco
       !-- local vars
-      integer :: i,k,vtp_index,kii,kff
-      real    :: denom,denomU,x_add
-      real, dimension(kts:kte) :: h_env_eff, h_env_effo
+      integer :: i,k,vtp_index
+      real    :: denom,denomU,x_add,h_env_eff
 
       !
       !-- updraft moist static energy + momentum budget
@@ -7925,23 +7988,30 @@ contains
       do vtp_index = get_num_elements(vec_ok),1,-1
          i = get_data_value(vec_ok,vtp_index)
 
-         kii=start_level(i)+1 ; kff=ktop(i)+1
-         if(use_pass_cloudvol == 2) then
-            h_env_eff (kii:kff) = (1.-cnvcf(kii:kff,i))*he (kii:kff,i) + cnvcf(kii:kff,i)*hes (kii:kff,i)
-            h_env_effo(kii:kff) = (1.-cnvcf(kii:kff,i))*heo(kii:kff,i) + cnvcf(kii:kff,i)*heso(kii:kff,i)
-         else
-            h_env_eff (kii:kff) = he (kii:kff,i)
-            h_env_effo(kii:kff) = heo(kii:kff,i)
-         endif
-
          do k=start_level(i) + 1 , ktop(i) + 1  
             denom =(zuo(k-1,i)-.5*up_massdetro(k-1,i)+up_massentro(k-1,i)) + 1.e-12
             denomU=(zuo(k-1,i)-.5*up_massdetru(k-1,i)+up_massentru(k-1,i)) + 1.e-12
            
-            hc (k,i)=(hc (k-1,i)*zuo(k-1,i)-.5*up_massdetro(k-1,i)*hc (k-1,i) + &
-                                               up_massentro(k-1,i)*h_env_eff(k-1))/ denom               
-            hco(k,i)=(hco(k-1,i)*zuo(k-1,i)-.5*up_massdetro(k-1,i)*hco(k-1,i)+ &
-                                               up_massentro(k-1,i)*h_env_effo(k-1))/ denom
+            if(use_pass_cloudvol == 2 .or. use_pass_cloudvol == 12 .or. use_pass_cloudvol == 3) then
+               h_env_eff = (1.-cnvcf(k-1,i))*he(k-1,i) + cnvcf(k-1,i)*hes(k-1,i)
+
+               hc (k,i)=(hc (k-1,i)*zuo(k-1,i)-.5*up_massdetro(k-1,i)*hc (k-1,i) + &
+                                                  up_massentro(k-1,i)*h_env_eff)/ denom
+            
+               h_env_eff = (1.-cnvcf(k-1,i))*heo(k-1,i) + cnvcf(k-1,i)*heso(k-1,i)
+               
+               hco(k,i)=(hco(k-1,i)*zuo(k-1,i)-.5*up_massdetro(k-1,i)*hco(k-1,i)+ &
+                                                  up_massentro(k-1,i)*h_env_eff)/ denom
+            else
+
+               hc (k,i)=(hc (k-1,i)*zuo(k-1,i)-.5*up_massdetro(k-1,i)*hc (k-1,i) + &
+                                                  up_massentro(k-1,i)*he (k-1,i))/ denom
+
+               hco(k,i)=(hco(k-1,i)*zuo(k-1,i)-.5*up_massdetro(k-1,i)*hco(k-1,i)+ &
+                                                  up_massentro(k-1,i)*heo(k-1,i))/ denom
+
+            endif 
+
 
             if(k==start_level(i)+1) then
                   x_add = (c_alvl*zqexec(i)+c_cp*ztexec(i)) +  x_add_buoy(i)
@@ -8202,7 +8272,7 @@ contains
          end do
       endif 
 
-   end subroutine smooth_tend
+   end  subroutine smooth_tend
    !----------------------------------------------------------------------
    subroutine get_env_change(coupl_mphysics,itf,ktf, its,ite, kts,kte,ierr &
                             ,heo,qo,tn,p_liq_ice,mbdt,dellu, dellv, dellah &
@@ -8965,11 +9035,11 @@ contains
       
       dicycle           = 1 
       cum_t_star        = (/30., -99., -99./)
+      rh_dicycle        = 0 
       
       downdraft         = 1   
       use_rebcb         = 1 
       irainevap         = 0
-      cum_fr_min_entr   = (/0.1, 0.1, 0.1/)
       cum_max_edt_land  = (/0.30, 0.00, 0.80/)
       cum_max_edt_ocean = (/0.60, 0.00, 0.40/)
       cum_use_excess    = (/1, 1, 1/)
@@ -9007,6 +9077,8 @@ contains
       cum_fadj_massflx  = (/1.00, 1.00, 1.00/)
       moist_trigger     = 0   
       frac_modis        = 1   
+      adv_trigger       = 0   
+      dcape_threshold   = 60.0
       lcl_trigger       = 0   
       use_random_num    = 0.0   
       cap_maxs          = 50.  
@@ -9042,7 +9114,168 @@ contains
       is_init = 0
 
    end function initModConvParGF
-   !--------------------------------------------------------------------------------------------!
+!--------------------------------------------------------------------------------------------!
+   subroutine BeckerEtAlClosure(cumulus,ave_layer,its, itf, ite, kts, ktf, kte, k22, start_level, ktop, klcl, kbcon &
+                              , t_in, tn, tn_adv , q_in, qo, qo_adv, psur, tsur,us, vs, zqexec, ztexec, x_add_buoy  &
+                              , xland, tpert, zu, up_massdetro, up_massentro, zuo, p_liq_ice, qrco, ierr, zo, po, z1 &
+                              , aa1_radpbl, aa1_adv,DICYCLE)
+      !! ## Becker et Al closure
+      !!
+      !! Author: Saulo R Freitas [SRF]
+      !!
+      !! E-mail: <mailto:saulo.freitas@inpe.br>
+      !!
+      !! Date: 22Fevereiro2023 13:46
+      !!
+      !! #####Version: 0.1.0
+      !!
+      !! ---
+      !! **Full description**:
+      !!
+      !! Becker et Al closure
+      !!
+      !! ** History**:
+      !!
+      !! --- 
+      !! ** Licence **: Under the terms of the GNU General Public version 3
+      !!   <img src="https://www.gnu.org/graphics/gplv3-127x51.png width="63">
+      !!
+
+      implicit none
+      ! Parameters:
+      character(len=*), parameter :: p_procedure_name = 'beckerEtAlClosure' 
+      !! subroutine name
+   
+      ! Variables (input, output, inout)
+      character *(*)   ,intent (in) :: cumulus
+      real   , intent(in) :: ave_layer
+      integer, intent(in) :: its, itf, ite, kts, ktf, kte, DICYCLE
+      integer, intent(in) :: k22(:)
+      integer, intent(in) :: start_level(:)
+      integer, intent(in) :: ktop(:)
+      integer, intent(in) :: klcl(:)
+      integer, intent(in) :: kbcon(:)
+      real, intent(in) :: t_in(:,:)
+      real, intent(in) :: tn(:,:)
+      real, intent(in) :: tn_adv(:,:)
+      real, intent(in) :: q_in(:,:)
+      real, intent(in) :: qo(:,:)
+      real, intent(in) :: qo_adv(:,:)
+      real, intent(in) :: psur(:)      
+      real, intent(in) :: tsur(:)
+      real, intent(in) :: us(:, :)
+      real, intent(in) :: vs(:, :)
+      real, intent(in) :: zqexec(:)
+      real, intent(in) :: ztexec(:)
+      real, intent(in) :: x_add_buoy(:)
+      real, intent(in) :: xland(:)
+      real, intent(in) :: tpert(:,:)
+      real, intent(in) :: zu(:,:)
+      real, intent(in) :: up_massdetro(:,:)
+      real, intent(in) :: up_massentro(:,:)
+      real, intent(in) :: zuo(:,:)
+      real, intent(in) :: p_liq_ice(:,:)
+      real, intent(in) :: qrco(:,:)
+      integer, intent(inout) :: ierr(:)
+      
+      real, intent(in ) :: zo(:,:)
+      real, intent(in ) :: po(:, :)
+      real, intent(in ) :: z1(:)
+      real, intent(out) :: aa1_radpbl(:)
+      real, intent(out) :: aa1_adv(:)
+      
+      ! Local variables:
+      integer ::ierr_dummy(its:ite) 
+      real :: hkbo_x      (its:ite)
+      real :: qeso_x      (kts:kte,its:ite)
+      real :: heo_x       (kts:kte,its:ite)
+      real :: heso_x      (kts:kte,its:ite)
+      real :: qeso_cup_x  (kts:kte,its:ite)
+      real :: qo_cup_x    (kts:kte,its:ite)
+      real :: heo_cup_x   (kts:kte,its:ite)
+      real :: u_cup_x     (kts:kte,its:ite)
+      real :: v_cup_x     (kts:kte,its:ite)
+      real :: heso_cup_x  (kts:kte,its:ite)
+      real :: zo_cup_x    (kts:kte,its:ite)
+      real :: po_cup_x    (kts:kte,its:ite)
+      real :: gammao_cup_x(kts:kte,its:ite)
+      real :: tn_cup_x    (kts:kte,its:ite)
+      real :: hco_x       (kts:kte,its:ite)
+      real :: dbyo_x      (kts:kte,its:ite)
+      real :: tn_x        (kts:kte,its:ite)
+      real :: qo_x        (kts:kte,its:ite)
+      integer :: ki, i, k
+      real :: x_add, denom
+      
+      do ki = 1,2
+         if(DICYCLE==2 .and. ki==2) cycle 
+
+         if(ki==1) then
+          !-- get the cloud work function for updrafts associated only with RAD + PBL
+          tn_x = t_in + tn - tn_adv
+          qo_x = q_in + qo - qo_adv
+          !-- to check => aa1_radpbl=aa1
+          !! tn_x = tn
+          !! qo_x = qo
+         endif
+
+         if(ki==2) then
+            !-- get the cloud work function for updrafts associated only with Qv-advection
+           !tn_x = tn_adv  ! orig 
+           tn_x = t_in        ! v2
+           qo_x = qo_adv
+         endif
+
+         ierr_dummy=ierr
+
+         call cup_env     (zo,qeso_x,heo_x,heso_x,tn_x,qo_x,po,z1,psur,ierr_dummy,-1,itf,ktf, its,ite, kts,kte)
+         call cup_env_clev(tn_x,qeso_x,qo_x,heo_x,heso_x,zo,po,qeso_cup_x,qo_cup_x,heo_cup_x,us,vs   &
+                          ,u_cup_x,v_cup_x,heso_cup_x,zo_cup_x,po_cup_x,gammao_cup_x,tn_cup_x,psur,tsur  &
+                          ,ierr_dummy,z1,itf,ktf,its,ite, kts,kte)
+
+         !--- get MSE
+         do i=its,itf
+            if(ierr_dummy(i) /= 0) cycle
+            x_add = (c_alvl*zqexec(i)+c_cp*ztexec(i)) +  x_add_buoy(i)
+            call get_cloud_bc(cumulus,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i),heo_cup_x(kts:kte,i)&
+                             ,hkbo_x(i),k22(i),x_add,Tpert(kts:kte,i))
+            hco_x (kts:start_level(i),i) = hkbo_x(i)
+
+            do k=start_level(i)+1 , ktop(i)+1  ! mass cons option
+               denom =(zu(k-1,i)-.5*up_massdetro (k-1,i)+up_massentro (k-1,i)) + 1.e-12
+               
+               hco_x(k,i)=(hco_x(k-1,i)*zuo(k-1,i)-.5*up_massdetro(k-1,i)*hco_x(k-1,i)+ &
+                                                      up_massentro(k-1,i)*heo_x(k-1,i))/ denom
+               if(k==start_level(i)+1) then
+                     !x_add = (xlv*zqexec(i)+cp*ztexec(i)) +  x_add_buoy(i)
+                     hco_x(k,i)= hco_x(k,i) + x_add*up_massentro(k-1,i)/denom
+               endif
+               !
+               !- includes glaciation effects on HCO_X
+               hco_x(k,i)= hco_x(k,i)+(1.-p_liq_ice(k,i))*qrco(k,i)*c_xlf
+            enddo
+            hco_x (ktop(i)+2:ktf,i)=heso_cup_x(ktop(i)+2:ktf,i)
+         enddo
+
+         call get_buoyancy(itf,ktf, its,ite, kts,kte,ierr_dummy,klcl,kbcon,ktop &
+                          ,hco_x,heo_cup_x,heso_cup_x,dbyo_x,zo_cup_x)
+
+         if(ki==1) &  ! RAD+PBL only
+            call cup_up_aa0(aa1_radpbl,zo_cup_x,zuo,dbyo_x,GAMMAo_CUP_x,tn_cup_x   &
+                           ,k22,klcl,kbcon,ktop,ierr_dummy,itf,ktf,its,ite, kts,kte)
+         !-- get AA1_ADV
+         !aa1_adv = aa1 + aa0 - aa1_radpbl
+         
+
+         if(ki==2) & ! ADV of Qv only
+         call cup_up_aa0(aa1_adv,zo_cup_x,zuo,dbyo_x,GAMMAo_CUP_x,tn_cup_x   &
+                        ,k22,klcl,kbcon,ktop,ierr_dummy,itf,ktf,its,ite, kts,kte)
+         !Observe that : 
+         !aa1 ~ aa0 + (aa1_radpbl-aa0) + (aa1_adv-aa0)
+
+      enddo ! ki   
+   end subroutine BeckerEtAlClosure
+   !------------------------------------------------------------------------------------
    real function FractLiqF(temp2) ! temp2 in Kelvin, fraction between 0 and 1.
       implicit none
       real,intent(in)  :: temp2 ! K
@@ -9067,8 +9300,8 @@ contains
          end select
 
    end function   
-   !---------------------------------------------------------------------------------------------------------------------------
-   subroutine gateSoundings(its, itf, jl, kte, kts, ktf, ierr, jmin, k22, kbcon, klcl, ktop, aa1, cd, clfrac, dby, dd_massentro &
+      !---------------------------------------------------------------------------------------------------------------------------
+      subroutine gateSoundings(its, itf, jl, kte, kts, ktf, ierr, jmin, k22, kbcon, klcl, ktop, aa1, cd, clfrac, dby, dd_massentro &
                              , dd_massdetro, dellah, dellaq, dellaqc, dtime, edto, entr_rate_2d, evap_bcb, hc, hco, he_cup, HKB &
                              , massf, massi, melting_layer, mpcf, mpqi, mpql, out_chem, outmpcf, outmpqi, outmpql, outnice, outnliq &
                              , outq, outqc, outt, outu, outv, p_liq_ice, po, po_cup, pre, prec_flx, pwdo, pwo, q_cup, q_in, qcdo, qco &
@@ -10320,43 +10553,12 @@ contains
       end if ! USE_FLUX_FORM == 2 .or. USE_FLUX_FORM == 3
       !
    end subroutine fluxFormsSourceSink
-!---------------------------------------------------------------------------------------------!
+!--------------------------------------------------------------------------------------------!
 !- end of section for atmospheric composition
+!--------------------------------------------------------------------------------------------!
 !---------------------------------------------------------------------------------------------!
 !---------------------------------------------------------------------------------------------!
-!- list of ierr reasons:
-! ierr(i)=21   ==>  ierrc(i)='for shallow convection:  LCL height < PBL height'
-! ierr(i)=22   ==>  ierrc(i)="ke_gustfront less than -cin1"
-! ierr(i)=24   ==>  ierrc(i)='deep:  aa1 - aa1bl < zero'
-! ierr(i)=34   ==>  ierrc(i)=" pwev >= 0 in cup_dd_moisture"
-! ierr(i)=27   ==>  ierrc(i)=" bu >= 0   in cup_dd_moisture"
-! ierr(i)=28   ==>  ierrc(i)=" pwev >= 0 in cup_dd_moisture"
-! ierr(i)=29   ==>  ierrc(i)="pwav negative"
-! ierr=19      ==>  if( maxval(zu(kts:min(kte,kt+1)),1) <= 0.0) then
-! ierr(i)=3    ==>  ierrc(i)="could not find reasonable kbcon in cup_kbcon : above kbmax+2 "
-! ierr(i)=30   ==>  ierrc(i)="could not find reasonable kbcon in cup_kbcon = kts"
-! ierr(i)=31   ==>  if(ktop(i) <= kbcon(i)+1) then
-! ierr(i)=32   ==>  if(maxval(vvel2d(:,i)) < 1.0) then
-! ierr(i)=13   ==>  if(xmb(i) .le. 0.)then
-! ierr(i)=14   ==>  if(xmb(i) == 0. ) then 
-! ierr(i)=15   ==>  if(xmb(i) > 100.) then 
-! ierr(i)=9    ==>  ierrc(i) = "could not find jmini9"
-! ierr(i)=4    ==>  ierrc(i) = "could not find jmini4"
-! ierr(i)=6    ==>  ierrc(i)="cloud depth very shallow"
-! ierr(i)=2    ==>  ierrc(i)="could not find k22"
-! ierr(i)=25   ==>  ierrc(i)='mid convection with cloud top above 450 hpa (~ 7km asl)'
-! ierr(i)=33   ==>  ierrc(i)='cloud top or cloud_depth too low for mid' _or_ ierrc(i)='cloud top or cloud_depth too low for deep'
-! ierr(i)=36   ==>  ierrc(i)='cloud top too high or cloud_depth too low for shallow' 
-! ierr(i)=8    ==>  if( k550 <= kts .or. k550 >= ktf - 4) for MID
-! ierr(i)=12   ==>  if(  k_inv_layers(mid,i) <= kts .or. k_inv_layers(mid,i) >= ktf-4) then
-! ierr(i)=35   ==>  k_inv_layers(:,i)=1 for MID
-! ierr(i)=7    ==>  ierrc(i)='downdraft is not negatively buoyant ' (bud(i) > 0.)
-! ierr(i)=18   ==>  ierrc(i)="total normalized condensate too small"
-!---------------------------------------------------------------------------------------------!
-
 end  module module_cu_gf_monan
-
-
 
 
 
