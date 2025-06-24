@@ -424,8 +424,7 @@ contains
               ,ids, ide, jds, jde, kds, kde   &
               ,ims, ime, jms, jme, kms, kme   &
               ,its, ite, jts, jte, kts, kte   &
-              ,itimestep             &
-              ,mynum                          &
+              ,itimestep,mynum                &
               ,dp_dens, sh_dens, cg_dens      &
               ,dp_ierr, sh_ierr, cg_ierr      )
 
@@ -1774,6 +1773,9 @@ contains
          ,p_liq_ice,melting_layer,melting ,up_massentru,up_massdetru,dd_massentru     &
          ,dd_massdetru, prec_flx,evap_flx,qrs,zenv,Tpert
 
+        real,    dimension (kts:kte,its:ite) ::    entr_rate_2d_initial !!tmp
+
+
       real, dimension (nmp,kts:kte,its:ite) ::  dellampqi,dellampql,dellampcf
 
       !-- atmos composition arrays
@@ -1887,8 +1889,8 @@ contains
       !-- define entrainment/detrainment profiles for updrafts
       !
       !- initial entrainment/detrainment
-      entr_rate   (:  ) = entr_rate_input
-      min_entr_rate     = entr_rate_input * fr_min_entr
+      entr_rate   (:) = entr_rate_input
+      min_entr_rate   = entr_rate_input * fr_min_entr
 
       !print*,'en1',trim(cumulus),maxval(entr_rate),minval(entr_rate), fr_min_entr
 
@@ -1937,9 +1939,11 @@ contains
       !--- and the scale dependence factor (sig).
       !
       call set_entr_detr_rates(cumulus,its,ite,itf,kts,kte,ktf,ierr,klcl,min_entr_rate,entr_rate &
-                              ,entr_rate_2d,cd,mentrd_rate,cdd,qo_cup, qeso_cup,cnvcf)
+                              ,entr_rate_2d,cd,mentrd_rate,cdd,qo_cup, qeso_cup,cnvcf,zo_cup)
       !
-      !
+       if( trim(cumulus) == 'deep')  entr_rate_2d_initial(:,:) = entr_rate_2d(:,:)      !<<<<<<<< tmp
+
+                              !
       !--- determine the moist static energy of air parcels at source level
       !
       do vtp_index = get_num_elements(vec_ok),1,-1
@@ -2202,8 +2206,8 @@ contains
                alpha_cats = 1. + (log(1.e+4/dx(i)))**2
             endif
             tau_ecmwf(i)=alpha_cats*(zo_cup(ktop(i),i)- zo_cup(kbcon(i),i)) / wmean(i)
-            !tau_ecmwf(i)= min(10800., max(720.,tau_ecmwf(i)))
-             tau_ecmwf(i)= min(10800., max(1200.,tau_ecmwf(i)))
+            tau_ecmwf(i)= min(10800., max(720.,tau_ecmwf(i)))
+            !tau_ecmwf(i)= min(10800., max(1200.,tau_ecmwf(i)))
          enddo
       endif
 
@@ -2331,6 +2335,7 @@ contains
             do k=start_level(i) + 1,ktop(i) + 1 
               denom= (zuo(k-1,i)-.5*up_massdetro(k-1,i)+up_massentro(k-1,i)) +1.e-12
               xhc(k,i)=(xhc(k-1,i)*zuo(k-1,i)-.5*up_massdetro(k-1,i)*xhc(k-1,i)+ &
+!                                                up_massentro(k-1,i)*xhe(k-1,i)) / denom
                                                  up_massentro(k-1,i)*xh_env_eff(k-1)) / denom
 
               if(k==start_level(i)+1)  then
@@ -2527,20 +2532,29 @@ contains
       end do
 
       !--- for outputs (only deep plume)
-      !
       if( trim(cumulus) == 'deep') then
-         do i=its,itf
-            var2d1(i) = x_add_buoy(i)
+        !var2d1(i) = x_add_buoy(i)
+         var2d1(:) = 0.0
+         var2d2(:) = 0.0
+         do vtp_index = get_num_elements(vec_ok),1,-1
+            i = get_data_value(vec_ok,vtp_index)
             trash = 1.e-12
-            do k=kts,ktf-1             
-               !--- for output CNVCF vertically integrated.
-               dp=100.*(po_cup(k,i)-po_cup(k+1,i))
-               trash=trash+dp/c_grav
-               var2d2(i) = var2d2(i) + cnvcf(k,i)*dp/c_grav
+            do k=kts,ktop(i)          
+                  dp=100.*(po_cup(k,i)-po_cup(k+1,i))
+                  trash=trash+dp
+                  if(use_pass_cloudvol > 0 ) &
+                  var2d1(i) = var2d1(i) + cnvcf(k,i)*dp/c_grav
+                  
+                  var2d2(i) = var2d2(i) + entr_rate_2d(k,i)        *dp
+                  
+                  if(use_pass_cloudvol == 0 ) &
+                  var2d1(i) = var2d1(i) + entr_rate_2d_initial(k,i)*dp
             enddo
             var2d2(i) = var2d2(i)/trash 
+            var2d1(i) = var2d1(i)/trash 
          enddo
       endif
+     
       !--- for output/debug/diag only 
       if( trim(cumulus) == 'deep') then
             !AA1_       (:) = AA1       (:)
@@ -3444,6 +3458,7 @@ contains
             denom =  (zu(k-1,i)-.5*up_massdetr(k-1,i)+up_massentr(k-1,i)) + 1.e-12
             
             qc (k,i)  = (qc (k-1,i)*zu(k-1,i)-.5*up_massdetr(k-1,i)* qc(k-1,i) +   &
+!                                                up_massentr(k-1,i)* q (k-1,i))/ denom
                                                  up_massentr(k-1,i)* q_env_eff(k-1))/ denom
 
             if(k==start_level(i)+1) &
@@ -3922,7 +3937,7 @@ contains
             entr_rate_2d(k,i)=entr_rate_2d(k_ent,i)*(min(zo_cup(k_ent,i)/zo_cup(k,i),1.))
             entr_rate_2d(k,i)=max(min_entr_rate, entr_rate_2d(k,i))
          enddo
-         entr_rate_2d(ktop(i):kte,i)=0.
+         entr_rate_2d(ktop(i):kte,i)=0.  ! check this later 
 
          !=================
          if(USE_SMOOTH_PROF > 0 .and. draft /= 'shallow' ) then
@@ -4015,8 +4030,8 @@ contains
             endif
          endif
          do k=ktop(i)+1,kte
-            cd          (k,i)=0.
-            entr_rate_2d(k,i)=0.
+            cd          (k,i)=0. ! check this later 
+            entr_rate_2d(k,i)=0. ! check this later 
          enddo
       enddo ! i
 
@@ -4487,6 +4502,7 @@ contains
             do k=start_level(i)+1,KBMAX(i)+3
                dz=z_cup(k,i)-z_cup(k-1,i)
                hcot(k,i)= ( (1.-0.5*entr_rate_2d(k-1,i)*dz)*hcot      (k-1,i)     &
+!                                 + entr_rate_2d(k-1,i)*dz *heo       (k-1,i) ) / &
                                   + entr_rate_2d(k-1,i)*dz *h_env_eff (k-1,i) ) / &
                           (  1.+0.5*entr_rate_2d(k-1,i)*dz)
                if(k==start_level(i)+1) then
@@ -4576,8 +4592,9 @@ contains
             dz=z_cup(k,i)-z_cup(k-1,i)
             denom = 1.+0.5*entr_rate_2d(k-1,i)*dz + 1.e-12
             hcot(k,i)=( (1.-0.5*entr_rate_2d(k-1,i)*dz)*hcot      (k-1,i)    &
-                               +entr_rate_2d(k-1,i)*dz *h_env_eff (k-1,i)   )/ denom
-         enddo
+!                             + entr_rate_2d(k-1,i)*dz *heo       (k-1,i) ) / denom 
+                              + entr_rate_2d(k-1,i)*dz *h_env_eff (k-1,i)   )/ denom
+        enddo
          do k=start_level(i)+1,ktf-1
 
             if(hcot(k,i) < heso_cup(k,i) )then
@@ -4618,7 +4635,7 @@ contains
          do k=kts,klcl(i)-1
              dby (k,i)=hc (k,i)-0.5*(he_cup (k,i)+hes_cup (k,i))
          enddo
-          do  k=klcl(i),ktop(i)+1
+         do  k=klcl(i),ktop(i)+1
              dby (k,i)=hc (k,i)-hes_cup (k,i)
          enddo
          !do  k=kts,ktop(i)+1
@@ -6063,27 +6080,6 @@ contains
                     , z, qes, he, hes, t, q, po, z1, psur, zo, qeso, heo, heso, tn, qo, us, vs, omeg, xz, h_sfc_flux, le_sfc_flux &
                     , tsur, dx, stochastic_sig, zws, ztexec, zqexec, xland, kpbl, k22, klcl, kbcon, ktop, aa0, aa1, sig, xaa0, hkb &
                     , xmb, pre, edto, zo_cup, dhdt, rho, zuo, zdo, up_massentro, up_massdetro, outt, outq, outqc, outu, outv)
-      !! ## ???
-      !!
-      !! Author: Saulo Freitas [SRF] e Georg Grell [GAG]
-      !!
-      !! E-mail: <mailto:saulo.r.de.freitas@gmail.com>, <mailto:georg.a.grell@noaa.gov>
-      !!
-      !! Date: 2014
-      !!
-      !! #####Version: 0.1.0
-      !!
-      !! ---
-      !! **Full description**:
-      !!
-      !! ???
-      !!
-      !! ** History**:
-      !!
-      !! - 
-      !! ---
-      !! <img src="https://www.gnu.org/graphics/gplv3-127x51.png" width="63">
-      !! 
       implicit none
       !Parameters:
       character(len=*), parameter :: procedureName = 'sound' ! Subroutine Name
@@ -6952,28 +6948,6 @@ contains
    subroutine coldPoolConvMem(cumulus,its, itf, kts, kte, ktf, aa2_, entr_rate_input, ztexec &
                             , zqexec, xland, po, buoy_exc, ierr, cap_max, wlpool, aa3_       &
                             , x_add_buoy, min_entr_rate, entr_rate)
-      !! ## cold pool parameterization and convective memory
-      !!
-      !! Author: Saulo Freitas [SRF]
-      !!
-      !! E-mail: <mailto:saulo.r.de.freitas@gmail.com>
-      !!
-      !! Date: 20Fevereiro2023 13:42
-      !!
-      !! #####Version: version
-      !!
-      !! ---
-      !! **Full description**:
-      !!
-      !! cold pool parameterization and convective memory
-      !!
-      !! ** History**:
-      !!
-      !! --- 
-      !! ** Licence **: Under the terms of the GNU General Public version 3
-      !!   <img src="https://www.gnu.org/graphics/gplv3-127x51.png width="63">
-      !!
-
       implicit none
       ! Parameters:
       character(len=*), parameter :: p_procedure_name = 'coldPoolConvMem' 
@@ -7098,20 +7072,20 @@ contains
       if(cumulus == 'deep'                         ) z_detr= 1000.
       if(cumulus == 'mid' .or. cumulus == 'shallow') z_detr= 300.
 
-       do i=its,itf
+      do i=its,itf
          do k=kts,ktf
                if(zo_cup(k,i).gt.zkbmax+z1(i))then
                   kbmax(i)=k
                   exit
                endif
-          end do
+         end do
           !--- level where detrainment for downdraft starts
-          do k=kts,ktf
+         do k=kts,ktf
                if(zo_cup(k,i).gt.z_detr+z1(i))then
                   kdet(i)=k
                   exit
                endif
-          end do
+         end do
       end do
       !
       !--- determine level with highest moist static energy content - k22
@@ -7182,10 +7156,10 @@ contains
       if(cumulus == 'deep'    ) then
          do i=its,itf
             if(xland(i) > 0.99 ) then !- over water
-               edtmin(i)=0.3
+               edtmin(i)=0.2
                edtmax(i)=MAX_EDT_OCEAN  !
             else!- over land
-               edtmin(i)=0.3
+               edtmin(i)=0.2
                edtmax(i)=MAX_EDT_LAND  !
             endif
          enddo
@@ -7434,21 +7408,21 @@ contains
    !---------------------------------------------------------------------------------------------------
    subroutine set_entr_detr_rates(cumulus,its,ite,itf,kts,kte,ktf,ierr,klcl               &
                                  ,min_entr_rate,entr_rate,entr_rate_2d,cd,mentrd_rate,cdd &
-                                 ,qo_cup, qeso_cup, cnvcf)
+                                 ,qo_cup, qeso_cup, cnvcf,zo_cup)
       implicit none
       character *(*)   ,intent (in) :: cumulus  
       integer  ,intent (in )                 :: its,ite,itf,kts,kte,ktf
       integer  ,intent (in ), dimension(:)   :: ierr, klcl
       real     ,intent (in )                 :: min_entr_rate
       real     ,intent (in ), dimension(:)   :: entr_rate
-      real     ,intent (in ), dimension(:,:) :: qo_cup, qeso_cup,cnvcf
+      real     ,intent (in ), dimension(:,:) :: qo_cup, qeso_cup,cnvcf,zo_cup
 
       real     ,intent (out), dimension(:)   :: mentrd_rate
       real     ,intent (out), dimension(:,:) :: entr_rate_2d ,cd, cdd
 
       !-- local vars
       integer :: i,k,vtp_index
-      real    :: crh1 = 1.3, crh2 = 1.6
+      real    :: crh1 = 1.3, crh2 = 1.6 , fq = 1.0
       real, dimension(kts:kte,its:ite) :: rh2d,entr_frh2d,detr_frh2d
 
       do i=its,itf
@@ -7489,10 +7463,12 @@ contains
       endif
 
       do vtp_index = get_num_elements(vec_ok),1,-1
-         i = get_data_value(vec_ok,vtp_index)
-           do k=kts,ktf    
-              entr_rate_2d(k,i) = entr_rate(i)*entr_frh2d(k,i)*max(min(1.,(qeso_cup(max(k,klcl(i)),i)&
-                                                                          /qeso_cup(klcl(i),i))**1.25) ,0.1)
+           i = get_data_value(vec_ok,vtp_index)
+           do k=kts,ktf
+             !fq = max(min(1.,(qeso_cup(max(k,klcl(i)),i)/qeso_cup(klcl(i),i))**1.25) ,0.1)
+              fq = max(min (1. , sqrt (zo_cup(klcl(i),i) / zo_cup(max(k,klcl(i)),i)) ), 0.1)
+             
+              entr_rate_2d(k,i) = entr_rate(i)*entr_frh2d(k,i)*fq
               entr_rate_2d(k,i) = max(entr_rate_2d(k,i),min_entr_rate)
            enddo
       enddo
@@ -7921,6 +7897,7 @@ contains
             denom=(zu(k-1,i)-.5*up_massdetro(k-1,i)+up_massentro(k-1,i)) + 1.e-12
       
             hco(k,i)=(hco(k-1,i)*zuo(k-1,i)-.5*up_massdetro(k-1,i)*hco(k-1,i) + &
+!                                              up_massentro(k-1,i)*heo(k-1,i))/ denom
                                                up_massentro(k-1,i)*h_env_eff(k-1))/ denom
             
             if(k==start_level(i)+1) hco(k,i)= hco(k,i) + x_add*up_massentro(k-1,i)/denom
@@ -8003,9 +7980,11 @@ contains
             denomU=(zuo(k-1,i)-.5*up_massdetru(k-1,i)+up_massentru(k-1,i)) + 1.e-12
            
             hc (k,i)=(hc (k-1,i)*zuo(k-1,i)-.5*up_massdetro(k-1,i)*hc (k-1,i) + &
+!                                              up_massentro(k-1,i)*he (k-1,i))/ denom               
                                                up_massentro(k-1,i)*h_env_eff(k-1))/ denom               
                
             hco(k,i)=(hco(k-1,i)*zuo(k-1,i)-.5*up_massdetro(k-1,i)*hco(k-1,i)+ &
+!                                              up_massentro(k-1,i)*heo(k-1,i))/ denom
                                                up_massentro(k-1,i)*h_env_effo(k-1))/ denom
 
             if(k==start_level(i)+1) then
@@ -8290,7 +8269,6 @@ contains
       integer :: i,k,vtp_index
 
       dellat(:,:) = 0.0
-
      
       do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
@@ -8947,7 +8925,7 @@ contains
          zktop=min(zktop+z1(i),zcutdown+z1(i))
          
          loopK: do k=kts,ktf
-                   if(zo_cup(k,i) >= zktop)then
+                  if(zo_cup(k,i) >= zktop)then
                      kzdown(i)=k
                      exit loopK 
                   endif
@@ -8956,31 +8934,9 @@ contains
    end subroutine get_max_dd_height
 !---------------------------------------------------------------------------------------------------
    function initModConvParGF() result(is_init)
-      !! # Initialize the module with values
-      !!
-      !! Author: Rodrigues, L.F. [LFR]
-      !!
-      !! E-mail: <mailto:luiz.rodrigues@inpe.br>
-      !!
-      !! Date: 26Janeiro2023 16:41
-      !!
-      !! #####Version: 0.1.0
-      !!
-      !! —
-      !! **Full description**:
-      !!
-      !! Initialize all variables from module
-      !!
-      !! ** History**:
-      !!
-      !! - 
-      !! ---
-      !! <img src="https://www.gnu.org/graphics/gplv3-127x51.png" width="63">
-      !!
       implicit none
       !Parameters:
       character(len=*), parameter :: procedureName = 'initModConvParGF' ! Function Name
-   
       !Local variables:
       integer :: is_init
    
@@ -9141,28 +9097,6 @@ contains
                              , subten_t , t_cup, t_in, tn, tot_pw_dn_chem, tot_pw_up_chem, up_massentro, up_massdetro, us, vvel1d &
                              , vvel2d, xmb, z_cup, zdo, zenv, zo, zqexec, zuo, zws, heso_cup, heo_cup, cumulus,ntimes,LIQ_ICE_NUMBER_CONC&
                              , wrtgrads)
-         !! ## Gate soundings
-         !!
-         !! Author: Rodrigues, L. F. [LFR]
-         !!
-         !! E-mail: <mailto:luizfrodrigues@protonmail.com>
-         !!
-         !! Date: 24Fevereiro2023 09:16
-         !!
-         !! #####Version: 0.1.0
-         !!
-         !! ---
-         !! **Full description**:
-         !!
-         !! Gate soundings
-         !!
-         !! ** History**:
-         !!
-         !! ---
-         !! ** Licence **: Under the terms of the GNU General Public version 3
-         !!   <img src="https://www.gnu.org/graphics/gplv3-127x51.png width="63">
-         !!
-
          implicit none
          ! Parameters:
          character(len=*), parameter :: p_procedure_name = 'gateSoundings'
@@ -9488,28 +9422,6 @@ contains
                            ,   pwavo, pwevo, pwdo, pwo, qrco, sc_up_chem, tempco, tot_pw_up_chem &
                            ,   up_massdetro, up_massentro, vvel2d, xland, zdo, zo_cup, zuo, cumulus &
                            ,   se_chem, massf, out_chem, pw_dn_chem, sc_dn_chem, se_cup_chem, tot_pw_dn_chem, zenv) 
-      !! ## section for atmospheric composition
-      !!
-      !! Author: Rodrigues, L. F. [LFR]
-      !!
-      !! E-mail: <mailto:luizfrodrigues@protonmail.com>
-      !!
-      !! Date: 23Fevereiro2023 16:44
-      !!
-      !! #####Version: 0.1.0
-      !!
-      !! ---
-      !! **Full description**:
-      !!
-      !! section for atmospheric composition
-      !!
-      !! ** History**:
-      !!
-      !! ---
-      !! ** Licence **: Under the terms of the GNU General Public version 3
-      !!   <img src="https://www.gnu.org/graphics/gplv3-127x51.png width="63">
-      !!
-
       implicit none
       ! Parameters:
       character(len=*), parameter :: p_procedure_name = 'atmosComposition'
@@ -9686,27 +9598,6 @@ contains
    end subroutine tracerConvTransGF     
    ! ---------------------------------------------------------------------------------------------------
    subroutine cupEnvClevChem(mtp, se_chem, se_cup_chem, ierr, itf, ktf, its, kts, kte)
-      !! ## ???
-      !!
-      !! Author: Saulo Freitas [SRF] e Georg Grell [GAG]
-      !!
-      !! E-mail: <mailto:saulo.r.de.freitas@gmail.com>, <mailto:georg.a.grell@noaa.gov>
-      !!
-      !! Date: 2014
-      !!
-      !! #####Version: 0.1.0
-      !!
-      !! ---
-      !! **Full description**:
-      !!
-      !! ???
-      !!
-      !! ** History**:
-      !!
-      !! - 
-      !! ---
-      !! <img src="https://www.gnu.org/graphics/gplv3-127x51.png" width="63">
-      !! 
       implicit none
       !Parameters:
       character(len=*), parameter :: procedureName = 'cupEnvClevChem' ! Subroutine Name
@@ -9751,27 +9642,6 @@ contains
                                , z_cup, po, po_cup, qrco, tempco, pwo, zuo, up_massentro, up_massdetro &
                                , vvel2d, start_level, k22, ktop, ierr, xland, itf, ktf &
                                , its, ite, kts, kte)
-      !! ## ???
-      !!
-      !! Author: Saulo Freitas [SRF] e Georg Grell [GAG]
-      !!
-      !! E-mail: <mailto:saulo.r.de.freitas@gmail.com>, <mailto:georg.a.grell@noaa.gov>
-      !!
-      !! Date: 2014
-      !!
-      !! #####Version: 0.1.0
-      !!
-      !! ---
-      !! **Full description**:
-      !!
-      !! ???
-      !!
-      !! ** History**:
-      !!
-      !! - 
-      !! ---
-      !! <img src="https://www.gnu.org/graphics/gplv3-127x51.png" width="63">
-      !! 
       implicit none
       !Parameters:
       character(len=*), parameter :: procedureName = 'getInCloudScChemUp' ! Subroutine Name
@@ -9963,27 +9833,6 @@ contains
    subroutine getInCloudScChemDd(cumulus, mtp, se, se_cup, sc_dn, pw_dn, tot_pw_up_chem &
                                , tot_pw_dn_chem, po_cup, pwdo, pwevo, zdo, dd_massentro &
                                , dd_massdetro, pwavo, jmin, ierr, itf, its, kts)
-      !! ## ???
-      !!
-      !! Author: Saulo Freitas [SRF] e Georg Grell [GAG]
-      !!
-      !! E-mail: <mailto:saulo.r.de.freitas@gmail.com>, <mailto:georg.a.grell@noaa.gov>
-      !!
-      !! Date: 2014
-      !!
-      !! #####Version: 0.1.0
-      !!
-      !! ---
-      !! **Full description**:
-      !!
-      !! ???
-      !!
-      !! ** History**:
-      !!
-      !! - 
-      !! ---
-      !! <img src="https://www.gnu.org/graphics/gplv3-127x51.png" width="63">
-      !! 
       implicit none
       !Parameters:
       character(len=*), parameter :: procedureName = 'getInCloudScChemDd' ! Subroutine Name
@@ -10139,28 +9988,6 @@ contains
    !---------------------------------------------------------------------------------------------------
    subroutine fluxFormsSourceSink(kte, kts, mtp, ktop, chem_name_mask, dtime, edto, po_cup, pw_dn_chem, pw_up_chem, sc_dn_chem &
                               ,   sc_up_chem ,se_chem ,se_cup_chem ,zo_cup ,zdo ,zuo, cumulus, zenv ,out_chem)
-      !! ## brief
-      !!
-      !! Author: Rodrigues, L. F. [LFR]
-      !!
-      !! E-mail: <mailto:luizfrodrigues@protonmail.com>
-      !!
-      !! Date: 24Fevereiro2023 14:47
-      !!
-      !! #####Version: 0.1.0
-      !!
-      !! ---
-      !! **Full description**:
-      !!
-      !! brief
-      !!
-      !! ** History**:
-      !!
-      !! ---
-      !! ** Licence **: Under the terms of the GNU General Public version 3
-      !!   <img src="https://www.gnu.org/graphics/gplv3-127x51.png width="63">
-      !!
-
       implicit none
       ! Parameters:
       character(len=*), parameter :: p_procedure_name = 'fluxFormsSourceSink'

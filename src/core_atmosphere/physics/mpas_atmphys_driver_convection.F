@@ -1693,7 +1693,7 @@
 !local variables and arrays for the 'cu_gf_monan':
  integer:: i,k,j,k_amb_wind
  real(kind=RKIND),parameter:: alp = 0.5                      ! semi-implicit, 1=explicit
- real(kind=RKIND),parameter:: tau_cloud_diss0 = 60.*60.       ! seconds
+ real(kind=RKIND),parameter:: tau_cloud_diss0 = 30.*60.       ! seconds
  real(kind=RKIND),parameter:: width  = 1000.                 ! meters
  real(kind=RKIND),parameter:: turncf = 2000.                 ! meters above local terrain
  real(kind=RKIND),parameter:: Kfr = 0.9                      ! internal Froude number 
