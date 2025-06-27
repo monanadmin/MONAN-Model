@@ -23,6 +23,7 @@
  use mpas_atmphys_driver_oml
  use mpas_atmphys_constants
  use mpas_atmphys_interface
+ use mpas_atmphys_sfc_diagnostics,only: atmphys_sfc_diagnostics
  use mpas_atmphys_update
  use mpas_atmphys_vars, only: l_camlw,l_conv,l_radtlw,l_radtsw,kts,kte,dt_pbl
  use mpas_timer
@@ -132,6 +133,7 @@
 !input arguments:
  integer,intent(in):: itimestep
  real(kind=RKIND),intent(in):: xtime_s
+ 
  procedure (halo_exchange_routine) :: exchange_halo_group
 
 !inout arguments:
@@ -147,6 +149,7 @@
                                  output_noahmp,       &
                                  tend_physics,        &
                                  atm_input,           &
+                                 ngw_input,           &
                                  sfc_input
 
  logical,pointer:: config_frac_seaice
@@ -208,12 +211,13 @@
     call mpas_pool_get_subpool(block%structs,'output_noahmp'      ,output_noahmp      )
     call mpas_pool_get_subpool(block%structs,'atm_input'          ,atm_input          )
     call mpas_pool_get_subpool(block%structs,'sfc_input'          ,sfc_input          )
+    call mpas_pool_get_subpool(block%structs,'ngw_input'          ,ngw_input          )
     call mpas_pool_get_subpool(block%structs,'tend_physics'       ,tend_physics       )
 
-    call mpas_pool_get_dimension(block%dimensions, 'nThreads', nThreads)
+    call mpas_pool_get_dimension(block%dimensions,'nThreads',nThreads)
 
-    call mpas_pool_get_dimension(block%dimensions, 'cellSolveThreadStart', cellSolveThreadStart)
-    call mpas_pool_get_dimension(block%dimensions, 'cellSolveThreadEnd', cellSolveThreadEnd)
+    call mpas_pool_get_dimension(block%dimensions,'cellSolveThreadStart',cellSolveThreadStart)
+    call mpas_pool_get_dimension(block%dimensions,'cellSolveThreadEnd',cellSolveThreadEnd)
 
     !allocate arrays shared by all physics parameterizations:
     call allocate_forall_physics(block%configs)
@@ -224,7 +228,7 @@
 !$OMP PARALLEL DO
     do thread=1,nThreads
        call MPAS_to_physics(block%configs,mesh,state,time_lev,diag,diag_physics, &
-                            cellSolveThreadStart(thread), cellSolveThreadEnd(thread))
+                            cellSolveThreadStart(thread),cellSolveThreadEnd(thread))
     end do
 !$OMP END PARALLEL DO
 
@@ -247,7 +251,7 @@
        do thread=1,nThreads
           call driver_radiation_sw(itimestep,block%configs,mesh,state,time_lev,diag_physics, &
                                    atm_input,sfc_input,tend_physics,xtime_s, &
-                                   cellSolveThreadStart(thread), cellSolveThreadEnd(thread))
+                                   cellSolveThreadStart(thread),cellSolveThreadEnd(thread))
        end do
 !$OMP END PARALLEL DO
     endif
@@ -260,7 +264,7 @@
        do thread=1,nThreads
           call driver_radiation_lw(xtime_s,block%configs,mesh,state,time_lev,diag_physics, &
                                    atm_input,sfc_input,tend_physics, &
-                                   cellSolveThreadStart(thread), cellSolveThreadEnd(thread))
+                                   cellSolveThreadStart(thread),cellSolveThreadEnd(thread))
        end do
 !$OMP END PARALLEL DO
     endif
@@ -270,7 +274,7 @@
 !$OMP PARALLEL DO
        do thread=1,nThreads
           call update_radiation_diagnostics(block%configs,mesh,diag_physics, &
-                                            cellSolveThreadStart(thread), cellSolveThreadEnd(thread))
+                                            cellSolveThreadStart(thread),cellSolveThreadEnd(thread))
        end do
 !$OMP END PARALLEL DO
      endif
@@ -287,7 +291,7 @@
 !$OMP PARALLEL DO
        do thread=1,nThreads
           call driver_sfclayer(itimestep,block%configs,mesh,diag_physics,sfc_input, &
-                               cellSolveThreadStart(thread), cellSolveThreadEnd(thread), &
+                               cellSolveThreadStart(thread),cellSolveThreadEnd(thread), &
                                state, time_lev)
        end do
 !$OMP END PARALLEL DO
@@ -295,7 +299,7 @@
     endif
 
     !call to 1d ocean mixed-layer model
-    if(config_oml1d) call driver_oml1d(block%configs, mesh, diag, diag_physics, sfc_input)
+    if(config_oml1d) call driver_oml1d(block%configs,mesh,diag,diag_physics,sfc_input)
 
     !call to land-surface scheme:
     if(config_lsm_scheme .ne. 'off') then
@@ -304,7 +308,7 @@
 !$OMP PARALLEL DO
           do thread=1,nThreads
              call driver_lsm(itimestep,block%configs,mesh,diag_physics,sfc_input, &
-                             cellSolveThreadStart(thread), cellSolveThreadEnd(thread))
+                             cellSolveThreadStart(thread),cellSolveThreadEnd(thread))
           end do
 !$OMP END PARALLEL DO
        call deallocate_lsm
@@ -317,14 +321,21 @@
           enddo
        endif
 
-       call allocate_seaice
+       call allocate_seaice(block%configs)
 !$OMP PARALLEL DO
        do thread=1,nThreads
           call driver_seaice(block%configs,diag_physics,sfc_input, &
                              cellSolveThreadStart(thread),cellSolveThreadEnd(thread))
        enddo
 !$OMP END PARALLEL DO
-       call deallocate_seaice
+       call deallocate_seaice(block%configs)
+
+!$OMP PARALLEL DO
+       do thread=1,nThreads
+          call atmphys_sfc_diagnostics(block%configs,mesh,diag,diag_physics,sfc_input,output_noahmp, &
+                           cellSolveThreadStart(thread),cellSolveThreadEnd(thread))
+       enddo
+!$OMP END PARALLEL DO
     endif
 
     !call to pbl schemes:
@@ -345,14 +356,14 @@
 
     !call to gravity wave drag over orography scheme:
     if(config_gwdo_scheme .ne. 'off') then
-       call allocate_gwdo
+       call allocate_gwdo(block%configs)
 !$OMP PARALLEL DO
        do thread=1,nThreads
-          call driver_gwdo(itimestep,block%configs,mesh,sfc_input,diag_physics,tend_physics, &
-                           cellSolveThreadStart(thread),cellSolveThreadEnd(thread))
+          call driver_gwdo(itimestep,block%configs,mesh,sfc_input,ngw_input,diag_physics,       &
+                           tend_physics,cellSolveThreadStart(thread),cellSolveThreadEnd(thread))
        end do
 !$OMP END PARALLEL DO
-       call deallocate_gwdo
+       call deallocate_gwdo(block%configs)
     endif
 
     !call to convection scheme:
@@ -367,7 +378,7 @@
 !$OMP PARALLEL DO
        do thread=1,nThreads
           call driver_convection(itimestep,block%configs,mesh,sfc_input,diag_physics,tend_physics,diag,domain%dminfo, &
-                                 cellSolveThreadStart(thread), cellSolveThreadEnd(thread),exchange_halo_group,block)
+                                 cellSolveThreadStart(thread),cellSolveThreadEnd(thread),exchange_halo_group,block)
        end do
 !$OMP END PARALLEL DO
        call deallocate_convection(block%configs)

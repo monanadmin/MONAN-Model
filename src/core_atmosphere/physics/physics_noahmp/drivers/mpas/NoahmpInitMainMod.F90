@@ -50,7 +50,7 @@
 
     ! Check if snow/snowh are consistent and cap SWE at 2000mm
     ! the Noah-MP code does it internally but if we don't do it here, problems ensue
-    do i = its, its
+    do i = its, ite 
        if ( NoahmpIO%snow(i)  < 0.0 ) NoahmpIO%snow(i)  = 0.0
        if ( NoahmpIO%snowh(i) < 0.0 ) NoahmpIO%snowh(i) = 0.0
        if ( (NoahmpIO%snow(i) > 0.0) .and. (NoahmpIO%snowh(i) == 0.0) ) &
@@ -87,7 +87,6 @@
           NoahmpIO%snow(i)  = max(NoahmpIO%snow(i), 10.0)                     !set swe to at least 10mm
           NoahmpIO%snowh(i) = NoahmpIO%snow(i) * 0.01                         !snow in mm and snowh in m
        else
-!initializes soil liquid water content SH2O:       
           bexp   = NoahmpIO%bexp_table  (NoahmpIO%isltyp(i))
           smcmax = NoahmpIO%smcmax_table(NoahmpIO%isltyp(i))
           psisat = NoahmpIO%psisat_table(NoahmpIO%isltyp(i))
@@ -96,22 +95,13 @@
           enddo
           if ( (bexp > 0.0) .and. (smcmax > 0.0) .and. (psisat > 0.0) ) then
              do ns = 1, NoahmpIO%nsoil
-! ----------------------------------------------------------------------
-!SH2O  <= SMOIS for T < 273.149K (-0.001C)
                 if ( NoahmpIO%tslb(i,ns) < 273.149 ) then
-! ----------------------------------------------------------------------
-! first guess following explicit solution for Flerchinger Eqn from Koren
-! et al, JGR, 1999, Eqn 17 (KCOUNT=0 in FUNCTION FRH2O).
-! ISLTPK is soil type
                    fk = (((hlice / (grav0*(-psisat))) * &
                          ((NoahmpIO%tslb(i,ns)-t0) / NoahmpIO%tslb(i,ns)))**(-1/bexp))*smcmax
                    fk = max(fk, 0.02)
                    NoahmpIO%sh2o(i,ns) = min(fk, NoahmpIO%smois(i,ns))
                 else
-! ----------------------------------------------------------------------
-! SH2O = SMOIS ( for T => 273.149K (-0.001C)
                    NoahmpIO%sh2o(i,ns) = NoahmpIO%smois(i,ns)
-! ----------------------------------------------------------------------
                 endif
              enddo
           else
@@ -137,9 +127,11 @@
        NoahmpIO%tahxy(i)    = NoahmpIO%tsk(i)
        NoahmpIO%t2mvxy(i)   = NoahmpIO%tsk(i)
        NoahmpIO%t2mbxy(i)   = NoahmpIO%tsk(i)
+       NoahmpIO%t2mxy(i)    = NoahmpIO%tsk(i)
        if ( (NoahmpIO%snow(i) > 0.0) .and. (NoahmpIO%tsk(i) > t0) ) NoahmpIO%tahxy(i)  = t0
        if ( (NoahmpIO%snow(i) > 0.0) .and. (NoahmpIO%tsk(i) > t0) ) NoahmpIO%t2mvxy(i) = t0
        if ( (NoahmpIO%snow(i) > 0.0) .and. (NoahmpIO%tsk(i) > t0) ) NoahmpIO%t2mbxy(i) = t0
+       if ( (NoahmpIO%snow(i) > 0.0) .and. (NoahmpIO%tsk(i) > t0) ) NoahmpIO%t2mxy(i)  = t0
 
        NoahmpIO%cmxy(i)     = 0.0
        NoahmpIO%chxy(i)     = 0.0

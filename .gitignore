@@ -1,63 +1,44 @@
-# Ignore Files in the MPAS Direcory
+# Compiling output logs and scripts
+*.output.init_atmosphere
+*.output.atmosphere
+*.sh
+inc
 
-# All pre-processed Fortran files in MPAS specific directories
-src/core_*/Registry_processed.xml
-src/core_*/*.f90
-src/framework/*.f90
-src/driver/*.f90
-src/operators/*.f90
+# Namelists
+namelist.atmosphere
+namelist.init_atmosphere
+stream_list.*
+streams.*
 
-# All object files
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
 *.o
+*.obj
 
-# All mod files
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
 *.mod
+*.smod
 
-# All libraries
+# Compiled Static libraries
+*.lai
+*.la
 *.a
+*.lib
 
 # Executables
-*_model
-build_tables
-
-# NetCDF Files
-*.nc
-
-# Restart timestamp file
-restart_timestamp
-
-# Graph files and partition files
-*.info
-*.info.part.*
-
-# Error, Output, and Abort log files
+*.exe
 *.out
-*.err
-*.abort
-
-# Text files (For statistical output from ocean model)
-*.txt
-!CMakeLists.txt
-
-# Directories with individual .gitignore files are:
-# src/external (Externals might have a different compilation method)
-# src/inc (Include files don't exist until build time. But directory needs to exist.)
-# src/core_atmosphere (Directory to include object files from physics in the atmosphere core library.)
-
-# Ignore WRF Physics Files
-*.TBL
-*DATA*
-
-# Files for detecting whether builds of cores or shared framework can be reused
-.build_opts*
-
-# Ignore all runtime config files
-namelist.*
-streams.*
-stream_list.*
-
-# Intermediate files that may be produced by Intel compilers
-*.i
-*.i90
-
-src/core_*/inc
+*.app

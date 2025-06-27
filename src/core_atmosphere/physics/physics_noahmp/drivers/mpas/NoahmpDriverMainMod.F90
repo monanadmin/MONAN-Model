@@ -132,37 +132,25 @@
     NoahmpIO%zsoil(k) = -NoahmpIO%dzs(k) + NoahmpIO%zsoil(k-1)
  enddo
 
-! call mpas_log_write('noahmp itimestep     =$i', intArgs=(/NoahmpIO%itimestep/))
-! call mpas_log_write('noahmp input max xland=$r',  realArgs=(/maxval( NoahmpIO%xland)/))
-! call mpas_log_write('noahmp input min xland=$r',  realArgs=(/minval( NoahmpIO%xland)/))
-
-! call mpas_log_write('noahmp input max xice=$r',  realArgs=(/maxval( NoahmpIO%xice)/))
-! call mpas_log_write('noahmp input min xice=$r',  realArgs=(/minval( NoahmpIO%xice)/))
-
  if ( NoahmpIO%itimestep == 1 ) then
     do i = NoahmpIO%its, NoahmpIO%ite
        if ( (NoahmpIO%xland(i)-1.5) >= 0.0 ) then  ! open water point
           if ( NoahmpIO%xice(i) == 1.0 ) print*,' sea-ice at water point, i=',i
-            NoahmpIO%smstav(i) = 1.0
-            NoahmpIO%smstot(i) = 1.0
-            do k = 1, NoahmpIO%nsoil
-               NoahmpIO%smois(i,k) = 1.0
-               NoahmpIO%tslb(i,k)  = 273.16
-            enddo
+          NoahmpIO%smstav(i) = 1.0
+          NoahmpIO%smstot(i) = 1.0
+          do k = 1, NoahmpIO%nsoil
+             NoahmpIO%smois(i,k) = 1.0
+             NoahmpIO%tslb(i,k)  = 273.16
+          enddo
        else
           if ( NoahmpIO%xice(i) == 1.0 ) then      ! sea-ice case
              NoahmpIO%smstav(i) = 1.0
              NoahmpIO%smstot(i) = 1.0
              do k = 1, NoahmpIO%nsoil
-                NoahmpIO%smois(i,k) = 1.0 
+                NoahmpIO%smois(i,k) = 1.0
              enddo
           endif
        endif
-       do k = 1, NoahmpIO%nsoil
-            if(NoahmpIO%tslb(i,k)  > 273.16 )then
-               NoahmpIO%sh2o (i,k) = NoahmpIO%smois(i,k)
-            endif
-       enddo
     enddo
  endif  ! end of initialization over ocean
 
@@ -214,9 +202,6 @@
        !------------------------------------------------------------------------
        !  Call 1D Noah-MP LSM
        !------------------------------------------------------------------------
-! call mpas_log_write('noahmp itimestep     =$i', intArgs=(/NoahmpIO%itimestep/))
-! call mpas_log_write('noahmp input max tslb=$r',  realArgs=(/maxval(noahmp%energy%state%TemperatureSoilSnow)/))
-! call mpas_log_write('noahmp input min tslb=$r',  realArgs=(/minval(noahmp%energy%state%TemperatureSoilSnow)/))
 
        if (noahmp%config%domain%VegType == noahmp%config%domain%IndexIcePoint ) then
           noahmp%config%domain%IndicatorIceSfc = -1  ! Land-ice point
@@ -227,9 +212,6 @@
           noahmp%config%domain%IndicatorIceSfc = 0   ! land soil point.
           call NoahmpMain(noahmp)
        endif ! glacial split ends
-       
-! call mpas_log_write('noahmp output max tslb=$r',  realArgs=(/maxval(noahmp%energy%state%TemperatureSoilSnow)/))
-! call mpas_log_write('noahmp output min tslb=$r',  realArgs=(/minval(noahmp%energy%state%TemperatureSoilSnow)/))
 
        !---------------------------------------------------------------------
        !  Transfer 1-D Noah-MP column variables to 2-D output variables

@@ -18,8 +18,6 @@ module NoahmpMainMod
   use BiochemNatureVegMainMod,    only : BiochemNatureVegMain
   use BiochemCropMainMod,         only : BiochemCropMain
   use BalanceErrorCheckMod,       only : BalanceWaterInit, BalanceWaterCheck, BalanceEnergyCheck 
-
-  use mpas_log
  
   implicit none
 
@@ -59,7 +57,6 @@ contains
 
     call GeneralInit(noahmp)
 
-
     !---------------------------------------------------------------------
     ! Prepare for water balance check
     !--------------------------------------------------------------------- 
@@ -71,7 +68,6 @@ contains
     !--------------------------------------------------------------------- 
 
     call PhenologyMain(noahmp)
-
 
     !---------------------------------------------------------------------
     ! Irrigation prepare including trigger
@@ -97,13 +93,8 @@ contains
     !---------------------------------------------------------------------
     ! Energy processes
     !--------------------------------------------------------------------- 
-!  call mpas_log_write('noahmp input max tslb=$r',  realArgs=(/maxval(noahmp%energy%state%TemperatureSoilSnow)/))
-!  call mpas_log_write('noahmp input min tslb=$r',  realArgs=(/minval(noahmp%energy%state%TemperatureSoilSnow)/))
 
     call EnergyMain(noahmp)
-
-!  call mpas_log_write('noahmp output max tslb=$r',  realArgs=(/maxval(noahmp%energy%state%TemperatureSoilSnow)/))
-!  call mpas_log_write('noahmp output min tslb=$r',  realArgs=(/minval(noahmp%energy%state%TemperatureSoilSnow)/))
 
     !---------------------------------------------------------------------
     ! Water processes

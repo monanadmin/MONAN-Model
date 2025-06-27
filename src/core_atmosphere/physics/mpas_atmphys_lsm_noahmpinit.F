@@ -9,6 +9,7 @@
  module mpas_atmphys_lsm_noahmpinit
  use mpas_log
  use mpas_pool_routines
+ use mpas_timekeeping,only      : mpas_get_timeInterval, mpas_get_clock_timestep
 
  use mpas_atmphys_constants,only: grav => gravity, t0 => svpt0
  use mpas_atmphys_utilities,only: physics_error_fatal
@@ -29,12 +30,13 @@
 
 
 !=================================================================================================================
- subroutine init_lsm_noahmp(configs,mesh,diag_physics,diag_physics_noahmp,output_noahmp,sfc_input)
+ subroutine init_lsm_noahmp(configs,mesh,clock,diag_physics,diag_physics_noahmp,output_noahmp,sfc_input)
 !=================================================================================================================
 
 !--- input arguments:
  type(mpas_pool_type),intent(in):: configs
  type(mpas_pool_type),intent(in):: mesh
+ type(mpas_clock_type),intent(in):: clock
 
 !--- inout arguments:
  type(mpas_pool_type),intent(inout):: diag_physics
@@ -89,7 +91,7 @@
 
 
 !--- initialize noahmp:
- call noahmp_init(configs,mesh,diag_physics,diag_physics_noahmp,output_noahmp,sfc_input)
+ call noahmp_init(configs,mesh,clock,diag_physics,diag_physics_noahmp,output_noahmp,sfc_input)
 
 
 !call mpas_log_write('--- end subroutine init_lsm_noahmp:')
@@ -214,12 +216,13 @@
  end subroutine noahmp_read_namelist
 
 !=================================================================================================================
- subroutine noahmp_init(configs,mesh,diag_physics,diag_physics_noahmp,output_noahmp,sfc_input)
+ subroutine noahmp_init(configs,mesh,clock,diag_physics,diag_physics_noahmp,output_noahmp,sfc_input)
 !=================================================================================================================
 
 !--- input arguments:
  type(mpas_pool_type),intent(in):: configs
  type(mpas_pool_type),intent(in):: mesh
+ type(mpas_clock_type),intent(in):: clock
 
 !--- inout arguments:
  type(mpas_pool_type),intent(inout):: diag_physics
@@ -235,7 +238,7 @@
  integer,dimension(:),pointer:: isnowxy
  integer,dimension(:),pointer:: irnumsi,irnummi,irnumfi
  
- real(kind=RKIND),pointer:: dt
+ real(kind=RKIND):: dt
 
  real(kind=RKIND),dimension(:),pointer:: soilcl1,soilcl2,soilcl3,soilcl4
  real(kind=RKIND),dimension(:,:),pointer:: soilcomp
@@ -246,7 +249,7 @@
                                          grainxy,lfmassxy,qrainxy,qsnowxy,rtmassxy,sneqvoxy,stblcpxy,stmassxy, &
                                          tahxy,tgxy,tvxy,xsaixy,waxy,woodxy,wslakexy,wtxy,zwtxy
  real(kind=RKIND),dimension(:),pointer:: irwatsi,ireloss,irrsplh,irwatmi,irmivol,irwatfi,irfivol
- real(kind=RKIND),dimension(:),pointer:: qtdrain,t2mbxy,t2mvxy
+ real(kind=RKIND),dimension(:),pointer:: qtdrain,t2mbxy,t2mvxy,t2mxy
  
  real(kind=RKIND),dimension(:,:),pointer:: dzs,sh2o,smois,tslb
  real(kind=RKIND),dimension(:,:),pointer:: snicexy,snliqxy,tsnoxy,zsnsoxy
@@ -276,7 +279,7 @@
 !--- initialization of Noah-MP run parameters:
  call mpas_pool_get_config(configs,'config_do_restart',do_restart)
  call mpas_pool_get_config(configs,'config_urban_physics',urban_physics)
- call mpas_pool_get_config(configs,'config_dt',dt)
+ call mpas_get_timeInterval(mpas_get_clock_timestep(clock, ierr), dt=dt)
 
  mpas_noahmp%restart_flag = do_restart
  mpas_noahmp%sf_urban_physics = 0
@@ -393,6 +396,7 @@
 
  call mpas_pool_get_array(output_noahmp,'t2mbxy',t2mbxy  )
  call mpas_pool_get_array(output_noahmp,'t2mvxy',t2mvxy  )
+ call mpas_pool_get_array(output_noahmp,'t2mxy' ,t2mxy   )
  call mpas_pool_get_array(output_noahmp,'qtdrain',qtdrain)
 
 !--- initialization of the soil liquid water content:
@@ -517,6 +521,7 @@
     qtdrain(i)  = mpas_noahmp%qtdrain(i)
     t2mbxy(i)   = mpas_noahmp%t2mbxy(i)
     t2mvxy(i)   = mpas_noahmp%t2mvxy(i)
+    t2mxy(i)    = mpas_noahmp%t2mxy(i)
  enddo
 
  do i = its, ite

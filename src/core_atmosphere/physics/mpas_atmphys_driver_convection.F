@@ -1252,6 +1252,7 @@
  real(kind=RKIND),dimension(:,:),pointer:: rupmfxcu, rdnmfxcu
  real(kind=RKIND),dimension(:,:),pointer:: sub3d_rucuten,sub3d_rvcuten,sub3d_rthcuten,sub3d_rqvcuten
 
+
 !-----------------------------------------------------------------------------------------------------------------
 
  call mpas_pool_get_config(configs,'config_convection_scheme',convection_scheme)
@@ -1278,6 +1279,7 @@
  enddo
 
  convection_select: select case(convection_scheme)
+
     case ("cu_gf_monan")
        call mpas_pool_get_array(diag_physics,'rmfxdpcu'    ,rmfxdpcu   )
        call mpas_pool_get_array(diag_physics,'rmfxdncu'    ,rmfxdncu   )

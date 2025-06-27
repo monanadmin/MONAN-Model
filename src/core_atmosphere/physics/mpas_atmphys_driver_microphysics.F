@@ -127,7 +127,6 @@
  if(.not.allocated(rainncv_p)) allocate(rainncv_p(ims:ime,jms:jme))
 
  microp_select: select case(trim(microp_scheme))
-
     case ("mp_thompson","mp_thompson_aerosols","mp_wsm6")
        !mass mixing ratios:
        if(.not.allocated(qi_p)) allocate(qi_p(ims:ime,kms:kme,jms:jme))
@@ -151,16 +150,11 @@
        if(.not.allocated(evapprod_p)) allocate(evapprod_p(ims:ime,kms:kme,jms:jme))
 
     microp2_select: select case(trim(microp_scheme))
-
        case("mp_thompson","mp_thompson_aerosols")
-          !number concentrations:
           if(.not.allocated(ntc_p)) allocate(ntc_p(ims:ime,jms:jme))
           if(.not.allocated(muc_p)) allocate(muc_p(ims:ime,jms:jme))
           if(.not.allocated(ni_p) ) allocate(ni_p(ims:ime,kms:kme,jms:jme))
           if(.not.allocated(nr_p) ) allocate(nr_p(ims:ime,kms:kme,jms:jme))
-
-          if(.not.allocated(rainprod_p)) allocate(rainprod_p(ims:ime,kms:kme,jms:jme))
-          if(.not.allocated(evapprod_p)) allocate(evapprod_p(ims:ime,kms:kme,jms:jme))
 
           microp3_select: select case(trim(microp_scheme))
              case("mp_thompson_aerosols")
@@ -174,11 +168,9 @@
           end select microp3_select
 
        case default
-
     end select microp2_select
 
     case default
-
  end select microp_select
 
  end subroutine allocate_microphysics
@@ -239,15 +231,11 @@
        if(allocated(evapprod_p)) deallocate(evapprod_p)
 
     microp2_select: select case(trim(microp_scheme))
-
        case("mp_thompson","mp_thompson_aerosols")
-          !number concentrations:
           if(allocated(ntc_p)) deallocate(ntc_p)
           if(allocated(muc_p)) deallocate(muc_p)
           if(allocated(ni_p) ) deallocate(ni_p )
           if(allocated(nr_p) ) deallocate(nr_p )
-
-
 
           microp3_select: select case(trim(microp_scheme))
              case("mp_thompson_aerosols")
@@ -261,11 +249,9 @@
           end select microp3_select
 
        case default
-
     end select microp2_select
 
     case default
-
  end select microp_select
 
  end subroutine deallocate_microphysics
@@ -305,7 +291,6 @@
  call mpas_pool_get_config(configs,'config_do_restart'   ,do_restart   )
 
  microp_select: select case(trim(microp_scheme))
-
     case("mp_thompson","mp_thompson_aerosols")
        call thompson_init(l_mp_tables)
        call init_thompson_clouddroplets_forMPAS(mesh,sfc_input,diag_physics)
@@ -383,7 +368,6 @@
 
 !... call to different cloud microphysics schemes:
  microp_select: select case(trim(microp_scheme))
-
     case ("mp_kessler")
        call mpas_timer_start('mp_kessler')
        call kessler( &
@@ -477,12 +461,10 @@
        call mpas_timer_stop('mp_wsm6')
 
     case default
-
  end select microp_select
 
 !... calculate the 10cm radar reflectivity and relative humidity, if needed:
  if (l_diags) then
-
     !ensure that we only call compute_radar_reflectivity() if we are using an MPS that supports
     !the computation of simulated radar reflectivity:
     if(trim(microp_scheme) == "mp_wsm6"     .or. &
@@ -497,7 +479,6 @@
     !calculate the relative humidity over water if the temperature is strictly greater than 0.C,
     !over ice otherwise.
     call compute_relhum(diag,its,ite)
-
  end if
 
 !... copy updated precipitation from the wrf-physics grid back to the geodesic-dynamics grid:
@@ -560,7 +541,6 @@
 
 !variables specific to different cloud microphysics schemes:
  microp_select: select case(trim(microp_scheme))
-
     case ("mp_thompson","mp_thompson_aerosols","mp_wsm6")
        do j = jts, jte
        do i = its, ite
@@ -579,7 +559,6 @@
        enddo
 
     case default
-
  end select microp_select
 
  end subroutine precip_from_MPAS
@@ -651,15 +630,14 @@
 
  enddo
  enddo
- 
+
  !CR: negative rainc values correction:
  where (rainnc < 0._RKIND)
    rainnc = 0._RKIND
  endwhere
- 
+
 !variables specific to different cloud microphysics schemes:
  microp_select: select case(trim(microp_scheme))
-
     case ("mp_thompson","mp_thompson_aerosols","mp_wsm6")
        do j = jts,jte
        do i = its,ite
@@ -675,7 +653,6 @@
        enddo
 
     case default
-
  end select microp_select
 
  end subroutine precip_to_MPAS
@@ -693,6 +670,7 @@
 
 !local pointers:
  character(len=StrKIND),pointer:: microp_scheme
+ real(kind=RKIND),dimension(:,:),pointer:: refl10cm
  real(kind=RKIND),dimension(:),pointer:: refl10cm_max,refl10cm_1km,refl10cm_1km_max
 
 !local variables and arrays:
@@ -704,12 +682,12 @@
 
  call mpas_pool_get_config(configs,'config_microp_scheme',microp_scheme)
 
+ call mpas_pool_get_array(diag_physics,'refl10cm',refl10cm)
  call mpas_pool_get_array(diag_physics,'refl10cm_max',refl10cm_max)
  call mpas_pool_get_array(diag_physics,'refl10cm_1km',refl10cm_1km)
  call mpas_pool_get_array(diag_physics,'refl10cm_1km_max',refl10cm_1km_max)
 
  microp_select: select case(trim(microp_scheme))
-
     case ("mp_kessler")
        call physics_error_fatal('--- calculation of radar reflectivity is not available' // &
                                  'with kessler cloud microphysics')
@@ -742,6 +720,7 @@
           kp = 1
           do k = kts,kte
              dBZ1d(k) = max(-35._RKIND,dBZ1d(k))
+             refl10cm(k,i) = dBZ1d(k)
              if(zp(k) .lt. 1000.) kp = k
           enddo
           refl10cm_max(i) = maxval(dBZ1d(:))
@@ -793,6 +772,7 @@
           kp = 1
           do k = kts,kte
              dBZ1d(k) = max(-35._RKIND,dBZ1d(k))
+             refl10cm(k,i) = dBZ1d(k)
              if(zp(k) .lt. 1000.) kp = k
           enddo
           refl10cm_max(i) = maxval(dBZ1d(:))
@@ -815,7 +795,6 @@
        if(allocated(zp)   ) deallocate(zp   )
 
     case default
-
  end select microp_select
 
  end subroutine compute_radar_reflectivity

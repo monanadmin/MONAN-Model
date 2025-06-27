@@ -656,7 +656,6 @@
 
        call mpas_pool_get_array(tend_physics,'rqsblten'  ,rqsblten  )
 
-
        do j = jts,jte
        do k = kts,kte
        do i = its,ite
@@ -687,7 +686,6 @@
           qdiss(k,i)      = qdiss_p(i,k,j)
           qshear(k,i)     = qshear_p(i,k,j)
           qwt(k,i)        = qwt_p(i,k,j)
-
 
           rqsblten(k,i)   = rqsblten_p(i,k,j)
        enddo

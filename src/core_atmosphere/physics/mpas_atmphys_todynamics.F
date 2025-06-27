@@ -41,16 +41,6 @@
 !   number concentrations due to PBL processes.
 !   Laura D. Fowler (laura@ucar.edu) / 2024-05-16.
 
-
-
-
-
-
-
-
-
-
-
 !
 ! Abstract interface for routine used to communicate halos of fields
 ! in a named group
@@ -75,8 +65,6 @@
  subroutine physics_get_tend(block,mesh,state,diag,tend,tend_physics,configs,rk_step,dynamics_substep, &
                              tend_ru_physics,tend_rtheta_physics,tend_rho_physics,exchange_halo_group)
 !=================================================================================================================
-
-
 
 !input variables:
  type(block_type),intent(in),target:: block
