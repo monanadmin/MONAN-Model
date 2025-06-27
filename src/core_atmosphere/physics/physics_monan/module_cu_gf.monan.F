@@ -148,7 +148,7 @@ module module_cu_gf_monan
                                                 !,1.0e-3  & !shallow
                                                 !,5.0e-4  & !mid
                                                 !/)
-   integer, parameter :: opt  = 1                                              
+   integer, parameter :: opt  = 0                                              
 
    integer :: use_lcl_ctrl_entr != 0/1     - default 0
 
@@ -365,7 +365,7 @@ contains
               ,rthratensw            & ! tendency of potential temperature due to short-wave radiation
               ,rthdyten              & ! tendency of potential temperature due to dynamics plus filters
               ,rqvdyten              & ! tendency of water vapor mixing ration due to dynamics plus filters
-              !---- output ----
+              !---- output ----      
               ,raincv                &
               ,conprr                &
               ,lightn_dens           &
@@ -2795,9 +2795,9 @@ contains
       !qes =0.0
 
       !--- better formulation for the mixed phase regime
-      do k=kts,ktf
-         do vtp_index = get_num_elements(vec_ok),1,-1
-            i = get_data_value(vec_ok,vtp_index)
+      do vtp_index = get_num_elements(vec_ok),1,-1
+         i = get_data_value(vec_ok,vtp_index)
+         do k=kts,ktf
             pqsat=satur_spec_hum(t(k,i),p(k,i))
             qes(k,i)=pqsat
 
@@ -2810,9 +2810,9 @@ contains
       !--- calculate moist static energy - HE
       !    saturated moist static energy - HES
       !
-      do k=kts,ktf
-         do vtp_index = get_num_elements(vec_ok),1,-1
-            i = get_data_value(vec_ok,vtp_index)
+      do vtp_index = get_num_elements(vec_ok),1,-1
+         i = get_data_value(vec_ok,vtp_index)
+         do k=kts,ktf
             he (k,i)=c_grav*z(k,i)+c_cp*t(k,i)+c_alvl*q  (k,i)
             hes(k,i)=c_grav*z(k,i)+c_cp*t(k,i)+c_alvl*qes(k,i)
             he (k,i)=min(hes(k,i), he(k,i))
@@ -2870,9 +2870,9 @@ contains
 
       if( clev_grid == 2 ) then
          !--original formulation
-         do k=kts+1,ktf
-            do vtp_index = get_num_elements(vec_ok),1,-1
-               i = get_data_value(vec_ok,vtp_index)
+         do vtp_index = get_num_elements(vec_ok),1,-1
+            i = get_data_value(vec_ok,vtp_index)
+            do k=kts+1,ktf
                qes_cup(k,i)=.5*(qes(k-1,i)+qes(k,i))
                q_cup  (k,i)=.5*(q  (k-1,i)+q  (k,i))
                hes_cup(k,i)=.5*(hes(k-1,i)+hes(k,i))
@@ -4380,7 +4380,6 @@ contains
       start_level(:) = 0
       ktop       (:) = 0 !ktf-1
       cap_max    (:) = cap_max_in(:)
-!     hcot       (:,:) = 0.0
  
       if(use_pass_cloudvol == 2) then
            h_env_eff(:,:) = (1.-cnvcf(:,:))*heo(:,:) + cnvcf(:,:)*heso(:,:)
@@ -5546,7 +5545,7 @@ contains
             !endif
       enddo
    end   subroutine get_precip_fluxes
-   !---------get_precip_fluxes------------------------------------------------------------------------------------------
+   !---------------------------------------------------------------------------------------------------
    subroutine get_jmin(cumulus,itf,ktf,its,ite, kts,kte,ierr,kdet,ktop,kbcon,jmin,ierrc  &
                       ,beta,depth_min,heso_cup,zo_cup,melting_layer)
 
@@ -8180,7 +8179,7 @@ contains
       !------------------------------------------------------------------------------------------
       if(VERT_DISCR == 0) then
 
-      do vtp_index = get_num_elements(vec_ok),1,-1
+         do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
             do k=kts,ktop(i)
 
