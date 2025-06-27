@@ -148,7 +148,7 @@ module module_cu_gf_monan
                                                 !,1.0e-3  & !shallow
                                                 !,5.0e-4  & !mid
                                                 !/)
-   integer, parameter :: opt  = 0                                              
+   integer, parameter :: opt  = 1                                              
 
    integer :: use_lcl_ctrl_entr != 0/1     - default 0
 
@@ -325,7 +325,7 @@ module module_cu_gf_monan
 
    logical :: modConvParGF_initialized
 
-contains
+   contains
    !---------------------------------------------------------------------------------------------------
    !--- monan driver 
    !---------------------------------------------------------------------------------------------------
@@ -560,35 +560,35 @@ contains
       !print*,'mpas v ', maxval(abs(rvcuten(its:ite,kts:kte,jts:jte))),mynum
       !print*,'================================================================'
 
-
       !--- these arrays must be reset every timestep.
-      ierr4d         = 0
-      jmin4d         = kts
-      klcl4d         = kts
-      k224d          = kts
-      kbcon4d        = kts
-      ktop4d         = kts
-      kstabi4d       = kts
-      kstabm4d       = kts
-      cprr4d         = 0.0
-      xmb4d          = 0.0
-      edt4d          = 0.0
-      pwav4d         = 0.0
-      sigma4d        = 0.0
-      pcup5d         = 0.0
-      up_massentr5d  = 0.0
-      up_massdetr5d  = 0.0
-      dd_massentr5d  = 0.0
-      dd_massdetr5d  = 0.0
-      zup5d          = 0.0
-      zdn5d          = 0.0
-      prup5d         = 0.0
-      prdn5d         = 0.0
-      clwup5d        = 0.0
-      tup5d          = 0.0
-      conv_cld_fr5d  = 0.0
-      TRACER  (:,:,:,:) = 0.0 
-
+      ierr4d         = 0      
+      if(use_tracer_transp == 1) then
+         jmin4d         = kts
+         klcl4d         = kts
+         k224d          = kts
+         kbcon4d        = kts
+         ktop4d         = kts
+         kstabi4d       = kts
+         kstabm4d       = kts
+         cprr4d         = 0.0
+         xmb4d          = 0.0
+         edt4d          = 0.0
+         pwav4d         = 0.0
+         sigma4d        = 0.0
+         pcup5d         = 0.0
+         up_massentr5d  = 0.0
+         up_massdetr5d  = 0.0
+         dd_massentr5d  = 0.0
+         dd_massdetr5d  = 0.0
+         zup5d          = 0.0
+         zdn5d          = 0.0
+         prup5d         = 0.0
+         prdn5d         = 0.0
+         clwup5d        = 0.0
+         tup5d          = 0.0
+         conv_cld_fr5d  = 0.0
+         TRACER  (:,:,:,:) = 0.0 
+      endif
       !print*,"============================================ in convection"
 
       !----------------------------------------------------------------------
@@ -693,14 +693,14 @@ contains
             xlons (i) = lons(i,j) ! in degrees
             xlats (i) = lats(i,j) ! in degress
           enddo
-         !- heigths
-         do i=its,itf
+          !- heigths
+          do i=its,itf
             zo(kts,i) = ter11(i)  + 0.5*dz8w(i,1,j)
             do k = kts+1, ktf
               zo(k,i) = zo(k-1,i) + 0.5*(dz8w(i,k-1,j)+dz8w(i,k,j))
             enddo
-         enddo
-         do i=its,itf
+          enddo
+          do i=its,itf
             do k=kts,ktf
                !- current pressure, temp and water vapor mix ratio
                po      (k,i)  = press(i,k,j)*1.e-2 !mbar
@@ -720,9 +720,9 @@ contains
                !-- turb length scale
                turb_len_scale2d (k,i) = turb_len_scale (i,k,j)
             end do
-         end do
+          end do
 
-         do i=its,itf
+          do i=its,itf
             do k=kts,ktf
                   !-- convert from theta to temperature 
                   theta2temp = pi(i,k,j)
@@ -751,15 +751,15 @@ contains
                   dhdt(k,i) = dhdt(k,i) +   c_cp*(rthdyten(i,k,j)+rthratenlw(i,k,j)+rthratensw(i,k,j))*theta2temp &
                                         + c_alvl*(rqvdyten(i,k,j))
             end do
-         end do
+          end do
 
-         !-- calculation of omega vertical velocity and the moisture convergence:
-         do k = kts+1, ktf
+          !-- calculation of omega vertical velocity and the moisture convergence:
+          do k = kts+1, ktf
             do i = its, itf
                omeg(k,i,:) = -c_grav*0.5*(rho(i,k,j)+rho(i,k-1,j))*w(i,k,j)
             end do
-         end do
-         do i = its, itf
+          end do
+          do i = its, itf
             do n=1,ens4
                 mconv(i,n) = 0.
                 do k = kts+1, ktf         
@@ -768,9 +768,9 @@ contains
                end do
                mconv(i,n) = max(0., mconv(i,n))
             end do
-         end do
+          end do
 
-         if(APPLY_SUB_MP == 1) then ! - check arrays later 
+          if(APPLY_SUB_MP == 1) then ! - check arrays later 
             do i=its,itf
                do k=kts,ktf
                   kr=k   !+1   !<<<< only kr=k
@@ -781,8 +781,8 @@ contains
                   mpcf   (:,k,i) = mp_cf   (:,kr,i,j) ! 1
                enddo
             enddo
-         endif
-         if(USE_TRACER_TRANSP==1) then  ! - check arrays later 
+          endif
+          if(USE_TRACER_TRANSP == 1) then  ! - check arrays later 
             do i=its,itf
                do k=kts,kte
                   kr=k !+1
@@ -792,13 +792,13 @@ contains
                   enddo
                enddo
             enddo
-         endif
-         !- pbl  (i) = depth of pbl layer (m)
-         !- kpbli(i) = PBL index of zo(k,i)
-         do i=its,itf
+          endif
+          !- pbl  (i) = depth of pbl layer (m)
+          !- kpbli(i) = PBL index of zo(k,i)
+          do i=its,itf
             pbl  (i)  = zo(kpbli(i),i) - topt(i,j)
-         enddo
-         do i = its, itf
+          enddo
+          do i = its, itf
             tke_mean(i) = 0.0
             total_dp = 0.0
             do k = kts+1, kpbli(i)-1
@@ -807,7 +807,7 @@ contains
                total_dp = total_dp + dp
             end do
             tke_mean(i) = max(1.e-5, tke_mean(i)/(total_dp+1.e-6))
-         end do
+          end do
 
          !- begin: for GATE soundings-------------------------------------------
          if(P_USE_GATE) then
@@ -1838,9 +1838,6 @@ contains
       !- initial entrainment/detrainment
       entr_rate   (:  ) = entr_rate_input
       min_entr_rate     = entr_rate_input * fr_min_entr
-
-      !print*,'en1',trim(cumulus),maxval(entr_rate),minval(entr_rate), fr_min_entr
-
       !
       !-- controls of LCL and PBL turbulence on the entrainment rate
       if(use_lcl_ctrl_entr > 0 ) then 
@@ -2006,7 +2003,6 @@ contains
       if(convection_tracer == 1) then 
             wlpool_bcon  (:) = wlpool(:)
             ke_gustfront (:) = 0.5 * max(wlpool_bcon(:)**2,  zws(:)**2) + 1.e-6
- !           if(cumulus == 'deep')then
             if(cumulus /= 'shallow')then
                call cup_up_aa0(cin1,zo_cup,zuo,dbyo ,GAMMAo_CUP   ,tn_cup  ,k22,klcl,kbcon,ktop &
                               ,ierr,itf,ktf,its,ite, kts,kte,'CIN')
@@ -2116,44 +2112,47 @@ contains
       !-----------------------------------------------------------------------------------------
       !
       !--- time-scale of cape removal
-      !
-      if(cumulus=='deep') then
-               tau_ecmwf(:)=tau_deep;   wmean(:) = 3. !  mean vertical velocity m/s
-      else
-               tau_ecmwf(:)=tau_mid ;   wmean(:) = 3. 
+      if(cumulus /= 'shallow') then
+           !
+           if(sgs_w_timescale == 0) then
+                if(cumulus=='deep') then
+                    tau_ecmwf(:)=tau_deep;   wmean(:) = 3. !  mean vertical velocity m/s
+                else
+                    tau_ecmwf(:)=tau_mid ;   wmean(:) = 3. 
+                endif
+           endif
+           !--- Bechtold et al (2008) time-scale of cape removal
+           if(sgs_w_timescale == 1) then
+              do vtp_index = get_num_elements(vec_ok),1,-1
+                 i = get_data_value(vec_ok,vtp_index)
+                 !- mean vertical velocity based on integration of vertical veloc equation
+                 wmean(i) = min(max(vvel1d(i),3.),20.)
+
+                 !- time-scale cape removal from Bechtold et al. 2008
+                 tau_ecmwf(i)=( zo_cup(ktop(i),i)- zo_cup(kbcon(i),i) ) / wmean(i)
+                 tau_ecmwf(i)= min(10800., max(600.,tau_ecmwf(i)))
+
+              enddo
+           endif
+           !--- time-scale cape removal of IFS 2023
+           if(sgs_w_timescale == 2) then
+              dx_ref = 125.e+3 ! meters
+              do vtp_index = get_num_elements(vec_ok),1,-1
+                 i = get_data_value(vec_ok,vtp_index)
+                 !- mean vertical velocity based on integration of vertical veloc equation
+                 wmean(i) = min(max(vvel1d(i),3.),20.)
+
+                 if(dx(i) > 8000.) then
+                    alpha_cats = 1. + 1.60*dx(i)/dx_ref
+                 else
+                    alpha_cats = 1. + (log(1.e+4/dx(i)))**2
+                 endif
+                 tau_ecmwf(i)=alpha_cats*(zo_cup(ktop(i),i)- zo_cup(kbcon(i),i)) / wmean(i)
+                 tau_ecmwf(i)= min(10800., max(720.,tau_ecmwf(i)))
+                 !tau_ecmwf(i)= min(10800., max(1200.,tau_ecmwf(i)))
+              enddo
+           endif
       endif
-      !--- Bechtold et al (2008) time-scale of cape removal
-      if(sgs_w_timescale == 1 .and. cumulus /= 'shallow') then
-         do vtp_index = get_num_elements(vec_ok),1,-1
-            i = get_data_value(vec_ok,vtp_index)
-            !- mean vertical velocity based on integration of vertical veloc equation
-            wmean(i) = min(max(vvel1d(i),3.),20.)
-
-            !- time-scale cape removal from Bechtold et al. 2008
-            tau_ecmwf(i)=( zo_cup(ktop(i),i)- zo_cup(kbcon(i),i) ) / wmean(i)
-            tau_ecmwf(i)= min(10800., max(600.,tau_ecmwf(i)))
-
-         enddo
-      endif
-      !--- time-scale cape removal of IFS 2023
-      if(sgs_w_timescale == 2 .and. cumulus /= 'shallow') then
-         dx_ref = 125.e+3 ! meters
-         do vtp_index = get_num_elements(vec_ok),1,-1
-            i = get_data_value(vec_ok,vtp_index)
-            !- mean vertical velocity based on integration of vertical veloc equation
-            wmean(i) = min(max(vvel1d(i),3.),20.)
-
-            if(dx(i) > 8000.) then
-               alpha_cats = 1. + 1.60*dx(i)/dx_ref
-            else
-               alpha_cats = 1. + (log(1.e+4/dx(i)))**2
-            endif
-            tau_ecmwf(i)=alpha_cats*(zo_cup(ktop(i),i)- zo_cup(kbcon(i),i)) / wmean(i)
-            tau_ecmwf(i)= min(10800., max(720.,tau_ecmwf(i)))
-            !tau_ecmwf(i)= min(10800., max(1200.,tau_ecmwf(i)))
-         enddo
-      endif
-
       ! 
       !--- diurnal cycle section
       if( dicycle >= 0 .and. cumulus == 'deep') then
@@ -2169,8 +2168,7 @@ contains
       !
       !-- calculate "pcape" or equivalent cloud work function from the BL forcing only
       !
-         iversion=0
-         call cup_up_aa1bl(iversion,aa1_bl,aa1_fa,aa1,t,tn,q,qo,dtime,po_cup,zo_cup,zuo,dbyo        &
+         call cup_up_aa1bl(aa1_bl,aa1_fa,aa1,t,tn,q,qo,dtime,po_cup,zo_cup,zuo,dbyo        &
                           ,gammao_cup,tn_cup,rho,klcl,kpbl,kbcon,ktop,ierr,itf,ktf,its,ite, kts,kte & 
                           ,xland,ztexec,xlons,xlats, h_sfc_flux,le_sfc_flux,tau_bl,tau_ecmwf        &
                           ,t_star,cumulus,tn_bl,qo_bl  )
@@ -2230,68 +2228,72 @@ contains
                          ,dellat, dellaq,dellaqc,subten_Q, subten_H, subten_U, subten_V)
       !
       !
+
       !--- using dellas, calculate changed environmental profiles
       !
       call get_env_change(itf,ktf,its,ite,kts,kte,ierr,heo,qo,tn,p_liq_ice,mbdt,dellu,dellv &
                          ,dellah,dellat,dellaq,dellaqc,subten_h,subten_q,subten_t,xhe,xq,xt)
       !
-      !--- calculate moist static energy, heights, qes
       !
-      call cup_env(xz,xqes,xhe,xhes,xt,xq,po,z1,psur,ierr,-1,itf,ktf,its,ite,kts,kte)
-      !
-      !--- environmental values on cloud levels
-      !
-      call cup_env_clev(xt,xqes,xq,xhe,xhes,xz,po,xqes_cup,xq_cup, xhe_cup,us,vs,u_cup,v_cup&
-                       ,xhes_cup,xz_cup,po_cup,gamma_cup,xt_cup,psur,tsur,ierr,z1,itf,ktf,its,ite, kts,kte)
-      !
-      !--- static control
-      !--- moist static energy inside cloud - part 1
-      do vtp_index = get_num_elements(vec_ok),1,-1
-            i = get_data_value(vec_ok,vtp_index)
-            xhc(:,i) = xhes_cup(:,i)
-            !-note that hkbo already contains the contribuition from ztexec, zqexec and x_add_buoy
-            call get_cloud_bc(cumulus,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i),dellah (kts:kte,i)&
-                             ,dellah_aver,k22(i))
-            xhkb(i) = dellah_aver*mbdt(i) + hkbo(i)
-            xhc (kts:start_level(i),i) = xhkb(i)           
-      enddo
-      !
-      !--- option to produce linear fluxes in the sub-cloud layer.
-      if(cumulus == 'shallow' .and. use_linear_subcl_mf == 1) then
-            do vtp_index = get_num_elements(vec_ok),1,-1
-               i = get_data_value(vec_ok,vtp_index)
-               call get_delmix(cumulus,kts,kte,ktf,xland(i),start_level(i),po(kts:kte,i) &
-                              ,xhe_cup (kts:kte,i), xhc (kts:kte,i))
-           enddo
-      endif
-      !--- moist static energy inside cloud - part 2
-      do vtp_index = get_num_elements(vec_ok),1,-1
-            i = get_data_value(vec_ok,vtp_index)
-         
-            kii=start_level(i) ; kff=ktop(i)
-            if(use_pass_cloudvol == 2) then 
-                xh_env_eff(kii:kff) = (1.-cnvcf(kii:kff,i))*xhe(kii:kff,i) + cnvcf(kii:kff,i)*xhes(kii:kff,i)
-            else
-                xh_env_eff(kii:kff) = xhe(kii:kff,i)
-            endif
-            do k=start_level(i) + 1,ktop(i) + 1 
-              denom= (zuo(k-1,i)-.5*up_massdetro(k-1,i)+up_massentro(k-1,i)) +1.e-12
-              xhc(k,i)=(xhc(k-1,i)*zuo(k-1,i)-.5*up_massdetro(k-1,i)*xhc(k-1,i)+ &
-                                                 up_massentro(k-1,i)*xh_env_eff(k-1)) / denom
-
-              if(k==start_level(i)+1)  then
-                     x_add = (c_alvl*zqexec(i)+c_cp*ztexec(i)) +  x_add_buoy(i)
-                     xhc(k,i)= xhc(k,i) + x_add*up_massentro(k-1,i)/denom
+      if(cumulus /= 'shallow') then
+              !--- calculate moist static energy, heights, qes
+              !
+              call cup_env(xz,xqes,xhe,xhes,xt,xq,po,z1,psur,ierr,-1,itf,ktf,its,ite,kts,kte)
+              !
+              !--- environmental values on cloud levels
+              !
+              call cup_env_clev(xt,xqes,xq,xhe,xhes,xz,po,xqes_cup,xq_cup, xhe_cup,us,vs,u_cup,v_cup&
+                               ,xhes_cup,xz_cup,po_cup,gamma_cup,xt_cup,psur,tsur,ierr,z1,itf,ktf,its,ite, kts,kte)
+              !
+              !--- static control
+              !--- moist static energy inside cloud - part 1
+              do vtp_index = get_num_elements(vec_ok),1,-1
+                    i = get_data_value(vec_ok,vtp_index)
+                    xhc(:,i) = xhes_cup(:,i)
+                    !-note that hkbo already contains the contribuition from ztexec, zqexec and x_add_buoy
+                    call get_cloud_bc(cumulus,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i),dellah (kts:kte,i)&
+                                     ,dellah_aver,k22(i))
+                    xhkb(i) = dellah_aver*mbdt(i) + hkbo(i)
+                    xhc (kts:start_level(i),i) = xhkb(i)           
+              enddo
+              !
+              !--- option to produce linear fluxes in the sub-cloud layer.
+              if(cumulus == 'shallow' .and. use_linear_subcl_mf == 1) then
+                    do vtp_index = get_num_elements(vec_ok),1,-1
+                       i = get_data_value(vec_ok,vtp_index)
+                       call get_delmix(cumulus,kts,kte,ktf,xland(i),start_level(i),po(kts:kte,i) &
+                                      ,xhe_cup (kts:kte,i), xhc (kts:kte,i))
+                   enddo
               endif
-              !                          ------ ice content --------
-              xhc (k,i)= xhc (k,i)+ c_xlf*(1.-p_liq_ice(k,i))*qrco(k,i)
-            enddo
-      enddo
-      !
-      !--- buoyancy and workfunctions for updraft
-      call get_buoyancy(itf,ktf, its,ite, kts,kte,ierr,klcl,kbcon,ktop,xhc,xhe_cup,xhes_cup,xdby,xz_cup)
-      call cup_up_aa0  (xaa0,xz_cup,zuo,xdby,GAMMA_CUP,xt_cup, k22,klcl,kbcon,ktop,ierr,itf,ktf,its,ite, kts,kte)
+              !--- moist static energy inside cloud - part 2
+              do vtp_index = get_num_elements(vec_ok),1,-1
+                    i = get_data_value(vec_ok,vtp_index)
+                 
+                    kii=start_level(i) ; kff=ktop(i)
+                    if(use_pass_cloudvol == 2) then 
+                        xh_env_eff(kii:kff) = (1.-cnvcf(kii:kff,i))*xhe(kii:kff,i) + cnvcf(kii:kff,i)*xhes(kii:kff,i)
+                    else
+                        xh_env_eff(kii:kff) = xhe(kii:kff,i)
+                    endif
+                    do k=start_level(i) + 1,ktop(i) + 1 
+                      denom= (zuo(k-1,i)-.5*up_massdetro(k-1,i)+up_massentro(k-1,i)) +1.e-12
+                      xhc(k,i)=(xhc(k-1,i)*zuo(k-1,i)-.5*up_massdetro(k-1,i)*xhc(k-1,i)+ &
+                                                         up_massentro(k-1,i)*xh_env_eff(k-1)) / denom
 
+                      if(k==start_level(i)+1)  then
+                             x_add = (c_alvl*zqexec(i)+c_cp*ztexec(i)) +  x_add_buoy(i)
+                             xhc(k,i)= xhc(k,i) + x_add*up_massentro(k-1,i)/denom
+                      endif
+                      !                          ------ ice content --------
+                      xhc (k,i)= xhc (k,i)+ c_xlf*(1.-p_liq_ice(k,i))*qrco(k,i)
+                    enddo
+              enddo
+              !
+              !--- buoyancy and workfunctions for updraft
+              call get_buoyancy(itf,ktf, its,ite, kts,kte,ierr,klcl,kbcon,ktop,xhc,xhe_cup,xhes_cup,xdby,xz_cup)
+              call cup_up_aa0  (xaa0,xz_cup,zuo,xdby,GAMMA_CUP,xt_cup, k22,klcl,kbcon,ktop,ierr,itf,ktf,its,ite, kts,kte)
+ 
+      endif
       !
       !--- LARGE SCALE FORCING
 
@@ -2434,7 +2436,7 @@ contains
       !
       !--------------------------------------------------------------------------------------------!
       !-- section for atmospheric composition convective tracer and wet removal
-      if(use_tracer_transp==1)  then  
+      if(use_tracer_transp == 1)  then  
         call tracerConvTransGF(its, itf, jl, jmin, ite, kts, kte, ktf, mtp, chem_name_mask, ave_layer, ierr, k22, ktop &
                               ,   start_level, dd_massdetro, dd_massentro, dtime, edto, fscav, po, po_cup, pw_up_chem &
                               ,   pwavo, pwevo, pwdo, pwo, qrco, sc_up_chem, tempco, tot_pw_up_chem &
@@ -3696,14 +3698,14 @@ contains
       enddo
    end subroutine cup_up_moisture_light
    !------------------------------------------------------------------------------------
-   subroutine cup_up_aa1bl(version,aa1_bl,aa1_fa,aa1,t,tn,q,qo,dtime,po_cup,z_cup,zu,dby   &
+   subroutine cup_up_aa1bl(aa1_bl,aa1_fa,aa1,t,tn,q,qo,dtime,po_cup,z_cup,zu,dby           &
                           ,gamma_cup,t_cup,rho,klcl,kpbl,kbcon,ktop,ierr,itf,ktf,its,ite   &
                           ,kts,kte,xland,ztexec,xlons,xlats, h_sfc_flux,le_sfc_flux,tau_bl &
                           ,tau_ecmwf,t_star,cumulus ,tn_bl,qo_bl)
 
       implicit none
       character*(*), intent (in)            :: cumulus
-      integer      , intent (in)            ::itf,ktf,its,ite, kts,kte,version
+      integer      , intent (in)            ::itf,ktf,its,ite, kts,kte
       ! aa0 cloud work function
       ! gamma_cup = gamma on model cloud levels
       ! t_cup = temperature (Kelvin) on model cloud levels
@@ -3726,13 +3728,13 @@ contains
       !
       !  local variables in this routine
       !
-      integer                               ::    i,k,vtp_index
+      integer                               ::    i,k,vtp_index,version = 0
       real                                  ::    dz,da,aa_1,aa_2,tcup,da_bl,a1_bl
       !
       !
       aa1_bl (:)=0.
       if(version == 0 ) then
-      do vtp_index = get_num_elements(vec_ok),1,-1
+         do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
             !***       do k=kts,kbcon(i)
             do k=kts,kpbl(i)
@@ -5199,7 +5201,6 @@ contains
                p_liq_ice(k,i) = FractLiqF(tn(k,i))
             enddo
          enddo
-         !        go to 650
          !
          !-- define the melting layer (the layer will be between C_t00+1 < TEMP < T_1
          !-- definition em terms of temperatura
@@ -5218,31 +5219,6 @@ contains
                melting_layer(k,i) = melting_layer(k,i)*(1.-melting_layer(k,i))
             enddo
          enddo
-         !go to 655
-         !650 continue
-         !        !-- definition em terms of height above local terrain
-         !        DO k=kts,ktf
-         !          DO i=its,itf
-         !             if(ierr(i) /= 0) cycle
-         !             height= zo_cup(k,i)+z1(i)
-         !             if   (height > Z_meltlayer2 ) then
-         !                melting_layer(k,i) = 0.
-         !
-         !             elseif(height > Z_meltlayer1  .and. height < Z_meltlayer2 ) then
-         !
-         !                melting_layer(k,i) =  ((height - Z_meltlayer1)/(Z_meltlayer2-Z_meltlayer1))**2.
-         !
-         !
-         !             else
-         !                melting_layer(k,i) = 1.
-         !             endif
-         !             melting_layer(k,i) = melting_layer(k,i)*(1.-melting_layer(k,i))
-         !          ENDDO
-         !        ENDDO
-         !
-         !
-         !         655 continue
-         !-normalize vertical integral of melting_layer to 1
          norm(:)=0.
          do k=kts,ktf-1
             do vtp_index = get_num_elements(vec_ok),1,-1
@@ -5254,7 +5230,6 @@ contains
          do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
             melting_layer(:,i)=melting_layer(:,i)/(norm(i)+1.e-6)*(100*(po_cup(kts,i)-po_cup(ktf,i))/c_grav)
-          !print*,"i2=",i,maxval(melting_layer(:,i)),minval(melting_layer(:,i)),norm(i)
          enddo
       !--check
       !       norm(:)=0.
@@ -5517,7 +5492,7 @@ contains
       integer :: i,k,vtp_index
       prec_flx = 0.0
       evap_flx = 0.0
-      if(c0 < 1.e-6 ) return
+      if(c0 < 1.e-6 .or. trim(cumulus) == 'shallow' ) return
 
       do vtp_index = get_num_elements(vec_ok),1,-1
          i = get_data_value(vec_ok,vtp_index)
@@ -8558,6 +8533,8 @@ contains
       !-- local vars
       integer :: i,k,nens3,vtp_index
 
+      if(trim(cumulus) == 'shallow') return
+
       do vtp_index = get_num_elements(vec_ok),1,-1
          i = get_data_value(vec_ok,vtp_index)
          do k=kts,ktop(i)
@@ -9981,12 +9958,11 @@ contains
          end do
       end if ! USE_FLUX_FORM == 2 .or. USE_FLUX_FORM == 3
       !
-   end subroutine fluxFormsSourceSink
+      end subroutine fluxFormsSourceSink
 !---------------------------------------------------------------------------------------------!
-!- end of section for atmospheric composition
-!--------------------------------------------------------------------------------------------!
+!-    end of section for atmospheric composition
 !---------------------------------------------------------------------------------------------!
-   subroutine cup_forcing_single_closure(cumulus,itf,ktf,its,ite, kts,kte,maxens3,k22,kbcon,ktop &
+      subroutine cup_forcing_single_closure(cumulus,itf,ktf,its,ite, kts,kte,maxens3,k22,kbcon,ktop &
                                         ,rho,aa1,xaa0,aa1_bl,wlpool,xf_coldpool,cin1             &
                                         ,mbdt,tau_ecmwf,tke_pbl,xf_dicycle,xff_shal2d,xff_mid, xf_ens)
           implicit none
@@ -10023,7 +9999,6 @@ contains
 
             if(cumulus == 'shallow')  then 
               xff_shal2d(:,:)   = 0.
-              
               do vtp_index = get_num_elements(vec_ok),1,-1
                  i = get_data_value(vec_ok,vtp_index)
                  !- cloud base
@@ -10042,9 +10017,7 @@ contains
             endif
 
             if(cumulus == 'mid')  then 
-               !-initialization
-               xff_mid     (:,:)= 0.
-
+               xff_mid(:,:)= 0.
                do vtp_index = get_num_elements(vec_ok),1,-1
                   i = get_data_value(vec_ok,vtp_index)
 
@@ -10101,73 +10074,63 @@ contains
                 endif
             endif
 
-            if(cumulus /= 'shallow')  then 
-                !-----------------------------------------------------
-                !-
-                !- add the mass flux associated to the vertical velocity
-                !- at leading edge of the cold pool gust front as a surplus
-                !- for the mass flux already determined.
-                !-
-                if(convection_tracer == 1 .and. add_coldpool_clos > 0) then
-                   if(add_coldpool_clos == 1 )then
-                      do vtp_index = get_num_elements(vec_ok),1,-1
-                         i = get_data_value(vec_ok,vtp_index)
-                         ke_gf = 0.5*wlpool(i)**2 + 1.0e-6
-                         w_cb = c3*sqrt(ke_gf) + c4
-                         xf_coldpool(i) = c1 * w_cb * exp (-c2* abs(min(cin1(i),0.))/ke_gf)
-                      enddo
-                      !if(maxval(xf_coldpool) > 0.1) print*,'xf_coldpool',maxval(xf_coldpool)
-
-                   endif
-                   if(add_coldpool_clos == 2 )then
-                      do vtp_index = get_num_elements(vec_ok),1,-1
-                         i = get_data_value(vec_ok,vtp_index)
-                         if(xk(i) >= 0.) cycle
-                         xf_coldpool(i) = -(0.5*wlpool(i)**2/tau_ecmwf(i)) /xk(i)
-                      enddo
-                   endif
-                   if(add_coldpool_clos == 3 )then
-                      do vtp_index = get_num_elements(vec_ok),1,-1
-                         i = get_data_value(vec_ok,vtp_index)
-                         ke_gf = 0.5*wlpool(i)**2 + 1.0e-6
-                         w_cb = wlpool(i)
-                         xf_coldpool(i) = c1 * w_cb * exp (-c2* abs(min(cin1(i),0.))/ke_gf)
-                         !if(xf_coldpool(i)> 0.05)&
-                         !print*,'xfcp', xf_coldpool(i), w_cb , cin1(i), ke_gf
-                      enddo
-                      !if(maxval(xf_coldpool) > 0.1) print*,'xf_coldpool',maxval(xf_coldpool)
-                   endif
-                   if(add_coldpool_clos == 4 )then
-                      xff(:) = 0.0
-                      do vtp_index = get_num_elements(vec_ok),1,-1
-                         i = get_data_value(vec_ok,vtp_index)
-                         if(xk(i) < 0.) then 
-                           ke_gf = 0.5*wlpool(i)**2 + 1.0e-6
-                           w_cb  = wlpool(i) * exp (-c2* abs(min(cin1(i),0.))/ke_gf)
-                           ke_gf = 0.5*w_cb**2.
-                           xff(i)= -(ke_gf/tau_ecmwf(i))/xk(i)
-                         endif
-                      enddo
-                      if(cumulus == 'deep')  then 
-                        do vtp_index = get_num_elements(vec_ok),1,-1
-                          i = get_data_value(vec_ok,vtp_index)
-                          xf_ens(i,10) = xf_ens(i,10) + xff(i)
-                          xf_ens(i,1:maxens3) = xf_ens(i,10)
-                        enddo
-                      endif
-                      if(cumulus == 'mid')  then 
+            if(cumulus /= 'shallow' .and. convection_tracer == 1 .and. add_coldpool_clos > 0)  then 
+               !-----------------------------------------------------
+               !- add the mass flux associated to the vertical velocity
+               !- at leading edge of the cold pool gust front as a surplus
+               !- for the mass flux already determined.
+                  if(add_coldpool_clos == 1 )then
+                     do vtp_index = get_num_elements(vec_ok),1,-1
+                        i = get_data_value(vec_ok,vtp_index)
+                        ke_gf = 0.5*wlpool(i)**2 + 1.0e-6
+                        w_cb = c3*sqrt(ke_gf) + c4
+                        xf_coldpool(i) = c1 * w_cb * exp (-c2* abs(min(cin1(i),0.))/ke_gf)
+                     enddo
+                  endif
+                  if(add_coldpool_clos == 2 )then
+                     do vtp_index = get_num_elements(vec_ok),1,-1
+                        i = get_data_value(vec_ok,vtp_index)
+                        if(xk(i) >= 0.) cycle
+                        xf_coldpool(i) = -(0.5*wlpool(i)**2/tau_ecmwf(i)) /xk(i)
+                     enddo
+                  endif
+                  if(add_coldpool_clos == 3 )then
+                     do vtp_index = get_num_elements(vec_ok),1,-1
+                        i = get_data_value(vec_ok,vtp_index)
+                        ke_gf = 0.5*wlpool(i)**2 + 1.0e-6
+                        w_cb = wlpool(i)
+                        xf_coldpool(i) = c1 * w_cb * exp (-c2* abs(min(cin1(i),0.))/ke_gf)
+                     enddo
+                  endif
+                  if(add_coldpool_clos == 4 )then
+                       xff(:) = 0.0
                        do vtp_index = get_num_elements(vec_ok),1,-1
                           i = get_data_value(vec_ok,vtp_index)
-                          xff_mid(i,3) = xff_mid(i,3)  + xff(i)
-                          xff_mid(i,1:maxens3) = xff_mid(i,3)
+                          if(xk(i) < 0.) then 
+                            ke_gf = 0.5*wlpool(i)**2 + 1.0e-6
+                            w_cb  = wlpool(i) * exp (-c2* abs(min(cin1(i),0.))/ke_gf)
+                            ke_gf = 0.5*w_cb**2.
+                            xff(i)= -(ke_gf/tau_ecmwf(i))/xk(i)
+                          endif
                        enddo
-                      endif
-                    endif
-                 endif 
+                       if(cumulus == 'deep')  then 
+                         do vtp_index = get_num_elements(vec_ok),1,-1
+                            i = get_data_value(vec_ok,vtp_index)
+                            xf_ens(i,10) = xf_ens(i,10) + xff(i)
+                            xf_ens(i,1:maxens3) = xf_ens(i,10)
+                         enddo
+                       endif
+                       if(cumulus == 'mid')  then 
+                         do vtp_index = get_num_elements(vec_ok),1,-1
+                            i = get_data_value(vec_ok,vtp_index)
+                            xff_mid(i,3) = xff_mid(i,3)  + xff(i)
+                            xff_mid(i,1:maxens3) = xff_mid(i,3)
+                         enddo
+                       endif
+                  endif
             endif
 
-   end subroutine cup_forcing_single_closure
-!---------------------------------------------------------------------------------------------!
+      end subroutine cup_forcing_single_closure
       !---------------------------------------------------------------------------------------------------
       subroutine set_Tq_pertub (use_excess,its,ite,itf,xlandi,ztexec,zqexec,cum_ztexec,cum_zqexec)
             implicit none
