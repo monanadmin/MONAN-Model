@@ -562,7 +562,6 @@ module module_cu_gf_monan
 
       !--- these arrays must be reset every timestep.
       ierr4d         = 0      
-      if(use_tracer_transp == 1) then
          jmin4d         = kts
          klcl4d         = kts
          k224d          = kts
@@ -570,6 +569,7 @@ module module_cu_gf_monan
          ktop4d         = kts
          kstabi4d       = kts
          kstabm4d       = kts
+      !if(use_tracer_transp == 1) then
          cprr4d         = 0.0
          xmb4d          = 0.0
          edt4d          = 0.0
@@ -588,7 +588,7 @@ module module_cu_gf_monan
          tup5d          = 0.0
          conv_cld_fr5d  = 0.0
          TRACER  (:,:,:,:) = 0.0 
-      endif
+      !endif
       !print*,"============================================ in convection"
 
       !----------------------------------------------------------------------
@@ -2474,8 +2474,11 @@ module module_cu_gf_monan
       !--- for outputs (only deep plume)
       !
       if( trim(cumulus) == 'deep') then
-        !var2d1(i) = x_add_buoy(i)
-         var2d1(:) = 0.0
+        !var2d1(:) = 0.0
+        !var2d1(:) = x_add_buoy(:)
+         do i=its,itf
+           var2d1(i) = maxval( buoy_exc(kts:ktop(i),i) )
+         enddo
          var2d2(:) = 0.0
          do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
@@ -2483,16 +2486,16 @@ module module_cu_gf_monan
             do k=kts,ktop(i)          
                   dp=100.*(po_cup(k,i)-po_cup(k+1,i))
                   trash=trash+dp
-                  if(use_pass_cloudvol > 0 ) &
-                  var2d1(i) = var2d1(i) + cnvcf(k,i)*dp/c_grav
+                  !if(use_pass_cloudvol > 0 ) &
+                  !var2d1(i) = var2d1(i) + cnvcf(k,i)*dp/c_grav
                   
-                  var2d2(i) = var2d2(i) + entr_rate_2d(k,i)        *dp
+                  var2d2(i) = var2d2(i) + entr_rate_2d(k,i)*dp
                   
-                  if(use_pass_cloudvol == 0 ) &
-                  var2d1(i) = var2d1(i) + entr_rate_2d_initial(k,i)*dp
+                  !if(use_pass_cloudvol == 0 ) &
+                  !var2d1(i) = var2d1(i) + entr_rate_2d_initial(k,i)*dp
             enddo
             var2d2(i) = var2d2(i)/trash 
-            var2d1(i) = var2d1(i)/trash 
+            !var2d1(i) = var2d1(i)/trash 
          enddo
       endif
 
@@ -6771,16 +6774,17 @@ module module_cu_gf_monan
       real    :: local_ave_layer
 
       if(USE_MEMORY >= 0) then 
-         local_ave_layer = ave_layer ! local_ave_layer=20.
+        !local_ave_layer = ave_layer 
+         local_ave_layer = 20.
          do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
 
-            call get_cloud_bc(cumulus,local_ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i) &
-                             ,buoy_exc (kts:kte,i),x_add_buoy (i),kts)
+            !call get_cloud_bc(cumulus,local_ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i) &
+            !                 ,buoy_exc (kts:kte,i),x_add_buoy (i),kts)
             !- for gate soundings
             !x_add_buoy (i) = float(JL*40)
-
-            x_add_buoy (i) = min (x_add_buoy (i), 1.0*mx_buoy2)
+            x_add_buoy (i) = maxval(buoy_exc (kts:ktf,i))
+            x_add_buoy (i) = min (x_add_buoy (i),mx_buoy2)
 
             if(x_add_buoy (i) > mx_buoy1 ) then 
                 zqexec(i) = 0.
@@ -6847,8 +6851,8 @@ module module_cu_gf_monan
       if(cumulus == 'deep'                         ) z_detr= 1000.
       if(cumulus == 'mid' .or. cumulus == 'shallow') z_detr= 300.
 
-       do i=its,itf
-         do k=kts,ktf
+      do i=its,itf
+          do k=kts,ktf
                if(zo_cup(k,i).gt.zkbmax+z1(i))then
                   kbmax(i)=k
                   exit
@@ -7231,7 +7235,7 @@ module module_cu_gf_monan
       endif
 
       do vtp_index = get_num_elements(vec_ok),1,-1
-         i = get_data_value(vec_ok,vtp_index)
+           i = get_data_value(vec_ok,vtp_index)
            do k=kts,ktf    
              !fq = max(min(1.,(qeso_cup(max(k,klcl(i)),i)/qeso_cup(klcl(i),i))**1.25) ,0.1)
               fq = max(min (1. , sqrt (zo_cup(klcl(i),i) / zo_cup(max(k,klcl(i)),i)) ), 0.1)
@@ -7382,11 +7386,12 @@ module module_cu_gf_monan
 
       if(cumulus == 'deep') then
             min_deep_top=500.
-            if(icumulus_gf(mid) == OFF) min_deep_top=600.
+            if(icumulus_gf(mid) == OFF) min_deep_top=700.
             do vtp_index = get_num_elements(vec_ok),1,-1
                i = get_data_value(vec_ok,vtp_index)
                cloud_depth =  po_cup(kbcon(i),i)-po_cup(ktop(i),i)
-               if(po_cup(ktop(i),i) > min_deep_top .or. cloud_depth < min_cloud_depth ) then
+               !if(po_cup(ktop(i),i) > min_deep_top .or. cloud_depth < min_cloud_depth ) then
+               if(                                      cloud_depth < min_cloud_depth ) then
                   ierr(i)=33 ; is_removed = remove(vec_ok, i)
                   ierrc(i)='cloud top or cloud_depth too low for deep'
                endif

@@ -1792,7 +1792,7 @@
                 !snk = snk * (1.-cnvcf(k,i))
                 !cnvcf(k,i) = cnvcf(k,i) + (1.-cnvcf(k,i)*src - snk
 
-               !---- sanity check for the cloud fraction
+                !---- sanity check for the cloud fraction
                 cnvcf(k,i) = min(1.0_RKIND, max(0._RKIND, cnvcf(k,i)))
              enddo
           enddo
