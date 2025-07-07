@@ -4355,6 +4355,138 @@ module module_cu_gf_monan
                               ,heso,itf,ktf,its,ite, kts,kte)
 
       implicit none
+      character *(*)            ,intent (in   ) :: name
+      character(len=128)        ,intent (inout) :: ierrc(:)
+      integer                   ,intent (in   ) :: itf,ktf,its,ite, kts,kte,use_excess
+      integer, dimension (:)    ,intent (in   ) :: kbmax,start_level_
+      integer, dimension (:)    ,intent (inout) :: kbcon,ierr,ktop,klcl,k22
+      real,    dimension (:,:)  ,intent (in   ) :: heo_cup,heso_cup,po_cup,z_cup,heo &
+                                                  ,qo_cup,qeso_cup,po,qo,qeso,Tpert, heso
+      real,    dimension (:)    ,intent (in   ) :: cap_max_in,cap_inc,xland
+      real,    dimension (:)    ,intent (in   ) :: zqexec,ztexec,x_add_buoy
+      real,    dimension (:)    ,intent (inout) :: hkbo,depth_neg_buoy,frh
+      real,    dimension (:,:)  ,intent (in)    :: entr_rate_2d,cnvcf
+      real,    dimension (:,:)  ,intent (inout) :: hcot
+
+      !  local variables in this routine
+      real                         :: Z_overshoot !--- height of cloud overshoot is 10% higher than the LNB.
+                                                  !--- Typically it can 2 - 2.5km higher, but it depends on
+                                                  !--- the severity of the thunderstorm.
+      integer                      ::   i,k,vtp_index
+      integer, dimension (its:ite) ::   start_level
+      real                         ::   dz
+      real   , dimension (its:ite) ::   x_add,cap_max
+      real   , dimension (kts:kte,its:ite) ::   h_env_eff
+
+      ktop       (:) = kts
+      kbcon      (:) = kts
+      cap_max    (:) = cap_max_in(:)
+      x_add      (:) = c_alvl*zqexec(:) + c_cp*ztexec(:) + x_add_buoy(:)
+      start_level(:) = start_level_(:)
+
+      if(use_pass_cloudvol == 2) then
+           h_env_eff(:,:) = (1.-cnvcf(:,:))*heo(:,:) + cnvcf(:,:)*heso(:,:)
+      else
+           h_env_eff(:,:) = heo(:,:)
+      endif
+
+      !--- Determine the level of convective cloud base  - kbcon
+      !
+      loop0: do vtp_index = get_num_elements(vec_ok),1,-1
+         i = get_data_value(vec_ok,vtp_index)
+         
+         hcot(kts:start_level(i),i) = hkbo(i) ! assumed no entrainment between kts:start_level(i)
+
+         loop1:  do while(ierr(i) == 0)
+
+            kbcon(i)=start_level(i)
+            do k=start_level(i)+1, ktf
+               dz=z_cup(k,i)-z_cup(k-1,i)
+               hcot(k,i)= ( (1.-0.5*entr_rate_2d(k-1,i)*dz)*hcot      (k-1,i)     &
+                                  + entr_rate_2d(k-1,i)*dz *h_env_eff (k-1,i) ) / &
+                          (  1.+0.5*entr_rate_2d(k-1,i)*dz)
+               
+               if(k==start_level(i)+1) hcot(k,i) = hcot(k,i) + x_add(i)
+               
+            enddo
+
+            loop2: do while (hcot(kbcon(i),i) < heso_cup(kbcon(i),i))
+               kbcon(i)=kbcon(i)+1
+               if(kbcon(i) > kbmax(i)) then
+                  ierr(i)=3 ; is_removed = remove(vec_ok, i)
+                  ierrc(i)="could not find reasonable kbcon in cup_kbcon : above kbmax"
+                  exit loop2
+               endif
+            enddo loop2
+
+            if(ierr(i) /= 0) cycle loop0
+
+            !---     cloud base pressure and max moist static energy pressure
+            !---     i.e., the depth (in mb) of the layer of negative buoyancy
+            depth_neg_buoy(i) = - (po_cup(kbcon(i),i)-po_cup(start_level(i),i))
+
+            !- test if the air parcel has enough energy to reach the positive buoyant region
+print*,'x=',cap_max(i),depth_neg_buoy(i)
+
+            if(cap_max(i) >= depth_neg_buoy(i)) cycle loop0
+
+            !--- use this for just one search (original k22)
+            !if(cap_max(i) < depth_neg_buoy(i)) then
+            !                    ierr(i)=30
+            !                    ierrc(i)="could not find reasonable kbcon in cup_cloud_limits"
+            !endif
+            !cycle loop0
+            !---
+
+            !- if am here -> kbcon not found for air parcels from k22 level
+            k22(i)=k22(i)+1
+            !--- increase capmax
+            !if(USE_MEMORY == 2000) cap_max(i)=cap_max(i)+cap_inc(i)
+
+            !- get new hkbo
+            call get_cloud_bc(name,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i),heo_cup (kts:kte,i) &
+                             ,hkbo (i),k22(i),x_add(i),Tpert(kts:kte,i))
+            
+            !print*,'x=',hkbo (i),k22(i),hkbo (i)/maxval(heo_cup(max(k22(i)-4,kts):k22(i)+4,i)),hkbo (i)/minval(heo_cup(max(k22(i)-4,kts):k22(i)+4,i))
+
+            !
+            start_level(i)=start_level(i)+1
+            !
+            hcot(start_level(i),i)=hkbo (i)
+         enddo loop1
+      enddo loop0
+      !
+      !
+      !--- Determine the level of neutral buoyancy - ktop
+      !
+      do vtp_index = get_num_elements(vec_ok),1,-1
+         i = get_data_value(vec_ok,vtp_index)
+
+         do k=kbcon(i)+1,ktf-1
+            if(hcot(k,i) < heso_cup(k,i))then
+               ktop(i) = k
+               exit
+            endif
+         enddo
+         !----------------
+         if(OVERSHOOT > 1.e-6) then
+            Z_overshoot = (1. + OVERSHOOT) * z_cup(ktop(i),i)
+            do k=ktop(i)+1,ktf-1
+               if(Z_overshoot <= z_cup(k,i)) then
+                  ktop(i) = k
+                  exit
+               endif
+            enddo
+         endif
+      enddo
+   end subroutine cup_cloud_limits
+    subroutine cup_cloud_limitsOLD(name,ierrc,ierr,cap_inc,cap_max_in,heo_cup,heso_cup,qo_cup &
+                              ,qeso_cup,po,po_cup,z_cup,heo,hkbo,qo,qeso,entr_rate_2d,hcot&
+                              ,k22,kbmax,klcl,kbcon,ktop,depth_neg_buoy,frh,Tpert         &
+                              ,start_level_,use_excess,zqexec,ztexec,x_add_buoy,xland,cnvcf &
+                              ,heso,itf,ktf,its,ite, kts,kte)
+
+      implicit none
       character *(*)            ,intent (in   ) ::  name
       character(len=128)             ,intent (inout) :: ierrc(:)
       integer                   ,intent (in   ) :: itf,ktf,its,ite, kts,kte,use_excess
@@ -4528,7 +4660,7 @@ module module_cu_gf_monan
             enddo
          endif
       enddo
-   end subroutine cup_cloud_limits
+   end subroutine cup_cloud_limitsOLD
    !------------------------------------------------------------------------------------
    subroutine get_buoyancy(itf,ktf, its,ite, kts,kte,ierr,klcl,kbcon,ktop &
                           ,hc,he_cup,hes_cup,dby,z_cup)
@@ -7386,12 +7518,11 @@ module module_cu_gf_monan
 
       if(cumulus == 'deep') then
             min_deep_top=500.
-            if(icumulus_gf(mid) == OFF) min_deep_top=700.
+            if(icumulus_gf(mid) == OFF) min_deep_top=1.e+22
             do vtp_index = get_num_elements(vec_ok),1,-1
                i = get_data_value(vec_ok,vtp_index)
                cloud_depth =  po_cup(kbcon(i),i)-po_cup(ktop(i),i)
-               !if(po_cup(ktop(i),i) > min_deep_top .or. cloud_depth < min_cloud_depth ) then
-               if(                                      cloud_depth < min_cloud_depth ) then
+               if(po_cup(ktop(i),i) > min_deep_top .or. cloud_depth < min_cloud_depth ) then
                   ierr(i)=33 ; is_removed = remove(vec_ok, i)
                   ierrc(i)='cloud top or cloud_depth too low for deep'
                endif
@@ -10990,9 +11121,8 @@ module module_cu_gf_monan
 ! ierr(i)=28   ==>  ierrc(i)=" pwev >= 0 in cup_dd_moisture"
 ! ierr(i)=29   ==>  ierrc(i)="pwav negative"
 ! ierr=19      ==>  if( maxval(zu(kts:min(kte,kt+1)),1) <= 0.0) then
-! ierr(i)=3    ==>  ierrc(i)="could not find reasonable kbcon in cup_kbcon : above kbmax+2 "
-! ierr(i)=30   ==>  ierrc(i)="could not find reasonable kbcon in cup_kbcon = kts"
-! ierr(i)=31   ==>  if(ktop(i) <= kbcon(i)+1) then
+! ierr(i)=3    ==>  ierrc(i)="could not find reasonable kbcon in cup_kbcon : above kbmax "
+! ierr(i)=30   ==>  ierrc(i)="could not find reasonable kbcon in cup_kbcon : above kbmax "
 ! ierr(i)=32   ==>  if(maxval(vvel2d(:,i)) < 1.0) then
 ! ierr(i)=13   ==>  if(xmb(i) .le. 0.)then
 ! ierr(i)=14   ==>  if(xmb(i) == 0. ) then 
