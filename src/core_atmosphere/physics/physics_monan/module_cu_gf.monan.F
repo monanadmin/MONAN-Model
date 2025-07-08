@@ -1901,7 +1901,7 @@ module module_cu_gf_monan
       call cup_cloud_limits(cumulus,ierrc,ierr,cap_max_increment,cap_max,heo_cup,heso_cup,qo_cup   &
                            ,qeso_cup,po,po_cup,zo_cup,heo,hkbo,qo,qeso,entr_rate_2d,hcot,k22,kbmax &
                            ,klcl,kbcon,ktop,depth_neg_buoy,frh_bcon,Tpert,start_level,use_excess   &
-                           ,zqexec,ztexec,x_add_buoy,xland,cnvcf,heso,itf,ktf,its,ite, kts,kte)
+                           ,zqexec,ztexec,x_add_buoy,xland,cnvcf,heso,wlpool,itf,ktf,its,ite, kts,kte)
       !
       !--- scale dependence factor (sig)
       !
@@ -2002,6 +2002,7 @@ module module_cu_gf_monan
       if(convection_tracer == 1) then 
             wlpool_bcon  (:) = wlpool(:)
             ke_gustfront (:) = 0.5 * max(wlpool_bcon(:)**2,  zws(:)**2) + 1.e-6
+            !print*,'ke',maxval(ke_gustfront),minval(ke_gustfront),maxval(cap_max)
             if(cumulus /= 'shallow')then
                call cup_up_aa0(cin1,zo_cup,zuo,dbyo ,GAMMAo_CUP   ,tn_cup  ,k22,klcl,kbcon,ktop &
                               ,ierr,itf,ktf,its,ite, kts,kte,'CIN')
@@ -4351,7 +4352,7 @@ module module_cu_gf_monan
                               ,qeso_cup,po,po_cup,z_cup,heo,hkbo,qo,qeso,entr_rate_2d,hcot&
                               ,k22,kbmax,klcl,kbcon,ktop,depth_neg_buoy,frh,Tpert         &
                               ,start_level_,use_excess,zqexec,ztexec,x_add_buoy,xland,cnvcf &
-                              ,heso,itf,ktf,its,ite, kts,kte)
+                              ,heso,wlpool,itf,ktf,its,ite, kts,kte)
 
       implicit none
       character *(*)            ,intent (in   ) :: name
@@ -4361,7 +4362,7 @@ module module_cu_gf_monan
       integer, dimension (:)    ,intent (inout) :: kbcon,ierr,ktop,klcl,k22
       real,    dimension (:,:)  ,intent (in   ) :: heo_cup,heso_cup,po_cup,z_cup,heo &
                                                   ,qo_cup,qeso_cup,po,qo,qeso,Tpert, heso
-      real,    dimension (:)    ,intent (in   ) :: cap_max_in,cap_inc,xland
+      real,    dimension (:)    ,intent (in   ) :: cap_max_in,cap_inc,xland,wlpool
       real,    dimension (:)    ,intent (in   ) :: zqexec,ztexec,x_add_buoy
       real,    dimension (:)    ,intent (inout) :: hkbo,depth_neg_buoy,frh
       real,    dimension (:,:)  ,intent (in)    :: entr_rate_2d,cnvcf
@@ -4379,7 +4380,7 @@ module module_cu_gf_monan
 
       ktop       (:) = kts
       kbcon      (:) = kts
-      cap_max    (:) = cap_max_in(:)
+      cap_max    (:) = cap_max_in(:)+0.5*wlpool(:)**2
       x_add      (:) = c_alvl*zqexec(:) + c_cp*ztexec(:) + x_add_buoy(:)
       start_level(:) = start_level_(:)
 
@@ -4425,7 +4426,7 @@ module module_cu_gf_monan
             depth_neg_buoy(i) = - (po_cup(kbcon(i),i)-po_cup(start_level(i),i))
 
             !- test if the air parcel has enough energy to reach the positive buoyant region
-!print*,'x=',cap_max(i),depth_neg_buoy(i)
+            !print*,'x=',cap_max(i),depth_neg_buoy(i)
 
             if(cap_max(i) >= depth_neg_buoy(i)) cycle loop0
 
@@ -4440,7 +4441,8 @@ module module_cu_gf_monan
             !- if am here -> kbcon not found for air parcels from k22 level
             k22(i)=k22(i)+1
             !--- increase capmax
-            !if(USE_MEMORY == 2000) cap_max(i)=cap_max(i)+cap_inc(i)
+            !cap_max(i)=cap_max(i)+cap_inc(i)
+            !cap_max(i)=cap_max_in(i)+0.5*wlpool(i)**2
 
             !- get new hkbo
             call get_cloud_bc(name,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i),heo_cup (kts:kte,i) &
