@@ -445,7 +445,7 @@ module module_cu_gf_monan
       real,dimension(ims:ime,kms:kme,jms:jme) ,intent(inout):: rthcuten,rqvcuten,rqccuten,rqicuten &
                                                               ,rucuten,rvcuten,rbuoyxcuten,rcnvcfcuten
 
-       real,dimension(ims:ime,kms:kme,jms:jme) ,intent(inout):: sub3d_rthcuten        &
+      real,dimension(ims:ime,kms:kme,jms:jme) ,intent(inout):: sub3d_rthcuten         &
                                                                ,sub3d_rqvcuten        &
                                                                ,sub3d_rucuten         &
                                                                ,sub3d_rvcuten
@@ -463,7 +463,6 @@ module module_cu_gf_monan
       real :: time= 0., itime1 = 0.
       real:: FSCAV(mtp)
 
- 
       real,    dimension(its:ite,jts:jte) :: aot500 ,sfc_press,col_sat &
                                                     ,stochastic_sig,dx2d
 
@@ -587,7 +586,7 @@ module module_cu_gf_monan
          clwup5d        = 0.0
          tup5d          = 0.0
          conv_cld_fr5d  = 0.0
-         TRACER  (:,:,:,:) = 0.0 
+         TRACER         = 0.0 
       !endif
       !print*,"============================================ in convection"
 
@@ -763,7 +762,7 @@ module module_cu_gf_monan
             do n=1,ens4
                 mconv(i,n) = 0.
                 do k = kts+1, ktf         
-                  dq        = qv_old(k,i)-qv_old(k-1,i)
+                  dq         = qv_old(k,i)-qv_old(k-1,i)
                   mconv(i,n) = mconv(i,n) + omeg(k,i,n)*dq/c_grav
                end do
                mconv(i,n) = max(0., mconv(i,n))
@@ -2182,7 +2181,7 @@ module module_cu_gf_monan
          if( dicycle == 2 ) then
             do vtp_index = get_num_elements(vec_ok),1,-1
                i = get_data_value(vec_ok,vtp_index)
-               if(aa1(i) - aa1_bl(i) < 0.0) then
+               if(( aa1(i) - aa1_bl(i) < 0.0 ) .and. ( x_add_buoy(i) < mx_buoy1 )) then
                   ierr(i)=24 ; is_removed  = remove(vec_ok, i)
                   ierrc(i)='deep:  aa1 - aa1bl < zero'
                endif
@@ -4426,7 +4425,7 @@ module module_cu_gf_monan
             depth_neg_buoy(i) = - (po_cup(kbcon(i),i)-po_cup(start_level(i),i))
 
             !- test if the air parcel has enough energy to reach the positive buoyant region
-print*,'x=',cap_max(i),depth_neg_buoy(i)
+!print*,'x=',cap_max(i),depth_neg_buoy(i)
 
             if(cap_max(i) >= depth_neg_buoy(i)) cycle loop0
 
