@@ -4373,7 +4373,7 @@ module module_cu_gf_monan
                                                   !--- the severity of the thunderstorm.
       integer                      ::   i,k,vtp_index
       integer, dimension (its:ite) ::   start_level
-      real                         ::   dz
+      real                         ::   dz, denom
       real   , dimension (its:ite) ::   x_add,cap_max
       real   , dimension (kts:kte,its:ite) ::   h_env_eff
 
@@ -4400,12 +4400,12 @@ module module_cu_gf_monan
 
             kbcon(i)=start_level(i)
             do k=start_level(i)+1, ktf
-               dz=z_cup(k,i)-z_cup(k-1,i)
+               dz    = z_cup(k,i)-z_cup(k-1,i)
+               denom = 1.+0.5*entr_rate_2d(k-1,i)*dz
                hcot(k,i)= ( (1.-0.5*entr_rate_2d(k-1,i)*dz)*hcot      (k-1,i)     &
-                                  + entr_rate_2d(k-1,i)*dz *h_env_eff (k-1,i) ) / &
-                          (  1.+0.5*entr_rate_2d(k-1,i)*dz)
+                                  + entr_rate_2d(k-1,i)*dz *h_env_eff (k-1,i) ) / denom
                
-               if(k==start_level(i)+1) hcot(k,i) = hcot(k,i) + x_add(i)
+               if(k==start_level(i)+1) hcot(k,i) = hcot(k,i) + x_add(i)*entr_rate_2d(k-1,i)*dz/denom
                
             enddo
 
@@ -7177,20 +7177,34 @@ module module_cu_gf_monan
                entr_frh2d(:,i) = crh1 - rh2d(:,i)
                detr_frh2d(:,i) = crh2 - rh2d(:,i)
          enddo
-      
-      else ! no RH control on entr/detr rates
+         
+         do vtp_index = get_num_elements(vec_ok),1,-1
+              i = get_data_value(vec_ok,vtp_index)
+              do k=kts,ktf    
+                !fq = max(min(1.,(qeso_cup(max(k,klcl(i)),i)/qeso_cup(klcl(i),i))**1.25) ,0.1)
+                 fq = max(min (1. , sqrt (zo_cup(klcl(i),i) / zo_cup(max(k,klcl(i)),i)) ), 0.1)
+                
+                 entr_rate_2d(k,i) = entr_rate(i)*entr_frh2d(k,i)*fq
+              enddo
+         enddo
 
-         entr_frh2d(:,:) = 1.0
-         detr_frh2d(:,:) = 1.0
+      else ! no RH control on entr/detr rates
+         
+         do vtp_index = get_num_elements(vec_ok),1,-1
+              i = get_data_value(vec_ok,vtp_index)
+              do k=kts,ktf    
+                !fq = max(min(1.,(qeso_cup(max(k,klcl(i)),i)/qeso_cup(klcl(i),i))**1.25) ,0.1)
+                 fq = max(min (1. , sqrt (zo_cup(klcl(i),i) / zo_cup(max(k,klcl(i)),i)) ), 0.1)
+                
+                 entr_rate_2d(k,i) = entr_rate(i)*fq
+              enddo
+         enddo
+
       endif
 
       do vtp_index = get_num_elements(vec_ok),1,-1
            i = get_data_value(vec_ok,vtp_index)
            do k=kts,ktf    
-             !fq = max(min(1.,(qeso_cup(max(k,klcl(i)),i)/qeso_cup(klcl(i),i))**1.25) ,0.1)
-              fq = max(min (1. , sqrt (zo_cup(klcl(i),i) / zo_cup(max(k,klcl(i)),i)) ), 0.1)
-             
-              entr_rate_2d(k,i) = entr_rate(i)*entr_frh2d(k,i)*fq
               entr_rate_2d(k,i) = max(entr_rate_2d(k,i),min_entr_rate)
            enddo
       enddo
