@@ -2002,7 +2002,6 @@ module module_cu_gf_monan
       if(convection_tracer == 1) then 
             wlpool_bcon  (:) = wlpool(:)
             ke_gustfront (:) = 0.5 * max(wlpool_bcon(:)**2,  zws(:)**2) + 1.e-6
-            !print*,'ke',maxval(ke_gustfront),minval(ke_gustfront),maxval(cap_max)
             if(cumulus /= 'shallow')then
                call cup_up_aa0(cin1,zo_cup,zuo,dbyo ,GAMMAo_CUP   ,tn_cup  ,k22,klcl,kbcon,ktop &
                               ,ierr,itf,ktf,its,ite, kts,kte,'CIN')
@@ -2486,10 +2485,10 @@ module module_cu_gf_monan
             do k=kts,ktop(i)          
                   dp=100.*(po_cup(k,i)-po_cup(k+1,i))
                   trash=trash+dp
-                  !if(use_pass_cloudvol > 0 ) &
-                  !var2d1(i) = var2d1(i) + cnvcf(k,i)*dp/c_grav
+                  if(use_pass_cloudvol > 0 ) &
+                  var2d2(i) = var2d2(i) + cnvcf(k,i)*dp/c_grav
                   
-                  var2d2(i) = var2d2(i) + entr_rate_2d(k,i)*dp
+                  !var2d2(i) = var2d2(i) + entr_rate_2d(k,i)*dp
                   
                   !if(use_pass_cloudvol == 0 ) &
                   !var2d1(i) = var2d1(i) + entr_rate_2d_initial(k,i)*dp
@@ -4380,7 +4379,7 @@ module module_cu_gf_monan
 
       ktop       (:) = kts
       kbcon      (:) = kts
-      cap_max    (:) = cap_max_in(:)+0.5*wlpool(:)**2
+      cap_max    (:) = cap_max_in(:) !+0.5*wlpool(:)**2
       x_add      (:) = c_alvl*zqexec(:) + c_cp*ztexec(:) + x_add_buoy(:)
       start_level(:) = start_level_(:)
 
@@ -4406,7 +4405,7 @@ module module_cu_gf_monan
                hcot(k,i)= ( (1.-0.5*entr_rate_2d(k-1,i)*dz)*hcot      (k-1,i)     &
                                   + entr_rate_2d(k-1,i)*dz *h_env_eff (k-1,i) ) / denom
                
-               if(k==start_level(i)+1) hcot(k,i) = hcot(k,i) + x_add(i)*entr_rate_2d(k-1,i)*dz/denom
+               if(k==start_level(i)+1) hcot(k,i) = hcot(k,i) + x_add(i) ! *entr_rate_2d(k-1,i)*dz/denom
                
             enddo
 
