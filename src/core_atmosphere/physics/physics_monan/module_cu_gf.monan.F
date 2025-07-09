@@ -4371,7 +4371,7 @@ module module_cu_gf_monan
       real                         :: Z_overshoot !--- height of cloud overshoot is 10% higher than the LNB.
                                                   !--- Typically it can 2 - 2.5km higher, but it depends on
                                                   !--- the severity of the thunderstorm.
-      integer                      ::   i,k,vtp_index
+      integer                      ::   i,k,vtp_index,icount
       integer, dimension (its:ite) ::   start_level
       real                         ::   dz, denom
       real   , dimension (its:ite) ::   x_add,cap_max
@@ -4379,7 +4379,7 @@ module module_cu_gf_monan
 
       ktop       (:) = kts
       kbcon      (:) = kts
-      cap_max    (:) = cap_max_in(:) !+0.5*wlpool(:)**2
+      cap_max    (:) = cap_max_in(:) +10*0.5*wlpool(:)**2
       x_add      (:) = c_alvl*zqexec(:) + c_cp*ztexec(:) + x_add_buoy(:)
       start_level(:) = start_level_(:)
 
@@ -4393,7 +4393,7 @@ module module_cu_gf_monan
       !
       loop0: do vtp_index = get_num_elements(vec_ok),1,-1
          i = get_data_value(vec_ok,vtp_index)
-         
+         icount = 0
          hcot(kts:start_level(i),i) = hkbo(i) ! assumed no entrainment between kts:start_level(i)
 
          loop1:  do while(ierr(i) == 0)
@@ -4428,13 +4428,15 @@ module module_cu_gf_monan
             !print*,'x=',cap_max(i),depth_neg_buoy(i)
 
             if(cap_max(i) >= depth_neg_buoy(i)) cycle loop0
+            
+            icount = icount + 1
 
-            !--- use this for just one search (original k22)
-            !if(cap_max(i) < depth_neg_buoy(i)) then
-            !                    ierr(i)=30
-            !                    ierrc(i)="could not find reasonable kbcon in cup_cloud_limits"
-            !endif
-            !cycle loop0
+            !--- use this for just 'icount = 3' searches (original k22)
+            if(cap_max(i) < depth_neg_buoy(i) .and. icount > 3) then
+                          ierr(i)=30
+                          ierrc(i)="could not find reasonable kbcon in cup_cloud_limits"
+                          cycle loop0
+            endif
             !---
 
             !- if am here -> kbcon not found for air parcels from k22 level
