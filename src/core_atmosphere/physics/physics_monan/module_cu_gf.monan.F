@@ -106,7 +106,7 @@ module module_cu_gf_monan
       ,add_coldpool_diff,n_cldrop,use_gustiness, use_random_num          &
       ,modConvParGF_initialized,use_pass_cloudvol                        &
       ,use_lcl_ctrl_entr,use_rhu_ctrl_entr,cum_min_cloud_depth,use_sub3d &
-      ,cum_fr_min_entr
+      ,cum_fr_min_entr,use_shear_ctrl_entr
 
    public makeDropletNumber,makeIceNumber,FractLiqF                      &
       ,coldPoolStart,readGFConvParNML,initModConvParGF,cu_gf_monan_driver&
@@ -153,6 +153,8 @@ module module_cu_gf_monan
    integer :: use_lcl_ctrl_entr != 0/1     - default 0
 
    integer :: use_rhu_ctrl_entr != 0/1     - default 1
+
+   integer :: use_shear_ctrl_entr!= 0/1     - default 1
 
    integer :: use_pass_cloudvol != 0/1     - default 1
 
@@ -1708,7 +1710,7 @@ module module_cu_gf_monan
         ,daa_adv_dt,wlpool_bcon,xk_x,xf_dicycle,mbdt,xf_coldpool, ke_gustfront             & 
         ,vvel1d, x_add_buoy,lambau_dn,lambau_dp,q_wetbulb,t_wetbulb,col_sat_adv            &
         ,Q_adv,alpha_adv,aa1_radpbl,aa1_adv,p_cwv_ave,cape, depth_neg_buoy,frh_bcon        &
-        ,check_sig,random,rh_entr_factor,rntot,delqev,delq2,qevap,rn,qcond,rainevap
+        ,check_sig,random,rh_entr_factor,rntot,delqev,delq2,qevap,rn,qcond,rainevap,vshear2
       real, dimension (kts:kte) ::xh_env_eff
 
       real, dimension (kts:kte,its:ite) ::                                            &
@@ -1854,6 +1856,11 @@ module module_cu_gf_monan
                             , min_entr_rate, entr_rate)
       end if
       !
+      if( use_shear_ctrl_entr == 1 .and. trim(cumulus) == 'deep') &
+      call get_entr_vshear(cumulus,ierr,us,vs,zo,ktop,kbcon,po,itf,ktf,its,ite, kts,kte &
+                          ,min_entr_rate,entr_rate, vshear2)
+      !
+      !
       !-- determine LCL for the air parcels around K22
       !
       call get_lcl(cumulus,convection_tracer,use_memory,ave_layer,its,ite,itf,kts,kte,ktf,ierr &
@@ -1873,9 +1880,8 @@ module module_cu_gf_monan
                   ierrc(i)='for shallow convection:  LCL height < PBL height'
             endif
          enddo
-      endif 
-      !
-      !
+      endif
+       !
       !--- determine the vertical entrainment/detrainment rates, the level of convective cloud base -kbcon-
       !--- and the scale dependence factor (sig).
       !
@@ -6233,7 +6239,7 @@ module module_cu_gf_monan
          ,use_memory, add_coldpool_prop ,mx_buoy1, mx_buoy2,max_tq_tend           &
          ,add_coldpool_clos,add_coldpool_trig,add_coldpool_diff,n_cldrop          &
          ,output_sound,use_pass_cloudvol,use_lcl_ctrl_entr,use_rhu_ctrl_entr      &
-         ,cum_min_cloud_depth,use_sub3d,cum_fr_min_entr
+         ,cum_min_cloud_depth,use_sub3d,cum_fr_min_entr,use_shear_ctrl_entr
 
       if(present(IO_NODE)) then 
          local_io_node = IO_NODE
@@ -6322,6 +6328,7 @@ module module_cu_gf_monan
          print*, 'use_pass_cloudvol  ' , use_pass_cloudvol
          print*, 'use_lcl_ctrl_entr  ' , use_lcl_ctrl_entr
          print*, 'use_rhu_ctrl_entr  ' , use_rhu_ctrl_entr
+         print*, 'use_shear_ctrl_entr' , use_shear_ctrl_entr
 
          print*,'!--- controls rainfall evaporation'
          print*, 'use_rebcb          ' , use_rebcb
@@ -8682,7 +8689,7 @@ module module_cu_gf_monan
       use_lcl_ctrl_entr = 0
       use_pass_cloudvol = 0
       use_rhu_ctrl_entr = 1
-
+      use_shear_ctrl_entr=0
       use_tracer_transp = 0 
       use_tracer_scaven = 2 
       use_tracer_evap   = 1 
@@ -10945,7 +10952,51 @@ module module_cu_gf_monan
          evap_bcb(:,:) = 0.0
 
       end subroutine reset_2d
-!---------------------------------------------------------------------------------------------!s
+!---------------------------------------------------------------------------------------------!
+      subroutine get_entr_vshear(cumulus,ierr,us,vs,zo,ktop,kbcon,po,itf,ktf,its,ite, kts,kte &
+                                ,min_entr_rate,entr_rate, vshear)
+      implicit none
+      character *(*)  ,intent (in) :: cumulus
+      integer         ,intent (in) :: itf,ktf,its,ite, kts,kte
+      !
+      integer, dimension (:)  ,intent (in   ) :: ktop,kbcon
+      real,                    intent(in    ) :: min_entr_rate
+      real,    dimension (:,:),intent (in   ) :: us,vs,zo,po
+
+      integer, dimension (:)  ,intent (inout) :: ierr
+      real,    dimension (:)  ,intent (inout) :: entr_rate
+      real,    dimension (:)  ,intent (out  ) :: vshear
+
+      !- local var
+      !- levels for shear calculation
+      integer, parameter :: k975  = 3        ! approx surface level
+      real,    parameter :: p650  = 650., & ! upper level of shear calculation
+                            width =  30., & ! how fast the entr will change larger=> slower (m/s)
+                            turnw =  12.    ! shear where the changing of entr starts (m/s)
+      integer :: i,vtp_index,k650
+      real    :: u650, u975, v650, v975, shear_scale
+
+      do vtp_index = get_num_elements(vec_ok),1,-1; i = get_data_value(vec_ok,vtp_index)
+         k650 = minloc( abs(po(kts:ktf,i)-p650),1 )
+
+         !-- v1 
+         u650 = sqrt(us(k650,i)*us(k650,i) + vs(k650,i)*vs(k650,i))
+         u975 = sqrt(us(k975,i)*us(k975,i) + vs(k975,i)*vs(k975,i))
+         vshear(i) = abs(u650-u975)
+         !print*,'A',po(k650,i),po(k975,i),vshear(i)
+
+         !-- v2
+         u650 = us(k650,i) ; v650 = vs(k650,i)
+         u975 = us(k975,i) ; v975 = vs(k975,i)
+         vshear(i) = sqrt( (u650-u975)**2 + (v650-v975)**2 )
+         !print*,'B',po(k650,i),po(k975,i),vshear(i)
+
+         shear_scale  = 1.5/(1.5+atan(2.*(vshear(i) - turnw)/width))
+         shear_scale  = min(1., max(shear_scale,0.1))
+         entr_rate(i) = max(shear_scale*entr_rate(i), min_entr_rate)
+      enddo
+
+      end subroutine get_entr_vshear
 !---------------------------------------------------------------------------------------------!
 !- list of ierr reasons:
 ! ierr(i)=21   ==>  ierrc(i)='for shallow convection:  LCL height < PBL height'
