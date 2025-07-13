@@ -106,7 +106,7 @@ module module_cu_gf_monan
       ,add_coldpool_diff,n_cldrop,use_gustiness, use_random_num          &
       ,modConvParGF_initialized,use_pass_cloudvol                        &
       ,use_lcl_ctrl_entr,use_rhu_ctrl_entr,cum_min_cloud_depth,use_sub3d &
-      ,cum_fr_min_entr,use_shear_ctrl_entr
+      ,cum_fr_min_entr,use_shear_ctrl_entr,use_cwv_ctrl_entr
 
    public makeDropletNumber,makeIceNumber,FractLiqF                      &
       ,coldPoolStart,readGFConvParNML,initModConvParGF,cu_gf_monan_driver&
@@ -155,6 +155,8 @@ module module_cu_gf_monan
    integer :: use_rhu_ctrl_entr != 0/1     - default 1
 
    integer :: use_shear_ctrl_entr!= 0/1     - default 1
+
+   integer :: use_cwv_ctrl_entr != 0/1     - default 1
 
    integer :: use_pass_cloudvol != 0/1     - default 1
 
@@ -298,7 +300,7 @@ module module_cu_gf_monan
    !
    !- proportionality constant to estimate pressure
    !- gradient of updraft (Zhang and Wu, 2003, JAS) => REAL, PARAMETER ::    pgcon=-0.55
-   real, parameter ::    pgcon= 0.0
+   real, parameter :: pgcon= 0.0
 
    integer, parameter :: MAX_NSPEC=200
    integer           ,dimension(MAX_NSPEC)    :: ind_chem
@@ -1819,10 +1821,6 @@ module module_cu_gf_monan
                        ,heso_cup,zo_cup,po_cup,gammao_cup ,tn_cup,psur,tsur,ierr,z1            &
                        ,itf,ktf,its,ite, kts,kte)
       !
-      !-- get the pickup of ensemble ave prec, following Neelin et al 2009.
-      !
-      !call precip_cwv_factor(itf,ktf,its,ite,kts,kte,ierr,tn,po,qo,po_cup,cumulus,p_cwv_ave)
-      !
       !
       !-- partition between liq/ice cloud contents
       !
@@ -1857,8 +1855,13 @@ module module_cu_gf_monan
       end if
       !
       if( use_shear_ctrl_entr == 1 .and. trim(cumulus) == 'deep') &
-      call get_entr_vshear(cumulus,ierr,us,vs,zo,ktop,kbcon,po,itf,ktf,its,ite, kts,kte &
-                          ,min_entr_rate,entr_rate, vshear2)
+         call get_entr_vshear(cumulus,ierr,us,vs,zo,ktop,kbcon,po,itf,ktf,its,ite, kts,kte &
+                             ,min_entr_rate,entr_rate, vshear2,var2d2)
+      !
+      !-- get the pickup of ensemble ave prec, following Neelin et al 2009.
+      if( use_cwv_ctrl_entr == 1 .and. trim(cumulus) == 'deep') &
+         call precip_cwv_factor(itf,ktf,its,ite,kts,kte,ierr,tn,po,qo,po_cup,cumulus,p_cwv_ave &
+                               ,min_entr_rate,entr_rate)
       !
       !
       !-- determine LCL for the air parcels around K22
@@ -2184,12 +2187,20 @@ module module_cu_gf_monan
             aa1_bl(i) = min(2000., abs(aa1_bl(i)))*sign(1.,aa1_bl(i))
          enddo
          
-         if( dicycle == 2 ) then
+         if( dicycle == 2 .or. dicycle == 3 ) then
             do vtp_index = get_num_elements(vec_ok),1,-1
                i = get_data_value(vec_ok,vtp_index)
+               if( dicycle == 2) then 
                if(( aa1(i) - aa1_bl(i) < 0.0 ) .and. ( x_add_buoy(i) < mx_buoy1 )) then
                   ierr(i)=24 ; is_removed  = remove(vec_ok, i)
-                  ierrc(i)='deep:  aa1 - aa1bl < zero'
+                     ierrc(i)='deep: aa1-aa1bl<zero .and. x_add_buoy(i)<mx_buoy1'
+                  endif
+               endif
+               if( dicycle == 3) then 
+                  if(( aa1(i) - aa1_bl(i) < 0.0 ) .and. ( x_add_buoy(i) < mx_buoy1 )  .and. ( vshear2(i) >  0.9 ) ) then
+                     ierr(i)=26 ; is_removed  = remove(vec_ok, i)
+                     ierrc(i)='deep: aa1-aa1bl<zero .and. x_add_buoy(i)<mx_buoy1 .and. vshear2(i)>0.9'
+                  endif
                endif
             enddo
          endif
@@ -2480,26 +2491,28 @@ module module_cu_gf_monan
       !
       if( trim(cumulus) == 'deep') then
         !var2d1(:) = 0.0
+        !var2d2(:) = vshear2(:)
         !var2d1(:) = x_add_buoy(:)
          do i=its,itf
-           var2d1(i) = maxval( buoy_exc(kts:ktop(i),i) )
+           !var2d1(i) = maxval( buoy_exc(kts:ktop(i),i) )
+           var2d1(i) = p_cwv_ave(i)
          enddo
-         var2d2(:) = 0.0
+         !var2d2(:) = 0.0
          do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
             trash = 1.e-12
             do k=kts,ktop(i)          
                   dp=100.*(po_cup(k,i)-po_cup(k+1,i))
                   trash=trash+dp
-                  if(use_pass_cloudvol > 0 ) &
-                  var2d2(i) = var2d2(i) + cnvcf(k,i)*dp/c_grav
+                  !if(use_pass_cloudvol > 0 ) &
+                  !var2d2(i) = var2d2(i) + cnvcf(k,i)*dp/c_grav
                   
                   !var2d2(i) = var2d2(i) + entr_rate_2d(k,i)*dp
                   
                   !if(use_pass_cloudvol == 0 ) &
                   !var2d1(i) = var2d1(i) + entr_rate_2d_initial(k,i)*dp
             enddo
-            var2d2(i) = var2d2(i)/trash 
+            !var2d2(i) = var2d2(i)/trash 
             !var2d1(i) = var2d1(i)/trash 
          enddo
       endif
@@ -4374,6 +4387,7 @@ module module_cu_gf_monan
       real,    dimension (:,:)  ,intent (inout) :: hcot
 
       !  local variables in this routine
+      real, parameter :: cap_max_wlpool = 0.0
       real                         :: Z_overshoot !--- height of cloud overshoot is 10% higher than the LNB.
                                                   !--- Typically it can 2 - 2.5km higher, but it depends on
                                                   !--- the severity of the thunderstorm.
@@ -4385,7 +4399,7 @@ module module_cu_gf_monan
 
       ktop       (:) = kts
       kbcon      (:) = kts
-      cap_max    (:) = cap_max_in(:) +10*0.5*wlpool(:)**2
+      cap_max    (:) = cap_max_in(:) + cap_max_wlpool * (0.5*wlpool(:)**2)
       x_add      (:) = c_alvl*zqexec(:) + c_cp*ztexec(:) + x_add_buoy(:)
       start_level(:) = start_level_(:)
 
@@ -5569,20 +5583,23 @@ module module_cu_gf_monan
 
    end subroutine get_jmin
    !------------------------------------------------------------------------------------
-   subroutine precip_cwv_factor(itf,ktf,its,ite,kts,kte,ierr,t,po,qo,po_cup,cumulus,p_cwv_ave)
+   subroutine precip_cwv_factor(itf,ktf,its,ite,kts,kte,ierr,t,po,qo,po_cup,cumulus &
+                               ,p_cwv_ave,min_entr_rate,entr_rate)
       implicit none
       !Parameters:
       character(len=*), parameter :: procedureName = 'precipCwvFactor' ! Subroutine Name
 
       character *(*), intent (in)             :: cumulus
       integer  ,intent (in )                  :: itf,ktf, its,ite, kts,kte
-      integer  ,intent (in ), dimension(:)    :: ierr
-      real     ,intent (in ), dimension(:,:)  :: t,po,qo,po_cup
-      real     ,intent (out), dimension(:)    :: p_cwv_ave
+      integer  ,intent (in ),  dimension(:)   :: ierr
+      real     ,intent(in  )                  :: min_entr_rate
+      real     ,intent (in ),  dimension(:,:) :: t,po,qo,po_cup
+      real     ,intent (out),  dimension(:)   :: p_cwv_ave
+      real     ,intent (inout),dimension(:)   :: entr_rate
 
       !--locals
       integer :: i,k, vtp_index
-      real    :: dp, trash
+      real    :: dp, trash, tun
       real, dimension(its:ite) :: w_col,w_ccrit,t_troposph
       real, parameter :: fpkup=0.8  !-- 90% of precip occurs above 80% of critical w
 
@@ -5595,7 +5612,8 @@ module module_cu_gf_monan
       w_ccrit   (its:itf) = 0.    
       t_troposph(its:itf) = 0. 
 
-      do vtp_index = 1, get_num_elements(vec_ok); i = get_data_value(vec_ok,vtp_index)
+     !do vtp_index = 1, get_num_elements(vec_ok); i = get_data_value(vec_ok,vtp_index)
+      do i=its,itf
          trash=0.
          loopN:    do k=kts,ktf
             if(po(k,i) .lt. 200.) exit loopN
@@ -5617,9 +5635,12 @@ module module_cu_gf_monan
          !
          p_cwv_ave(i) = (max(0.,w_col(i)-fpkup*w_ccrit(i))/(1.e-8+fpkup*w_ccrit(i)))**0.23
          p_cwv_ave(i) = max(0., min(1., p_cwv_ave(i)))
+         
+         tun = min(1.,1.4*p_cwv_ave(i)) ; tun = 1.3 - tun
+         entr_rate(i) = max(tun*entr_rate(i), min_entr_rate)
 
-           !print*,"NEE=",i,w_col(i),t_troposph(i),w_ccrit(i),p_cwv_ave    (i)
-           !print*,"=================================================="
+         !print*,"NEE=",i,w_col(i),t_troposph(i),w_ccrit(i),p_cwv_ave    (i)
+         !print*,"=================================================="
       enddo
    end subroutine precip_cwv_factor
    !------------------------------------------------------------------------------------
@@ -6239,7 +6260,8 @@ module module_cu_gf_monan
          ,use_memory, add_coldpool_prop ,mx_buoy1, mx_buoy2,max_tq_tend           &
          ,add_coldpool_clos,add_coldpool_trig,add_coldpool_diff,n_cldrop          &
          ,output_sound,use_pass_cloudvol,use_lcl_ctrl_entr,use_rhu_ctrl_entr      &
-         ,cum_min_cloud_depth,use_sub3d,cum_fr_min_entr,use_shear_ctrl_entr
+         ,cum_min_cloud_depth,use_sub3d,cum_fr_min_entr,use_shear_ctrl_entr       &
+         ,use_cwv_ctrl_entr
 
       if(present(IO_NODE)) then 
          local_io_node = IO_NODE
@@ -6329,6 +6351,7 @@ module module_cu_gf_monan
          print*, 'use_lcl_ctrl_entr  ' , use_lcl_ctrl_entr
          print*, 'use_rhu_ctrl_entr  ' , use_rhu_ctrl_entr
          print*, 'use_shear_ctrl_entr' , use_shear_ctrl_entr
+         print*, 'use_cwv_ctrl_entr  ' , use_cwv_ctrl_entr
 
          print*,'!--- controls rainfall evaporation'
          print*, 'use_rebcb          ' , use_rebcb
@@ -8690,6 +8713,7 @@ module module_cu_gf_monan
       use_pass_cloudvol = 0
       use_rhu_ctrl_entr = 1
       use_shear_ctrl_entr=0
+      use_cwv_ctrl_entr = 0
       use_tracer_transp = 0 
       use_tracer_scaven = 2 
       use_tracer_evap   = 1 
@@ -10954,7 +10978,7 @@ module module_cu_gf_monan
       end subroutine reset_2d
 !---------------------------------------------------------------------------------------------!
       subroutine get_entr_vshear(cumulus,ierr,us,vs,zo,ktop,kbcon,po,itf,ktf,its,ite, kts,kte &
-                                ,min_entr_rate,entr_rate, vshear)
+                                ,min_entr_rate,entr_rate, vshear,var2d2)
       implicit none
       character *(*)  ,intent (in) :: cumulus
       integer         ,intent (in) :: itf,ktf,its,ite, kts,kte
@@ -10965,24 +10989,25 @@ module module_cu_gf_monan
 
       integer, dimension (:)  ,intent (inout) :: ierr
       real,    dimension (:)  ,intent (inout) :: entr_rate
-      real,    dimension (:)  ,intent (out  ) :: vshear
+      real,    dimension (:)  ,intent (out  ) :: vshear,var2d2
 
       !- local var
       !- levels for shear calculation
-      integer, parameter :: k975  = 3        ! approx surface level
+      integer, parameter :: k975  = 3       ! approx surface level
       real,    parameter :: p650  = 650., & ! upper level of shear calculation
-                            width =  30., & ! how fast the entr will change larger=> slower (m/s)
+                            width =  10., & !30., & ! how fast the entr will change larger=> slower (m/s)
                             turnw =  12.    ! shear where the changing of entr starts (m/s)
-      integer :: i,vtp_index,k650
+      real,    parameter :: xexp  = 1.
+      integer :: i,k650
       real    :: u650, u975, v650, v975, shear_scale
 
-      do vtp_index = get_num_elements(vec_ok),1,-1; i = get_data_value(vec_ok,vtp_index)
+      do i=its,itf
          k650 = minloc( abs(po(kts:ktf,i)-p650),1 )
 
          !-- v1 
-         u650 = sqrt(us(k650,i)*us(k650,i) + vs(k650,i)*vs(k650,i))
-         u975 = sqrt(us(k975,i)*us(k975,i) + vs(k975,i)*vs(k975,i))
-         vshear(i) = abs(u650-u975)
+         !u650 = sqrt(us(k650,i)*us(k650,i) + vs(k650,i)*vs(k650,i))
+         !u975 = sqrt(us(k975,i)*us(k975,i) + vs(k975,i)*vs(k975,i))
+         !vshear(i) = abs(u650-u975)
          !print*,'A',po(k650,i),po(k975,i),vshear(i)
 
          !-- v2
@@ -10992,7 +11017,10 @@ module module_cu_gf_monan
          !print*,'B',po(k650,i),po(k975,i),vshear(i)
 
          shear_scale  = 1.5/(1.5+atan(2.*(vshear(i) - turnw)/width))
-         shear_scale  = min(1., max(shear_scale,0.1))
+         shear_scale  = shear_scale**xexp
+         shear_scale  = min(1., max(shear_scale,0.01))
+         var2d2(i)    = shear_scale
+
          entr_rate(i) = max(shear_scale*entr_rate(i), min_entr_rate)
       enddo
 
