@@ -154,12 +154,12 @@
     do iCell = 1, nCells
 
       !---srf 
-      do ns = 1, nSoilLevels
-         if (smois(ns,iCell) < 0.99) then 
-            smois(ns,iCell) = 0.7* smois(ns,iCell)
-            soil_moisture_adjustment = .true.
-         endif
-      enddo
+      !do ns = 1, nSoilLevels
+      !   if (smois(ns,iCell) < 0.99) then 
+      !      smois(ns,iCell) = 0.7* smois(ns,iCell)
+      !      soil_moisture_adjustment = .true.
+      !   endif
+      !enddo
       !---srf
 
        bx = bb(isltyp(iCell))

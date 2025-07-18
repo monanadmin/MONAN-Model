@@ -1854,14 +1854,14 @@ module module_cu_gf_monan
                             , min_entr_rate, entr_rate)
       end if
       !
-      if( use_shear_ctrl_entr == 1 .and. trim(cumulus) == 'deep') &
-         call get_entr_vshear(cumulus,ierr,us,vs,zo,ktop,kbcon,po,itf,ktf,its,ite, kts,kte &
-                             ,min_entr_rate,entr_rate, vshear2,var2d2)
+      if( use_shear_ctrl_entr > 0 .and. trim(cumulus) == 'deep') &
+         call get_entr_vshear(cumulus,ierr,us,vs,zo,ktop,kbcon,klcl,po,itf,ktf,its,ite, kts,kte &
+                             ,min_entr_rate,entr_rate, vshear2,var2d2,qo,x_add_buoy,zqexec)
       !
       !-- get the pickup of ensemble ave prec, following Neelin et al 2009.
       if( use_cwv_ctrl_entr == 1 .and. trim(cumulus) == 'deep') &
          call precip_cwv_factor(itf,ktf,its,ite,kts,kte,ierr,tn,po,qo,po_cup,cumulus,p_cwv_ave &
-                               ,min_entr_rate,entr_rate)
+                               ,min_entr_rate,entr_rate,var2d1)
       !
       !
       !-- determine LCL for the air parcels around K22
@@ -2138,7 +2138,7 @@ module module_cu_gf_monan
 
                  !- time-scale cape removal from Bechtold et al. 2008
                  tau_ecmwf(i)=( zo_cup(ktop(i),i)- zo_cup(kbcon(i),i) ) / wmean(i)
-                 tau_ecmwf(i)= min(10800., max(600.,tau_ecmwf(i)))
+                 tau_ecmwf(i)= min(10800., max(1200.,tau_ecmwf(i)))
 
               enddo
            endif
@@ -2156,8 +2156,8 @@ module module_cu_gf_monan
                     alpha_cats = 1. + (log(1.e+4/dx(i)))**2
                  endif
                  tau_ecmwf(i)=alpha_cats*(zo_cup(ktop(i),i)- zo_cup(kbcon(i),i)) / wmean(i)
-                 tau_ecmwf(i)= min(10800., max(720.,tau_ecmwf(i)))
-                 !tau_ecmwf(i)= min(10800., max(1200.,tau_ecmwf(i)))
+                !tau_ecmwf(i)= min(10800., max(720.,tau_ecmwf(i)))
+                 tau_ecmwf(i)= min(10800., max(1200.,tau_ecmwf(i)))
               enddo
            endif
       endif
@@ -2494,8 +2494,8 @@ module module_cu_gf_monan
         !var2d2(:) = vshear2(:)
         !var2d1(:) = x_add_buoy(:)
          do i=its,itf
-           !var2d1(i) = maxval( buoy_exc(kts:ktop(i),i) )
-           var2d1(i) = p_cwv_ave(i)
+           var2d1(i) = maxval( buoy_exc(kts:ktop(i),i) )
+           !var2d1(i) = p_cwv_ave(i)
          enddo
          !var2d2(:) = 0.0
          do vtp_index = get_num_elements(vec_ok),1,-1
@@ -3287,7 +3287,6 @@ module module_cu_gf_monan
                              ,entr_rate_2d,itest,itf,ktf,its,ite, kts,kte,z1,dtime,cnvcf,qes )
 
       implicit none
-      real, parameter :: FRACT = 1.
       !
       !  on input
       integer  ,intent (in   ) ::  use_excess,itest,itf,ktf    &
@@ -3328,7 +3327,7 @@ module module_cu_gf_monan
 
       real,   dimension (:,:)     ,intent (out)   :: qc,qrc,pw,clw_all,tempc
       real,   dimension (:)       ,intent (out)   :: pwav,psum,psumh
-      character(len=128)               ,intent (inout) :: ierrc(:)
+      character(len=128)          ,intent (inout) :: ierrc(:)
       !
       !  local variables in this routine
       !
@@ -3358,7 +3357,7 @@ module module_cu_gf_monan
       do vtp_index = get_num_elements(vec_ok),1,-1
          i = get_data_value(vec_ok,vtp_index)
          call get_cloud_bc(name,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i),qe_cup (kts:kte,i),qaver,k22(i))
-         qc  (kts:start_level(i),i) = qaver + zqexec(i) + FRACT* x_add_buoy(i)/c_alvl
+         qc  (kts:start_level(i),i) = qaver + zqexec(i) + x_add_buoy(i)/c_alvl
          qrc (kts:start_level(i),i) = 0.
       enddo
 
@@ -3394,7 +3393,7 @@ module module_cu_gf_monan
                                                  up_massentr(k-1,i)* q_env_eff(k-1))/ denom
 
             if(k==start_level(i)+1) &
-            qc(k,i)= qc(k,i) + (zqexec(i) + FRACT*x_add_buoy(i)/c_alvl) * up_massentr(k-1,i)/denom
+            qc(k,i)= qc(k,i) + (zqexec(i) + x_add_buoy(i)/c_alvl) * up_massentr(k-1,i)/denom
 
             !--- assuming no liq/ice water in the environment
             qrc(k,i)=  (qrc(k-1,i)*zu(k-1,i)-.5*up_massdetr(k-1,i)* qrc(k-1,i))/ denom
@@ -4425,7 +4424,7 @@ module module_cu_gf_monan
                hcot(k,i)= ( (1.-0.5*entr_rate_2d(k-1,i)*dz)*hcot      (k-1,i)     &
                                   + entr_rate_2d(k-1,i)*dz *h_env_eff (k-1,i) ) / denom
                
-               if(k==start_level(i)+1) hcot(k,i) = hcot(k,i) + x_add(i) ! *entr_rate_2d(k-1,i)*dz/denom
+               if(k==start_level(i)+1) hcot(k,i) = hcot(k,i) + x_add(i)*entr_rate_2d(k-1,i)*dz/denom
                
             enddo
 
@@ -4725,7 +4724,7 @@ module module_cu_gf_monan
       !--- calculate ensemble average mass fluxes
       !
       if(cumulus == 'deep') then
-      do vtp_index = get_num_elements(vec_ok),1,-1
+         do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
             xmb_ave(i)=0.
             do n=1,maxens3
@@ -5584,7 +5583,7 @@ module module_cu_gf_monan
    end subroutine get_jmin
    !------------------------------------------------------------------------------------
    subroutine precip_cwv_factor(itf,ktf,its,ite,kts,kte,ierr,t,po,qo,po_cup,cumulus &
-                               ,p_cwv_ave,min_entr_rate,entr_rate)
+                               ,p_cwv_ave,min_entr_rate,entr_rate,var2d1)
       implicit none
       !Parameters:
       character(len=*), parameter :: procedureName = 'precipCwvFactor' ! Subroutine Name
@@ -5595,7 +5594,7 @@ module module_cu_gf_monan
       real     ,intent(in  )                  :: min_entr_rate
       real     ,intent (in ),  dimension(:,:) :: t,po,qo,po_cup
       real     ,intent (out),  dimension(:)   :: p_cwv_ave
-      real     ,intent (inout),dimension(:)   :: entr_rate
+      real     ,intent (inout),dimension(:)   :: entr_rate,var2d1
 
       !--locals
       integer :: i,k, vtp_index
@@ -5604,7 +5603,7 @@ module module_cu_gf_monan
       real, parameter :: fpkup=0.8  !-- 90% of precip occurs above 80% of critical w
 
       p_cwv_ave = 0.0
-      if(cumulus /= 'deep') return
+      !if(cumulus /= 'deep') return
       !
       !-- get the pickup of ensemble ave prec, following Neelin et al 2009.
       !
@@ -5636,9 +5635,9 @@ module module_cu_gf_monan
          p_cwv_ave(i) = (max(0.,w_col(i)-fpkup*w_ccrit(i))/(1.e-8+fpkup*w_ccrit(i)))**0.23
          p_cwv_ave(i) = max(0., min(1., p_cwv_ave(i)))
          
-         tun = min(1.,1.4*p_cwv_ave(i)) ; tun = 1.3 - tun
+         tun = min(1.,1.4*p_cwv_ave(i)) ; tun = max( 1.2 - tun, 1.e-5)
          entr_rate(i) = max(tun*entr_rate(i), min_entr_rate)
-
+         var2d1   (i) = tun
          !print*,"NEE=",i,w_col(i),t_troposph(i),w_ccrit(i),p_cwv_ave    (i)
          !print*,"=================================================="
       enddo
@@ -6769,10 +6768,10 @@ module module_cu_gf_monan
             x_add_buoy (i) = maxval(buoy_exc (kts:ktf,i))
             x_add_buoy (i) = min (x_add_buoy (i),mx_buoy2)
 
-            if(x_add_buoy (i) > mx_buoy1 ) then 
-                zqexec(i) = 0.
-                ztexec(i) = 0.
-            endif
+            !if(x_add_buoy (i) > mx_buoy1 ) then 
+            !    zqexec(i) = 0.
+            !    ztexec(i) = 0.
+            !endif
          enddo
       endif 
       !-- change entrainment due improved cloud organization
@@ -8843,7 +8842,7 @@ module module_cu_gf_monan
 
    end function   
       !---------------------------------------------------------------------------------------------------------------------------
-      subroutine gateSoundings(its, itf, jl, kte, kts, ktf, ierr, jmin, k22, kbcon, klcl, ktop, aa1, cd, clfrac, dby, dd_massentro &
+   subroutine gateSoundings(its, itf, jl, kte, kts, ktf, ierr, jmin, k22, kbcon, klcl, ktop, aa1, cd, clfrac, dby, dd_massentro &
                              , dd_massdetro, dellah, dellaq, dellaqc, dtime, edto, entr_rate_2d, evap_bcb, hc, hco, he_cup, HKB &
                              , massf, massi, melting_layer, mpcf, mpqi, mpql, out_chem, outmpcf, outmpqi, outmpql, outnice, outnliq &
                              , outq, outqc, outt, outu, outv, p_liq_ice, po, po_cup, pre, prec_flx, pwdo, pwo, q_cup, q_in, qcdo, qco &
@@ -9128,8 +9127,8 @@ module module_cu_gf_monan
             end if
          end do
 
-      end subroutine gateSoundings 
-      !---------------------------------------------------------------------------------------------------
+   end subroutine gateSoundings 
+   !---------------------------------------------------------------------------------------------------
    real function satur_spec_hum(pt,press) result(pqsat)
          implicit none
          real   , intent(in ) :: pt,press ! Kelvin, hPa
@@ -9168,7 +9167,7 @@ module module_cu_gf_monan
 !--------------------------------------------------------------------------------------------!
 !- section for atmospheric composition
 !--------------------------------------------------------------------------------------------!
-      subroutine tracerConvTransGF(its, itf, jl, jmin, ite, kts, kte, ktf, mtp, chem_name_mask, ave_layer, ierr, k22, ktop &
+   subroutine tracerConvTransGF(its, itf, jl, jmin, ite, kts, kte, ktf, mtp, chem_name_mask, ave_layer, ierr, k22, ktop &
                            ,   start_level, dd_massdetro, dd_massentro, dtime, edto, fscav, po, po_cup, pw_up_chem &
                            ,   pwavo, pwevo, pwdo, pwo, qrco, sc_up_chem, tempco, tot_pw_up_chem &
                            ,   up_massdetro, up_massentro, vvel2d, xland, zdo, zo_cup, zuo, cumulus &
@@ -10977,15 +10976,16 @@ module module_cu_gf_monan
 
       end subroutine reset_2d
 !---------------------------------------------------------------------------------------------!
-      subroutine get_entr_vshear(cumulus,ierr,us,vs,zo,ktop,kbcon,po,itf,ktf,its,ite, kts,kte &
-                                ,min_entr_rate,entr_rate, vshear,var2d2)
+      subroutine get_entr_vshear(cumulus,ierr,us,vs,zo,ktop,kbcon,klcl,po,itf,ktf,its,ite, kts,kte &
+                                ,min_entr_rate,entr_rate, vshear,var2d2,qo,x_add_buoy,zqexec)
       implicit none
       character *(*)  ,intent (in) :: cumulus
       integer         ,intent (in) :: itf,ktf,its,ite, kts,kte
       !
-      integer, dimension (:)  ,intent (in   ) :: ktop,kbcon
+      integer, dimension (:)  ,intent (in   ) :: ktop,kbcon,klcl
       real,                    intent(in    ) :: min_entr_rate
-      real,    dimension (:,:),intent (in   ) :: us,vs,zo,po
+      real,    dimension (:)  ,intent (in   ) :: x_add_buoy,zqexec
+      real,    dimension (:,:),intent (in   ) :: us,vs,zo,po,qo
 
       integer, dimension (:)  ,intent (inout) :: ierr
       real,    dimension (:)  ,intent (inout) :: entr_rate
@@ -10996,34 +10996,50 @@ module module_cu_gf_monan
       integer, parameter :: k975  = 3       ! approx surface level
       real,    parameter :: p650  = 650., & ! upper level of shear calculation
                             width =  10., & !30., & ! how fast the entr will change larger=> slower (m/s)
-                            turnw =  12.    ! shear where the changing of entr starts (m/s)
-      real,    parameter :: xexp  = 1.
+                            turnw =  8.    ! shear where the changing of entr starts (m/s)
+      real,    parameter :: xexp  = 2.
+      real,    parameter :: alpha = 0.12
+      real,    parameter :: beta  = 0.32
+      real,    parameter :: H0    = 11.0      
       integer :: i,k650
-      real    :: u650, u975, v650, v975, shear_scale
+      real    :: u650, u975, v650, v975, H
+      real,    dimension (its:itf) :: scale_factor
+      
+      scale_factor = 1.0
+      do i=its,itf 
+           k650 = minloc( abs(po(kts:ktf,i)-p650),1 )
+           !-- v1 
+           !u650 = sqrt(us(k650,i)*us(k650,i) + vs(k650,i)*vs(k650,i))
+           !u975 = sqrt(us(k975,i)*us(k975,i) + vs(k975,i)*vs(k975,i))
+           !vshear(i) = abs(u650-u975)
+           !print*,'A',po(k650,i),po(k975,i),vshear(i)
+
+           !-- v2
+           u650 = us(k650,i) ; v650 = vs(k650,i)
+           u975 = us(k975,i) ; v975 = vs(k975,i)
+           vshear(i) = sqrt( (u650-u975)**2 + (v650-v975)**2 )
+           !print*,'B',po(k650,i),po(k975,i),vshear(i)
+      enddo
+            
+      if( use_shear_ctrl_entr == 1 ) then
+        do i=its,itf
+           scale_factor(i)  = 1.5/(1.5+atan(2.*(vshear(i) - turnw)/width))
+           scale_factor(i)  = scale_factor(i)**xexp
+        enddo
+      endif
+
+      if( use_shear_ctrl_entr == 2 ) then
+        do i=its,itf
+           H = ( qo(klcl(i),i) + zqexec(i) + x_add_buoy(i)/c_alvl )*1.e+3 ! g/kg
+           scale_factor(i) = (1.0 - exp(-alpha * vshear(i))) * (1.0 - exp(-beta * (H - H0)))
+        enddo
+      endif
 
       do i=its,itf
-         k650 = minloc( abs(po(kts:ktf,i)-p650),1 )
-
-         !-- v1 
-         !u650 = sqrt(us(k650,i)*us(k650,i) + vs(k650,i)*vs(k650,i))
-         !u975 = sqrt(us(k975,i)*us(k975,i) + vs(k975,i)*vs(k975,i))
-         !vshear(i) = abs(u650-u975)
-         !print*,'A',po(k650,i),po(k975,i),vshear(i)
-
-         !-- v2
-         u650 = us(k650,i) ; v650 = vs(k650,i)
-         u975 = us(k975,i) ; v975 = vs(k975,i)
-         vshear(i) = sqrt( (u650-u975)**2 + (v650-v975)**2 )
-         !print*,'B',po(k650,i),po(k975,i),vshear(i)
-
-         shear_scale  = 1.5/(1.5+atan(2.*(vshear(i) - turnw)/width))
-         shear_scale  = shear_scale**xexp
-         shear_scale  = min(1., max(shear_scale,0.01))
-         var2d2(i)    = shear_scale
-
-         entr_rate(i) = max(shear_scale*entr_rate(i), min_entr_rate)
+           var2d2(i)       = scale_factor(i)
+           scale_factor(i) = min(1., max(scale_factor(i),0.01))
+           entr_rate(i)    = max(scale_factor(i)*entr_rate(i), min_entr_rate)
       enddo
-
       end subroutine get_entr_vshear
 !---------------------------------------------------------------------------------------------!
 !- list of ierr reasons:
