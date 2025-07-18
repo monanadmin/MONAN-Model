@@ -1729,14 +1729,7 @@ module module_cu_gf_monan
          ,cd,cdd,dellah,dellaq,dellat,dellaqc,dsubq,dsubh,dellabuoy,u_cup,v_cup       &
          ,uc,vc,ucd,vcd,dellu,dellv,subten_H,vvel2d,tempco,tempcdo                    &
          ,p_liq_ice,melting_layer,melting ,up_massentru,up_massdetru,dd_massentru     &
-         ,dd_massdetru, prec_flx,evap_flx,qrs,zenv,Tpert,entr_rate_2d_initial 
-
-      !-- for adv_trigger 
-      real, dimension (its:ite)         :: aa1_adv,hkbo_adv
-      real, dimension (kts:kte,its:ite) ::                                            &
-          qeso_adv,heo_adv,heso_adv,qeso_cup_adv,qo_cup_adv,heo_cup_adv,heso_cup_adv  &
-         ,gammao_cup_adv,tn_cup_adv,zo_cup_adv,po_cup_adv,dbyo_adv,hco_adv
-
+         ,dd_massdetru, prec_flx,evap_flx,qrs,zenv,entr_rate_2d_initial
 
       real, dimension (nmp,kts:kte,its:ite) ::  dellampqi,dellampql,dellampcf
 
@@ -1790,13 +1783,13 @@ module module_cu_gf_monan
       !
       !-- init/reset 1-d and 2-d local vars
       call reset_1d(its,ite,ierrc,xland,xland1,aa0,aa1,aa2,aa3                    &
-                   ,aa1_bl,aa1_fa,aa0_bl,q_adv,aa1_radpbl,aa1_adv,alpha_adv,cin1  &
+                   ,aa1_bl,aa1_fa,aa0_bl,q_adv,aa1_radpbl,alpha_adv,cin1          &
                    ,xk_x,edt,edto,tau_bl,q_wetbulb,t_wetbulb,tau_ecmwf,xf_dicycle &
                    ,x_add_buoy,xf_coldpool,wlpool_bcon,ke_gustfront,random,mbdt   &
                    ,ave_from_surface)
 
       call reset_2d(its,ite,kts,kte,zo,z,xz,hcdo,cupclw,qrcdo,hcot,xf_ens,pr_ens  &
-                   ,evap_bcb,uc,vc,hc,hco, zuo,zdo,zenv,Tpert)
+                   ,evap_bcb,uc,vc,hc,hco, zuo,zdo,zenv)
       !  
       !---  create a real random number in the interval [-use_random_num, +use_random_num]
       if( cumulus == 'deep' .and. use_random_num > 1.e-6) &
@@ -1811,10 +1804,6 @@ module module_cu_gf_monan
       !
       call cup_env(z ,qes ,he ,hes ,t ,q ,po,z1 ,psur,ierr,-1,itf,ktf,its,ite, kts,kte)
       call cup_env(zo,qeso,heo,heso,tn,qo,po,z1, psur,ierr,-1,itf,ktf,its,ite, kts,kte)
- 
-      if( adv_trigger ==1 .and. trim(cumulus) == 'deep')&
-      call cup_env(zo,qeso_adv,heo_adv,heso_adv,tn_adv,qo_adv,po,z1, psur,ierr,-1,itf,ktf,its,ite, kts,kte)
-
       !
       !--- outputs a model sounding for the stand-alone code (part 1)
       !
@@ -1835,11 +1824,6 @@ module module_cu_gf_monan
       call cup_env_clev(tn,qeso,qo,heo,heso,zo,po,qeso_cup,qo_cup, heo_cup,us,vs,u_cup,v_cup   &
                        ,heso_cup,zo_cup,po_cup,gammao_cup ,tn_cup,psur,tsur,ierr,z1            &
                        ,itf,ktf,its,ite, kts,kte)
-      
-      if( adv_trigger ==1 .and. trim(cumulus) == 'deep')&
-      call cup_env_clev(tn_adv,qeso_adv,qo_adv,heo_adv,heso_adv,zo,po,qeso_cup_adv,qo_cup_adv,heo_cup_adv  &
-                       ,us,vs,u_cup,v_cup,heso_cup_adv,zo_cup_adv,po_cup_adv,gammao_cup_adv,tn_cup_adv     &
-                       ,psur,tsur,ierr,z1,itf,ktf,its,ite, kts,kte)
       !
       !-- partition between liq/ice cloud contents
       !
@@ -1919,16 +1903,16 @@ module module_cu_gf_monan
 
          x_add = (c_alvl*zqexec(i)+c_cp*ztexec(i)) +  x_add_buoy(i)
          call get_cloud_bc(cumulus,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i),he_cup (kts:kte,i),hkb (i)&
-                          ,k22(i),x_add,Tpert(kts:kte,i))
+                          ,k22(i),x_add)
          call get_cloud_bc(cumulus,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i),heo_cup(kts:kte,i),hkbo(i)&
-                          ,k22(i),x_add,Tpert(kts:kte,i))
+                          ,k22(i),x_add)
       enddo
       !
       !--- determine the level of convective cloud base  - kbcon
       !
       call cup_cloud_limits(cumulus,ierrc,ierr,cap_max_increment,cap_max,heo_cup,heso_cup,qo_cup   &
                            ,qeso_cup,po,po_cup,zo_cup,heo,hkbo,qo,qeso,entr_rate_2d,hcot,k22,kbmax &
-                           ,klcl,kbcon,ktop,depth_neg_buoy,frh_bcon,Tpert,start_level,use_excess   &
+                           ,klcl,kbcon,ktop,depth_neg_buoy,frh_bcon,start_level,use_excess         &
                            ,zqexec,ztexec,x_add_buoy,xland,cnvcf,heso,wlpool,itf,ktf,its,ite, kts,kte)
       !
       !--- scale dependence factor (sig)
@@ -1959,17 +1943,18 @@ module module_cu_gf_monan
                                ,entr_rate_2d,po_cup,up_massentro, up_massdetro,cumulus,kbcon,k22,kpbl &
                                ,up_massentru,up_massdetru,lambau_dp)
 
+      if( adv_trigger ==1 .and. trim(cumulus) == 'deep')&
+      call adv_trigger_check(cumulus,ave_layer,ierr,ierrc,itf,ktf,its,ite,kts,kte,dtime,us,vs & 
+                            ,start_level,k22,klcl,kbcon,ktop,xland,up_massentro,up_massdetro  &
+                            ,zuo,z,zo,t,q,tn_adv,qo_adv,po,z1, psur,tsur,cnvcf,var2d1)
+
       !
       !-- 1st guess for moist static energy and dbyo (not including ice phase)
       !
       call get_1st_guess_MSE_profile(cumulus,ave_layer,its,ite,itf,kts,kte,ktf,ierr,start_level,k22    &
-                                    ,ktop,hkbo,zqexec,ztexec,x_add_buoy,xland,zuo,zuo,po,heo_cup,tpert &
+                                    ,ktop,hkbo,zqexec,ztexec,x_add_buoy,xland,zuo,zuo,po,heo_cup       &
                                     ,up_massentro,up_massdetro,heso_cup,heo,hco,cnvcf,heso)
       !
-      if( adv_trigger ==1 .and. trim(cumulus) == 'deep')&
-      call get_1st_guess_MSE_profile(cumulus,ave_layer,its,ite,itf,kts,kte,ktf,ierr,start_level,k22      &
-                                    ,ktop,hkbo_adv,zqexec,ztexec,x_add_buoy,xland,zuo,zuo,po,heo_cup_adv &
-                                    ,tpert,up_massentro,up_massdetro,heso_cup_adv,heo_adv,hco_adv,cnvcf,heso_cup) 
       !-- Get buoyancy of updrafts
       !
       call get_buoyancy(itf,ktf, its,ite, kts,kte,ierr,klcl,kbcon,ktop,hco,heo_cup,heso_cup,dbyo,zo_cup)
@@ -2003,7 +1988,7 @@ module module_cu_gf_monan
       !
       call get_updraft_profile(cumulus,ave_layer,use_linear_subcl_mf,its,ite,itf,kts,kte,ktf,ierr,start_level&
                               ,k22,ktop,hkb,hkbo,zqexec,ztexec,x_add_buoy,xland,pgcon,po,u_cup,v_cup,he,heo  &
-                              ,he_cup,heo_cup,heso_cup ,hes_cup,p_liq_ice,qrco,Tpert ,us,vs,zuo,up_massdetru &
+                              ,he_cup,heo_cup,heso_cup ,hes_cup,p_liq_ice,qrco,us,vs,zuo,up_massdetru        &
                               ,up_massentru,up_massdetro,up_massentro,hc,uc,vc,hco,cnvcf,hes,heso)
       !
       !--- Get buoyancy of updrafts
@@ -2011,24 +1996,11 @@ module module_cu_gf_monan
       call get_buoyancy(itf,ktf, its,ite, kts,kte,ierr,klcl,kbcon,ktop,hc, he_cup, hes_cup,  dby, z_cup)
       call get_buoyancy(itf,ktf, its,ite, kts,kte,ierr,klcl,kbcon,ktop,hco,heo_cup,heso_cup,dbyo,zo_cup)
       !
-      if( adv_trigger ==1 .and. trim(cumulus) == 'deep')&
-      call get_buoyancy(itf,ktf, its,ite, kts,kte,ierr,klcl,kbcon,ktop,hco_adv,heo_cup_adv,heso_cup_adv &
-                       ,dbyo_adv,zo_cup_adv)
-      !
-      !
-      !
       !--- calculate workfunctions for updrafts
       !
       call cup_up_aa0(aa0,z_cup ,zuo,dby  ,GAMMA_CUP  ,t_cup ,k22,klcl,kbcon,ktop,ierr,itf,ktf,its,ite, kts,kte)
       call cup_up_aa0(aa1,zo_cup,zuo,dbyo ,GAMMAo_CUP ,tn_cup,k22,klcl,kbcon,ktop,ierr,itf,ktf,its,ite, kts,kte)
       !
-      if( adv_trigger ==1 .and. trim(cumulus) == 'deep') then
-         call cup_up_aa0(aa1_adv,zo_cup_adv,zuo,dbyo_adv ,gammao_cup_adv ,tn_cup_adv,k22,klcl,kbcon,ktop &
-                        ,ierr,itf,ktf,its,ite, kts,kte)
-         !-- apply the trigger function based on Xie et al 2019
-         call adv_trigger_check(ierr,ierrc,itf,ktf,its,ite,kts,kte,dtime,aa0,aa1_adv,var2d1)
-      endif
-
       !---
       !
       if(.not. FIRST_GUESS_W) then
@@ -4406,7 +4378,7 @@ module module_cu_gf_monan
    !------------------------------------------------------------------------------------
    subroutine cup_cloud_limits(name,ierrc,ierr,cap_inc,cap_max_in,heo_cup,heso_cup,qo_cup &
                               ,qeso_cup,po,po_cup,z_cup,heo,hkbo,qo,qeso,entr_rate_2d,hcot&
-                              ,k22,kbmax,klcl,kbcon,ktop,depth_neg_buoy,frh,Tpert         &
+                              ,k22,kbmax,klcl,kbcon,ktop,depth_neg_buoy,frh               &
                               ,start_level_,use_excess,zqexec,ztexec,x_add_buoy,xland,cnvcf &
                               ,heso,wlpool,itf,ktf,its,ite, kts,kte)
 
@@ -4417,7 +4389,7 @@ module module_cu_gf_monan
       integer, dimension (:)    ,intent (in   ) :: kbmax,start_level_
       integer, dimension (:)    ,intent (inout) :: kbcon,ierr,ktop,klcl,k22
       real,    dimension (:,:)  ,intent (in   ) :: heo_cup,heso_cup,po_cup,z_cup,heo &
-                                                  ,qo_cup,qeso_cup,po,qo,qeso,Tpert, heso
+                                                  ,qo_cup,qeso_cup,po,qo,qeso,heso
       real,    dimension (:)    ,intent (in   ) :: cap_max_in,cap_inc,xland,wlpool
       real,    dimension (:)    ,intent (in   ) :: zqexec,ztexec,x_add_buoy
       real,    dimension (:)    ,intent (inout) :: hkbo,depth_neg_buoy,frh
@@ -4505,7 +4477,7 @@ module module_cu_gf_monan
 
             !- get new hkbo
             call get_cloud_bc(name,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i),heo_cup (kts:kte,i) &
-                             ,hkbo (i),k22(i),x_add(i),Tpert(kts:kte,i))
+                             ,hkbo (i),k22(i),x_add(i))
             
             !print*,'x=',hkbo (i),k22(i),hkbo (i)/maxval(heo_cup(max(k22(i)-4,kts):k22(i)+4,i)),hkbo (i)/minval(heo_cup(max(k22(i)-4,kts):k22(i)+4,i))
 
@@ -7028,13 +7000,12 @@ module module_cu_gf_monan
 
    end subroutine get_lcl
   !---------------------------------------------------------------------------------------------------
-   subroutine get_cloud_bc(cumulus,ave_layer,kts,kte,ktf,xland,po,array,x_aver,k22,add,Tpert)
+   subroutine get_cloud_bc(cumulus,ave_layer,kts,kte,ktf,xland,po,array,x_aver,k22,add)
       implicit none
       character *(*)   ,intent (in) :: cumulus
       integer,intent(in)            :: kts,kte,ktf,k22
       real   ,intent(in)            :: array(:),po(:),xland,ave_layer
       real   ,optional ,intent(in)  :: add
-      real   ,optional ,intent(in)  :: Tpert(:)
       real   ,intent(out)           :: x_aver
       !-- local vars
       integer                       :: i,local_order_aver,order_aver, i_beg,i_end,ic
@@ -7079,8 +7050,6 @@ module module_cu_gf_monan
             x_aver = x_aver/dp_layer
             ic  = max(i_beg,i)
       endif
-      !-- this perturbation is included only for MSE
-      if(present(Tpert)) x_aver = x_aver + c_cp*maxval(Tpert(i_beg:ic))  ! version 2 - maxval in the layer
 
       if(present(add)) x_aver = x_aver + add
 
@@ -7663,7 +7632,7 @@ module module_cu_gf_monan
    !------------------------------------------------------------------------------------
    subroutine get_1st_guess_MSE_profile(cumulus,ave_layer,its,ite,itf,kts,kte,ktf,ierr     &
                                        ,start_level,k22,ktop,hkbo,zqexec,ztexec,x_add_buoy &
-                                       ,xland,zu,zuo,po,heo_cup,tpert,up_massentro,up_massdetro&
+                                       ,xland,zu,zuo,po,heo_cup,up_massentro,up_massdetro  &
                                        ,heso_cup,heo,hco,cnvcf,heso)
       implicit none
       character*(*), intent (in)               :: cumulus
@@ -7672,7 +7641,7 @@ module module_cu_gf_monan
       real     ,intent (in   )                 :: ave_layer
       real     ,intent (in   ), dimension(:)   :: zqexec,ztexec,x_add_buoy,xland
       real     ,intent (in   ), dimension(:,:) :: zu,zuo,up_massentro,up_massdetro,heso_cup,heo &
-                                                 ,po,heo_cup,tpert,cnvcf,heso
+                                                 ,po,heo_cup,cnvcf,heso
       real     ,intent (inout), dimension(:)   :: hkbo
       real     ,intent (out  ), dimension(:,:) :: hco
       !-- local vars
@@ -7688,7 +7657,7 @@ module module_cu_gf_monan
          !-- update hkb/hkbo in case of k22 is redefined in 'cup_kbon'
          x_add = (c_alvl*zqexec(i)+c_cp*ztexec(i)) +  x_add_buoy(i)
          call get_cloud_bc(cumulus,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i),heo_cup(kts:kte,i)&
-                          ,hkbo(i),k22(i),x_add,Tpert(kts:kte,i))
+                          ,hkbo(i),k22(i),x_add)
 
          do k=kts,start_level(i)
                hco(k,i) = hkbo(i)
@@ -7718,7 +7687,7 @@ module module_cu_gf_monan
    subroutine get_updraft_profile(cumulus,ave_layer,use_linear_subcl_mf,its,ite,itf,kts,kte,ktf     &
                                  ,ierr,start_level,k22,ktop,hkb,hkbo,zqexec,ztexec,x_add_buoy,xland &
                                  ,pgcon,po,u_cup,v_cup,he,heo,he_cup,heo_cup,heso_cup ,hes_cup      &
-                                 ,p_liq_ice,qrco,Tpert ,us,vs,zuo,up_massdetru,up_massentru         &
+                                 ,p_liq_ice,qrco,us,vs,zuo,up_massdetru,up_massentru                &
                                  ,up_massdetro,up_massentro,hc,uc,vc,hco,cnvcf,hes,heso)
       implicit none
       character*(*), intent (in)             :: cumulus
@@ -7729,7 +7698,7 @@ module module_cu_gf_monan
       real     ,intent (in ), dimension(:,:) :: up_massentro,up_massdetro,up_massdetru,up_massentru
 
       real     ,intent (in ), dimension(:,:) :: po,u_cup,v_cup,he,heo,he_cup,heo_cup,heso_cup,hes_cup&
-                                               ,p_liq_ice,qrco,Tpert,us,vs,cnvcf,hes,heso
+                                               ,p_liq_ice,qrco,us,vs,cnvcf,hes,heso
 
       real     ,intent (inout), dimension(:)   :: hkb,hkbo
       real     ,intent (inout), dimension(:,:) :: zuo,hc,uc,vc,hco
@@ -7743,8 +7712,8 @@ module module_cu_gf_monan
       do vtp_index = get_num_elements(vec_ok),1,-1
          i = get_data_value(vec_ok,vtp_index)
          x_add = (c_alvl*zqexec(i)+c_cp*ztexec(i)) +  x_add_buoy(i)
-         call get_cloud_bc(cumulus,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i),he_cup (kts:kte,i),hkb (i)    ,k22(i),x_add,Tpert(kts:kte,i))
-         call get_cloud_bc(cumulus,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i),heo_cup(kts:kte,i),hkbo(i)    ,k22(i),x_add,Tpert(kts:kte,i))
+         call get_cloud_bc(cumulus,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i),he_cup (kts:kte,i),hkb (i)    ,k22(i),x_add)
+         call get_cloud_bc(cumulus,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i),heo_cup(kts:kte,i),hkbo(i)    ,k22(i),x_add)
          call get_cloud_bc(cumulus,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i),u_cup  (kts:kte,i),uc  (kts,i),k22(i))
          call get_cloud_bc(cumulus,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i),v_cup  (kts:kte,i),vc  (kts,i),k22(i))
       enddo
@@ -10897,7 +10866,7 @@ module module_cu_gf_monan
       end function td
       !---------------------------------------------------------------------------------------------------
       subroutine reset_1d(its,ite,ierrc,xland,xland1,aa0,aa1,aa2,aa3&
-                      ,aa1_bl,aa1_fa,aa0_bl,q_adv,aa1_radpbl,aa1_adv,alpha_adv,cin1&
+                      ,aa1_bl,aa1_fa,aa0_bl,q_adv,aa1_radpbl,alpha_adv,cin1&
                       ,xk_x,edt,edto,tau_bl,q_wetbulb,t_wetbulb,tau_ecmwf,xf_dicycle&
                       ,x_add_buoy,xf_coldpool,wlpool_bcon,ke_gustfront,random,mbdt  &
                       ,ave_from_surface)
@@ -10917,7 +10886,6 @@ module module_cu_gf_monan
             aa0_bl,& 
             q_adv ,& 
             aa1_radpbl,&
-            aa1_adv   ,&
             alpha_adv ,&
             cin1      ,&
             xk_x      ,&
@@ -10948,7 +10916,6 @@ module module_cu_gf_monan
             aa0_bl (:) = 0.0
             q_adv  (:) = 0.0
             aa1_radpbl (:) = 0.0
-            aa1_adv    (:) = 0.0
             alpha_adv  (:) = 0.0
             cin1       (:) = 0.0
             xk_x       (:) = 0.0
@@ -10974,7 +10941,7 @@ module module_cu_gf_monan
       end subroutine reset_1d
       !---------------------------------------------------------------------------------------------------
       subroutine reset_2d(its,ite,kts,kte,zo,z,xz,hcdo,cupclw,qrcdo&
-                         ,hcot,xf_ens,pr_ens,evap_bcb,uc,vc,hc,hco,zuo,zdo,zenv,Tpert)
+                         ,hcot,xf_ens,pr_ens,evap_bcb,uc,vc,hc,hco,zuo,zdo,zenv)
          implicit none       
          integer  ,intent (in )                   :: kts,kte,its,ite
          real     ,intent (in ), dimension(:,:)   ::   zo   
@@ -10994,8 +10961,7 @@ module module_cu_gf_monan
               hco ,&
               zuo ,&
               zdo ,&
-              zenv,&
-              Tpert
+              zenv
     
          z     (:,:) = zo(:,:)
          xz    (:,:) = zo(:,:)
@@ -11012,7 +10978,6 @@ module module_cu_gf_monan
          hcot  (:,:) = 0.0
          xf_ens(:,:) = 0.0
          pr_ens(:,:) = 0.0
-         Tpert (:,:) = 0.0
          evap_bcb(:,:) = 0.0
 
       end subroutine reset_2d
@@ -11083,19 +11048,65 @@ module module_cu_gf_monan
       enddo
       end subroutine get_entr_vshear
 !---------------------------------------------------------------------------------------------!
-     subroutine adv_trigger_check(ierr,ierrc,itf,ktf,its,ite,kts,kte,dtime,aa0,aa1_adv,daa_adv_dt)
+     subroutine adv_trigger_check(cumulus,ave_layer,ierr,ierrc,itf,ktf,its,ite,kts,kte,dtime,us,vs & 
+                                 ,start_level,k22,klcl,kbcon,ktop,xland,up_massentro,up_massdetro  &
+                                 ,zuo,z,zo,t,q,tn_adv,qo_adv,po,z1, psur,tsur,cnvcf,daa_adv_dt)
       implicit none
-      integer, intent(in ) :: itf,ktf,its,ite,kts,kte
-      real,    intent(in ) :: dtime
-      real,    intent(in ), dimension(:) :: aa0,aa1_adv
-      integer,         intent(inout), dimension(:) :: ierr
+      character*(*), intent (in)               :: cumulus
       character(len=*),intent(inout), dimension(:) :: ierrc
-      integer :: vtp_index,i
-      real,    intent(inout), dimension(:) :: daa_adv_dt
+      integer, intent(in ) :: itf,ktf,its,ite,kts,kte
+      real,    intent(in ) :: dtime,ave_layer
+      real,    dimension (:,:),intent (in   )  :: po,t,q,z,zo,tn_adv,qo_adv,us,vs,up_massentro &
+                                                 ,up_massdetro,zuo,cnvcf
+      real,    dimension (:)  ,intent (in   )  :: psur,z1,xland,tsur
+      integer, dimension (:)  ,intent (in   )  :: start_level,ktop,k22,klcl,kbcon
+
+      integer,         intent(inout), dimension(:) :: ierr
+      real,            intent(inout), dimension(:) :: daa_adv_dt
+      !---local var
+      real, dimension (its:ite)         :: aa_tmp,aa0,aa1_adv,hkbo_adv,zqexec,ztexec,x_add_buoy
+      real, dimension (kts:kte,its:ite) ::                                            &
+          qeso_adv,heo_adv,heso_adv,qeso_cup_adv,qo_cup_adv,heo_cup_adv,heso_cup_adv  &
+         ,gammao_cup_adv,tn_cup_adv,zo_cup_adv,po_cup_adv,dbyo_adv,hco_adv,tn_x,qo_x  &
+         ,u_cup,v_cup
+
+      integer :: vtp_index,i, step
+
+      zqexec=0.0 ; ztexec=0.0; x_add_buoy=0.0
+      daa_adv_dt = 0.0
+      do step = 1,2
+            !--- calculate moist static energy, heights, qes, ... only by ADV tendencies
+            if(step==1) then 
+             tn_x = t     ;  qo_x = q
+            else 
+             tn_x = tn_adv;  qo_x = qo_adv
+            endif          
+
+            call cup_env(zo,qeso_adv,heo_adv,heso_adv,tn_x,qo_x,po,z1, psur,ierr,-1,itf,ktf,its,ite, kts,kte)
+            
+            call cup_env_clev(tn_x,qeso_adv,qo_x,heo_adv,heso_adv,zo,po,qeso_cup_adv,qo_cup_adv,heo_cup_adv      &
+                             ,us,vs,u_cup,v_cup,heso_cup_adv,zo_cup_adv,po_cup_adv,gammao_cup_adv,tn_cup_adv     &
+                             ,psur,tsur,ierr,z1,itf,ktf,its,ite, kts,kte)
+      !
+            call get_1st_guess_MSE_profile(cumulus,ave_layer,its,ite,itf,kts,kte,ktf,ierr,start_level,k22      &
+                                         ,ktop,hkbo_adv,zqexec,ztexec,x_add_buoy,xland,zuo,zuo,po,heo_cup_adv  &
+                                         ,up_massentro,up_massdetro,heso_cup_adv,heo_adv,hco_adv,cnvcf,heo_adv) 
+
+            call get_buoyancy(itf,ktf, its,ite, kts,kte,ierr,klcl,kbcon,ktop,hco_adv,heo_cup_adv,heso_cup_adv &
+                             ,dbyo_adv,zo_cup_adv)
+
+            aa_tmp = 0.0
+            call cup_up_aa0(aa_tmp,zo_cup_adv,zuo,dbyo_adv ,gammao_cup_adv ,tn_cup_adv,k22,klcl,kbcon,ktop &
+                           ,ierr,itf,ktf,its,ite, kts,kte)
+           if(step==1) aa0     = aa_tmp ! cloud work function initial
+           if(step==2) aa1_adv = aa_tmp ! cloud work function modified by advection tendencies
+
+      enddo
 
       !--- trigger function based on Xie et al 2019
       !do vtp_index = get_num_elements(vec_ok),1,-1;   i = get_data_value(vec_ok,vtp_index)
       do i=its,itf
+         !print*,'advtr=',aa1_adv(i),aa0(i), 3600*(aa1_adv(i)-aa0(i))/dtime
          daa_adv_dt(i)=3600.*(aa1_adv(i)-aa0(i))/dtime
          if( daa_adv_dt(i) > dcape_threshold .and. aa0(i) > 0.) cycle
          !ierr(i)=31         
@@ -11103,6 +11114,8 @@ module module_cu_gf_monan
       enddo
 
      end subroutine adv_trigger_check
+!---------------------------------------------------------------------------------------------!
+     
 !---------------------------------------------------------------------------------------------!
 !- list of ierr reasons:
 ! ierr(i)=21   ==>  ierrc(i)='for shallow convection:  LCL height < PBL height'
