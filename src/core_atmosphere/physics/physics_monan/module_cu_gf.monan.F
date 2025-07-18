@@ -106,7 +106,8 @@ module module_cu_gf_monan
       ,add_coldpool_diff,n_cldrop,use_gustiness, use_random_num          &
       ,modConvParGF_initialized,use_pass_cloudvol                        &
       ,use_lcl_ctrl_entr,use_rhu_ctrl_entr,cum_min_cloud_depth,use_sub3d &
-      ,cum_fr_min_entr,use_shear_ctrl_entr,use_cwv_ctrl_entr
+      ,cum_fr_min_entr,use_shear_ctrl_entr,use_cwv_ctrl_entr,adv_trigger &
+      ,dcape_threshold
 
    public makeDropletNumber,makeIceNumber,FractLiqF                      &
       ,coldPoolStart,readGFConvParNML,initModConvParGF,cu_gf_monan_driver&
@@ -154,9 +155,11 @@ module module_cu_gf_monan
 
    integer :: use_rhu_ctrl_entr != 0/1     - default 1
 
-   integer :: use_shear_ctrl_entr!= 0/1     - default 1
+   integer :: use_shear_ctrl_entr!= 0/1    - default 0
 
-   integer :: use_cwv_ctrl_entr != 0/1     - default 1
+   integer :: use_cwv_ctrl_entr != 0/1     - default 0
+   
+   integer :: adv_trigger       != 0/1     - default 0
 
    integer :: use_pass_cloudvol != 0/1     - default 1
 
@@ -211,6 +214,8 @@ module module_cu_gf_monan
 
    real    :: overshoot         != 0, 1
 
+   real    :: dcape_threshold   != CAPE time rate threshold for ADV_TRIGGER (J kg^-1 hr^-1)
+   
    integer :: autoconv          != 1, 3 or 4 autoconversion formulation: (1) kessler,
                                 !  (3) kessler with temp dependence, (4) sundvisqt
    real    ::  c0_deep          != default= 3.e-3   conversion rate (cloud to rain, m-1) - for deep      plume
@@ -624,14 +629,14 @@ module module_cu_gf_monan
 
       !-- big loop over j dimension
       j_loop: do j = jts,jtf
-          JCOL = J
-          conprr     (:,j) = 0.0
-          raincv     (:,j) = 0.0
-          lightn_dens(:,j) = 0.0
-          sigma_deep (:,j) = 0.0
-          dp_dens    (:,j) = 0.0
-          sh_dens    (:,j) = 0.0
-          cg_dens    (:,j) = 0.0
+         JCOL = J
+         conprr     (:,j) = 0.0
+         raincv     (:,j) = 0.0
+         lightn_dens(:,j) = 0.0
+         sigma_deep (:,j) = 0.0
+         dp_dens    (:,j) = 0.0
+         sh_dens    (:,j) = 0.0
+         cg_dens    (:,j) = 0.0
          
          !-- initialization
          ztexec   (:) = 0.0
@@ -1711,7 +1716,7 @@ module module_cu_gf_monan
         ,aa2,aa3,cin0,cin1,edtmax,edtmin,aa_tmp,aa_ini,aa_adv                              &
         ,daa_adv_dt,wlpool_bcon,xk_x,xf_dicycle,mbdt,xf_coldpool, ke_gustfront             & 
         ,vvel1d, x_add_buoy,lambau_dn,lambau_dp,q_wetbulb,t_wetbulb,col_sat_adv            &
-        ,Q_adv,alpha_adv,aa1_radpbl,aa1_adv,p_cwv_ave,cape, depth_neg_buoy,frh_bcon        &
+        ,Q_adv,alpha_adv,aa1_radpbl,p_cwv_ave,cape, depth_neg_buoy,frh_bcon                &
         ,check_sig,random,rh_entr_factor,rntot,delqev,delq2,qevap,rn,qcond,rainevap,vshear2
       real, dimension (kts:kte) ::xh_env_eff
 
@@ -1725,6 +1730,13 @@ module module_cu_gf_monan
          ,uc,vc,ucd,vcd,dellu,dellv,subten_H,vvel2d,tempco,tempcdo                    &
          ,p_liq_ice,melting_layer,melting ,up_massentru,up_massdetru,dd_massentru     &
          ,dd_massdetru, prec_flx,evap_flx,qrs,zenv,Tpert,entr_rate_2d_initial 
+
+      !-- for adv_trigger 
+      real, dimension (its:ite)         :: aa1_adv,hkbo_adv
+      real, dimension (kts:kte,its:ite) ::                                            &
+          qeso_adv,heo_adv,heso_adv,qeso_cup_adv,qo_cup_adv,heo_cup_adv,heso_cup_adv  &
+         ,gammao_cup_adv,tn_cup_adv,zo_cup_adv,po_cup_adv,dbyo_adv,hco_adv
+
 
       real, dimension (nmp,kts:kte,its:ite) ::  dellampqi,dellampql,dellampcf
 
@@ -1799,6 +1811,9 @@ module module_cu_gf_monan
       !
       call cup_env(z ,qes ,he ,hes ,t ,q ,po,z1 ,psur,ierr,-1,itf,ktf,its,ite, kts,kte)
       call cup_env(zo,qeso,heo,heso,tn,qo,po,z1, psur,ierr,-1,itf,ktf,its,ite, kts,kte)
+ 
+      if( adv_trigger ==1 .and. trim(cumulus) == 'deep')&
+      call cup_env(zo,qeso_adv,heo_adv,heso_adv,tn_adv,qo_adv,po,z1, psur,ierr,-1,itf,ktf,its,ite, kts,kte)
 
       !
       !--- outputs a model sounding for the stand-alone code (part 1)
@@ -1820,7 +1835,11 @@ module module_cu_gf_monan
       call cup_env_clev(tn,qeso,qo,heo,heso,zo,po,qeso_cup,qo_cup, heo_cup,us,vs,u_cup,v_cup   &
                        ,heso_cup,zo_cup,po_cup,gammao_cup ,tn_cup,psur,tsur,ierr,z1            &
                        ,itf,ktf,its,ite, kts,kte)
-      !
+      
+      if( adv_trigger ==1 .and. trim(cumulus) == 'deep')&
+      call cup_env_clev(tn_adv,qeso_adv,qo_adv,heo_adv,heso_adv,zo,po,qeso_cup_adv,qo_cup_adv,heo_cup_adv  &
+                       ,us,vs,u_cup,v_cup,heso_cup_adv,zo_cup_adv,po_cup_adv,gammao_cup_adv,tn_cup_adv     &
+                       ,psur,tsur,ierr,z1,itf,ktf,its,ite, kts,kte)
       !
       !-- partition between liq/ice cloud contents
       !
@@ -1835,8 +1854,8 @@ module module_cu_gf_monan
       !-- define entrainment/detrainment profiles for updrafts
       !
       !- initial entrainment/detrainment
-      entr_rate   (:  ) = entr_rate_input
-      min_entr_rate     = entr_rate_input * fr_min_entr
+      entr_rate(:)  = entr_rate_input
+      min_entr_rate = entr_rate_input * fr_min_entr
       !
       !-- controls of LCL and PBL turbulence on the entrainment rate
       if(use_lcl_ctrl_entr > 0 ) then 
@@ -1884,7 +1903,7 @@ module module_cu_gf_monan
             endif
          enddo
       endif
-       !
+      !
       !--- determine the vertical entrainment/detrainment rates, the level of convective cloud base -kbcon-
       !--- and the scale dependence factor (sig).
       !
@@ -1946,6 +1965,11 @@ module module_cu_gf_monan
       call get_1st_guess_MSE_profile(cumulus,ave_layer,its,ite,itf,kts,kte,ktf,ierr,start_level,k22    &
                                     ,ktop,hkbo,zqexec,ztexec,x_add_buoy,xland,zuo,zuo,po,heo_cup,tpert &
                                     ,up_massentro,up_massdetro,heso_cup,heo,hco,cnvcf,heso)
+      !
+      if( adv_trigger ==1 .and. trim(cumulus) == 'deep')&
+      call get_1st_guess_MSE_profile(cumulus,ave_layer,its,ite,itf,kts,kte,ktf,ierr,start_level,k22      &
+                                    ,ktop,hkbo_adv,zqexec,ztexec,x_add_buoy,xland,zuo,zuo,po,heo_cup_adv &
+                                    ,tpert,up_massentro,up_massdetro,heso_cup_adv,heo_adv,hco_adv,cnvcf,heso_cup) 
       !-- Get buoyancy of updrafts
       !
       call get_buoyancy(itf,ktf, its,ite, kts,kte,ierr,klcl,kbcon,ktop,hco,heo_cup,heso_cup,dbyo,zo_cup)
@@ -1987,11 +2011,24 @@ module module_cu_gf_monan
       call get_buoyancy(itf,ktf, its,ite, kts,kte,ierr,klcl,kbcon,ktop,hc, he_cup, hes_cup,  dby, z_cup)
       call get_buoyancy(itf,ktf, its,ite, kts,kte,ierr,klcl,kbcon,ktop,hco,heo_cup,heso_cup,dbyo,zo_cup)
       !
+      if( adv_trigger ==1 .and. trim(cumulus) == 'deep')&
+      call get_buoyancy(itf,ktf, its,ite, kts,kte,ierr,klcl,kbcon,ktop,hco_adv,heo_cup_adv,heso_cup_adv &
+                       ,dbyo_adv,zo_cup_adv)
+      !
+      !
       !
       !--- calculate workfunctions for updrafts
       !
       call cup_up_aa0(aa0,z_cup ,zuo,dby  ,GAMMA_CUP  ,t_cup ,k22,klcl,kbcon,ktop,ierr,itf,ktf,its,ite, kts,kte)
       call cup_up_aa0(aa1,zo_cup,zuo,dbyo ,GAMMAo_CUP ,tn_cup,k22,klcl,kbcon,ktop,ierr,itf,ktf,its,ite, kts,kte)
+      !
+      if( adv_trigger ==1 .and. trim(cumulus) == 'deep') then
+         call cup_up_aa0(aa1_adv,zo_cup_adv,zuo,dbyo_adv ,gammao_cup_adv ,tn_cup_adv,k22,klcl,kbcon,ktop &
+                        ,ierr,itf,ktf,its,ite, kts,kte)
+         !-- apply the trigger function based on Xie et al 2019
+         call adv_trigger_check(ierr,ierrc,itf,ktf,its,ite,kts,kte,dtime,aa0,aa1_adv,var2d1)
+      endif
+
       !---
       !
       if(.not. FIRST_GUESS_W) then
@@ -2324,7 +2361,7 @@ module module_cu_gf_monan
                   call cup_forcing_ens_deep(itf,ktf,its,ite, kts,kte,ens4,ensdim,ichoice,maxens,maxens2,maxens3 &
                                            ,ierr,k22,kbcon,ktop,xland1,aa0,aa1,xaa0,mbdt,dtime,xf_ens,mconv,qo  &
                                            ,po_cup,omeg,zdo,zuo,pr_ens,edto,tau_ecmwf,aa1_bl,xf_dicycle, xk_x   &
-                                           ,alpha_adv,Q_adv,aa1_radpbl,aa1_adv,wlpool_bcon,xf_coldpool,cin1     )
+                                           ,alpha_adv,Q_adv,aa1_radpbl,wlpool_bcon,xf_coldpool,cin1     )
 
             if(cumulus == 'mid') &
                   call cup_forcing_ens_mid(aa0,aa1,xaa0,mbdt,dtime,ierr ,po_cup,ktop,k22,kbcon,kpbl,ichoice    &
@@ -2493,10 +2530,12 @@ module module_cu_gf_monan
         !var2d1(:) = 0.0
         !var2d2(:) = vshear2(:)
         !var2d1(:) = x_add_buoy(:)
-         do i=its,itf
-           var2d1(i) = maxval( buoy_exc(kts:ktop(i),i) )
-           !var2d1(i) = p_cwv_ave(i)
-         enddo
+         if( adv_trigger == 0) then 
+            do i=its,itf
+                var2d1(i) = maxval( buoy_exc(kts:ktop(i),i) )
+               !var2d1(i) = p_cwv_ave(i)
+            enddo
+         endif 
          !var2d2(:) = 0.0
          do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
@@ -4898,7 +4937,7 @@ module module_cu_gf_monan
                                   ,maxens2,maxens3,ierr,k22,kbcon,ktop,xland,aa0,aa1,xaa0      &
                                   ,mbdt,dtime,xf_ens,mconv,qo,p_cup,omeg,zd,zu,pr_ens,edt      &
                                   ,tau_ecmwf,aa1_bl,xf_dicycle,xk_x,alpha_adv,Q_adv,aa1_radpbl &
-                                  ,aa1_adv,wlpool,xf_coldpool,cin1)
+                                  ,wlpool,xf_coldpool,cin1)
 
       implicit none
       integer  ,intent (in   ) :: itf,ktf,its,ite, kts,kte,ens4
@@ -4940,8 +4979,7 @@ module module_cu_gf_monan
       integer                     ,intent (in   )  :: ichoice
 
       real,    dimension (:)      ,intent(in)      :: aa1_bl,tau_ecmwf,alpha_adv&
-                                                     ,Q_adv,aa1_radpbl,aa1_adv,wlpool &
-                                                     ,cin1
+                                                     ,Q_adv,aa1_radpbl,wlpool,cin1
       real,    dimension (:)      ,intent(inout)   :: xf_dicycle,xk_x,xf_coldpool
      
       !
@@ -6260,7 +6298,7 @@ module module_cu_gf_monan
          ,add_coldpool_clos,add_coldpool_trig,add_coldpool_diff,n_cldrop          &
          ,output_sound,use_pass_cloudvol,use_lcl_ctrl_entr,use_rhu_ctrl_entr      &
          ,cum_min_cloud_depth,use_sub3d,cum_fr_min_entr,use_shear_ctrl_entr       &
-         ,use_cwv_ctrl_entr
+         ,use_cwv_ctrl_entr,adv_trigger,dcape_threshold
 
       if(present(IO_NODE)) then 
          local_io_node = IO_NODE
@@ -6351,7 +6389,8 @@ module module_cu_gf_monan
          print*, 'use_rhu_ctrl_entr  ' , use_rhu_ctrl_entr
          print*, 'use_shear_ctrl_entr' , use_shear_ctrl_entr
          print*, 'use_cwv_ctrl_entr  ' , use_cwv_ctrl_entr
-
+         print*, 'adv_trigger        ' , adv_trigger
+         print*, 'dcape_threshold    ' , dcape_threshold
          print*,'!--- controls rainfall evaporation'
          print*, 'use_rebcb          ' , use_rebcb
          print*, 'downdraft          ' , downdraft
@@ -8713,6 +8752,8 @@ module module_cu_gf_monan
       use_rhu_ctrl_entr = 1
       use_shear_ctrl_entr=0
       use_cwv_ctrl_entr = 0
+      adv_trigger       = 0
+      dcape_threshold   = 70.
       use_tracer_transp = 0 
       use_tracer_scaven = 2 
       use_tracer_evap   = 1 
@@ -11041,6 +11082,27 @@ module module_cu_gf_monan
            entr_rate(i)    = max(scale_factor(i)*entr_rate(i), min_entr_rate)
       enddo
       end subroutine get_entr_vshear
+!---------------------------------------------------------------------------------------------!
+     subroutine adv_trigger_check(ierr,ierrc,itf,ktf,its,ite,kts,kte,dtime,aa0,aa1_adv,daa_adv_dt)
+      implicit none
+      integer, intent(in ) :: itf,ktf,its,ite,kts,kte
+      real,    intent(in ) :: dtime
+      real,    intent(in ), dimension(:) :: aa0,aa1_adv
+      integer,         intent(inout), dimension(:) :: ierr
+      character(len=*),intent(inout), dimension(:) :: ierrc
+      integer :: vtp_index,i
+      real,    intent(inout), dimension(:) :: daa_adv_dt
+
+      !--- trigger function based on Xie et al 2019
+      !do vtp_index = get_num_elements(vec_ok),1,-1;   i = get_data_value(vec_ok,vtp_index)
+      do i=its,itf
+         daa_adv_dt(i)=3600.*(aa1_adv(i)-aa0(i))/dtime
+         if( daa_adv_dt(i) > dcape_threshold .and. aa0(i) > 0.) cycle
+         !ierr(i)=31         
+         !ierrc(i)="dcape trigger not satisfied"
+      enddo
+
+     end subroutine adv_trigger_check
 !---------------------------------------------------------------------------------------------!
 !- list of ierr reasons:
 ! ierr(i)=21   ==>  ierrc(i)='for shallow convection:  LCL height < PBL height'
