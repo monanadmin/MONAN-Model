@@ -2333,7 +2333,7 @@ module module_cu_gf_monan
                   call cup_forcing_ens_deep(itf,ktf,its,ite, kts,kte,ens4,ensdim,ichoice,maxens,maxens2,maxens3 &
                                            ,ierr,k22,kbcon,ktop,xland1,aa0,aa1,xaa0,mbdt,dtime,xf_ens,mconv,qo  &
                                            ,po_cup,omeg,zdo,zuo,pr_ens,edto,tau_ecmwf,aa1_bl,xf_dicycle, xk_x   &
-                                           ,alpha_adv,Q_adv,aa1_radpbl,wlpool_bcon,xf_coldpool,cin1     )
+                                           ,alpha_adv,Q_adv,aa1_radpbl,wlpool_bcon,xf_coldpool,cin1             )
 
             if(cumulus == 'mid') &
                   call cup_forcing_ens_mid(aa0,aa1,xaa0,mbdt,dtime,ierr ,po_cup,ktop,k22,kbcon,kpbl,ichoice    &
@@ -11052,17 +11052,17 @@ module module_cu_gf_monan
                                  ,start_level,k22,klcl,kbcon,ktop,xland,up_massentro,up_massdetro  &
                                  ,zuo,z,zo,t,q,tn_adv,qo_adv,po,z1, psur,tsur,cnvcf,daa_adv_dt)
       implicit none
-      character*(*), intent (in)               :: cumulus
+      character*(*)   ,intent (in)                 :: cumulus
       character(len=*),intent(inout), dimension(:) :: ierrc
       integer, intent(in ) :: itf,ktf,its,ite,kts,kte
       real,    intent(in ) :: dtime,ave_layer
-      real,    dimension (:,:),intent (in   )  :: po,t,q,z,zo,tn_adv,qo_adv,us,vs,up_massentro &
-                                                 ,up_massdetro,zuo,cnvcf
-      real,    dimension (:)  ,intent (in   )  :: psur,z1,xland,tsur
-      integer, dimension (:)  ,intent (in   )  :: start_level,ktop,k22,klcl,kbcon
+      real,    dimension (:,:),intent (in)  :: po,t,q,z,zo,tn_adv,qo_adv,us,vs,up_massentro &
+                                              ,up_massdetro,zuo,cnvcf
+      real,    dimension (:)  ,intent (in)  :: psur,z1,xland,tsur
+      integer, dimension (:)  ,intent (in)  :: start_level,ktop,k22,klcl,kbcon
 
-      integer,         intent(inout), dimension(:) :: ierr
-      real,            intent(inout), dimension(:) :: daa_adv_dt
+      integer, dimension(:)   ,intent(inout)  :: ierr
+      real,    dimension(:)   ,intent(inout)  :: daa_adv_dt
       !---local var
       real, dimension (its:ite)         :: aa_tmp,aa0,aa1_adv,hkbo_adv,zqexec,ztexec,x_add_buoy
       real, dimension (kts:kte,its:ite) ::                                            &
@@ -11104,13 +11104,11 @@ module module_cu_gf_monan
       enddo
 
       !--- trigger function based on Xie et al 2019
-      !do vtp_index = get_num_elements(vec_ok),1,-1;   i = get_data_value(vec_ok,vtp_index)
-      do i=its,itf
-         !print*,'advtr=',aa1_adv(i),aa0(i), 3600*(aa1_adv(i)-aa0(i))/dtime
+      do vtp_index = get_num_elements(vec_ok),1,-1;   i = get_data_value(vec_ok,vtp_index)
          daa_adv_dt(i)=3600.*(aa1_adv(i)-aa0(i))/dtime
          if( daa_adv_dt(i) > dcape_threshold .and. aa0(i) > 0.) cycle
-         !ierr(i)=31         
-         !ierrc(i)="dcape trigger not satisfied"
+         ierr(i)=31 ; is_removed = remove(vec_ok, i)   
+         ierrc(i)="dcape trigger not satisfied"
       enddo
 
      end subroutine adv_trigger_check
