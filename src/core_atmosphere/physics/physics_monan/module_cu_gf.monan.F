@@ -4376,14 +4376,14 @@ module module_cu_gf_monan
       enddo
    end subroutine cup_up_cape_cin
    !------------------------------------------------------------------------------------
-   subroutine cup_cloud_limits(name,ierrc,ierr,cap_inc,cap_max_in,heo_cup,heso_cup,qo_cup &
-                              ,qeso_cup,po,po_cup,z_cup,heo,hkbo,qo,qeso,entr_rate_2d,hcot&
-                              ,k22,kbmax,klcl,kbcon,ktop,depth_neg_buoy,frh               &
-                              ,start_level_,use_excess,zqexec,ztexec,x_add_buoy,xland,cnvcf &
+   subroutine cup_cloud_limits(cumulus,ierrc,ierr,cap_inc,cap_max_in,heo_cup,heso_cup,qo_cup &
+                              ,qeso_cup,po,po_cup,z_cup,heo,hkbo,qo,qeso,entr_rate_2d,hcot   &
+                              ,k22,kbmax,klcl,kbcon,ktop,depth_neg_buoy,frh                  &
+                              ,start_level_,use_excess,zqexec,ztexec,x_add_buoy,xland,cnvcf  &
                               ,heso,wlpool,itf,ktf,its,ite, kts,kte)
 
       implicit none
-      character *(*)            ,intent (in   ) :: name
+      character *(*)            ,intent (in   ) :: cumulus
       character(len=128)        ,intent (inout) :: ierrc(:)
       integer                   ,intent (in   ) :: itf,ktf,its,ite, kts,kte,use_excess
       integer, dimension (:)    ,intent (in   ) :: kbmax,start_level_
@@ -4403,7 +4403,7 @@ module module_cu_gf_monan
                                                   !--- the severity of the thunderstorm.
       integer                      ::   i,k,vtp_index,icount
       integer, dimension (its:ite) ::   start_level
-      real                         ::   dz, denom
+      real                         ::   dz, denom, min_deep_top, cloud_depth    
       real   , dimension (its:ite) ::   x_add,cap_max
       real   , dimension (kts:kte,its:ite) ::   h_env_eff
 
@@ -4476,7 +4476,7 @@ module module_cu_gf_monan
             !cap_max(i)=cap_max_in(i)+0.5*wlpool(i)**2
 
             !- get new hkbo
-            call get_cloud_bc(name,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i),heo_cup (kts:kte,i) &
+            call get_cloud_bc(cumulus,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i),heo_cup (kts:kte,i) &
                              ,hkbo (i),k22(i),x_add(i))
             
             !print*,'x=',hkbo (i),k22(i),hkbo (i)/maxval(heo_cup(max(k22(i)-4,kts):k22(i)+4,i)),hkbo (i)/minval(heo_cup(max(k22(i)-4,kts):k22(i)+4,i))
@@ -4493,24 +4493,38 @@ module module_cu_gf_monan
       !
       do vtp_index = get_num_elements(vec_ok),1,-1
          i = get_data_value(vec_ok,vtp_index)
-
          do k=kbcon(i)+1,ktf-1
             if(hcot(k,i) < heso_cup(k,i))then
-               ktop(i) = k
-               exit
+               ktop(i) = k; exit
             endif
          enddo
-         !----------------
-         if(OVERSHOOT > 1.e-6) then
-            Z_overshoot = (1. + OVERSHOOT) * z_cup(ktop(i),i)
-            do k=ktop(i)+1,ktf-1
-               if(Z_overshoot <= z_cup(k,i)) then
-                  ktop(i) = k
-                  exit
+      enddo
+      
+      !--- check cloud top for deep convection
+      if(cumulus == 'deep') then
+            min_deep_top=500.
+            if(icumulus_gf(mid) == OFF) min_deep_top=1.e+22
+            do vtp_index = get_num_elements(vec_ok),1,-1
+               i = get_data_value(vec_ok,vtp_index)
+               cloud_depth =  po_cup(kbcon(i),i)-po_cup(ktop(i),i)
+               if(po_cup(ktop(i),i) > min_deep_top .or. cloud_depth < min_cloud_depth ) then
+                  ierr(i)=33 ; is_removed = remove(vec_ok, i)
+                  ierrc(i)='cloud top or cloud_depth too low for deep'
                endif
             enddo
-         endif
-      enddo
+      endif
+      !--- apply overshoot 
+      if(overshoot > 1.e-6) then
+            do vtp_index = get_num_elements(vec_ok),1,-1
+               i = get_data_value(vec_ok,vtp_index)
+               Z_overshoot = (1. + overshoot) * z_cup(ktop(i),i)
+               do k=ktop(i)+1,ktf-1
+                  if(Z_overshoot <= z_cup(k,i)) then
+                     ktop(i) = k; exit
+                  endif
+               enddo
+            enddo
+      endif
    end subroutine cup_cloud_limits
    !------------------------------------------------------------------------------------
    subroutine get_buoyancy(itf,ktf, its,ite, kts,kte,ierr,klcl,kbcon,ktop &
@@ -7325,12 +7339,13 @@ module module_cu_gf_monan
 
       !-- local vars
      integer :: i,k,vtp_index
-     !real, parameter:: cloud_depth_dp = 200. ,cloud_depth_sh = 100. &
-     !                 ,cloud_depth_md = 150.!hPa
      real :: min_deep_top, min_shall_top, cloud_depth    
      integer, dimension (kts:kte,its:ite) ::  k_inv_layers
      real,    dimension (kts:kte,its:ite) ::  dtempdz
     
+
+      if(cumulus == 'deep') return
+
       if(cumulus == 'mid') then
          if(use_inv_layers) then
             !
@@ -7388,18 +7403,18 @@ module module_cu_gf_monan
          enddo
       endif
 
-      if(cumulus == 'deep') then
-            min_deep_top=500.
-            if(icumulus_gf(mid) == OFF) min_deep_top=1.e+22
-            do vtp_index = get_num_elements(vec_ok),1,-1
-               i = get_data_value(vec_ok,vtp_index)
-               cloud_depth =  po_cup(kbcon(i),i)-po_cup(ktop(i),i)
-               if(po_cup(ktop(i),i) > min_deep_top .or. cloud_depth < min_cloud_depth ) then
-                  ierr(i)=33 ; is_removed = remove(vec_ok, i)
-                  ierrc(i)='cloud top or cloud_depth too low for deep'
-               endif
-            enddo
-      endif
+      !if(cumulus == 'deep') then
+      !      min_deep_top=500.
+      !      if(icumulus_gf(mid) == OFF) min_deep_top=1.e+22
+      !      do vtp_index = get_num_elements(vec_ok),1,-1
+      !         i = get_data_value(vec_ok,vtp_index)
+      !         cloud_depth =  po_cup(kbcon(i),i)-po_cup(ktop(i),i)
+      !         if(po_cup(ktop(i),i) > min_deep_top .or. cloud_depth < min_cloud_depth ) then
+      !            ierr(i)=33 ; is_removed = remove(vec_ok, i)
+      !            ierrc(i)='cloud top or cloud_depth too low for deep'
+      !         endif
+      !      enddo
+      !endif
 
       !--- last check
       !do vtp_index = get_num_elements(vec_ok),1,-1
