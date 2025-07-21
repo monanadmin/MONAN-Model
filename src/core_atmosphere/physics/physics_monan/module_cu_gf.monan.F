@@ -547,7 +547,7 @@ module module_cu_gf_monan
       real,   dimension (its:ite,1:ens4)              ::  mconv
 
       real,   dimension (kts:kte) :: min_tend,distance
-      integer,dimension (its:ite) :: kpbli
+      integer,dimension (its:ite) :: kpbli,max_ktop
 
       integer :: i,j,k,kr,n,itf,jtf,ktf,ispc,zmax,status
 
@@ -729,7 +729,10 @@ module module_cu_gf_monan
                turb_len_scale2d (k,i) = turb_len_scale (i,k,j)
             end do
           end do
-
+          do i=its,itf
+            !-- max convective cloud top is in 50 mbar
+            max_ktop(i) =  minloc(abs(po(:,i)-50.),1)
+          enddo
           do i=its,itf
             do k=kts,ktf
                   !-- convert from theta to temperature 
@@ -1001,6 +1004,7 @@ module module_cu_gf_monan
                         ,col_sat       (:,j)              &
                         ,tke_mean      (:)                &
                         ,wlpool        (:,j)              &
+                        ,max_ktop                         &
                         ,dt                               &
                         ,kpbli                            &
                         ,cum_ztexec                       &
@@ -1462,6 +1466,7 @@ module module_cu_gf_monan
                      ,col_sat           &
                      ,tke_pbl           &
                      ,wlpool            &
+                     ,max_ktop          &
                      ,dtime             &
                      ,kpbl              &
                      ,ztexec            &
@@ -1578,7 +1583,7 @@ module module_cu_gf_monan
                                                    ,zlcl_sfc
 
       real,    dimension (:)    ,intent (in   )  :: col_sat,stochastic_sig,tke_pbl
-      real,    dimension (:)    ,intent (inout)  :: zws,ztexec,zqexec,wlpool
+      real,    dimension (:)    ,intent (inout)  :: zws,ztexec,zqexec,wlpool,max_ktop
       real                      ,intent (in   )  :: dtime,entr_rate_input
       real,    dimension (:,:,:),intent (inout)  :: mpqi,mpql,mpcf
       real,    dimension (:,:,:),intent (inout)  :: outmpqi,outmpql,outmpcf
@@ -1910,9 +1915,9 @@ module module_cu_gf_monan
       !
       !--- determine the level of convective cloud base  - kbcon
       !
-      call cup_cloud_limits(cumulus,ierrc,ierr,cap_max_increment,cap_max,heo_cup,heso_cup,qo_cup   &
-                           ,qeso_cup,po,po_cup,zo_cup,heo,hkbo,qo,qeso,entr_rate_2d,hcot,k22,kbmax &
-                           ,klcl,kbcon,ktop,depth_neg_buoy,frh_bcon,start_level,use_excess         &
+      call cup_cloud_limits(cumulus,ierrc,ierr,cap_max_increment,cap_max,heo_cup,heso_cup,qo_cup    &
+                           ,qeso_cup,po,po_cup,zo_cup,heo,hkbo,qo,qeso,entr_rate_2d,hcot,k22,kbmax  &
+                           ,klcl,kbcon,ktop,depth_neg_buoy,frh_bcon,start_level,use_excess,max_ktop &
                            ,zqexec,ztexec,x_add_buoy,xland,cnvcf,heso,wlpool,itf,ktf,its,ite, kts,kte)
       !
       !--- scale dependence factor (sig)
@@ -2502,7 +2507,7 @@ module module_cu_gf_monan
         !var2d1(:) = 0.0
         !var2d2(:) = vshear2(:)
         !var2d1(:) = x_add_buoy(:)
-         if( adv_trigger == 0) then 
+         if( adv_trigger == 0 .and. convection_tracer == 1) then 
             do i=its,itf
                 var2d1(i) = maxval( buoy_exc(kts:ktop(i),i) )
                !var2d1(i) = p_cwv_ave(i)
@@ -4379,14 +4384,14 @@ module module_cu_gf_monan
    subroutine cup_cloud_limits(cumulus,ierrc,ierr,cap_inc,cap_max_in,heo_cup,heso_cup,qo_cup &
                               ,qeso_cup,po,po_cup,z_cup,heo,hkbo,qo,qeso,entr_rate_2d,hcot   &
                               ,k22,kbmax,klcl,kbcon,ktop,depth_neg_buoy,frh                  &
-                              ,start_level_,use_excess,zqexec,ztexec,x_add_buoy,xland,cnvcf  &
-                              ,heso,wlpool,itf,ktf,its,ite, kts,kte)
+                              ,start_level_,use_excess,max_ktop,zqexec,ztexec,x_add_buoy     &
+                              ,xland,cnvcf,heso,wlpool,itf,ktf,its,ite, kts,kte)
 
       implicit none
       character *(*)            ,intent (in   ) :: cumulus
       character(len=128)        ,intent (inout) :: ierrc(:)
       integer                   ,intent (in   ) :: itf,ktf,its,ite, kts,kte,use_excess
-      integer, dimension (:)    ,intent (in   ) :: kbmax,start_level_
+      integer, dimension (:)    ,intent (in   ) :: kbmax,start_level_,max_ktop
       integer, dimension (:)    ,intent (inout) :: kbcon,ierr,ktop,klcl,k22
       real,    dimension (:,:)  ,intent (in   ) :: heo_cup,heso_cup,po_cup,z_cup,heo &
                                                   ,qo_cup,qeso_cup,po,qo,qeso,heso
@@ -4512,18 +4517,20 @@ module module_cu_gf_monan
                   ierrc(i)='cloud top or cloud_depth too low for deep'
                endif
             enddo
-      endif
-      !--- apply overshoot 
-      if(overshoot > 1.e-6) then
-            do vtp_index = get_num_elements(vec_ok),1,-1
-               i = get_data_value(vec_ok,vtp_index)
-               Z_overshoot = (1. + overshoot) * z_cup(ktop(i),i)
-               do k=ktop(i)+1,ktf-1
-                  if(Z_overshoot <= z_cup(k,i)) then
-                     ktop(i) = k; exit
-                  endif
+            !
+            !--- apply overshoot 
+            if(overshoot > 1.e-6) then
+               do vtp_index = get_num_elements(vec_ok),1,-1
+                  i = get_data_value(vec_ok,vtp_index)
+                  Z_overshoot = (1. + overshoot) * z_cup(ktop(i),i)
+                  do k=ktop(i)+1,ktf-1
+                       if(Z_overshoot <= z_cup(k,i)) then
+                             ktop(i) = min(k, max_ktop(i))
+                             exit
+                       endif
+                  enddo
                enddo
-            enddo
+            endif
       endif
    end subroutine cup_cloud_limits
    !------------------------------------------------------------------------------------
@@ -11099,19 +11106,19 @@ module module_cu_gf_monan
 
             call cup_env(zo,qeso_adv,heo_adv,heso_adv,tn_x,qo_x,po,z1, psur,ierr,-1,itf,ktf,its,ite, kts,kte)
             
-            call cup_env_clev(tn_x,qeso_adv,qo_x,heo_adv,heso_adv,zo,po,qeso_cup_adv,qo_cup_adv,heo_cup_adv      &
-                             ,us,vs,u_cup,v_cup,heso_cup_adv,zo_cup_adv,po_cup_adv,gammao_cup_adv,tn_cup_adv     &
+            call cup_env_clev(tn_x,qeso_adv,qo_x,heo_adv,heso_adv,zo,po,qeso_cup_adv,qo_cup_adv,heo_cup_adv    &
+                             ,us,vs,u_cup,v_cup,heso_cup_adv,zo_cup_adv,po_cup_adv,gammao_cup_adv,tn_cup_adv   &
                              ,psur,tsur,ierr,z1,itf,ktf,its,ite, kts,kte)
-      !
+   
             call get_1st_guess_MSE_profile(cumulus,ave_layer,its,ite,itf,kts,kte,ktf,ierr,start_level,k22      &
                                          ,ktop,hkbo_adv,zqexec,ztexec,x_add_buoy,xland,zuo,zuo,po,heo_cup_adv  &
                                          ,up_massentro,up_massdetro,heso_cup_adv,heo_adv,hco_adv,cnvcf,heo_adv) 
 
-            call get_buoyancy(itf,ktf, its,ite, kts,kte,ierr,klcl,kbcon,ktop,hco_adv,heo_cup_adv,heso_cup_adv &
+            call get_buoyancy(itf,ktf, its,ite, kts,kte,ierr,klcl,kbcon,ktop,hco_adv,heo_cup_adv,heso_cup_adv  &
                              ,dbyo_adv,zo_cup_adv)
 
             aa_tmp = 0.0
-            call cup_up_aa0(aa_tmp,zo_cup_adv,zuo,dbyo_adv ,gammao_cup_adv ,tn_cup_adv,k22,klcl,kbcon,ktop &
+            call cup_up_aa0(aa_tmp,zo_cup_adv,zuo,dbyo_adv ,gammao_cup_adv ,tn_cup_adv,k22,klcl,kbcon,ktop     &
                            ,ierr,itf,ktf,its,ite, kts,kte)
            if(step==1) aa0     = aa_tmp ! cloud work function initial
            if(step==2) aa1_adv = aa_tmp ! cloud work function modified by advection tendencies
