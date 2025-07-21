@@ -1583,10 +1583,11 @@ module module_cu_gf_monan
                                                    ,zlcl_sfc
 
       real,    dimension (:)    ,intent (in   )  :: col_sat,stochastic_sig,tke_pbl
-      real,    dimension (:)    ,intent (inout)  :: zws,ztexec,zqexec,wlpool,max_ktop
+      real,    dimension (:)    ,intent (inout)  :: zws,ztexec,zqexec,wlpool
       real                      ,intent (in   )  :: dtime,entr_rate_input
       real,    dimension (:,:,:),intent (inout)  :: mpqi,mpql,mpcf
       real,    dimension (:,:,:),intent (inout)  :: outmpqi,outmpql,outmpcf
+      integer, dimension (:)    ,intent (in   )  :: max_ktop
       integer, dimension (:)    ,intent (inout)  :: &
           ierr              &
          ,jmin              &
@@ -1689,30 +1690,27 @@ module module_cu_gf_monan
       ! dellat = change of temperature per unit mass flux of cloud ensemble
       ! dellaq = change of q per unit mass flux of cloud ensemble
       ! dellaqc = change of qc per unit mass flux of cloud ensemble
-
-      character(len=128) :: ierrc(its:ite)      
-
-      real :: dsubh_aver,dellah_aver,x_add,cap_max_inc
-      real :: day,dz,dzo,radius,entrd_rate,zcutdown,depth_min,zkbmax,z_detr,zktop       &
-        ,massfld,dh,trash,frh,xlamdd,radiusd,frhd,effec_entrain,detdo1,detdo2,entdo     &
-        ,dp,subin,detdo,entup,detup,subdown,entdoj,entupk,detupk,totmas,min_entr_rate   &
-        ,tot_time_hr,beta,env_mf,env_mf_p,env_mf_m,dts,denom,denomU,umean
-
-      integer :: iversion
-      integer :: ipr=0,jpr=0
-      integer :: k,i,iedt,nens,nens3,kii,kff
-      integer :: vtp_index
-      
-      integer, dimension (its:ite) :: kzdown,kdet,kb, kbmax,start_level
-      real,    dimension (its:ite,1:maxens3) ::  xff_mid
-      real,    dimension (its:ite,shall_closures) :: xff_shal
-
       ! aa0 cloud work function for downdraft
       ! edt = epsilon
       ! aa0     = cloud work function without forcing effects
       ! aa1     = cloud work function with forcing effects
       ! xaa0    = cloud work function with cloud effects
       ! edt     = epsilon
+      character(len=128) :: ierrc(its:ite)      
+
+      real :: dsubh_aver,dellah_aver,x_add,cap_max_inc
+      real :: day,dz,dzo,radius,entrd_rate,zcutdown,depth_min,zkbmax,z_detr,zktop       &
+        ,massfld,dh,trash,frh,xlamdd,radiusd,frhd,effec_entrain,detdo1,detdo2,entdo     &
+        ,dp,subin,detdo,entup,detup,subdown,entdoj,entupk,detupk,totmas,min_entr_rate   &
+        ,tot_time_hr,beta,env_mf,env_mf_p,env_mf_m,dts,denom,denomU
+
+      integer :: ipr=0,jpr=0
+      integer :: k,i,iedt,nens,nens3,kii,kff
+      integer :: vtp_index
+      
+      integer, dimension (its:ite) :: kzdown,kdet,kb, kbmax,start_level,ierr_24,ierr_31
+      real,    dimension (its:ite,1:maxens3) ::  xff_mid
+      real,    dimension (its:ite,shall_closures) :: xff_shal
 
       real,    dimension (its:ite) ::                                                      &
          edt,aa1,aa0,xaa0,hkb,hkbo,xhkb,qkb, pwevo,bu,bud,cap_max,xland1,vshear            &
@@ -1749,8 +1747,7 @@ module module_cu_gf_monan
       real                                  ::  evap_(mtp),wetdep_(mtp),trash_(mtp),trash2_(mtp) &
                                                ,massi,massf,dtime_max,evap,wetdep,residu_(mtp)   &
                                                ,s1,s2,q1,q2,rzenv,factor,CWV,entr_threshold      &
-                                               ,resten_H,resten_Q,resten_T,alp0,beta1,beta2      &
-                                               ,dx_ref,alpha_cats
+                                               ,resten_H,resten_Q,resten_T,alp0,beta1,beta2      
       !----------------------------------------------------------------------
       !-- only for debug (atmos composition)
       real, allocatable, dimension (:,:,:),save    ::   se_chem_update
@@ -1903,14 +1900,10 @@ module module_cu_gf_monan
       !
       !--- determine the moist static energy of air parcels at source level
       !
-      do vtp_index = get_num_elements(vec_ok),1,-1
-         i = get_data_value(vec_ok,vtp_index)
-
+      do vtp_index = get_num_elements(vec_ok),1,-1; i = get_data_value(vec_ok,vtp_index)
          x_add = (c_alvl*zqexec(i)+c_cp*ztexec(i)) +  x_add_buoy(i)
-         call get_cloud_bc(cumulus,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i),he_cup (kts:kte,i),hkb (i)&
-                          ,k22(i),x_add)
-         call get_cloud_bc(cumulus,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i),heo_cup(kts:kte,i),hkbo(i)&
-                          ,k22(i),x_add)
+         call get_cloud_bc(cumulus,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i),he_cup (kts:kte,i),hkb (i),k22(i),x_add)
+         call get_cloud_bc(cumulus,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i),heo_cup(kts:kte,i),hkbo(i),k22(i),x_add)
       enddo
       !
       !--- determine the level of convective cloud base  - kbcon
@@ -1948,11 +1941,10 @@ module module_cu_gf_monan
                                ,entr_rate_2d,po_cup,up_massentro, up_massdetro,cumulus,kbcon,k22,kpbl &
                                ,up_massentru,up_massdetru,lambau_dp)
 
-      if( adv_trigger ==1 .and. trim(cumulus) == 'deep')&
+      if( adv_trigger == 1 .and. trim(cumulus) == 'deep')&
       call adv_trigger_check(cumulus,ave_layer,ierr,ierrc,itf,ktf,its,ite,kts,kte,dtime,us,vs & 
                             ,start_level,k22,klcl,kbcon,ktop,xland,up_massentro,up_massdetro  &
-                            ,zuo,z,zo,t,q,tn_adv,qo_adv,po,z1, psur,tsur,cnvcf,var2d1)
-
+                            ,zuo,z,zo,t,q,tn_adv,qo_adv,po,z1, psur,tsur,cnvcf,var2d1,ierr_31)
       !
       !-- 1st guess for moist static energy and dbyo (not including ice phase)
       !
@@ -2006,19 +1998,6 @@ module module_cu_gf_monan
       call cup_up_aa0(aa0,z_cup ,zuo,dby  ,GAMMA_CUP  ,t_cup ,k22,klcl,kbcon,ktop,ierr,itf,ktf,its,ite, kts,kte)
       call cup_up_aa0(aa1,zo_cup,zuo,dbyo ,GAMMAo_CUP ,tn_cup,k22,klcl,kbcon,ktop,ierr,itf,ktf,its,ite, kts,kte)
       !
-      !---
-      !
-      if(.not. FIRST_GUESS_W) then
-         !--- calculate in-cloud/updraft air temperature for vertical velocity
-         !
-         !tempco (:,:) = tn_cup(:,:)
-         do vtp_index = get_num_elements(vec_ok),1,-1
-            i = get_data_value(vec_ok,vtp_index)
-            do k=kts,ktf
-               tempco (k,i) = (1./c_cp)*(hco (k,i)-c_grav*zo_cup(k,i)-c_alvl*qco (k,i))
-            enddo
-         enddo
-      endif
       !
       !---gust front impact on removal instabil time-scale and trigger function based on KE > CIN
       !
@@ -2044,11 +2023,42 @@ module module_cu_gf_monan
       !--- vertical velocity
       !
       if(.not. FIRST_GUESS_W) then
+           do vtp_index = get_num_elements(vec_ok),1,-1; i = get_data_value(vec_ok,vtp_index)
+              do k=kts,ktf
+                 tempco (k,i) = (1./c_cp)*(hco (k,i)-c_grav*zo_cup(k,i)-c_alvl*qco (k,i))
+              enddo
+           enddo
            call cup_up_vvel(vvel2d,vvel1d,zws,entr_rate_2d,cd,zo,zo_cup,zuo,dbyo,GAMMAo_CUP,tn_cup      &
                            ,tempco,qco,qrco,qo,start_level,klcl,kbcon,ktop,ierr,itf,ktf,its,ite, kts,kte&
                            ,wlpool,wlpool_bcon)
       endif
+      !      
+      !---  get time scales for instability removal
+      !
+      if(cumulus /= 'shallow') &
+      call get_timescales(cumulus, wmean, tau_ecmwf, vvel1d, dx, ktop, kbcon,zo_cup)
 
+      !
+      !--- apply diurnal cycle closure _or_ trigger function.
+      !
+      if( dicycle >= 0 .and. cumulus == 'deep') &  
+      call dicycle_closure_trigger(aa1_bl,aa1,t,tn,q,qo,dtime,po_cup,zo_cup,us,vs  &
+                                  ,klcl,kpbl,kbcon,ktop,ierr,ierrc,itf,ktf,its,ite, kts,kte & 
+                                  ,xland,tau_bl,tau_ecmwf,t_star,cumulus,z1,x_add_buoy,ierr_24 )
+
+      
+      if( dicycle == 5 .and. adv_trigger == 5 .and. trim(cumulus) == 'deep') then 
+          call adv_trigger_check(cumulus,ave_layer,ierr,ierrc,itf,ktf,its,ite,kts,kte,dtime,us,vs & 
+                                ,start_level,k22,klcl,kbcon,ktop,xland,up_massentro,up_massdetro  &
+                                ,zuo,z,zo,t,q,tn_adv,qo_adv,po,z1, psur,tsur,cnvcf,var2d1,ierr_31)
+          do vtp_index = get_num_elements(vec_ok),1,-1;  i = get_data_value(vec_ok,vtp_index)
+              if(ierr_31(i) == 31 .and. ierr_24(i) == 24) then
+                ierr(i)=23 ;is_removed = remove(vec_ok, i)
+                ierrc(i)="deep: aa1-aa1bl<zero or dcape trigger not satisfied"
+              endif
+         enddo
+      endif 
+      !
       !---- new rain (for future use, keep this)
       !
       !--- calculate rain mixing ratio in updrafts
@@ -2131,96 +2141,7 @@ module module_cu_gf_monan
            end do
          end do
       endif  
-      !-----------------------------------------------------------------------------------------
-      !
-      !--- time-scale of cape removal
-      if(cumulus /= 'shallow') then
-           !
-           if(sgs_w_timescale == 0) then
-                if(cumulus=='deep') then
-                    tau_ecmwf(:)=tau_deep;   wmean(:) = 3. !  mean vertical velocity m/s
-                else
-                    tau_ecmwf(:)=tau_mid ;   wmean(:) = 3. 
-                endif
-           endif
-           !--- Bechtold et al (2008) time-scale of cape removal
-           if(sgs_w_timescale == 1) then
-              do vtp_index = get_num_elements(vec_ok),1,-1
-                 i = get_data_value(vec_ok,vtp_index)
-                 !- mean vertical velocity based on integration of vertical veloc equation
-                 wmean(i) = min(max(vvel1d(i),3.),20.)
 
-                 !- time-scale cape removal from Bechtold et al. 2008
-                 tau_ecmwf(i)=( zo_cup(ktop(i),i)- zo_cup(kbcon(i),i) ) / wmean(i)
-                 tau_ecmwf(i)= min(10800., max(1200.,tau_ecmwf(i)))
-
-              enddo
-           endif
-           !--- time-scale cape removal of IFS 2023
-           if(sgs_w_timescale == 2) then
-              dx_ref = 125.e+3 ! meters
-              do vtp_index = get_num_elements(vec_ok),1,-1
-                 i = get_data_value(vec_ok,vtp_index)
-                 !- mean vertical velocity based on integration of vertical veloc equation
-                 wmean(i) = min(max(vvel1d(i),3.),20.)
-
-                 if(dx(i) > 8000.) then
-                    alpha_cats = 1. + 1.60*dx(i)/dx_ref
-                 else
-                    alpha_cats = 1. + (log(1.e+4/dx(i)))**2
-                 endif
-                 tau_ecmwf(i)=alpha_cats*(zo_cup(ktop(i),i)- zo_cup(kbcon(i),i)) / wmean(i)
-                !tau_ecmwf(i)= min(10800., max(720.,tau_ecmwf(i)))
-                 tau_ecmwf(i)= min(10800., max(1200.,tau_ecmwf(i)))
-              enddo
-           endif
-      endif
-      ! 
-      !--- diurnal cycle section
-      if( dicycle >= 0 .and. cumulus == 'deep') then
-      !
-      !--- Implements the Bechtold et al (2014)
-      !
-         do vtp_index = get_num_elements(vec_ok),1,-1
-            i = get_data_value(vec_ok,vtp_index)
-            umean= 2.0+sqrt(0.5*(us(1,i)**2+vs(1,i)**2+us(kbcon(i),i)**2+vs(kbcon(i),i)**2))
-            !--                    - over land -            -          over ocean       s   -
-            tau_bl(i)=(1.-xland(i))*tau_ecmwf(i) + xland(i)*(zo_cup(kbcon(i),i)- z1(i)) /umean
-         enddo
-      !
-      !-- calculate "pcape" or equivalent cloud work function from the BL forcing only
-      !
-         call cup_up_aa1bl(aa1_bl,aa1_fa,aa1,t,tn,q,qo,dtime,po_cup,zo_cup,zuo,dbyo        &
-                          ,gammao_cup,tn_cup,rho,klcl,kpbl,kbcon,ktop,ierr,itf,ktf,its,ite, kts,kte & 
-                          ,xland,ztexec,xlons,xlats, h_sfc_flux,le_sfc_flux,tau_bl,tau_ecmwf        &
-                          ,t_star,cumulus,tn_bl,qo_bl  )
-
-         do vtp_index = get_num_elements(vec_ok),1,-1
-            i = get_data_value(vec_ok,vtp_index)
-            aa1_bl(i) = (aa1_bl(i)/T_star) * tau_bl(i) ! units J/kg
-            aa1_bl(i) = min(2000., abs(aa1_bl(i)))*sign(1.,aa1_bl(i))
-         enddo
-         
-         if( dicycle == 2 .or. dicycle == 3 ) then
-            do vtp_index = get_num_elements(vec_ok),1,-1
-               i = get_data_value(vec_ok,vtp_index)
-               if( dicycle == 2) then 
-               if(( aa1(i) - aa1_bl(i) < 0.0 ) .and. ( x_add_buoy(i) < mx_buoy1 )) then
-                  ierr(i)=24 ; is_removed  = remove(vec_ok, i)
-                     ierrc(i)='deep: aa1-aa1bl<zero .and. x_add_buoy(i)<mx_buoy1'
-                  endif
-               endif
-               if( dicycle == 3) then 
-                  if(( aa1(i) - aa1_bl(i) < 0.0 ) .and. ( x_add_buoy(i) < mx_buoy1 )  .and. ( vshear2(i) >  0.9 ) ) then
-                     ierr(i)=26 ; is_removed  = remove(vec_ok, i)
-                     ierrc(i)='deep: aa1-aa1bl<zero .and. x_add_buoy(i)<mx_buoy1 .and. vshear2(i)>0.9'
-                  endif
-               endif
-            enddo
-         endif
-      !
-      endif
-      !
       !
       !--- get the environmental normalized mass flux
       !
@@ -3733,84 +3654,7 @@ module module_cu_gf_monan
          enddo
       enddo
    end subroutine cup_up_moisture_light
-   !------------------------------------------------------------------------------------
-   subroutine cup_up_aa1bl(aa1_bl,aa1_fa,aa1,t,tn,q,qo,dtime,po_cup,z_cup,zu,dby           &
-                          ,gamma_cup,t_cup,rho,klcl,kpbl,kbcon,ktop,ierr,itf,ktf,its,ite   &
-                          ,kts,kte,xland,ztexec,xlons,xlats, h_sfc_flux,le_sfc_flux,tau_bl &
-                          ,tau_ecmwf,t_star,cumulus ,tn_bl,qo_bl)
-
-      implicit none
-      character*(*), intent (in)            :: cumulus
-      integer      , intent (in)            ::itf,ktf,its,ite, kts,kte
-      ! aa0 cloud work function
-      ! gamma_cup = gamma on model cloud levels
-      ! t_cup = temperature (Kelvin) on model cloud levels
-      ! dby = buoancy term
-      ! zu= normalized updraft mass flux
-      ! z = heights of model levels
-      ! ierr error value, maybe modified in this routine
-      !
-      integer, dimension (:)   ,intent (in  ) :: klcl,kbcon,ktop,kpbl
-      real,    dimension (:,:) ,intent (in  ) :: z_cup,zu,gamma_cup,t_cup,dby,t,tn,q,qo &
-                                                ,po_cup,rho,tn_bl,qo_bl
-      real                     ,intent(in   ) :: dtime, t_star
-
-      real,    dimension (:)   ,intent (in  ) :: xland,ztexec,xlons,xlats, h_sfc_flux &
-                                                ,le_sfc_flux,aa1,tau_bl,tau_ecmwf
-      !
-      ! input and output
-      integer, dimension (:)   ,intent (inout) :: ierr
-      real,    dimension (:)   ,intent (out  ) :: aa1_bl,aa1_fa
-      !
-      !  local variables in this routine
-      !
-      integer                               ::    i,k,vtp_index,version = 0
-      real                                  ::    dz,da,aa_1,aa_2,tcup,da_bl,a1_bl
-      !
-      !
-      aa1_bl (:)=0.
-      if(version == 0 ) then
-         do vtp_index = get_num_elements(vec_ok),1,-1
-            i = get_data_value(vec_ok,vtp_index)
-            !***       do k=kts,kbcon(i)
-            do k=kts,kpbl(i)
-               dz = c_grav * (z_cup (k+1,i)-z_cup (k,i))
-               da = dz*(tn(k,i)*(1.+0.608*qo(k,i))-t(k,i)*(1.+0.608*q(k,i)))/dtime
-               aa1_bl(i)=aa1_bl(i)+da ! Units : J K / (kg seg)
-            enddo
-         enddo
-      elseif(version==1) then
-         do vtp_index = get_num_elements(vec_ok),1,-1
-            i = get_data_value(vec_ok,vtp_index)
-            do k=kts,kpbl(i)
-               dz = (z_cup (k+1,i)-z_cup (k,i))
-               aa_1=(c_grav/(c_cp*t_cup(k,i  )))*dby(k,i  )*zu(k,i  )
-               aa_2=(c_grav/(c_cp*t_cup(k+1,i)))*dby(k+1,i)*zu(k+1,i)
-               da=0.5*(aa_1+aa_2)*dz! Units : J / kg
-               aa1_bl(i)=aa1_bl(i)+da
-            enddo
-         enddo
-      else
-         stop "unknown version option in routine: cup_up_aa1bl"
-      endif
-
-      return
-      
-      aa1_fa (:)=0.
-      do vtp_index = get_num_elements(vec_ok),1,-1
-         i = get_data_value(vec_ok,vtp_index)
-         do k= kbcon(i),ktop(i)
-
-            dz=z_cup(k+1,i)-z_cup(k,i)
-            aa_1=(c_grav/(c_cp*((t_cup(k,i  )))))*dby(k,i  )/(1.+gamma_cup(k,i  ))*zu(k,i)
-            aa_2=(c_grav/(c_cp*((t_cup(k+1,i)))))*dby(k+1,i)/(1.+gamma_cup(k+1,i))*zu(k+1,i)
-            da=0.5*(aa_1+aa_2)*dz
-            aa1_fa(i)=aa1_fa(i)+da
-         enddo
-      enddo
-
-   end subroutine cup_up_aa1bl
-   !------------------------------------------------------------------------------------
+ !------------------------------------------------------------------------------------
    subroutine get_lateral_massflux(itf,ktf, its,ite, kts,kte,min_entr_rate              &
                                   ,ierr,ktop,zo_cup,zuo,cd,entr_rate_2d,po_cup          &
                                   ,up_massentro, up_massdetro                           &
@@ -11072,7 +10916,7 @@ module module_cu_gf_monan
 !---------------------------------------------------------------------------------------------!
      subroutine adv_trigger_check(cumulus,ave_layer,ierr,ierrc,itf,ktf,its,ite,kts,kte,dtime,us,vs & 
                                  ,start_level,k22,klcl,kbcon,ktop,xland,up_massentro,up_massdetro  &
-                                 ,zuo,z,zo,t,q,tn_adv,qo_adv,po,z1, psur,tsur,cnvcf,daa_adv_dt)
+                                 ,zuo,z,zo,t,q,tn_adv,qo_adv,po,z1, psur,tsur,cnvcf,daa_adv_dt, ierr_31)
       implicit none
       character*(*)   ,intent (in)                 :: cumulus
       character(len=*),intent(inout), dimension(:) :: ierrc
@@ -11083,7 +10927,7 @@ module module_cu_gf_monan
       real,    dimension (:)  ,intent (in)  :: psur,z1,xland,tsur
       integer, dimension (:)  ,intent (in)  :: start_level,ktop,k22,klcl,kbcon
 
-      integer, dimension(:)   ,intent(inout)  :: ierr
+      integer, dimension(:)   ,intent(inout)  :: ierr,ierr_31
       real,    dimension(:)   ,intent(inout)  :: daa_adv_dt
       !---local var
       real, dimension (its:ite)         :: aa_tmp,aa0,aa1_adv,hkbo_adv,zqexec,ztexec,x_add_buoy
@@ -11126,16 +10970,134 @@ module module_cu_gf_monan
       enddo
 
       !--- trigger function based on Xie et al 2019
+      ierr_31 = -99
       do vtp_index = get_num_elements(vec_ok),1,-1;   i = get_data_value(vec_ok,vtp_index)
          daa_adv_dt(i)=3600.*(aa1_adv(i)-aa0(i))/dtime
          if( daa_adv_dt(i) > dcape_threshold .and. aa0(i) > 0.) cycle
-         ierr(i)=31 ; is_removed = remove(vec_ok, i)   
-         ierrc(i)="dcape trigger not satisfied"
+         ierr_31(i)=31
+         if(adv_trigger == 1 ) then 
+            ierr(i)=31;  is_removed = remove(vec_ok, i)   
+            ierrc(i)="dcape trigger not satisfied"
+         endif
       enddo
 
      end subroutine adv_trigger_check
 !---------------------------------------------------------------------------------------------!
-     
+     subroutine get_timescales(cumulus, wmean, tau_ecmwf, vvel1d, dx, ktop, kbcon,zo_cup)
+               implicit none
+               character*(*), intent (in)         :: cumulus
+               integer, intent(in ), dimension(:) :: ktop, kbcon
+               real,    intent(in ), dimension(:) :: dx, vvel1d
+               real,    intent(in ), dimension(:,:) :: zo_cup
+               real,    intent(out), dimension(:) :: wmean,tau_ecmwf
+               real :: alpha_cats, dx_ref = 125.e+3 ! meters
+               integer :: i, vtp_index
+               !--- time-scale of cape removal
+               !
+               if(sgs_w_timescale == 0) then
+                   if(cumulus=='deep') then
+                       tau_ecmwf(:)=tau_deep;   wmean(:) = 3. !  mean vertical velocity m/s
+                   else
+                       tau_ecmwf(:)=tau_mid ;   wmean(:) = 3. 
+                   endif
+              endif
+              !--- Bechtold et al (2008) time-scale of cape removal
+              if(sgs_w_timescale == 1) then
+                 do vtp_index = get_num_elements(vec_ok),1,-1
+                    i = get_data_value(vec_ok,vtp_index)
+                    !- mean vertical velocity based on integration of vertical veloc equation
+                    wmean(i) = min(max(vvel1d(i),3.),20.)
+
+                    !- time-scale cape removal from Bechtold et al. 2008
+                    tau_ecmwf(i)=( zo_cup(ktop(i),i)- zo_cup(kbcon(i),i) ) / wmean(i)
+                    tau_ecmwf(i)= min(10800., max(1200.,tau_ecmwf(i)))
+
+                 enddo
+              endif
+              !--- time-scale cape removal of IFS 2023
+              if(sgs_w_timescale == 2) then
+                 
+                 do vtp_index = get_num_elements(vec_ok),1,-1
+                    i = get_data_value(vec_ok,vtp_index)
+                    !- mean vertical velocity based on integration of vertical veloc equation
+                    wmean(i) = min(max(vvel1d(i),3.),20.)
+
+                    if(dx(i) > 8000.) then
+                       alpha_cats = 1. + 1.60*dx(i)/dx_ref
+                    else
+                       alpha_cats = 1. + (log(1.e+4/dx(i)))**2
+                    endif
+                    tau_ecmwf(i)=alpha_cats*(zo_cup(ktop(i),i)- zo_cup(kbcon(i),i)) / wmean(i)
+                   !tau_ecmwf(i)= min(10800., max(720.,tau_ecmwf(i)))
+                    tau_ecmwf(i)= min(10800., max(1200.,tau_ecmwf(i)))
+                 enddo
+              endif
+      end subroutine get_timescales
+!---------------------------------------------------------------------------------------------!
+      subroutine dicycle_closure_trigger(aa1_bl,aa1,t,tn,q,qo,dtime,po_cup,zo_cup,us,vs          &
+                                       ,klcl,kpbl,kbcon,ktop,ierr,ierrc,itf,ktf,its,ite, kts,kte & 
+                                       ,xland,tau_bl,tau_ecmwf,t_star,cumulus,z1,x_add_buoy,ierr_24)
+          implicit none
+          character*(*), intent (in)              :: cumulus
+          integer      , intent (in)              :: itf,ktf,its,ite, kts,kte
+          integer, dimension (:)   ,intent (in  ) :: klcl,kbcon,ktop,kpbl
+          real,    dimension (:,:) ,intent (in  ) :: zo_cup,t,tn,q,qo,po_cup,us,vs
+          real                     ,intent (in  ) :: dtime, t_star
+          real,    dimension (:)   ,intent (in  ) :: xland,aa1,tau_ecmwf,z1,x_add_buoy
+          !
+          ! input and output
+          character*(*), dimension(:) ,intent(inout) :: ierrc
+          integer,       dimension(:) ,intent(inout) :: ierr,ierr_24
+          real,          dimension(:) ,intent(out  ) :: aa1_bl,tau_bl
+          !
+          !  local variables in this routine
+          integer                               ::    i,k,vtp_index
+          real                                  ::    dz,da,umean
+          !
+          !--- diurnal cycle section
+          !
+          !--- Implements the Bechtold et al (2014)
+          !
+          do vtp_index = get_num_elements(vec_ok),1,-1
+                i = get_data_value(vec_ok,vtp_index)
+                umean= 2.0+sqrt(0.5*(us(1,i)**2+vs(1,i)**2+us(kbcon(i),i)**2+vs(kbcon(i),i)**2))
+                !--                    - over land -            -          over ocean       s   -
+                tau_bl(i)=(1.-xland(i))*tau_ecmwf(i) + xland(i)*(zo_cup(kbcon(i),i)- z1(i)) /umean
+          enddo
+          !
+          !-- calculate "pcape" or equivalent cloud work function from the BL forcing only
+          !
+          do vtp_index = get_num_elements(vec_ok),1,-1
+             i = get_data_value(vec_ok,vtp_index)
+             !***       do k=kts,kbcon(i)
+             do k=kts,kpbl(i)
+                 dz = c_grav * (zo_cup (k+1,i)-zo_cup (k,i))
+                 da = dz*(tn(k,i)*(1.+0.608*qo(k,i))-t(k,i)*(1.+0.608*q(k,i)))/dtime
+                 aa1_bl(i) = aa1_bl(i)+da ! Units : J K / (kg seg)
+             enddo
+          enddo
+          do vtp_index = get_num_elements(vec_ok),1,-1
+                i = get_data_value(vec_ok,vtp_index)
+                aa1_bl(i) = (aa1_bl(i)/T_star) * tau_bl(i) ! units J/kg
+                aa1_bl(i) = min(2000., abs(aa1_bl(i)))*sign(1.,aa1_bl(i))
+          enddo
+             
+          if( dicycle == 2 .or. dicycle == 5 ) then
+                ierr_24 = -99
+                do vtp_index = get_num_elements(vec_ok),1,-1
+                   i = get_data_value(vec_ok,vtp_index)
+                   if(( aa1(i) - aa1_bl(i) < 0.0 ) .and. ( x_add_buoy(i) < mx_buoy1 )) then
+                      ierr_24(i)=24
+                      if(dicycle == 2) then 
+                         is_removed  = remove(vec_ok, i)
+                         ierr(i)=24   ;ierrc(i)='deep: aa1-aa1bl<zero .and. x_add_buoy(i)<mx_buoy1'
+                      endif
+                   endif
+                enddo
+          endif
+
+
+      end subroutine dicycle_closure_trigger 
 !---------------------------------------------------------------------------------------------!
 !- list of ierr reasons:
 ! ierr(i)=21   ==>  ierrc(i)='for shallow convection:  LCL height < PBL height'
