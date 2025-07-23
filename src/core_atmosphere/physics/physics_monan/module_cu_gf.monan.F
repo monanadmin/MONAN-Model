@@ -6644,10 +6644,6 @@ module module_cu_gf_monan
             x_add_buoy (i) = maxval(buoy_exc (kts:ktf,i))
             x_add_buoy (i) = min (x_add_buoy (i),mx_buoy2)
 
-            !if(x_add_buoy (i) > mx_buoy1 ) then 
-            !    zqexec(i) = 0.
-            !    ztexec(i) = 0.
-            !endif
          enddo
       endif 
       !-- change entrainment due improved cloud organization
@@ -6655,7 +6651,6 @@ module module_cu_gf_monan
             !-- reduce entr rate, where cold pools exist
             do vtp_index = get_num_elements(vec_ok),1,-1
                i = get_data_value(vec_ok,vtp_index)
-               !entr_rate(i) = max(0.7, 1.-coldPoolStart_orig(x_add_buoy(i))) * entr_rate(i) 
                 entr_rate(i) =             coldPoolStart     (x_add_buoy(i))  * entr_rate(i) 
             enddo
       endif
@@ -6664,7 +6659,6 @@ module module_cu_gf_monan
       if(add_coldpool_trig >= 1)  then 
             do vtp_index = get_num_elements(vec_ok),1,-1
                i = get_data_value(vec_ok,vtp_index)
-              !cap_max(i) = cap_max(i) + coldPoolStart_orig(x_add_buoy(i)) * 35.
                cap_max(i) = cap_max(i) + (1.-coldPoolStart(x_add_buoy(i))) * 35./0.3
             enddo
       endif
@@ -8579,13 +8573,13 @@ module module_cu_gf_monan
       icumulus_gf      = (/1, 1, 0/)
       closure_choice   = (/10,10, 3/) 
       cum_entr_rate    = (/       &
-                           8.0e-4 & !deep
-                          ,3.0e-3 & !shallow
-                          ,1.0e-3 & !mid
+                            8.0e-4 & !deep
+                          ,13.0e-4 & !shallow
+                          ,20.0e-4 & !mid
                          /)
       use_lcl_ctrl_entr = 0
       use_pass_cloudvol = 0
-      use_rhu_ctrl_entr = 1
+      use_rhu_ctrl_entr = 0
       use_shear_ctrl_entr=0
       use_cwv_ctrl_entr = 0
       adv_trigger       = 0
@@ -8600,9 +8594,9 @@ module module_cu_gf_monan
       vert_discr        = 1 
 
       convection_tracer = 1 
-      use_memory        = 222 
-      add_coldpool_clos = 2
-      add_coldpool_trig = 2
+      use_memory        = 0 
+      add_coldpool_clos = 0
+      add_coldpool_trig = 0
       add_coldpool_prop = 3 
       add_coldpool_diff = 3 
       tau_ocea_cp       = 3600. 
@@ -8613,35 +8607,35 @@ module module_cu_gf_monan
      
       use_sub3d         = 0
       use_scale_dep     = 1 
-      sig_factor        = 0.65 
+      sig_factor        = 0.22 
       
-      dicycle           = 1 
-      cum_t_star        = (/30., -99., -99./)
+      dicycle           = 2 
+      cum_t_star        = (/1., -99., -99./)
       
       downdraft         = 1   
       use_rebcb         = 1 
       irainevap         = 0
-      cum_fr_min_entr   = (/0.1, 0.1, 0.1/)
-      cum_max_edt_land  = (/0.30, 0.00, 0.80/)
+      cum_fr_min_entr   = (/0.01, 0.1, 0.1/)
+      cum_max_edt_land  = (/0.50, 0.00, 0.30/)
       cum_max_edt_ocean = (/0.60, 0.00, 0.40/)
       cum_use_excess    = (/1, 1, 1/)
-      cum_ave_layer     = (/30., 30., 30./)
+      cum_ave_layer     = (/50., 30., 30./)
       cum_min_cloud_depth=(/200., 70., 150./)
-      sgs_w_timescale   = 2 
+      sgs_w_timescale   = 1 
       tau_deep          = 3600.0  
       tau_mid           = 3600.0  
       lightning_diag    = 1
       liq_ice_number_conc=0
       apply_sub_mp      = 0 
       use_wetbulb       = 0 
-      overshoot         = 0.0
+      overshoot         = 0.6
 
       autoconv          = 4     
       c0_deep           = 1.0e-3
       c0_mid            = 1.5e-3
       c0_shal           = 1.e-3    
       qrc_crit          = 1.e-4 
-      n_cldrop          = 100.0  
+      n_cldrop          = 200.0  
 
       use_momentum_transp = 1   
       lambau_deep       = 0.0 
@@ -8651,7 +8645,7 @@ module module_cu_gf_monan
       use_smooth_prof   = 1      
       cum_use_smooth_tend = (/2, 2, 2/)     
 
-      cum_hei_updf_land = (/0.55, 0.1, 0.55/)
+      cum_hei_updf_land = (/0.45, 0.1, 0.55/)
       cum_hei_updf_ocean= (/0.55, 0.1, 0.55/)
       cum_hei_down_land = (/0.40, 0.0, 0.35/)
       cum_hei_down_ocean= (/0.40, 0.0, 0.35/) 
