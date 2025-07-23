@@ -1940,7 +1940,9 @@ module module_cu_gf_monan
       call get_lateral_massflux(itf,ktf, its,ite, kts,kte,min_entr_rate,ierr,ktop,zo_cup,zuo,cd  &
                                ,entr_rate_2d,po_cup,up_massentro, up_massdetro,cumulus,kbcon,k22,kpbl &
                                ,up_massentru,up_massdetru,lambau_dp)
-
+      !                           
+      !-- apply moisture advection closuse (Xie et al 2019)
+      !                               
       if( adv_trigger == 1 .and. trim(cumulus) == 'deep')&
       call adv_trigger_check(cumulus,ave_layer,ierr,ierrc,itf,ktf,its,ite,kts,kte,dtime,us,vs & 
                             ,start_level,k22,klcl,kbcon,ktop,xland,up_massentro,up_massdetro  &
@@ -1966,9 +1968,8 @@ module module_cu_gf_monan
                          ,tempco,qco,qrco,qo,start_level,klcl,kbcon,ktop,ierr,itf,ktf,its,ite, kts,kte&
                          ,wlpool,wlpool_bcon)
       endif
-
       !
-      !--- calculate moisture properties of updraft
+      !-- calculate moisture properties of updraft
       !
       call cup_up_moisture(cumulus,start_level,klcl,ierr,ierrc,zo_cup,qco,qrco,pwo,pwavo,hco,tempco,xland   &
                           ,po,p_cup,kbcon,ktop,cd,dbyo,clw_all,t_cup,qo,gammao_cup,zuo,qeso_cup   &
@@ -1988,18 +1989,18 @@ module module_cu_gf_monan
                               ,he_cup,heo_cup,heso_cup ,hes_cup,p_liq_ice,qrco,us,vs,zuo,up_massdetru        &
                               ,up_massentru,up_massdetro,up_massentro,hc,uc,vc,hco,cnvcf,hes,heso)
       !
-      !--- Get buoyancy of updrafts
+      !-- get buoyancy of updrafts
       !
       call get_buoyancy(itf,ktf, its,ite, kts,kte,ierr,klcl,kbcon,ktop,hc, he_cup, hes_cup,  dby, z_cup)
       call get_buoyancy(itf,ktf, its,ite, kts,kte,ierr,klcl,kbcon,ktop,hco,heo_cup,heso_cup,dbyo,zo_cup)
       !
-      !--- calculate workfunctions for updrafts
+      !-- calculate workfunctions for updrafts
       !
       call cup_up_aa0(aa0,z_cup ,zuo,dby  ,GAMMA_CUP  ,t_cup ,k22,klcl,kbcon,ktop,ierr,itf,ktf,its,ite, kts,kte)
       call cup_up_aa0(aa1,zo_cup,zuo,dbyo ,GAMMAo_CUP ,tn_cup,k22,klcl,kbcon,ktop,ierr,itf,ktf,its,ite, kts,kte)
       !
       !
-      !---gust front impact on removal instabil time-scale and trigger function based on KE > CIN
+      !-- gust front impact on removal instability time-scale and trigger function based on KE > CIN
       !
       if(convection_tracer == 1) then 
             wlpool_bcon  (:) = wlpool(:)
@@ -2020,33 +2021,33 @@ module module_cu_gf_monan
             endif 
       endif
       !
-      !--- vertical velocity
+      !-- vertical velocity
       !
       if(.not. FIRST_GUESS_W) then
-           do vtp_index = get_num_elements(vec_ok),1,-1; i = get_data_value(vec_ok,vtp_index)
-              do k=kts,ktf
-                 tempco (k,i) = (1./c_cp)*(hco (k,i)-c_grav*zo_cup(k,i)-c_alvl*qco (k,i))
-              enddo
-           enddo
-           call cup_up_vvel(vvel2d,vvel1d,zws,entr_rate_2d,cd,zo,zo_cup,zuo,dbyo,GAMMAo_CUP,tn_cup      &
-                           ,tempco,qco,qrco,qo,start_level,klcl,kbcon,ktop,ierr,itf,ktf,its,ite, kts,kte&
-                           ,wlpool,wlpool_bcon)
+            do vtp_index = get_num_elements(vec_ok),1,-1; i = get_data_value(vec_ok,vtp_index)
+               do k=kts,ktf
+                   tempco (k,i) = (1./c_cp)*(hco (k,i)-c_grav*zo_cup(k,i)-c_alvl*qco (k,i))
+               enddo
+            enddo
+            call cup_up_vvel(vvel2d,vvel1d,zws,entr_rate_2d,cd,zo,zo_cup,zuo,dbyo,GAMMAo_CUP,tn_cup      &
+                            ,tempco,qco,qrco,qo,start_level,klcl,kbcon,ktop,ierr,itf,ktf,its,ite, kts,kte&
+                            ,wlpool,wlpool_bcon)
       endif
       !      
-      !---  get time scales for instability removal
+      !-- get time scales for instability removal
       !
       if(cumulus /= 'shallow') &
       call get_timescales(cumulus, wmean, tau_ecmwf, vvel1d, dx, ktop, kbcon,zo_cup)
-
       !
-      !--- apply diurnal cycle closure _or_ trigger function.
+      !--- apply diurnal cycle closure _or_ the trigger function based
       !
       if( dicycle >= 0 .and. cumulus == 'deep') &  
-      call dicycle_closure_trigger(aa1_bl,aa1,t,tn,q,qo,dtime,po_cup,zo_cup,us,vs  &
-                                  ,klcl,kpbl,kbcon,ktop,ierr,ierrc,itf,ktf,its,ite, kts,kte & 
+      call dicycle_closure_trigger(aa1_bl,aa1,t,tn,q,qo,dtime,po_cup,zo_cup,us,vs              &
+                                  ,klcl,kpbl,kbcon,ktop,ierr,ierrc,itf,ktf,its,ite, kts,kte    & 
                                   ,xland,tau_bl,tau_ecmwf,t_star,cumulus,z1,x_add_buoy,ierr_24 )
-
-      
+      !
+      !-- apply combined closures Adv_trigger + dicycle_trigger 
+      !
       if( dicycle == 5 .and. adv_trigger == 5 .and. trim(cumulus) == 'deep') then 
           call adv_trigger_check(cumulus,ave_layer,ierr,ierrc,itf,ktf,its,ite,kts,kte,dtime,us,vs & 
                                 ,start_level,k22,klcl,kbcon,ktop,xland,up_massentro,up_massdetro  &
@@ -2065,10 +2066,9 @@ module module_cu_gf_monan
       !
       !       call cup_up_rain(cumulus,klcl,kbcon,ktop,k22,ierr,xland         &
       !                       ,zo_cup,qco,qrco,pwo,pwavo,po,p_cup,t_cup,tempco&
-      !                       ,zuo,up_massentro,up_massdetro,vvel2d,rho         &
+      !                       ,zuo,up_massentro,up_massdetro,vvel2d,rho       &
       !                       ,qrs                                            &
       !                       ,itf,ktf,its,ite, kts,kte)
-
       !---- new rain
       !
       !-----------------------------------------------------------------------------------------
@@ -4311,7 +4311,7 @@ module module_cu_gf_monan
             icount = icount + 1
 
             !--- use this for just 'icount = 3' searches (original k22)
-            if(cap_max(i) < depth_neg_buoy(i) .and. icount > 3) then
+            if(cap_max(i) < depth_neg_buoy(i) .and. icount > 10) then
                           ierr(i)=30
                           ierrc(i)="could not find reasonable kbcon in cup_cloud_limits"
                           cycle loop0
@@ -4352,7 +4352,7 @@ module module_cu_gf_monan
       !--- check cloud top for deep convection
       if(cumulus == 'deep') then
             min_deep_top=500.
-            if(icumulus_gf(mid) == OFF) min_deep_top=1.e+22
+            if(icumulus_gf(mid) == OFF) min_deep_top=600.
             do vtp_index = get_num_elements(vec_ok),1,-1
                i = get_data_value(vec_ok,vtp_index)
                cloud_depth =  po_cup(kbcon(i),i)-po_cup(ktop(i),i)
@@ -6699,9 +6699,10 @@ module module_cu_gf_monan
       !
       !--- max height(m) above ground where updraft air can originate
       !
-      if(cumulus == 'deep'                         ) zkbmax=4000.
-      if(cumulus == 'mid' .or. cumulus == 'shallow') zkbmax=3000.
-      !
+      if(cumulus == 'deep'   ) zkbmax=4500.
+      if(cumulus == 'mid'    ) zkbmax=3000.
+      if(cumulus == 'shallow') zkbmax=2000.
+
       !
       !--- depth(m) over which downdraft detrains all its mass
       !
@@ -10922,11 +10923,10 @@ module module_cu_gf_monan
       character(len=*),intent(inout), dimension(:) :: ierrc
       integer, intent(in ) :: itf,ktf,its,ite,kts,kte
       real,    intent(in ) :: dtime,ave_layer
-      real,    dimension (:,:),intent (in)  :: po,t,q,z,zo,tn_adv,qo_adv,us,vs,up_massentro &
-                                              ,up_massdetro,zuo,cnvcf
-      real,    dimension (:)  ,intent (in)  :: psur,z1,xland,tsur
-      integer, dimension (:)  ,intent (in)  :: start_level,ktop,k22,klcl,kbcon
-
+      real,    dimension (:,:),intent(in)     :: po,t,q,z,zo,tn_adv,qo_adv,us,vs,up_massentro &
+                                                ,up_massdetro,zuo,cnvcf
+      real,    dimension (:)  ,intent(in)     :: psur,z1,xland,tsur
+      integer, dimension (:)  ,intent(in)     :: start_level,ktop,k22,klcl,kbcon
       integer, dimension(:)   ,intent(inout)  :: ierr,ierr_31
       real,    dimension(:)   ,intent(inout)  :: daa_adv_dt
       !---local var
@@ -10935,11 +10935,10 @@ module module_cu_gf_monan
           qeso_adv,heo_adv,heso_adv,qeso_cup_adv,qo_cup_adv,heo_cup_adv,heso_cup_adv  &
          ,gammao_cup_adv,tn_cup_adv,zo_cup_adv,po_cup_adv,dbyo_adv,hco_adv,tn_x,qo_x  &
          ,u_cup,v_cup
-
       integer :: vtp_index,i, step
 
-      zqexec=0.0 ; ztexec=0.0; x_add_buoy=0.0
-      daa_adv_dt = 0.0
+      zqexec=0.0 ; ztexec=0.0; x_add_buoy=0.0;daa_adv_dt = 0.0
+
       do step = 1,2
             !--- calculate moist static energy, heights, qes, ... only by ADV tendencies
             if(step==1) then 
@@ -10975,7 +10974,7 @@ module module_cu_gf_monan
          daa_adv_dt(i)=3600.*(aa1_adv(i)-aa0(i))/dtime
          if( daa_adv_dt(i) > dcape_threshold .and. aa0(i) > 0.) cycle
          ierr_31(i)=31
-         if(adv_trigger == 1 ) then 
+         if( adv_trigger == 1 ) then 
             ierr(i)=31;  is_removed = remove(vec_ok, i)   
             ierrc(i)="dcape trigger not satisfied"
          endif
@@ -11010,7 +11009,7 @@ module module_cu_gf_monan
 
                     !- time-scale cape removal from Bechtold et al. 2008
                     tau_ecmwf(i)=( zo_cup(ktop(i),i)- zo_cup(kbcon(i),i) ) / wmean(i)
-                    tau_ecmwf(i)= min(10800., max(1200.,tau_ecmwf(i)))
+                    tau_ecmwf(i)= min(10800., max(1800.,tau_ecmwf(i)))
 
                  enddo
               endif
@@ -11089,8 +11088,8 @@ module module_cu_gf_monan
                    if(( aa1(i) - aa1_bl(i) < 0.0 ) .and. ( x_add_buoy(i) < mx_buoy1 )) then
                       ierr_24(i)=24
                       if(dicycle == 2) then 
-                         is_removed  = remove(vec_ok, i)
                          ierr(i)=24   ;ierrc(i)='deep: aa1-aa1bl<zero .and. x_add_buoy(i)<mx_buoy1'
+                         is_removed  = remove(vec_ok, i)
                       endif
                    endif
                 enddo
