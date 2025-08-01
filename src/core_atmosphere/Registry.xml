@@ -552,8 +552,8 @@
 			<var name="q2"/>
 			<var name="t2m"/>
 			<var name="precipw"/>
-         <var name="precipci"/>
-         <var name="ctt"/>
+                        <var name="precipci"/>
+                        <var name="ctt"/>
 			<var name="dzs"/>
 			<var name="sh2o"/>
 			<var name="smois"/>
@@ -623,7 +623,7 @@
 			<var name="re_snow" packages="mp_thompson_in;mp_wsm6_in"/>
 			<var name="nt_c" packages="mp_thompson_in"/>
 			<var name="mu_c" packages="mp_thompson_in"/>
-         <var name="tend_sfc_pressure"/>
+               <var name="tend_sfc_pressure"/>
 			<var name="rt_diabatic_tend"/>
 			<var name="nsteps_accum"/>
 			<var name="ndays_accum"/>
@@ -646,32 +646,32 @@
 			<var name="cubot"/>
 			<var name="cutop"/>
 			<var name="w0avg"/>
-         <var name="qcg"/>
-         <var name="sh3d"/>
-         <var name="sm3d"/>
-         <var name="qke"/>
-         <var name="qke_adv"/>
-         <var name="cov"/>
-         <var name="qsq"/>
-         <var name="tsq"/>
-         <var name="tke_pbl"/>
-         <var name="wstar"/>
-         <var name="delta"/>
-         <var name="el_pbl"/>
-         <var name="edmf_a"/>
-         <var name="edmf_w"/>
-         <var name="edmf_qt"/>
-         <var name="edmf_qc"/>
-         <var name="edmf_thl"/>
-         <var name="edmf_ent"/>
-         <var name="sub_thl"/>
-         <var name="sub_qv"/>
-         <var name="det_thl"/>
-         <var name="det_qv"/>
-         <var name="cldfrac_bl"/>
-         <var name="qc_bl"/>
-         <var name="qi_bl"/>
-         <var name="ch"/>
+               <var name="qcg"/>
+               <var name="sh3d"/>
+               <var name="sm3d"/>
+               <var name="qke"/>
+               <var name="qke_adv"/>
+               <var name="cov"/>
+               <var name="qsq"/>
+               <var name="tsq"/>
+               <var name="tke_pbl"/>
+               <var name="wstar"/>
+               <var name="delta"/>
+               <var name="el_pbl"/>
+               <var name="edmf_a"/>
+               <var name="edmf_w"/>
+               <var name="edmf_qt"/>
+               <var name="edmf_qc"/>
+               <var name="edmf_thl"/>
+               <var name="edmf_ent"/>
+               <var name="sub_thl"/>
+               <var name="sub_qv"/>
+               <var name="det_thl"/>
+               <var name="det_qv"/>
+               <var name="cldfrac_bl"/>
+               <var name="qc_bl"/>
+               <var name="qi_bl"/>
+               <var name="ch"/>
 			<var name="kpbl"/>
 			<var name="hpbl"/>
 			<var name="hfx"/>
@@ -803,17 +803,17 @@
 			<var name="rniblten"/>
 			<var name="rthratensw"/>
 			<var name="rthratenlw"/>
-         <var name="rcnvcfcuten" packages="cu_gf_monan_in"/>
-         <var name="rbuoyxcuten" packages="cu_gf_monan_in"/>
-         <var name="umcl" packages="cu_gf_monan_in"/>
-         <var name="vmcl" packages="cu_gf_monan_in"/>
-         <var name="wlpool" packages="cu_gf_monan_in"/>
-         <var name="vcpool" packages="cu_gf_monan_in"/>
-         <var name="sub3d_rthcuten" packages="cu_gf_monan_in"/>
-         <var name="sub3d_rqvcuten" packages="cu_gf_monan_in"/>
-         <var name="sub3d_rucuten" packages="cu_gf_monan_in"/>
-         <var name="sub3d_rvcuten" packages="cu_gf_monan_in"/>
-         <var name="sigma_deep" packages="cu_gf_monan_in"/>
+               <var name="rcnvcfcuten" packages="cu_gf_monan_in"/>
+               <var name="rbuoyxcuten" packages="cu_gf_monan_in"/>
+               <var name="umcl" packages="cu_gf_monan_in"/>
+               <var name="vmcl" packages="cu_gf_monan_in"/>
+               <var name="wlpool" packages="cu_gf_monan_in"/>
+               <var name="vcpool" packages="cu_gf_monan_in"/>
+               <var name="sub3d_rthcuten" packages="cu_gf_monan_in"/>
+               <var name="sub3d_rqvcuten" packages="cu_gf_monan_in"/>
+               <var name="sub3d_rucuten" packages="cu_gf_monan_in"/>
+               <var name="sub3d_rvcuten" packages="cu_gf_monan_in"/>
+               <var name="sigma_deep" packages="cu_gf_monan_in"/>
 			<var name="isltyp"/>
 			<var name="ivgtyp"/>
 			<var name="mminlu"/>
@@ -948,8 +948,8 @@
 			<var name="i_rainnc"/>
 			<var name="rainnc"/>
 			<var name="precipw"/>
-         <var name="precipci"/>
-         <var name="ctt"/>
+                        <var name="precipci"/>
+                        <var name="ctt"/>
 			<var name="cuprec"/>
 			<var name="i_rainc"/>
 			<var name="rainc"/>
@@ -998,15 +998,15 @@
 			<var name="xtime"/>
 			<var name="Time"/>
 
-         <var name="t_isobaric"/>
-         <var name="temperature"/>
-         <var name="pressure"/>
-         <var name="t_iso_levels"/>
-         <var name="z_isobaric"/>
-         <var name="z_iso_levels"/>
-         <var name="meanT_500_300"/>
-         <var name="surface_pressure"/>
-         <!-- End isobaric diagnostics defined in diagnostics/Registry_isobaric.xml -->
+                        <var name="t_isobaric"/>
+                        <var name="temperature"/>
+                        <var name="pressure"/>
+                        <var name="t_iso_levels"/>
+                        <var name="z_isobaric"/>
+                        <var name="z_iso_levels"/>
+                        <var name="meanT_500_300"/>
+                        <var name="surface_pressure"/>
+                        <!-- End isobaric diagnostics defined in diagnostics/Registry_isobaric.xml -->
 
 #ifdef DO_PHYSICS
 			<var name="olrtoa"/>
@@ -1025,26 +1025,26 @@
 			<var name="th2m"/>
 #endif
 
-         <!-- Begin convective diagnostics defined in diagnostics/Registry_convective.xml -->
-         <var name="cape"/>
-         <var name="cin"/>
-         <var name="lcl"/>
-         <var name="lfc"/>
-         <var name="srh_0_1km"/>
-         <var name="srh_0_3km"/>
-         <var name="uzonal_surface"/>
-         <var name="uzonal_1km"/>
-         <var name="uzonal_6km"/>
-         <var name="umeridional_surface"/>
-         <var name="umeridional_1km"/>
-         <var name="umeridional_6km"/>
-         <var name="temperature_surface"/>
-         <var name="dewpoint_surface"/>
+                        <!-- Begin convective diagnostics defined in diagnostics/Registry_convective.xml -->
+                        <var name="cape"/>
+                        <var name="cin"/>
+                        <var name="lcl"/>
+                        <var name="lfc"/>
+                        <var name="srh_0_1km"/>
+                        <var name="srh_0_3km"/>
+                        <var name="uzonal_surface"/>
+                        <var name="uzonal_1km"/>
+                        <var name="uzonal_6km"/>
+                        <var name="umeridional_surface"/>
+                        <var name="umeridional_1km"/>
+                        <var name="umeridional_6km"/>
+                        <var name="temperature_surface"/>
+                        <var name="dewpoint_surface"/>
          
-         <var name="updraft_helicity_max"/>
-         <var name="w_velocity_max"/>
-         <var name="wind_speed_level1_max"/>
-         <!-- End convective diagnostics defined in diagnostics/Registry_convective.xml -->
+			<var name="updraft_helicity_max"/>
+			<var name="w_velocity_max"/>
+			<var name="wind_speed_level1_max"/>
+                        <!-- End convective diagnostics defined in diagnostics/Registry_convective.xml -->
 
 #ifdef DO_PHYSICS
 			<var name="t_oml"/>
@@ -1861,6 +1861,13 @@
 
                         <var name="lbc_ni" name_in_code="ni" array_group="number" packages="bl_mynn_in;mp_thompson_in" units="m^{-3} s^{-1}"
                              description="Lateral boundary tendency of ice number concentration"/>
+                        
+                        <var name="lbc_cnvcf" name_in_code="cnvcf" array_group="convection" packages="gf_monan_pcvol" units="s^{-1}"
+                             description="Lateral boundary tendency of Convective cloud fraction"/>
+                        
+                        <var name="lbc_buoyx" name_in_code="buoyx" array_group="convection" packages="gf_monan_cporg" units="J kg^{-1} s^{-1}"
+                             description="Lateral boundary tendency of Buoyancy excess from the cold pool scheme"/>
+
                 </var_array>
         </var_struct>
 
@@ -2382,7 +2389,43 @@
                      packages="cu_grell_freitas_in;cu_gf_monan_in"/>
 
                 <!-- ... GF MONAN ONLY: -->
-               <var name="lightn_dens" type="real" dimensions="nCells Time" units="km^{-2} s^{-1}"
+                <var name="dp_ierr" type="real" dimensions="nCells Time" units=""
+                      description="reason deep convection was not activated"
+                      packages="cu_gf_monan_in"/>
+                
+                <var name="cg_ierr" type="real" dimensions="nCells Time" units=""
+                      description="reason congestus convection was not activated"
+                      packages="cu_gf_monan_in"/>
+
+                <var name="sh_ierr" type="real" dimensions="nCells Time" units=""
+                      description="reason shallow convection was not activated"
+                      packages="cu_gf_monan_in"/>
+
+                <var name="dp_dens" type="real" dimensions="nCells Time" units=""
+                      description="number of times deep convection was activated"
+                      packages="cu_gf_monan_in"/>
+
+                <var name="acc_dp_dens" type="real" dimensions="nCells Time" units=""
+                      description="accumulated number of times deep convection was activated"
+                      packages="cu_gf_monan_in"/>
+
+                <var name="sh_dens" type="real" dimensions="nCells Time" units=""
+                      description="number of times shallow convection was activated"
+                      packages="cu_gf_monan_in"/>
+
+                <var name="acc_sh_dens" type="real" dimensions="nCells Time" units=""
+                      description="accumulated number of times shallow convection was activated"
+                      packages="cu_gf_monan_in"/>
+                
+                <var name="cg_dens" type="real" dimensions="nCells Time" units=""
+                      description="number of times congestus convection was activated"
+                      packages="cu_gf_monan_in"/>
+
+                <var name="acc_cg_dens" type="real" dimensions="nCells Time" units=""
+                      description="accumulated number of times congestus convection was activated"
+                      packages="cu_gf_monan_in"/>
+
+                <var name="lightn_dens" type="real" dimensions="nCells Time" units="km^{-2} s^{-1}"
                      description="convective lightning density rate"
                      packages="cu_gf_monan_in"/>
 
@@ -2733,6 +2776,14 @@
                      description="wind speed at lowest model level"
                      packages="bl_mynn_in;bl_ysu_in"/>
 
+                <var name="hfx_spr" type="real" dimensions="nCells Time" units="W m^{-2}"
+                     description="upward heat flux at the surface from ocean spray"
+                     packages="bl_mynn_in;bl_ysu_in"/>
+
+                <var name="lh_spr" type="real" dimensions="nCells Time" units="W m^{-2}"
+                     description="latent heat flux at the surface from ocean spray"
+                     packages="bl_mynn_in;bl_ysu_in"/>
+
 
                 <!-- ... MONIN-OBUKHOV (SFCLAY): -->
                 <var name="fh" type="real" dimensions="nCells Time" units="unitless"
@@ -2759,14 +2810,6 @@
 
                 <var name="sm3d" type="real" dimensions="nVertLevels nCells Time" units="unitless"
                      description="stability function for moisture"
-                     packages="bl_mynn_in"/>
-
-                <var name="hfx_spr" type="real" dimensions="nCells Time" units="W m^{-2}"
-                     description="upward heat flux at the surface from ocean spray"
-                     packages="bl_mynn_in"/>
-
-                <var name="lh_spr" type="real" dimensions="nCells Time" units="W m^{-2}"
-                     description="latent heat flux at the surface from ocean spray"
                      packages="bl_mynn_in"/>
 
                 <!-- DIAGNOSTICS: -->

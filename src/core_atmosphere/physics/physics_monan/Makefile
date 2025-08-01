@@ -10,7 +10,6 @@ OBJS = \
 	modConstants.o                 \
 	modGate.o                      \
 	modHenrysLawCts.o              \
-	lib_module_cu_gf.monan.o       \
 	module_cu_gf.monan.o           \
 	module_mp_cldfra_cb.o          \
 	module_bl_mixingscalars.o 
@@ -19,12 +18,11 @@ physics_monan: $(OBJS)
 	ar -ru ./../libphys.a $(OBJS)
 
 # DEPENDENCIES:
-module_cu_gf.monan.o:   \
+module_cu_gf.monan.o:      \
 	modVector.o             \
 	modConstants.o          \
 	modGate.o               \
-	modHenrysLawCts.o       \
-	lib_module_cu_gf.monan.o
+	modHenrysLawCts.o       
 
 
 clean:
