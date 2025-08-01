@@ -7082,7 +7082,7 @@ module module_cu_gf_monan
               i = get_data_value(vec_ok,vtp_index)
               do k=kts,ktf    
                 !fq = max(min(1.,(qeso_cup(max(k,klcl(i)),i)/qeso_cup(klcl(i),i))**1.25) ,0.1)
-                 fq = max(min (1. , sqrt (zo_cup(klcl(i),i) / zo_cup(max(k,klcl(i)),i)) ), 0.1)
+                 fq = max(min (1. , sqrt (zo_cup(klcl(i),i) /(1.e-6 + zo_cup(max(k,klcl(i)),i))) ), 0.1)
                 
                  entr_rate_2d(k,i) = entr_rate(i)*entr_frh2d(k,i)*fq
               enddo
@@ -7094,7 +7094,7 @@ module module_cu_gf_monan
               i = get_data_value(vec_ok,vtp_index)
               do k=kts,ktf    
                 !fq = max(min(1.,(qeso_cup(max(k,klcl(i)),i)/qeso_cup(klcl(i),i))**1.25) ,0.1)
-                 fq = max(min (1. , sqrt (zo_cup(klcl(i),i) / zo_cup(max(k,klcl(i)),i)) ), 0.1)
+                 fq = max(min (1. , sqrt (zo_cup(klcl(i),i) / (1.e-6 + zo_cup(max(k,klcl(i)),i))) ), 0.1)
                 
                  entr_rate_2d(k,i) = entr_rate(i)*fq
               enddo
