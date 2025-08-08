@@ -307,6 +307,9 @@ module module_cu_gf_monan
    !- gradient of updraft (Zhang and Wu, 2003, JAS) => REAL, PARAMETER ::    pgcon=-0.55
    real, parameter :: pgcon= 0.0
 
+   real, parameter ::  delta_ref= 30.e+3  & ! meters
+                      ,entr_ref = 8.e-4     ! ref entrainment for dx = 30000 m
+
    integer, parameter :: MAX_NSPEC=200
    integer           ,dimension(MAX_NSPEC)    :: ind_chem
    character(len=100),dimension(MAX_NSPEC)    ::  CHEM_NAME
@@ -1720,7 +1723,9 @@ module module_cu_gf_monan
         ,daa_adv_dt,wlpool_bcon,xk_x,xf_dicycle,mbdt,xf_coldpool, ke_gustfront             & 
         ,vvel1d, x_add_buoy,lambau_dn,lambau_dp,q_wetbulb,t_wetbulb,col_sat_adv            &
         ,Q_adv,alpha_adv,aa1_radpbl,p_cwv_ave,cape, depth_neg_buoy,frh_bcon                &
-        ,check_sig,random,rh_entr_factor,rntot,delqev,delq2,qevap,rn,qcond,rainevap,vshear2
+        ,check_sig,random,rh_entr_factor,rntot,delqev,delq2,qevap,rn,qcond,rainevap,vshear2&
+        ,entr_rescaled,overshoot_rescaled
+
       real, dimension (kts:kte) ::xh_env_eff
 
       real, dimension (kts:kte,its:ite) ::                                            &
@@ -1839,22 +1844,31 @@ module module_cu_gf_monan
       !
       !-- define entrainment/detrainment profiles for updrafts
       !
-      !- initial entrainment/detrainment
+      !- reescale entrainment rate in terms of the grid spacing (Zhao et al 2024, GRL https://doi.org/10.1029/2024GL110735)
+      if(entr_rate_input < 0.0 .and. trim(cumulus) == 'deep') then 
+         entr_rescaled(:) = (delta_ref/dx(:))**0.2
+         entr_rate    (:) = entr_ref * entr_rescaled(:)
+         min_entr_rate    = entr_ref * fr_min_entr * minval(entr_rescaled)
+         overshoot_rescaled(:) = overshoot * entr_rescaled(:)
+      else
+      !-- initial entrainment rate and the mininum acceptable entrainment rate
       entr_rate(:)  = entr_rate_input
       min_entr_rate = entr_rate_input * fr_min_entr
+         overshoot_rescaled(:) = overshoot 
+      endif
       !
       !-- controls of LCL and PBL turbulence on the entrainment rate
       if(use_lcl_ctrl_entr > 0 ) then 
          call get_lcl2(cumulus,ave_layer,its,ite,itf,kts,kte,ktf,ierr,zqexec,ztexec,xland &
                       ,po,t_cup,p_cup,z_cup,q_cup,k22,klcl,kpbl,psur,zlcl_sfc)
          call LCL_and_PBL_ctrl_on_entrainment(cumulus,its,ite,itf,kts,kte,ktf,min_entr_rate &
-                                             ,entr_rate,zlcl_sfc,turb_len_scale,entr_rate_input)
+                                             ,entr_rate,zlcl_sfc,turb_len_scale)
       endif
       !
       !-- cold pool parameterization and convective memory
       !
       if (convection_tracer == 1 .and. trim(cumulus) /= 'shallow') then
-         call coldPoolConvMem(cumulus,its, itf, kts, kte, ktf, entr_rate_input, ztexec, zqexec      &
+         call coldPoolConvMem(cumulus,its, itf, kts, kte, ktf, ztexec, zqexec        &
                             , xland, po, buoy_exc, ierr, cap_max, wlpool, x_add_buoy                &
                             , min_entr_rate, entr_rate)
       end if
@@ -1911,7 +1925,8 @@ module module_cu_gf_monan
       call cup_cloud_limits(cumulus,ierrc,ierr,cap_max_increment,cap_max,heo_cup,heso_cup,qo_cup    &
                            ,qeso_cup,po,po_cup,zo_cup,heo,hkbo,qo,qeso,entr_rate_2d,hcot,k22,kbmax  &
                            ,klcl,kbcon,ktop,depth_neg_buoy,frh_bcon,start_level,use_excess,max_ktop &
-                           ,zqexec,ztexec,x_add_buoy,xland,cnvcf,heso,wlpool,itf,ktf,its,ite, kts,kte)
+                           ,zqexec,ztexec,x_add_buoy,xland,cnvcf,heso,wlpool,overshoot_rescaled     &
+                           ,itf,ktf,its,ite, kts,kte)
       !
       !--- scale dependence factor (sig)
       !
@@ -2425,12 +2440,13 @@ module module_cu_gf_monan
       !--- for outputs (only deep plume)
       !
       if( trim(cumulus) == 'deep') then
-        !var2d1(:) = 0.0
+        var2d1(:) = aa1(:)
+        var2d2(:) = aa1_bl(:)
         !var2d2(:) = vshear2(:)
         !var2d1(:) = x_add_buoy(:)
          if( adv_trigger == 0 .and. convection_tracer == 1) then 
             do i=its,itf
-                var2d1(i) = maxval( buoy_exc(kts:ktop(i),i) )
+               !var2d1(i) = maxval( buoy_exc(kts:ktop(i),i) )
                !var2d1(i) = p_cwv_ave(i)
             enddo
          endif 
@@ -4229,7 +4245,7 @@ module module_cu_gf_monan
                               ,qeso_cup,po,po_cup,z_cup,heo,hkbo,qo,qeso,entr_rate_2d,hcot   &
                               ,k22,kbmax,klcl,kbcon,ktop,depth_neg_buoy,frh                  &
                               ,start_level_,use_excess,max_ktop,zqexec,ztexec,x_add_buoy     &
-                              ,xland,cnvcf,heso,wlpool,itf,ktf,its,ite, kts,kte)
+                              ,xland,cnvcf,heso,wlpool,overshoot_rescaled,itf,ktf,its,ite, kts,kte)
 
       implicit none
       character *(*)            ,intent (in   ) :: cumulus
@@ -4240,7 +4256,7 @@ module module_cu_gf_monan
       real,    dimension (:,:)  ,intent (in   ) :: heo_cup,heso_cup,po_cup,z_cup,heo &
                                                   ,qo_cup,qeso_cup,po,qo,qeso,heso
       real,    dimension (:)    ,intent (in   ) :: cap_max_in,cap_inc,xland,wlpool
-      real,    dimension (:)    ,intent (in   ) :: zqexec,ztexec,x_add_buoy
+      real,    dimension (:)    ,intent (in   ) :: zqexec,ztexec,x_add_buoy,overshoot_rescaled
       real,    dimension (:)    ,intent (inout) :: hkbo,depth_neg_buoy,frh
       real,    dimension (:,:)  ,intent (in)    :: entr_rate_2d,cnvcf
       real,    dimension (:,:)  ,intent (inout) :: hcot
@@ -4366,7 +4382,7 @@ module module_cu_gf_monan
             if(overshoot > 1.e-6) then
                do vtp_index = get_num_elements(vec_ok),1,-1
                   i = get_data_value(vec_ok,vtp_index)
-                  Z_overshoot = (1. + overshoot) * z_cup(ktop(i),i)
+                  Z_overshoot = (1. + overshoot_rescaled(i)) * z_cup(ktop(i),i)
                   do k=ktop(i)+1,ktf-1
                        if(Z_overshoot <= z_cup(k,i)) then
                              ktop(i) = min(k, max_ktop(i))
@@ -6600,7 +6616,7 @@ module module_cu_gf_monan
          enddo
    end subroutine sas_rainevap
    !------------------------------------------------------------------------------------
-   subroutine coldPoolConvMem(cumulus,its, itf, kts, kte, ktf, entr_rate_input, ztexec  &
+   subroutine coldPoolConvMem(cumulus,its, itf, kts, kte, ktf, ztexec  &
                             , zqexec, xland, po, buoy_exc, ierr, cap_max, wlpool        &
                             , x_add_buoy, min_entr_rate, entr_rate)
 
@@ -6612,7 +6628,6 @@ module module_cu_gf_monan
       ! Variables (input, output, inout)
       integer, intent(in) :: its, itf, kts, kte, ktf
       character*(*), intent (in) :: cumulus
-      real, intent(in)    :: entr_rate_input
       real, intent(inout) :: ztexec(:)
       real, intent(inout) :: zqexec(:)
       real, intent(in)    :: xland(:)
@@ -6984,11 +6999,11 @@ module module_cu_gf_monan
    end subroutine get_lcl2
    !---------------------------------------------------------------------------------------------------
    subroutine LCL_and_PBL_ctrl_on_entrainment(cumulus,its,ite,itf,kts,kte,ktf,min_entr_rate     &
-                                             ,entr_rate,zlcl_sfc,turb_len_scale,entr_rate_input )
+                                             ,entr_rate,zlcl_sfc,turb_len_scale )
       implicit none
       character *(*)   ,intent (in)          :: cumulus  
       integer  ,intent (in   )               :: its,ite,itf,kts,kte,ktf
-      real     ,intent (in   )               :: min_entr_rate,entr_rate_input
+      real     ,intent (in   )               :: min_entr_rate
       real     ,intent (in   ), dimension(:) :: zlcl_sfc
       real     ,intent (in   ), dimension(:,:) :: turb_len_scale
       real     ,intent (inout), dimension(:)   :: entr_rate
@@ -7085,6 +7100,7 @@ module module_cu_gf_monan
                  fq = max(min (1. , sqrt (zo_cup(klcl(i),i) /(1.e-6 + zo_cup(max(k,klcl(i)),i))) ), 0.1)
                 
                  entr_rate_2d(k,i) = entr_rate(i)*entr_frh2d(k,i)*fq
+                 cd(k,i)           = 0.75e-4*detr_frh2d(k,i)       
               enddo
          enddo
 
@@ -7097,6 +7113,7 @@ module module_cu_gf_monan
                  fq = max(min (1. , sqrt (zo_cup(klcl(i),i) / (1.e-6 + zo_cup(max(k,klcl(i)),i))) ), 0.1)
                 
                  entr_rate_2d(k,i) = entr_rate(i)*fq
+                 cd(k,i)           = 0.75e-4
               enddo
          enddo
 
@@ -7109,12 +7126,7 @@ module module_cu_gf_monan
            enddo
       enddo
 
-      if(cumulus /= 'shallow') then
-         do vtp_index = get_num_elements(vec_ok),1,-1
-            i = get_data_value(vec_ok,vtp_index)
-            cd(:,i)=0.75e-4*detr_frh2d(:,i)               
-         enddo
-      else
+      if(cumulus == 'shallow') then
          do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
             cd(:,i)=0.75*entr_rate_2d(:,i)!+0.5e-3
@@ -11079,10 +11091,10 @@ module module_cu_gf_monan
                 ierr_24 = -99
                 do vtp_index = get_num_elements(vec_ok),1,-1
                    i = get_data_value(vec_ok,vtp_index)
-                   if(( aa1(i) - aa1_bl(i) < 0.0 ) .and. ( x_add_buoy(i) < mx_buoy1 )) then
+                   if(( aa1(i) - aa1_bl(i) < 0.0 ) .and. ( x_add_buoy(i) < 4.*mx_buoy1 )) then
                       ierr_24(i)=24
                       if(dicycle == 2) then 
-                         ierr(i)=24   ;ierrc(i)='deep: aa1-aa1bl<zero .and. x_add_buoy(i)<mx_buoy1'
+                         ierr(i)=24   ;ierrc(i)='deep: aa1-aa1bl<zero .and. x_add_buoy(i)<4*mx_buoy1'
                          is_removed  = remove(vec_ok, i)
                       endif
                    endif
