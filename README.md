@@ -9,6 +9,7 @@ The MONAN Model is managed by a scientific committee appointed by INPE's directo
 
 History
 ====
+- Version 1.4.2-rc (Release Candidate) - Speed up by about 7%. Cleanup to become the initial version of the C3P Community Cloud-Convection Parameterization. Joint development between INPE and NOAA/GSL. Removed files not needed anymore. Adding effects of PCW (Neelin et al. 2009) and vertical shear of horizontal wind on the entrainment rate. This should improve model simulations of MCSs. Additional trigger function based on Xie et al 2019. Additional comments and references. 
 - Version 1.4.1-rc (Release Candidate) - Terrain height (ter, calculated previously in the pre processing with init_atmosphere_model) included in the Registry.xml's input section so that can be read from 'init' file and post processed. kubota relhum evalute modification on mpas_isobaric_diagnostics.F.
 - Version 1.4.0-rc (Release Candidate) - Changing the number of isobaric levels from 22 to 18. 
 - Version 1.3.1-rc (Release Candidate) - All 2d vars (_15hPa to _1000hPa) were converted into isobaric 3D vars. All ac* vars now are being accumulated.
