@@ -91,7 +91,7 @@
  character(len=StrKIND),pointer:: mminlu,mminsl
 
  integer,pointer:: nCells,nSoilLevels
- integer,dimension(:),pointer:: ivgtyp,isltyp
+ integer,dimension(:),pointer:: ivgtyp,isltyp,isctyp
 
  real(kind=RKIND),dimension(:),pointer:: snoalb,snow,snowh
  real(kind=RKIND),dimension(:,:),pointer:: tslb,smois,sh2o
@@ -118,6 +118,7 @@
  call mpas_pool_get_dimension(mesh,'nSoilLevels',nSoilLevels)
 
  call mpas_pool_get_array(sfc_input,'isltyp', isltyp)
+ call mpas_pool_get_array(sfc_input,'isctyp', isctyp)
  call mpas_pool_get_array(sfc_input,'ivgtyp', ivgtyp)
  call mpas_pool_get_array(sfc_input,'sh2o'  , sh2o  )
  call mpas_pool_get_array(sfc_input,'smois' , smois )
