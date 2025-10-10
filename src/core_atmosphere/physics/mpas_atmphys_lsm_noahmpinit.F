@@ -231,6 +231,7 @@
  logical,pointer:: urban_physics
 
  integer,pointer:: nsoilcomps
+ integer,dimension(:),pointer:: isctyp
  integer,dimension(:),pointer:: isltyp,ivgtyp
  integer,dimension(:),pointer:: isnowxy
  integer,dimension(:),pointer:: irnumsi,irnummi,irnumfi
@@ -320,10 +321,13 @@
  call mpas_pool_get_array(sfc_input,'dzs'   ,dzs   )
  call mpas_pool_get_array(sfc_input,'isltyp',isltyp)
  call mpas_pool_get_array(sfc_input,'ivgtyp',ivgtyp)
+ call mpas_pool_get_array(sfc_input,'isctyp',isctyp)
 
  do i = its, ite
     mpas_noahmp%isltyp(i) = isltyp(i)
     mpas_noahmp%ivgtyp(i) = ivgtyp(i)
+    mpas_noahmp%isctyp(i) = isctyp(i)
+
  enddo
  do ns = 1, nsoil
     mpas_noahmp%dzs(ns) = dzs(ns,its)

@@ -41,6 +41,7 @@ contains
     if ( .not. allocated (NoahmpIO%zsoil)     ) allocate ( NoahmpIO%zsoil      (1:nsoil            )      ) ! depth to soil interfaces [m]
     if ( .not. allocated (NoahmpIO%ivgtyp)    ) allocate ( NoahmpIO%ivgtyp     (its:ite            )      ) ! vegetation type
     if ( .not. allocated (NoahmpIO%isltyp)    ) allocate ( NoahmpIO%isltyp     (its:ite            )      ) ! soil type
+    if ( .not. allocated (NoahmpIO%isctyp)    ) allocate ( NoahmpIO%isctyp     (its:ite            )      ) ! soil colour class
     if ( .not. allocated (NoahmpIO%vegfra)    ) allocate ( NoahmpIO%vegfra     (its:ite            )      ) ! vegetation fraction []
     if ( .not. allocated (NoahmpIO%tmn)       ) allocate ( NoahmpIO%tmn        (its:ite            )      ) ! deep soil temperature [K]
     if ( .not. allocated (NoahmpIO%xland)     ) allocate ( NoahmpIO%xland      (its:ite            )      ) ! =2 ocean; =1 land/seaice
@@ -467,6 +468,7 @@ contains
     NoahmpIO%ice             = undefined_int
     NoahmpIO%ivgtyp          = undefined_int
     NoahmpIO%isltyp          = undefined_int
+    NoahmpIO%isctyp          = undefined_int
     NoahmpIO%isnowxy         = undefined_int
     NoahmpIO%coszen          = undefined_real
     NoahmpIO%xlat            = undefined_real

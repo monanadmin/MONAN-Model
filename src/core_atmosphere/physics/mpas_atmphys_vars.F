@@ -822,6 +822,7 @@
     
  integer,dimension(:,:),allocatable:: &
     isltyp_p,         &!dominant soil type category                                                            [-]
+    isctyp_p,         &!dominant soil colour category                                                            [-]
     ivgtyp_p           !dominant vegetation category                                                           [-]
 
  real(kind=RKIND),dimension(:),allocatable:: &

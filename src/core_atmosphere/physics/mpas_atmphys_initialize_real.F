@@ -633,7 +633,7 @@
  call mpas_pool_get_array(mesh, 'landmask', landmask)
  call mpas_pool_get_array(mesh, 'lu_index', ivgtyp)
  call mpas_pool_get_array(mesh, 'soilcat_top', isltyp)
- call mpas_pool_get_array(mesh, 'snoalb', snoalb)
+= call mpas_pool_get_array(mesh, 'snoalb', snoalb)
 
  call mpas_pool_get_array(input, 'seaice', seaice)
  call mpas_pool_get_array(input, 'xice', xice)

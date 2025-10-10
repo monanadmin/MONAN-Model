@@ -58,7 +58,7 @@
 
  integer:: i,its,ite
  integer:: n,ns,nsoil,nsnow,nzsnow
- integer,dimension(:),pointer:: isltyp,ivgtyp
+ integer,dimension(:),pointer:: isltyp,isctyp,ivgtyp
 
  real(kind=RKIND),dimension(:),pointer:: latCell,lonCell
  real(kind=RKIND),dimension(:),pointer:: shdmax,shdmin,vegfra,tmn,xice,xland

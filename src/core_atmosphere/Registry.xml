@@ -503,6 +503,7 @@
 
 #ifdef DO_PHYSICS
 			<var name="isltyp"/>
+			<var name="isctyp"/>
 			<var name="ivgtyp"/>
 			<var name="mminlu"/>
 			<var name="isice_lu"/>
@@ -4295,7 +4296,10 @@
                 <!-- ================================================================================================== -->
 
                 <var name="isltyp" type="integer" dimensions="nCells" units="unitless"
-                     description="dominant soil category"/>
+                     description="dominant soil texture category"/>
+
+                <var name="isctyp" type="integer" dimensions="nCells" units="unitless"
+                     description="dominant soil colour category"/>
 
                 <var name="ivgtyp" type="integer" dimensions="nCells" units="unitless"
                      description="dominant vegetation category"/>
