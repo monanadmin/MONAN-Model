@@ -656,7 +656,7 @@ cray:   # BUILDTARGET Cray Programming Environment
 
 intel:   # BUILDTARGET Intel oneAPI Fortran, C, and C++ compiler suite
 	( $(MAKE) all \
-	"FC_PARALLL = mpifort" \
+	"FC_PARALLEL = mpifort" \
 	"CC_PARALLEL = mpicc" \
 	"CXX_PARALLEL = mpic++" \
 	"FC_SERIAL = ifx" \
@@ -684,7 +684,7 @@ intel:   # BUILDTARGET Intel oneAPI Fortran, C, and C++ compiler suite
 
 intel-xd2000:   # BUILDTARGET Intel oneAPI Fortran, C, and C++ compiler suite
 	( $(MAKE) all \
-	"FC_PARALLL = ftn" \
+	"FC_PARALLEL = ftn" \
 	"CC_PARALLEL = cc" \
 	"CXX_PARALLEL = CC" \
 	"FC_SERIAL = ifx" \
