@@ -681,7 +681,6 @@ intel:   # BUILDTARGET Intel oneAPI Fortran, C, and C++ compiler suite
 	"OPENMP = $(OPENMP)" \
 	"CPPFLAGS = $(MODEL_FORMULATION) -D_MPI" )
 
-
 intel-xd2000:   # BUILDTARGET Intel oneAPI Fortran, C, and C++ compiler suite
 	( $(MAKE) all \
 	"FC_PARALLEL = ftn" \
@@ -708,6 +707,36 @@ intel-xd2000:   # BUILDTARGET Intel oneAPI Fortran, C, and C++ compiler suite
 	"USE_PAPI = $(USE_PAPI)" \
 	"OPENMP = $(OPENMP)" \
 	"CPPFLAGS = $(MODEL_FORMULATION) -D_MPI" )
+
+intel2-xd2000:   # BUILDTARGET Intel oneAPI Fortran, C, and C++ compiler suite
+	( $(MAKE) all \
+	"FC_PARALLEL = ftn" \
+	"CC_PARALLEL = cc" \
+	"CXX_PARALLEL = CC" \
+	"FC_SERIAL = ifx" \
+	"CC_SERIAL = icx" \
+	"CXX_SERIAL = icpx" \
+	"FFLAGS_PROMOTION = -real-size 64" \
+	"FFLAGS_OPT = -O2 -convert big_endian -free -align array64byte" \
+	"CFLAGS_OPT = -O2" \
+	"CXXFLAGS_OPT = -O2" \
+	"LDFLAGS_OPT = -O2" \
+	"FFLAGS_DEBUG = -g -convert big_endian -free -check all -fpe0 -traceback" \
+	"CFLAGS_DEBUG = -g -traceback" \
+	"CXXFLAGS_DEBUG = -g -traceback" \
+	"LDFLAGS_DEBUG = -g -fpe0 -traceback" \
+	"FFLAGS_OMP = -qopenmp" \
+	"CFLAGS_OMP = -qopenmp" \
+	"PICFLAG = -fpic" \
+	"BUILD_TARGET = $(@)" \
+	"CORE = $(CORE)" \
+	"DEBUG = $(DEBUG)" \
+	"USE_PAPI = $(USE_PAPI)" \
+	"OPENMP = $(OPENMP)" \
+	"CPPFLAGS = $(MODEL_FORMULATION) -D_MPI" )
+
+
+
 
 CPPINCLUDES =
 FCINCLUDES =
