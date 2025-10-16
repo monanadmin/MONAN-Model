@@ -138,7 +138,7 @@
  integer:: icheck
  integer:: iCell,iSoil
  integer:: nb_to_land,nb_to_ocean,nb_removed
- integer,dimension(:),pointer:: isltyp,isctyp,ivgtyp,landmask
+ integer,dimension(:),pointer:: isltyp,ivgtyp,landmask
 
  real(kind=RKIND):: local_min,local_max
  real(kind=RKIND):: global_sst_min,global_sst_max
@@ -152,7 +152,6 @@
  call mpas_pool_get_array(sfc_input,'isice'     ,isice     )
  call mpas_pool_get_array(sfc_input,'iswater'   ,iswater   )
  call mpas_pool_get_array(sfc_input,'isltyp'    ,isltyp    )
- call mpas_pool_get_array(sfc_input,'isctyp'    ,isctyp    )
  call mpas_pool_get_array(sfc_input,'ivgtyp'    ,ivgtyp    )
  call mpas_pool_get_array(sfc_input,'landmask'  ,landmask  )
  call mpas_pool_get_array(sfc_input,'vegfra'    ,vegfra    )

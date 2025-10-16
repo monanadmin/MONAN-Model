@@ -98,6 +98,7 @@ module mpas_geotile_manager
     !>     * isice = 24
     !>     * isurban = 1
     !>     * isoilwater = 14
+    !>     * islcolwater = 0
     !
     !-----------------------------------------------------------------------
     function mpas_geotile_mgr_init(mgr, path) result(ierr)
@@ -119,7 +120,7 @@ module mpas_geotile_manager
         integer, pointer :: tile_z_start, tile_z_end
         integer, pointer :: signed
         integer, pointer :: tile_bdr
-        integer, pointer :: iswater, islake, isice, isurban, isoilwater
+        integer, pointer :: iswater, islake, isice, isurban, isoilwater, islcolwater
         integer, pointer :: category_min, category_max
         integer :: err_level
         real (kind=RKIND), pointer :: dx ! Grid spacing in the x-direction
@@ -188,7 +189,7 @@ module mpas_geotile_manager
 
         !
         ! If this is a categorical field, then check to see if it has category_max and category_min,
-        ! and then set the defaults of iswater, islake, isice, isurban and isoilwater
+        ! and then set the defaults of iswater, islake, isice, isurban, isoilwater and islcolwater
         !
         call mpas_pool_get_config(mgr % pool, 'type', fieldType)
         if (fieldType == 'categorical') then
@@ -219,12 +220,14 @@ module mpas_geotile_manager
             isice => null()
             isurban => null()
             isoilwater => null()
+            islcolwater => null()
 
             call mpas_pool_get_config(mgr % pool, 'iswater', iswater)
             call mpas_pool_get_config(mgr % pool, 'islake', islake)
             call mpas_pool_get_config(mgr % pool, 'isice', isice)
             call mpas_pool_get_config(mgr % pool, 'isurban', isurban)
             call mpas_pool_get_config(mgr % pool, 'isoilwater', isoilwater)
+            call mpas_pool_get_config(mgr % pool, 'islcolwater', islcolwater)
 
             if (.not. associated(iswater)) then
                 call mpas_pool_add_config(mgr % pool, 'iswater', 16)
@@ -245,6 +248,10 @@ module mpas_geotile_manager
             if (.not. associated(isoilwater)) then
                 call mpas_pool_add_config(mgr % pool, 'isoilwater', 14)
             endif
+
+            if (.not. associated(isoilwater)) then
+                call mpas_pool_add_config(mgr % pool, 'islcolwater', 0)
+            end if
         endif
 
         !
