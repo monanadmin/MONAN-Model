@@ -9,9 +9,9 @@ dummy:
 
 gnu:   # BUILDTARGET GNU Fortran, C, and C++ compilers
 	( $(MAKE) all \
-	"FC_PARALLEL = mpif90" \
-	"CC_PARALLEL = mpicc" \
-	"CXX_PARALLEL = mpicxx" \
+	"FC_PARALLEL = ftn" \
+	"CC_PARALLEL = cc" \
+	"CXX_PARALLEL = CC" \
 	"FC_SERIAL = gfortran" \
 	"CC_SERIAL = gcc" \
 	"CXX_SERIAL = g++" \
@@ -380,18 +380,18 @@ intel-mpi:   # BUILDTARGET Intel compiler suite with Intel MPI library
 
 gfortran:   # BUILDTARGET GNU Fortran, C, and C++ compilers
 	( $(MAKE) all \
-	"FC_PARALLEL = mpif90" \
-	"CC_PARALLEL = mpicc" \
-	"CXX_PARALLEL = mpicxx" \
+	"FC_PARALLEL = ftn" \
+	"CC_PARALLEL = cc" \
+	"CXX_PARALLEL = CC" \
 	"FC_SERIAL = gfortran" \
 	"CC_SERIAL = gcc" \
 	"CXX_SERIAL = g++" \
 	"FFLAGS_PROMOTION = -fdefault-real-8 -fdefault-double-8" \
-	"FFLAGS_OPT = -O3 -ffree-line-length-none -fconvert=big-endian -ffree-form" \
+	"FFLAGS_OPT = -O3 -ffree-line-length-none -fconvert=big-endian -ffree-form -fallow-argument-mismatch" \
 	"CFLAGS_OPT = -O3" \
 	"CXXFLAGS_OPT = -O3" \
 	"LDFLAGS_OPT = -O3" \
-	"FFLAGS_DEBUG = -g -ffree-line-length-none -fconvert=big-endian -ffree-form -fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow" \
+	"FFLAGS_DEBUG = -g -ffree-line-length-none -fallow-argument-mismatch -fconvert=big-endian -ffree-form -fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow" \
 	"CFLAGS_DEBUG = -g" \
 	"CXXFLAGS_DEBUG = -g" \
 	"LDFLAGS_DEBUG = -g" \
@@ -680,6 +680,63 @@ intel:   # BUILDTARGET Intel oneAPI Fortran, C, and C++ compiler suite
 	"USE_PAPI = $(USE_PAPI)" \
 	"OPENMP = $(OPENMP)" \
 	"CPPFLAGS = $(MODEL_FORMULATION) -D_MPI" )
+
+intel-xd2000:   # BUILDTARGET Intel oneAPI Fortran, C, and C++ compiler suite
+	( $(MAKE) all \
+	"FC_PARALLEL = ftn" \
+	"CC_PARALLEL = cc" \
+	"CXX_PARALLEL = CC" \
+	"FC_SERIAL = ifx" \
+	"CC_SERIAL = icx" \
+	"CXX_SERIAL = icpx" \
+	"FFLAGS_PROMOTION = -real-size 64" \
+	"FFLAGS_OPT = -O3 -convert big_endian -free -align array64byte" \
+	"CFLAGS_OPT = -O3" \
+	"CXXFLAGS_OPT = -O3" \
+	"LDFLAGS_OPT = -O3" \
+	"FFLAGS_DEBUG = -g -convert big_endian -free -check all -fpe0 -traceback" \
+	"CFLAGS_DEBUG = -g -traceback" \
+	"CXXFLAGS_DEBUG = -g -traceback" \
+	"LDFLAGS_DEBUG = -g -fpe0 -traceback" \
+	"FFLAGS_OMP = -qopenmp" \
+	"CFLAGS_OMP = -qopenmp" \
+	"PICFLAG = -fpic" \
+	"BUILD_TARGET = $(@)" \
+	"CORE = $(CORE)" \
+	"DEBUG = $(DEBUG)" \
+	"USE_PAPI = $(USE_PAPI)" \
+	"OPENMP = $(OPENMP)" \
+	"CPPFLAGS = $(MODEL_FORMULATION) -D_MPI" )
+
+intel2-xd2000:   # BUILDTARGET Intel oneAPI Fortran, C, and C++ compiler suite
+	( $(MAKE) all \
+	"FC_PARALLEL = ftn" \
+	"CC_PARALLEL = cc" \
+	"CXX_PARALLEL = CC" \
+	"FC_SERIAL = ifx" \
+	"CC_SERIAL = icx" \
+	"CXX_SERIAL = icpx" \
+	"FFLAGS_PROMOTION = -real-size 64" \
+	"FFLAGS_OPT = -O2 -convert big_endian -free -align array64byte" \
+	"CFLAGS_OPT = -O2" \
+	"CXXFLAGS_OPT = -O2" \
+	"LDFLAGS_OPT = -O2" \
+	"FFLAGS_DEBUG = -g -convert big_endian -free -check all -fpe0 -traceback" \
+	"CFLAGS_DEBUG = -g -traceback" \
+	"CXXFLAGS_DEBUG = -g -traceback" \
+	"LDFLAGS_DEBUG = -g -fpe0 -traceback" \
+	"FFLAGS_OMP = -qopenmp" \
+	"CFLAGS_OMP = -qopenmp" \
+	"PICFLAG = -fpic" \
+	"BUILD_TARGET = $(@)" \
+	"CORE = $(CORE)" \
+	"DEBUG = $(DEBUG)" \
+	"USE_PAPI = $(USE_PAPI)" \
+	"OPENMP = $(OPENMP)" \
+	"CPPFLAGS = $(MODEL_FORMULATION) -D_MPI" )
+
+
+
 
 CPPINCLUDES =
 FCINCLUDES =
