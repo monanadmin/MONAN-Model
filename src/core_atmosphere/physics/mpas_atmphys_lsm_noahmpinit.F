@@ -231,7 +231,6 @@
  logical,pointer:: urban_physics
 
  integer,pointer:: nsoilcomps
- integer,dimension(:),pointer:: isctyp
  integer,dimension(:),pointer:: isltyp,isctyp,ivgtyp
  integer,dimension(:),pointer:: isnowxy
  integer,dimension(:),pointer:: irnumsi,irnummi,irnumfi
