@@ -156,7 +156,7 @@
        if(isctyp(iCell) < 1) then
           errflag = 1
           write(err_message,*) "module_sf_noahlsm.F: lsminit: out of range ISCTYP ", &
-                               iCell,isctyp(iCell)
+                               iCell,isctyp(iCell),isltyp(iCell),ivgtype(iCell)
           call physics_message(err_message)
        endif
     end do
