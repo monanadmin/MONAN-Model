@@ -400,7 +400,7 @@
 
   - but in the file listed in the namelist as: HRLDAS_SETUP_FILE = "
   - The initialization fields are: SNOW,CANWAT,TSK,TSLB,SMOIS
-  - This file also contains the static grid/domain information: XLAT,XLONG,TMN,HGT,SEAICE,MAPFAC_MX,MAPFAC_MY,SHDMAX,SHDMIN,XLAND,IVGTYP,ISLTYP,DZS,ZS
+  - This file also contains the static grid/domain information: XLAT,XLONG,TMN,HGT,SEAICE,MAPFAC_MX,MAPFAC_MY,SHDMAX,SHDMIN,XLAND,IVGTYP,ISLTYP,ISCTYP,DZS,ZS
   - This file can also contains some optional fields: LAI  
   - NOTE: a WRF input file can be used as a HRLDAS_SETUP_FILE
 

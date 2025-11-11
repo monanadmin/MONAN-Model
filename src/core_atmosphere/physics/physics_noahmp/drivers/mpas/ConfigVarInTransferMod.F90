@@ -62,7 +62,7 @@ contains
     ! config domain variable
     noahmp%config%domain%SurfaceType                 = 1
     noahmp%config%domain%NumSwRadBand                = 2
-    noahmp%config%domain%SoilColor                   = 4
+    noahmp%config%domain%SoilColor                   = NoahmpIO%ISCTYP(I)
     noahmp%config%domain%NumCropGrowStage            = 8
     noahmp%config%domain%FlagSoilProcess             = NoahmpIO%calculate_soil
     noahmp%config%domain%NumSoilTimeStep             = NoahmpIO%soil_update_steps

@@ -37,6 +37,7 @@ contains
     if ( allocated (NoahmpIO%zsoil)     ) deallocate ( NoahmpIO%zsoil               ) ! depth to soil interfaces [m]
     if ( allocated (NoahmpIO%ivgtyp)    ) deallocate ( NoahmpIO%ivgtyp              ) ! vegetation type
     if ( allocated (NoahmpIO%isltyp)    ) deallocate ( NoahmpIO%isltyp              ) ! soil type
+    if ( allocated (NoahmpIO%isctyp)    ) deallocate ( NoahmpIO%isctyp              ) ! soil colour class
     if ( allocated (NoahmpIO%vegfra)    ) deallocate ( NoahmpIO%vegfra              ) ! vegetation fraction []
     if ( allocated (NoahmpIO%tmn)       ) deallocate ( NoahmpIO%tmn                 ) ! deep soil temperature [K]
     if ( allocated (NoahmpIO%xland)     ) deallocate ( NoahmpIO%xland               ) ! =2 ocean; =1 land/seaice
