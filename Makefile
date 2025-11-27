@@ -770,11 +770,11 @@ ifneq "$(PIO)" ""
 # Regardless of PIO library version, look for a lib subdirectory of PIO path
 # NB: PIO_LIB is used later, so we don't just set LIBS directly
 #
-#ifneq ($(wildcard $(PIO)/lib), )
-#	PIO_LIB = $(PIO)/lib
+#ifneq ($(wildcard $(PIO)/lib64), )
+#	PIO_LIB = $(PIO)/lib64
 #else
-ifneq ($(wildcard $(PIO)/lib64), )
-	PIO_LIB = $(PIO)/lib64
+ifneq ($(wildcard $(PIO)/lib), )
+	PIO_LIB = $(PIO)/lib
 else
 	PIO_LIB = $(PIO)
 endif
