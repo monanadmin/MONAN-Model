@@ -1,4 +1,4 @@
-# MONAN-v1.4.2-rc
+# MONAN-v1.4.3-rc
 
 ## Model for Ocean-laNd-Atmosphere predictioN
 
@@ -9,6 +9,7 @@ The MONAN Model is managed by a scientific committee appointed by INPE's directo
 
 History
 ====
+- Version 1.4.3-rc (Release Candidate) - This development contains further configuration for the pre-operational MONAN global 10km uniform resolution, adapted to run on the new CRAY supercomputer. It contains new tuning for the GF scheme and sets WSM6 as the default cloud microphysics parameterization. For this configuration, the namelist.atmosphere should be set to config_physics_suite = 'mesoscale_reference_monan'.
 - Version 1.4.2-rc (Release Candidate) - Speed up by about 7%. Cleanup to become the initial version of the C3P Community Cloud-Convection Parameterization. Joint development between INPE and NOAA/GSL. Removed files not needed anymore. Adding effects of PCW (Neelin et al. 2009) and vertical shear of horizontal wind on the entrainment rate. This should improve model simulations of MCSs. Additional trigger function based on Xie et al 2019. Additional comments and references. 
 - Version 1.4.1-rc (Release Candidate) - Terrain height (ter, calculated previously in the pre processing with init_atmosphere_model) included in the Registry.xml's input section so that can be read from 'init' file and post processed. kubota relhum evalute modification on mpas_isobaric_diagnostics.F.
 - Version 1.4.0-rc (Release Candidate) - Changing the number of isobaric levels from 22 to 18. 

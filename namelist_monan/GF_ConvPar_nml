@@ -4,7 +4,7 @@
   
   closure_choice    = 10,10,3,              != closure for the mass flux at the cloud base
   
-  cum_entr_rate   = 8.e-4, 13.e-4, 20.e-4, != initial gross entrainment rate for 
+  cum_entr_rate   = -999., 13.e-4, 20.e-4, != initial gross entrainment rate for 
                                             != deep, shallow, congestus
 
   cum_fr_min_entr = 0.01,0.1,0.1,            != fraction of the mininum entraiment rate in terms
@@ -20,18 +20,19 @@
   use_scale_dep     = 1,            != 0/1: turn ON/OFF the scale dependence approach
   sig_factor        = 0.22,         != exponential factor for the sigma determination (orig = 0.1)
   
+  use_cold_start    = 1
   use_pass_cloudvol = 0,
   use_lcl_ctrl_entr = 0,
   use_rhu_ctrl_entr = 0,
   use_shear_ctrl_entr=0,
   use_cwv_ctrl_entr = 0,
   convection_tracer = 1,           != 0/1:  turn on/off the "convection" tracer
-  add_coldpool_clos = 0,           ! add the the mass flux associated to the W @ leading of the gust front
+  add_coldpool_clos = 4,           ! add the the mass flux associated to the W @ leading of the gust front
   add_coldpool_trig = 0,           ! add triggering criteria based on cold pool presence
-  use_memory      = 0,
+  use_memory        = 0,
 
   tau_ocea_cp       = 3600.,       != cold pool lifetime over the ocean
-  tau_land_cp       = 1800.,       != cold pool lifetime over land
+  tau_land_cp       = 3600.,       != cold pool lifetime over land
   mx_buoy1          = 250.5,       ! J/kg
   mx_buoy2          = 20004.0,     ! J/kg
 
@@ -50,8 +51,8 @@
 !---
 !--- controls rainfall evaporation
   use_rebcb         = 1,               != 0/1: turn ON/OFF rainfall evap below cloud base
-   cum_MAX_EDT_LAND  = 0.5, 0.0, 0.3,   !-(deep ,shallow ,congestus)
-  cum_MAX_EDT_OCEAN = 0.6, 0.0, 0.4,
+  cum_MAX_EDT_LAND  = 0.50, 0.0, 0.3,   !-(deep ,shallow ,congestus)
+  cum_MAX_EDT_OCEAN = 0.45, 0.0, 0.4,
 !----
 
 !---- boundary condition specification
@@ -69,7 +70,7 @@
   use_random_num      = 0., != stochastic pertubation for the height of maximum Zu
   use_smooth_prof     = 1,  != 1 makes the normalized mass flux, entr and detraiment profiles smoother
   cum_use_smooth_tend = 2,2,2,  != integer number of layers for smoothing the tendencies
-  overshoot       = 0.6,  != real value ~0.0 to 0.2
+  overshoot           = 0.6,  != real value ~0.0 to 0.2
 
   use_linear_subcl_mf = 1,  !-- for shallow convection only
   beta_sh             = 2.2,!-- for shallow convection only
