@@ -139,6 +139,7 @@
  if(.not.allocated(cpm_p)       ) allocate(cpm_p(ims:ime,jms:jme)       )
  if(.not.allocated(cqs2_p)      ) allocate(cqs2_p(ims:ime,jms:jme)      )
  if(.not.allocated(isltyp_p)    ) allocate(isltyp_p(ims:ime,jms:jme)    )
+ if(.not.allocated(isctyp_p)    ) allocate(isctyp_p(ims:ime,jms:jme)    )
  if(.not.allocated(ivgtyp_p)    ) allocate(ivgtyp_p(ims:ime,jms:jme)    )
  if(.not.allocated(glw_p)       ) allocate(glw_p(ims:ime,jms:jme)       )
  if(.not.allocated(grdflx_p)    ) allocate(grdflx_p(ims:ime,jms:jme)    )
@@ -216,6 +217,7 @@
  if(allocated(gsw_p)       ) deallocate(gsw_p       )
  if(allocated(hfx_p)       ) deallocate(hfx_p       )
  if(allocated(isltyp_p)    ) deallocate(isltyp_p    )
+ if(allocated(isctyp_p)    ) deallocate(isctyp_p    )
  if(allocated(ivgtyp_p)    ) deallocate(ivgtyp_p    )
  if(allocated(lai_p)       ) deallocate(lai_p       )
  if(allocated(lh_p)        ) deallocate(lh_p        )
@@ -279,7 +281,7 @@
  character(len=StrKIND),pointer:: config_microp_scheme,    &
                                   config_convection_scheme
 
- integer,dimension(:),pointer:: isltyp,ivgtyp
+ integer,dimension(:),pointer:: isltyp,isctyp,ivgtyp
 
  real(kind=RKIND),dimension(:),pointer  :: acsnom,acsnow,canwat,chs,chs2,chklowq,cpm,cqs2,glw,   &
                                            grdflx,gsw,hfx,lai,lh,noahres,potevp,qfx,qgh,qsfc,    &
@@ -336,6 +338,7 @@
  call mpas_pool_get_array(diag_physics,'znt'       ,znt       )
 
  call mpas_pool_get_array(sfc_input,'isltyp'    ,isltyp    )
+ call mpas_pool_get_array(sfc_input,'isctyp'    ,isctyp    )
  call mpas_pool_get_array(sfc_input,'ivgtyp'    ,ivgtyp    )
  call mpas_pool_get_array(sfc_input,'shdmin'    ,shdmin    )
  call mpas_pool_get_array(sfc_input,'shdmax'    ,shdmax    )
@@ -409,6 +412,7 @@
     znt_p(i,j)        = znt(i)
 
     isltyp_p(i,j)     = isltyp(i)
+    isctyp_p(i,j)     = isctyp(i)
     ivgtyp_p(i,j)     = ivgtyp(i)
     shdmin_p(i,j)     = shdmin(i)
     shdmax_p(i,j)     = shdmax(i)
@@ -490,7 +494,7 @@
 !local pointers:
  character(len=StrKIND),pointer:: config_microp_scheme
 
- integer,dimension(:),pointer:: isltyp,ivgtyp
+ integer,dimension(:),pointer:: isltyp,isctyp,ivgtyp
 
  real(kind=RKIND),dimension(:),pointer  :: acsnom,acsnow,canwat,chs,chs2,chklowq,cpm,cqs2,glw, &
                                            grdflx,gsw,hfx,lai,lh,noahres,potevp,qfx,qgh,qsfc,  &
@@ -544,6 +548,7 @@
  call mpas_pool_get_array(diag_physics,'znt'       ,znt       )
 
  call mpas_pool_get_array(sfc_input,'isltyp'    ,isltyp    )
+ call mpas_pool_get_array(sfc_input,'isctyp'    ,isctyp    )
  call mpas_pool_get_array(sfc_input,'ivgtyp'    ,ivgtyp    )
  call mpas_pool_get_array(sfc_input,'shdmin'    ,shdmin    )
  call mpas_pool_get_array(sfc_input,'shdmax'    ,shdmax    )

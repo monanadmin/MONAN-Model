@@ -442,6 +442,7 @@
                         <var name="iswater_lu" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="ivgtyp" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="isltyp" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
+                        <var name="isctyp" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="snoalb" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="soiltemp" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="greenfrac" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
@@ -547,6 +548,7 @@
                         <var name="iswater_lu"/>
                         <var name="ivgtyp"/>
                         <var name="isltyp"/>
+                        <var name="isctyp"/>
                         <var name="snoalb"/>
                         <var name="soiltemp"/>
                         <var name="greenfrac"/>
@@ -846,6 +848,9 @@
 
                 <var name="isltyp" name_in_code="soilcat_top"  type="integer"  dimensions="nCells" units="unitless"
                      description="dominate soil category"/>
+
+                <var name="isctyp" name_in_code="soilcol_idx"  type="integer"  dimensions="nCells" units="unitless"
+                     description="dominant soil colour category"/>
 
                 <var name="snoalb" type="real" dimensions="nCells" units="unitless"
                      description="annual maximum snow albedo"/>

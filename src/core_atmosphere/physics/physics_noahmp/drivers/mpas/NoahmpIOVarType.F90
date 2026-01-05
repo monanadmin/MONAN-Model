@@ -68,6 +68,7 @@ module NoahmpIOVarType
     integer                                                ::  soil_update_steps   ! number of model time steps to update soil process
     integer,                allocatable, dimension(:)      ::  ivgtyp              ! vegetation type
     integer,                allocatable, dimension(:)      ::  isltyp              ! soil type
+    integer,                allocatable, dimension(:)      ::  isctyp              ! soil colour class
     real(kind=kind_noahmp), allocatable, dimension(:)      ::  coszen              ! cosine zenith angle
     real(kind=kind_noahmp), allocatable, dimension(:)      ::  xlat                ! latitude [rad]
     real(kind=kind_noahmp), allocatable, dimension(:,:)    ::  dz8w                ! thickness of atmo layers [m]
