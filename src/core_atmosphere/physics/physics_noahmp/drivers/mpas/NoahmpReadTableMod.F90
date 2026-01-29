@@ -28,7 +28,7 @@ contains
     !-------------------------------------------------------
     integer, parameter :: MVT         = 27   ! number of vegetation types
     integer, parameter :: MBAND       = 2    ! number of radiation bands
-    integer, parameter :: MSC         = 8    ! number of soil texture
+    integer, parameter :: MSC         = 21   ! number of soil colour types
     integer, parameter :: MAX_SOILTYP = 30   ! max number of soil types
     integer, parameter :: NCROP       = 5    ! number of crop types
     integer, parameter :: NSTAGE      = 8    ! number of crop growth stages

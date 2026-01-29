@@ -151,7 +151,7 @@
 
  call mpas_pool_get_array(sfc_input,'isice'     ,isice     )
  call mpas_pool_get_array(sfc_input,'iswater'   ,iswater   )
- call mpas_pool_get_array(sfc_input,'isltyp'    ,isltyp    )    
+ call mpas_pool_get_array(sfc_input,'isltyp'    ,isltyp    )
  call mpas_pool_get_array(sfc_input,'ivgtyp'    ,ivgtyp    )
  call mpas_pool_get_array(sfc_input,'landmask'  ,landmask  )
  call mpas_pool_get_array(sfc_input,'vegfra'    ,vegfra    )

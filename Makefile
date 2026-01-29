@@ -16,11 +16,11 @@ gnu:   # BUILDTARGET GNU Fortran, C, and C++ compilers
 	"CC_SERIAL = gcc" \
 	"CXX_SERIAL = g++" \
 	"FFLAGS_PROMOTION = -fdefault-real-8 -fdefault-double-8" \
-	"FFLAGS_OPT = -std=f2008 -O3 -ffree-line-length-none -fconvert=big-endian -ffree-form" \
+	"FFLAGS_OPT = -std=f2008 -O3 -fallow-argument-mismatch -ffree-line-length-none -fconvert=big-endian -ffree-form" \
 	"CFLAGS_OPT = -O3" \
 	"CXXFLAGS_OPT = -O3" \
 	"LDFLAGS_OPT = -O3" \
-	"FFLAGS_DEBUG = -std=f2008 -g -ffree-line-length-none -fconvert=big-endian -ffree-form -fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow" \
+	"FFLAGS_DEBUG = -g -ffree-line-length-none -fallow-argument-mismatch -fconvert=big-endian -ffree-form -fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow" \
 	"CFLAGS_DEBUG = -g" \
 	"CXXFLAGS_DEBUG = -g" \
 	"LDFLAGS_DEBUG = -g" \
@@ -154,7 +154,7 @@ nvhpc:   # BUILDTARGET NVIDIA HPC SDK
 	"FFLAGS_DEBUG = -O0 -g -Mbounds -Mchkptr -byteswapio -Mfree -Ktrap=divz,fp,inv,ovf -traceback" \
 	"CFLAGS_DEBUG = -O0 -g -traceback" \
 	"CXXFLAGS_DEBUG = -O0 -g -traceback" \
-	"LDFLAGS_DEBUG = -O0 -g -Mbounds -Ktrap=divz,fp,inv,ovf -traceback" \
+	"LDFLAGS_DEBUG = -O0 -g -Mbounds -Mchkptr -Ktrap=divz,fp,inv,ovf -traceback" \
 	"FFLAGS_OMP = -mp" \
 	"CFLAGS_OMP = -mp" \
 	"FFLAGS_ACC = -Mnofma -acc -gpu=cc70,cc80 -Minfo=accel" \
@@ -184,7 +184,7 @@ pgi:   # BUILDTARGET PGI compiler suite
 	"FFLAGS_DEBUG = -O0 -g -Mbounds -Mchkptr -byteswapio -Mfree -Ktrap=divz,fp,inv,ovf -traceback" \
 	"CFLAGS_DEBUG = -O0 -g -traceback" \
 	"CXXFLAGS_DEBUG = -O0 -g -traceback" \
-	"LDFLAGS_DEBUG = -O0 -g -Mbounds -Ktrap=divz,fp,inv,ovf -traceback" \
+	"LDFLAGS_DEBUG = -O0 -g -Mbounds -Mchkptr -Ktrap=divz,fp,inv,ovf -traceback" \
 	"FFLAGS_OMP = -mp" \
 	"CFLAGS_OMP = -mp" \
 	"FFLAGS_ACC = -Mnofma -acc -Minfo=accel" \
@@ -216,7 +216,7 @@ pgi-summit:   # BUILDTARGET PGI compiler suite w/OpenACC options for ORNL Summit
 	"FFLAGS_DEBUG = -O0 -g -Mbounds -Mchkptr -byteswapio -Mfree -Ktrap=divz,fp,inv,ovf -traceback" \
 	"CFLAGS_DEBUG = -O0 -g -traceback" \
 	"CXXFLAGS_DEBUG = -O0 -g -traceback" \
-	"LDFLAGS_DEBUG = -O0 -g -Mbounds -Ktrap=divz,fp,inv,ovf -traceback" \
+	"LDFLAGS_DEBUG = -O0 -g -Mbounds -Mchkptr -Ktrap=divz,fp,inv,ovf -traceback" \
 	"FFLAGS_OMP = -mp" \
 	"CFLAGS_OMP = -mp" \
 	"PICFLAG = -fpic" \
@@ -667,10 +667,10 @@ intel:   # BUILDTARGET Intel oneAPI Fortran, C, and C++ compiler suite
 	"CFLAGS_OPT = -O3" \
 	"CXXFLAGS_OPT = -O3" \
 	"LDFLAGS_OPT = -O3" \
-	"FFLAGS_DEBUG = -g -convert big_endian -free -check bounds,pointers,arg_temp_created,format,shape,contiguous -fpe0 -traceback" \
+	"FFLAGS_DEBUG = -g -convert big_endian -free -check all -fpe0 -traceback" \
 	"CFLAGS_DEBUG = -g -traceback" \
 	"CXXFLAGS_DEBUG = -g -traceback" \
-	"LDFLAGS_DEBUG = -g -traceback" \
+	"LDFLAGS_DEBUG = -g -fpe0 -traceback" \
 	"FFLAGS_OMP = -qopenmp" \
 	"CFLAGS_OMP = -qopenmp" \
 	"PICFLAG = -fpic" \
@@ -679,6 +679,86 @@ intel:   # BUILDTARGET Intel oneAPI Fortran, C, and C++ compiler suite
 	"DEBUG = $(DEBUG)" \
 	"USE_PAPI = $(USE_PAPI)" \
 	"OPENMP = $(OPENMP)" \
+	"CPPFLAGS = $(MODEL_FORMULATION) -D_MPI" )
+
+intel-xd2000:
+	( $(MAKE) all \
+        "FC_PARALLEL = ftn" \
+        "CC_PARALLEL = cc" \
+        "CXX_PARALLEL = CC" \
+        "FC_SERIAL = ftn" \
+        "CC_SERIAL = cc" \
+        "CXX_SERIAL = CC" \
+        "FFLAGS_PROMOTION = -real-size 64" \
+        "FFLAGS_OPT = -O3 -traceback -convert big_endian -FR -march=core-avx2 -mtune=core-avx2" \
+        "CFLAGS_OPT = -O3 -traceback -std=gnu90" \
+        "CXXFLAGS_OPT = -O3 -traceback" \
+        "LDFLAGS_OPT = -O3 -traceback" \
+        "FFLAGS_DEBUG = -g -convert big_endian -FR -CU -CB -check all -fpe0 -traceback" \
+        "CFLAGS_DEBUG = -g -traceback" \
+        "CXXFLAGS_DEBUG = -g -traceback" \
+        "LDFLAGS_DEBUG = -g -fpe0 -traceback" \
+        "FFLAGS_OMP = -qopenmp" \
+        "CFLAGS_OMP = -qopenmp" \
+        "CORE = $(CORE)" \
+        "DEBUG = $(DEBUG)" \
+        "USE_PAPI = $(USE_PAPI)" \
+        "OPENMP = $(OPENMP)" \
+        "CPPFLAGS = $(MODEL_FORMULATION) -D_MPI -DUNDERSCORE" )
+
+intel2-xd2000:
+	( $(MAKE) all \
+        "FC_PARALLEL = ftn" \
+        "CC_PARALLEL = cc" \
+        "CXX_PARALLEL = CC" \
+        "FC_SERIAL = ftn" \
+        "CC_SERIAL = cc" \
+        "CXX_SERIAL = CC" \
+        "FFLAGS_PROMOTION = -real-size 64" \
+        "FFLAGS_OPT = -O2 -traceback -convert big_endian -FR -march=core-avx2 -mtune=core-avx2" \
+        "CFLAGS_OPT = -O2 -traceback -std=gnu90" \
+        "CXXFLAGS_OPT = -O2 -traceback" \
+        "LDFLAGS_OPT = -O2 -traceback" \
+        "FFLAGS_DEBUG = -g -convert big_endian -FR -CU -CB -check all -fpe0 -traceback" \
+        "CFLAGS_DEBUG = -g -traceback" \
+        "CXXFLAGS_DEBUG = -g -traceback" \
+        "LDFLAGS_DEBUG = -g -fpe0 -traceback" \
+        "FFLAGS_OMP = -qopenmp" \
+        "CFLAGS_OMP = -qopenmp" \
+        "CORE = $(CORE)" \
+        "DEBUG = $(DEBUG)" \
+        "USE_PAPI = $(USE_PAPI)" \
+        "OPENMP = $(OPENMP)" \
+        "CPPFLAGS = $(MODEL_FORMULATION) -D_MPI -DUNDERSCORE" )
+
+gfortran-xd2000:   # BUILDTARGET GNU Fortran, C, and C++ compilers
+	( $(MAKE) all \
+	"FC_PARALLEL = ftn" \
+	"CC_PARALLEL = cc" \
+	"CXX_PARALLEL = CC" \
+	"FC_SERIAL = ftn" \
+	"CC_SERIAL = cc" \
+	"CXX_SERIAL = CC" \
+	"FFLAGS_PROMOTION = -fdefault-real-8 -fdefault-double-8" \
+	"FFLAGS_OPT = -O3 -ffree-line-length-none -fconvert=big-endian -ffree-form -fallow-argument-mismatch" \
+	"CFLAGS_OPT = -O3" \
+	"CXXFLAGS_OPT = -O3" \
+	"LDFLAGS_OPT = -O3" \
+	"FFLAGS_DEBUG = -g -ffree-line-length-none -fconvert=big-endian -ffree-form -fallow-argument-mismatch -fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow" \
+	"CFLAGS_DEBUG = -g" \
+	"CXXFLAGS_DEBUG = -g" \
+	"LDFLAGS_DEBUG = -g" \
+	"FFLAGS_OMP = -fopenmp" \
+	"CFLAGS_OMP = -fopenmp" \
+	"FFLAGS_ACC =" \
+	"CFLAGS_ACC =" \
+	"PICFLAG = -fPIC" \
+	"BUILD_TARGET = $(@)" \
+	"CORE = $(CORE)" \
+	"DEBUG = $(DEBUG)" \
+	"USE_PAPI = $(USE_PAPI)" \
+	"OPENMP = $(OPENMP)" \
+	"OPENACC = $(OPENACC)" \
 	"CPPFLAGS = $(MODEL_FORMULATION) -D_MPI" )
 
 CPPINCLUDES =
@@ -690,6 +770,9 @@ ifneq "$(PIO)" ""
 # Regardless of PIO library version, look for a lib subdirectory of PIO path
 # NB: PIO_LIB is used later, so we don't just set LIBS directly
 #
+#ifneq ($(wildcard $(PIO)/lib64), )
+#	PIO_LIB = $(PIO)/lib64
+#else
 ifneq ($(wildcard $(PIO)/lib), )
 	PIO_LIB = $(PIO)/lib
 else
@@ -737,10 +820,10 @@ else # Not using PIO, using SMIOL
 endif
 
 ifneq "$(NETCDF)" ""
-ifneq ($(wildcard $(NETCDF)/lib/libnetcdf.*), )
+ifneq ($(wildcard $(NETCDF)/lib), )
 	NETCDFLIBLOC = lib
 endif
-ifneq ($(wildcard $(NETCDF)/lib64/libnetcdf.*), )
+ifneq ($(wildcard $(NETCDF)/lib64), )
 	NETCDFLIBLOC = lib64
 endif
 	CPPINCLUDES += -I$(NETCDF)/include
@@ -761,10 +844,10 @@ endif
 
 
 ifneq "$(PNETCDF)" ""
-ifneq ($(wildcard $(PNETCDF)/lib/libpnetcdf.*), )
+ifneq ($(wildcard $(PNETCDF)/lib), )
 	PNETCDFLIBLOC = lib
 endif
-ifneq ($(wildcard $(PNETCDF)/lib64/libpnetcdf.*), )
+ifneq ($(wildcard $(PNETCDF)/lib64), )
 	PNETCDFLIBLOC = lib64
 endif
 	CPPINCLUDES += -I$(PNETCDF)/include
@@ -958,6 +1041,28 @@ else
 	OPENACC_MESSAGE="MPAS was built without OpenACC accelerator support."
 endif
 
+ifneq ($(wildcard .mpas_core_*), ) # CHECK FOR BUILT CORE
+
+ifneq ($(wildcard .mpas_core_$(CORE)), ) # CHECK FOR SAME CORE AS ATTEMPTED BUILD.
+	override AUTOCLEAN=false
+	CONTINUE=true
+else
+	LAST_CORE=`cat .mpas_core_*`
+
+ifeq "$(AUTOCLEAN)" "true" # CHECK FOR CLEAN PRIOR TO BUILD OF A NEW CORE.
+	CONTINUE=true
+	AUTOCLEAN_MESSAGE="Infrastructure was cleaned prior to building ."
+else
+	CONTINUE=false
+endif # END OF AUTOCLEAN CHECK
+
+endif # END OF CORE=LAST_CORE CHECK
+
+else
+
+	override AUTOCLEAN=false
+	CONTINUE=true
+endif # END IF BUILT CORE CHECK
 
 ifneq ($(wildcard namelist.$(NAMELIST_SUFFIX)), ) # Check for generated namelist file.
 	NAMELIST_MESSAGE="A default namelist file (namelist.$(NAMELIST_SUFFIX).defaults) has been generated, but namelist.$(NAMELIST_SUFFIX) has not been modified."
@@ -1014,119 +1119,12 @@ report_builds:
 	@echo "CORE=$(CORE)"
 endif
 
+ifeq "$(CONTINUE)" "true"
 all: mpas_main
-
+else
+all: clean_core
 endif
 
-#
-# The rebuild_check target determines whether the shared framework or $(CORE) were
-# previously compiled with incompatible options, and stops the build with an error
-# message if so.
-#
-rebuild_check:
-	@#
-	@# Write current build options to a file .build_opts.tmp, to later be
-	@# compared with build options use for the shared framework or core.
-	@# Only build options that affect compatibility are written, while options
-	@# like $(RM), $(BUILD_TARGET), and $(CORE) are not.
-	@#
-	$(shell printf "FC=$(FC)\n$\
-	CC=$(CC)\n$\
-	CXX=$(CXX)\n$\
-	SFC=$(SFC)\n$\
-	SCC=$(SCC)\n$\
-	CFLAGS=$(CFLAGS)\n$\
-	CXXFLAGS=$(CXXFLAGS)\n$\
-	FFLAGS=$(FFLAGS)\n$\
-	LDFLAGS=$(LDFLAGS)\n$\
-	CPPFLAGS=$(CPPFLAGS)\n$\
-	LIBS=$(LIBS)\n$\
-	CPPINCLUDES=$(CPPINCLUDES)\n$\
-	OPENMP=$(OPENMP)\n$\
-	OPENMP_OFFLOAD=$(OPENMP_OFFLOAD)\n$\
-	OPENACC=$(OPENACC)\n$\
-	TAU=$(TAU)\n$\
-	PICFLAG=$(PICFLAG)\n$\
-	TIMER_LIB=$(TIMER_LIB)\n$\
-	GEN_F90=$(GEN_F90)\n" | sed 's/-DMPAS_EXE_NAME=[^[:space:]]*//' | sed 's/-DMPAS_NAMELIST_SUFFIX=[^[:space:]]*//' | sed 's/-DCORE_[^[:space:]]*//' | sed 's/-DMPAS_GIT_VERSION=[^[:space:]]*//' > .build_opts.tmp )
-
-	@#
-	@# PREV_BUILD is set to "OK" if the shared framework and core are either
-	@# clean or were previously compiled with compatible options. Otherwise,
-	@# PREV_BUILD is set to "shared framework" if the shared framework was
-	@# built with incompatible options, or "$(CORE) core" if the core was
-	@# built with incompatible options.
-	@#
-	$(eval PREV_BUILD := $(shell $\
-		if [ -f ".build_opts.framework" ]; then $\
-			cmp -s .build_opts.tmp .build_opts.framework; $\
-			if [ $$? -eq 0 ]; then $\
-				stat=0; $\
-			else $\
-				stat=1; $\
-				x="shared framework"; $\
-				if [ "$(AUTOCLEAN)" = "true" ]; then $\
-					cp .build_opts.tmp .build_opts.framework; $\
-				fi; $\
-			fi $\
-		else $\
-			stat=0; $\
-			cp .build_opts.tmp .build_opts.framework; $\
-		fi; $\
-                : ; $\
-                : At this this point, stat is already set, and we should only ; $\
-                : set it to 1 but never to 0, as that might mask an incompatibility ; $\
-                : in the framework build. ; $\
-                : ; $\
-		if [ -f ".build_opts.$(CORE)" ]; then $\
-			cmp -s .build_opts.tmp .build_opts.$(CORE); $\
-			if [ $$? -ne 0 ]; then $\
-				stat=1; $\
-				if [ "$$x" = "" ]; then $\
-					x="$(CORE) core"; $\
-				else $\
-					x="$$x and $(CORE) core"; $\
-				fi; $\
-				if [ "$(AUTOCLEAN)" = "true" ]; then $\
-					cp .build_opts.tmp .build_opts.$(CORE); $\
-				fi; $\
-			fi; $\
-		else $\
-			if [ $$stat -eq 0 ]; then $\
-				cp .build_opts.tmp .build_opts.$(CORE); $\
-			fi; $\
-		fi; $\
-		rm -f .build_opts.tmp; $\
-		if [ $$stat -eq 1 ]; then $\
-			printf "$$x"; $\
-		else $\
-			printf "OK"; $\
-		fi; $\
-	))
-
-	$(if $(findstring and,$(PREV_BUILD)),$(eval VERB=were),$(eval VERB=was))
-ifeq "$(AUTOCLEAN)" "true"
-	$(if $(findstring framework,$(PREV_BUILD)),$(eval AUTOCLEAN_DEPS+=clean_shared))
-	$(if $(findstring core,$(PREV_BUILD)),$(eval AUTOCLEAN_DEPS+=clean_core))
-	$(if $(findstring OK,$(PREV_BUILD)), $(eval override AUTOCLEAN=false), )
-	$(eval AUTOCLEAN_MESSAGE=The $(PREV_BUILD) $(VERB) cleaned and re-compiled.)
-else
-	$(if $(findstring OK,$(PREV_BUILD)), \
-	, \
-	$(info ************************************************************************) \
-	$(info The $(PREV_BUILD) $(VERB) previously compiled with ) \
-	$(info incompatible options. Please do one of the following:) \
-	$(info ) \
-	$(info   - Clean the $(CORE) core, which will also cause the shared) \
-	$(info     framework to be cleaned; then compile the $(CORE) core.) \
-	$(info ) \
-	$(info   or)\
-	$(info ) \
-	$(info   - Add AUTOCLEAN=true to the build command to automatically clean) \
-	$(info     and re-compile the $(PREV_BUILD).) \
-	$(info ) \
-	$(info ************************************************************************) \
-	$(error ))
 endif
 
 
@@ -1266,7 +1264,7 @@ ifeq "$(OPENACC)" "true"
 endif # OPENACC eq true
 
 
-pio_test: openmp_test openacc_test pnetcdf_test
+pio_test: openmp_test openacc_test
 	@#
 	@# PIO_VERS will be set to:
 	@#  0 if no working PIO library was detected (and .piotest.log will contain error messages)
@@ -1352,10 +1350,9 @@ mpi_f08_test:
 	$(info Checking for mpi_f08 support...)
 	$(eval MPAS_MPI_F08 := $(shell $\
 		printf "program main\n$\
-		        &   use mpi_f08, only : MPI_Init, MPI_Comm, MPI_INTEGER, MPI_Datatype\n$\
+		        &   use mpi_f08, only : MPI_Init, MPI_Comm\n$\
 		        &   integer :: ierr\n$\
 		        &   type (MPI_Comm) :: comm\n$\
-		        &   type (MPI_Datatype), parameter :: MPI_INTEGERKIND = MPI_INTEGER\n$\
 		        &   call MPI_Init(ierr)\n$\
 		        end program main\n" | sed 's/&/ /' > mpi_f08.f90; $\
 		$\
@@ -1374,57 +1371,20 @@ mpi_f08_test:
 	$(if $(findstring 1,$(MPAS_MPI_F08)), $(eval MPI_F08_MESSAGE = "Using the mpi_f08 module."), )
 	$(if $(findstring 1,$(MPAS_MPI_F08)), $(info mpi_f08 module detected.))
 
-
-pnetcdf_test:
-	@#
-	@# Create test C programs that look for PNetCDF header file and some symbols in it
-	@#
-ifneq "$(PNETCDF)" ""
-	@echo "Checking for a working PnetCDF library..."
-	@printf "#include \"pnetcdf.h\"\n\
-			&#include \"mpi.h\"\n\
-			&int main(){\n\
-			&    int err, ncid;\n\
-			&    err = ncmpi_create(MPI_COMM_WORLD, \"foo.nc\", NC_NOCLOBBER, MPI_INFO_NULL, &ncid);\n\
-			&    return 0;\n\
-			&}\n" | sed 's/&/ /' > pnetcdf.c
-	@( $(CC) pnetcdf.c $(CPPINCLUDES) $(CFLAGS) $(LDFLAGS) -L$(PNETCDF)/$(PNETCDFLIBLOC) -lpnetcdf  -o pnetcdf.out > pnetcdf.log 2>&1; \
-	   if [ $$? -eq 0 ] ; then \
-	       echo "$(CC) can compile test PnetCDF C program."; \
-	   else \
-	       echo "*********************************************************"; \
-	       echo "ERROR: Test PnetCDF C program could not be compiled by $(CC)."; \
-	       echo "Please ensure you have a working PnetCDF library installed."; \
-	       echo ""; \
-	       echo "The following compilation command failed with errors:" ; \
-	       echo "$(CC) pnetcdf.c $(CPPINCLUDES) $(CFLAGS) $(LDFLAGS) -L$(PNETCDF)/$(PNETCDFLIBLOC) -lpnetcdf -o pnetcdf.out"; \
-	       echo ""; \
-	       echo "Test program pnetcdf.c and output pnetcdf.log have been left"; \
-	       echo "in the top-level MPAS directory for further debugging"; \
-	       echo "*********************************************************"; \
-	       rm -f pnetcdf.out; exit 1; \
-	   fi )
-
-	@rm -f pnetcdf.c pnetcdf.out pnetcdf.log
-else
-	@echo "*********************************************************"; \
-	 echo "ERROR: The PNETCDF environment variable isn't set."; \
-	 echo "Please set this variable to where PnetCDF is installed."; \
-	 echo "*********************************************************"; \
-	 exit 1
-endif
-
-
 ifneq "$(PIO)" ""
-MAIN_DEPS = rebuild_check openmp_test openacc_test pnetcdf_test pio_test mpi_f08_test
+MAIN_DEPS = openmp_test openacc_test pio_test mpi_f08_test
 override CPPFLAGS += "-DMPAS_PIO_SUPPORT"
 else
-MAIN_DEPS = rebuild_check openmp_test openacc_test pnetcdf_test mpi_f08_test
+MAIN_DEPS = openmp_test openacc_test mpi_f08_test
 IO_MESSAGE = "Using the SMIOL library."
 override CPPFLAGS += "-DMPAS_SMIOL_SUPPORT"
 endif
 
+
 mpas_main: $(MAIN_DEPS)
+ifeq "$(AUTOCLEAN)" "true"
+	$(RM) .mpas_core_*
+endif
 	cd src; $(MAKE) FC="$(FC)" \
                  CC="$(CC)" \
                  CXX="$(CXX)" \
@@ -1443,11 +1403,11 @@ mpas_main: $(MAIN_DEPS)
                  FCINCLUDES="$(FCINCLUDES)" \
                  CORE="$(CORE)"\
                  AUTOCLEAN="$(AUTOCLEAN)" \
-                 AUTOCLEAN_DEPS="$(AUTOCLEAN_DEPS)" \
                  GEN_F90="$(GEN_F90)" \
                  NAMELIST_SUFFIX="$(NAMELIST_SUFFIX)" \
                  EXE_NAME="$(EXE_NAME)"
 
+	@echo "$(EXE_NAME)" > .mpas_core_$(CORE)
 	if [ -e src/$(EXE_NAME) ]; then mv src/$(EXE_NAME) .; fi
 	( cd src/core_$(CORE); $(MAKE) ROOT_DIR="$(PWD)" post_build )
 	@echo "*******************************************************************************"
@@ -1469,13 +1429,11 @@ endif
 	@echo $(IO_MESSAGE)
 	@echo "*******************************************************************************"
 clean:
-	cd src; $(MAKE) clean RM="$(RM)" CORE="$(CORE)" AUTOCLEAN="$(AUTOCLEAN)"
+	cd src; $(MAKE) clean RM="$(RM)" CORE="$(CORE)"
+	$(RM) .mpas_core_*
 	$(RM) $(EXE_NAME)
 	$(RM) namelist.$(NAMELIST_SUFFIX).defaults
 	$(RM) streams.$(NAMELIST_SUFFIX).defaults
-	if [ -f .build_opts.framework ]; then $(RM) .build_opts.framework; fi
-	if [ -f .build_opts.$(CORE) ]; then $(RM) .build_opts.$(CORE); fi
-
 core_error:
 	@echo ""
 	@echo "*******************************************************************************"
@@ -1485,6 +1443,26 @@ core_error:
 	@echo ""
 	exit 1
 error: errmsg
+
+clean_core:
+	@echo ""
+	@echo "*******************************************************************************"
+	@echo " The MPAS infrastructure is currently built for the $(LAST_CORE) core."
+	@echo " Before building the $(CORE) core, please do one of the following."
+	@echo ""
+	@echo ""
+	@echo " To remove the $(LAST_CORE)_model executable and clean the MPAS infrastructure, run:"
+	@echo "      make clean CORE=$(LAST_CORE)"
+	@echo ""
+	@echo " To preserve all executables except $(CORE)_model and clean the MPAS infrastructure, run:"
+	@echo "      make clean CORE=$(CORE)"
+	@echo ""
+	@echo " Alternatively, AUTOCLEAN=true can be appended to the make command to force a clean,"
+	@echo " build a new $(CORE)_model executable, and preserve all other executables."
+	@echo ""
+	@echo "*******************************************************************************"
+	@echo ""
+	exit 1
 
 else # CORE IF
 
@@ -1513,7 +1491,7 @@ errmsg:
 	@echo "    DEBUG=true    - builds debug version. Default is optimized version."
 	@echo "    USE_PAPI=true - builds version using PAPI for timers. Default is off."
 	@echo "    TAU=true      - builds version using TAU hooks for profiling. Default is off."
-	@echo "    AUTOCLEAN=true - Enables automatic cleaning and re-compilation of code as needed."
+	@echo "    AUTOCLEAN=true    - forces a clean of infrastructure prior to build new core."
 	@echo "    GEN_F90=true  - Generates intermediate .f90 files through CPP, and builds with them."
 	@echo "    TIMER_LIB=opt - Selects the timer library interface to be used for profiling the model. Options are:"
 	@echo "                    TIMER_LIB=native - Uses native built-in timers in MPAS"
@@ -1530,4 +1508,3 @@ errmsg:
 ifdef CORE
 	exit 1
 endif
-
