@@ -631,6 +631,7 @@ module mpas_halo
                 maxNSendList = group % fields(i) % maxNSendList
 
                 select case (group % fields(i) % nDims)
+
                 !
                 ! Packing code for 1-d real-valued fields
                 !
@@ -762,6 +763,7 @@ module mpas_halo
                     dim2 = compactHaloInfo(3)
 
                     select case (group % fields(i) % nDims)
+
                     !
                     ! Unpacking code for 1-d real-valued fields
                     !
