@@ -1061,6 +1061,7 @@
                         <var name="uzonal_15hPa"/>
                         <var name="uzonal_20hPa"/>
                         <var name="uzonal_30hPa"/>
+                        <var name="uzonal_50hPa"/>
                         <var name="uzonal_70hPa"/>
                         <var name="uzonal_100hPa"/>
                         <var name="uzonal_150hPa"/>
@@ -3669,6 +3670,14 @@
 
                 <var name="wspd" type="real" dimensions="nCells Time" units="m s^{-1}"
                      description="wind speed at lowest model level"
+                     packages="bl_mynn_in;bl_ysu_in"/>
+
+                <var name="hfx_spr" type="real" dimensions="nCells Time" units="W m^{-2}"
+                     description="upward heat flux at the surface from ocean spray"
+                     packages="bl_mynn_in;bl_ysu_in"/>
+
+                <var name="lh_spr" type="real" dimensions="nCells Time" units="W m^{-2}"
+                     description="latent heat flux at the surface from ocean spray"
                      packages="bl_mynn_in;bl_ysu_in"/>
 
 
