@@ -152,16 +152,6 @@
 
 !initializes soil liquid water content SH2O:
     do iCell = 1, nCells
-
-      !---srf 
-      !do ns = 1, nSoilLevels
-      !   if (smois(ns,iCell) < 0.99) then 
-      !      smois(ns,iCell) = 0.7* smois(ns,iCell)
-      !      soil_moisture_adjustment = .true.
-      !   endif
-      !enddo
-      !---srf
-
        bx = bb(isltyp(iCell))
        smcmax = maxsmc(isltyp(iCell))
        psisat = satpsi(isltyp(iCell))
