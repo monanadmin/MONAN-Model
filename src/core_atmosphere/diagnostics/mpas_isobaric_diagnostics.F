@@ -1017,16 +1017,32 @@ module mpas_isobaric_diagnostics
         if (NEED_RELHUM_ISOBARIC) then
            !... relative humidity:
             
-            call VerticalInterpolation_Humid ( nCells                                    , & !1
-                                               nVertLevels                               , & !2
-                                               nIsoLevelsT                               , & !3
-                                               pressure2   (1:nVertLevels,1:nCells)*100.0, & !4
-                                               relhum      (1:nVertLevels,1:nCells)      , & !5
-                                               field_interp(1:nIsoLevelsT,1:nCells)      , & !6
-                                               t_iso_levels(1:nIsoLevelsT)               ) !7
+!            call VerticalInterpolation_Humid ( nCells                                    , & !1
+!                                               nVertLevels                               , & !2
+!                                               nIsoLevelsT                               , & !3
+!                                               pressure2   (1:nVertLevels,1:nCells)*100.0, & !4
+!                                               relhum      (1:nVertLevels,1:nCells)      , & !5
+!                                               field_interp(1:nIsoLevelsT,1:nCells)      , & !6
+!                                               t_iso_levels(1:nIsoLevelsT)               ) !7
+
+
+!PK: New RELHUM:         
+         call VerticalInterpolation_Thermal( nCells                                        ,  &
+                                             nVertLevels                                   ,  &
+                                             nIsoLevelsT                                   ,  &
+                                             pressure2       (1:nVertLevels,1:nCells)*100.0,  &
+                                             temperature     (1:nVertLevels,1:nCells)      ,  &
+                                             scalars(index_qv,1:nVertLevels,1:nCells)      ,  &
+                                             relhum          (1:nVertLevels,1:nCells)      ,  &
+                                             t_isobaric      (1:nIsoLevelsT,1:nCells)      ,  &
+                                             field_interp    (1:nIsoLevelsT,1:nCells)      ,  &
+                                             qv_isobaric     (1:nIsoLevelsT,1:nCells)      ,  &
+                                             t_iso_levels    (1:nIsoLevelsT)               )
+
+
                                              
 
-            relhum_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)             
+            relhum_isobaric(1:nIsoLevelsT,1:nCells) =  100.0 * field_interp(1:nIsoLevelsT,1:nCells)             
             
            ! call mpas_log_write('--- end interpolate relative humidity:')
         end if

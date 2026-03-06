@@ -561,6 +561,18 @@
 			<var name="surface_pressure"/>
 
 #ifdef DO_PHYSICS
+			<var name="isltyp"/>
+			<var name="ivgtyp"/>
+			<var name="mminlu"/>
+			<var name="isice_lu"/>
+			<var name="iswater_lu"/>
+			<var name="landmask"/>
+			<var name="ter"/>
+			<var name="shdmin"/>
+			<var name="shdmax"/>
+			<var name="snoalb"/>
+			<var name="albedo12m"/>
+			<var name="greenfrac"/>
 			<var name="sfc_albbck"/>
 			<var name="skintemp"/>
 			<var name="snow"/>
