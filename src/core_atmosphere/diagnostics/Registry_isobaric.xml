@@ -3,19 +3,19 @@
 <!-- ******************************* -->
 
 <dims>
-        <dim name="nIsoLevelsT"         definition="22"
+        <dim name="nIsoLevelsT"         definition="18"
              description="Number of isobaric levels to which temperature will be vertically interpolated"/>
 
-        <dim name="nIsoLevelsZ"         definition="22"
+        <dim name="nIsoLevelsZ"         definition="18"
              description="Number of isobaric levels to which height will be vertically interpolated"/>
 
-        <dim name="t_iso_levels"         definition="22"
+        <dim name="t_iso_levels"         definition="18"
              description="Isobaric levels to which temperature will be vertically interpolated"/>
 
-        <dim name="z_iso_levels"         definition="22"
+        <dim name="z_iso_levels"         definition="18"
              description="Isobaric levels to which height will be vertically interpolated"/>
 
-        <dim name="u_iso_levels"         definition="22"
+        <dim name="u_iso_levels"         definition="18"
              description="Isobaric levels to which winds will be vertically interpolated"/>
 </dims>
 
