@@ -740,11 +740,21 @@ gfortran-xd2000:   # BUILDTARGET GNU Fortran, C, and C++ compilers
 	"CC_SERIAL = cc" \
 	"CXX_SERIAL = CC" \
 	"FFLAGS_PROMOTION = -fdefault-real-8 -fdefault-double-8" \
-	"FFLAGS_OPT = -O3 -ffree-line-length-none -fconvert=big-endian -ffree-form -fallow-argument-mismatch" \
-	"CFLAGS_OPT = -O3" \
-	"CXXFLAGS_OPT = -O3" \
-	"LDFLAGS_OPT = -O3" \
-	"FFLAGS_DEBUG = -g -ffree-line-length-none -fconvert=big-endian -ffree-form -fallow-argument-mismatch -fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow" \
+	"FFLAGS_OPT = -O3 -fopenmp \
+            -march=native -mtune=native \
+            -fno-fast-math \
+            -ffp-contract=off \
+            -ffree-line-length-none -fconvert=big-endian -ffree-form \
+            -fallow-argument-mismatch" \
+	"CFLAGS_OPT = -O3 -march=native -mtune=native" \
+        "CXXFLAGS_OPT = -O3 -march=native -mtune=native" \
+        "LDFLAGS_OPT = -O3" \
+	"FFLAGS_DEBUG = -O0 -g \
+ 			-fcheck=all -fbacktrace \
+ 			-finit-real=nan -finit-integer=-999 \
+ 			-ffpe-trap=invalid,zero,overflow \
+ 			-ffree-line-length-none -fconvert=big-endian -ffree-form \
+ 			-fallow-argument-mismatch" \
 	"CFLAGS_DEBUG = -g" \
 	"CXXFLAGS_DEBUG = -g" \
 	"LDFLAGS_DEBUG = -g" \
