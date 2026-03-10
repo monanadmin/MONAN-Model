@@ -771,6 +771,35 @@ gfortran-xd2000:   # BUILDTARGET GNU Fortran, C, and C++ compilers
 	"OPENACC = $(OPENACC)" \
 	"CPPFLAGS = $(MODEL_FORMULATION) -D_MPI" )
 
+cray-xd2000:
+	( $(MAKE) all \
+        "FC_PARALLEL = ftn" \
+        "CC_PARALLEL = cc" \
+        "CXX_PARALLEL = CC" \
+        "FC_SERIAL = ftn" \
+        "CC_SERIAL = cc" \
+        "CXX_SERIAL = CC" \
+        "FFLAGS_PROMOTION = -sreal64 " \
+        "FFLAGS_OPT = -Ofast -hcpu=x86-turin -hipa1 -ffree" \
+        "CFLAGS_OPT = -Ofast" \
+        "CXXFLAGS_OPT = -Ofast" \
+        "LDFLAGS_OPT = -hbyteswapio" \
+        "FFLAGS_DEBUG = -eD -O0 -ffree" \
+        "CFLAGS_DEBUG = -O0 -g -Weverything" \
+        "CXXFLAGS_DEBUG = -O0 -g -Weverything" \
+        "LDFLAGS_DEBUG = -eD -O0 -hbyteswapio" \
+        "FFLAGS_OMP = -homp" \
+        "CFLAGS_OMP = -fopenmp" \
+        "FFLAGS_ACC =" \
+        "CFLAGS_ACC =" \
+        "BUILD_TARGET = $(@)" \
+        "CORE = $(CORE)" \
+        "DEBUG = $(DEBUG)" \
+        "USE_PAPI = $(USE_PAPI)" \
+        "OPENMP = $(OPENMP)" \
+        "OPENACC = $(OPENACC)" \
+        "CPPFLAGS = $(MODEL_FORMULATION) -D_MPI" )
+
 CPPINCLUDES =
 FCINCLUDES =
 LIBS =
@@ -1017,11 +1046,11 @@ else # else ifdef $(TIMER_LIB)
 endif # endif ifdef $(TIMER_LIB)
 
 ifeq "$(TAU)" "true"
-	LINKER=tau_f90.sh
+	LNK=tau_f90.sh
 	CPPINCLUDES += -DMPAS_TAU -DMPAS_TAU_TIMERS
 	TAU_MESSAGE="TAU Hooks are on."
 else
-	LINKER=$(FC)
+	LNK=$(FC)
 	TAU_MESSAGE="TAU Hooks are off."
 endif
 
@@ -1400,7 +1429,7 @@ endif
                  CXX="$(CXX)" \
                  SFC="$(SFC)" \
                  SCC="$(SCC)" \
-                 LINKER="$(LINKER)" \
+                 LNK="$(LNK)" \
                  CFLAGS="$(CFLAGS)" \
                  CXXFLAGS="$(CXXFLAGS)" \
                  FFLAGS="$(FFLAGS)" \
