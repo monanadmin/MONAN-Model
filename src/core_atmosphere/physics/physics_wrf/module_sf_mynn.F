@@ -349,8 +349,9 @@ real(kind=RKIND),intent(out),dimension(ims:ime,jms:jme):: &
                  cka      = cka_hv    , cd       = cd_hv     , cda     = cda_hv   , spp_pbl   = f_spp     , &
                  rstoch1d = rstoch1d  , isftcflx = isftcflx  , iz0tlnd = iz0tlnd                          , &
                  its      = its       , ite      = ite       , errmsg  = errmsg   , errflg    = errflg    , &
-                 sgsgustcu = sgsgustcu_hv, hfx_spr = hfx_spr_hv, lh_spr = lh_spr_hv                       , &
-                 config_gf_gustf = config_gf_gustf                                                          )
+!-srf review for physics_wrf
+!                 sgsgustcu = sgsgustcu_hv, hfx_spr = hfx_spr_hv, lh_spr = lh_spr_hv                       , &
+!                 config_gf_gustf = config_gf_gustf                                                          )
 
     !inout arguments:
     do i = its,ite
