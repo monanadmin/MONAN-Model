@@ -1175,9 +1175,8 @@
                    qcg      = qcg_p      , spp_pbl   = spp_pbl  , isftcflx = isftcflx    , &
                    iz0tlnd  = iz0tlnd    , itimestep = initflag                          , &
                    errmsg   = errmsg     , errflg    = errflg                            , &
-!-srf review for physics_mmm
-!                   sgsgustcu= sgsgustcu_p, hfx_spr   = hfx_spr_p, lh_spr   = lh_spr_p    , &                       
-!                   config_gf_gustf = config_gf_gustf                                     , &
+                   sgsgustcu= sgsgustcu_p, hfx_spr   = hfx_spr_p, lh_spr   = lh_spr_p    , &                       
+                   config_gf_gustf = config_gf_gustf                                     , &
                    ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde , &
                    ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme , &
                    its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte   &
@@ -1210,9 +1209,8 @@
                       qcg      = qcg_p      , spp_pbl   = spp_pbl  , isftcflx = isftcflx    , &
                       iz0tlnd  = iz0tlnd    , itimestep = initflag                          , &
                       errmsg   = errmsg     , errflg    = errflg                            , &
-!-srf review for physics_mmm
-!                      sgsgustcu= sgsgustcu_p, hfx_spr   = hfx_spr_p, lh_spr   = lh_spr_p    , &  
-!                      config_gf_gustf = config_gf_gustf                                     , &
+                      sgsgustcu= sgsgustcu_p, hfx_spr   = hfx_spr_p, lh_spr   = lh_spr_p    , &  
+                      config_gf_gustf = config_gf_gustf                                     , &
                       ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde , &
                       ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme , &
                       its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte   &
