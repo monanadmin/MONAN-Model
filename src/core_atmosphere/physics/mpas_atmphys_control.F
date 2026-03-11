@@ -72,10 +72,17 @@
 ! * modified logic in subroutine physics_tables_init so that the Thompson microphysics tables are read in each
 !   MPI task.
 !   Laura D. Fowler (laura@ucar.edu) / 2016-12-30.
+! * added the option mp_thompson_aerosols.
+!   Laura D. Fowler (laura@ucar.edu) / 2018-01-31.
 ! * added the option sf_monin_obukhov_rev to run the revised surface layer scheme with the YSU PBL scheme.
 !   Laura D. Fowler (laura@ucar.edu) / 2023-05-15.
 ! * replaced the option "noah" with "sf_noah" to run the NOAH land surface scheme.
 !   Laura D. Fowler (laura@ucar.edu) / 2022-02-18.
+! * added the option "sf_noahmp" to run the NOAH-MP land surface scheme.
+!   Laura D. Fowler (laura@ucar.edu) / 2022-07-15.
+! * in the mesoscale_reference suite, replaced the MM5 surface layer scheme with the MM5 revised surface layer
+!   scheme as the default option for config_sfclayer_scheme.
+!   Laura D. Fowler (laura@ucar.edu) / 2024-06-18.
 
 
  contains
@@ -130,7 +137,7 @@
     if (trim(config_radt_lw_scheme)    == 'suite') config_radt_lw_scheme    = 'rrtmg_lw'
     if (trim(config_radt_sw_scheme)    == 'suite') config_radt_sw_scheme    = 'rrtmg_sw'
     if (trim(config_radt_cld_scheme)   == 'suite') config_radt_cld_scheme   = 'cld_fraction'
-    if (trim(config_sfclayer_scheme)   == 'suite') config_sfclayer_scheme   = 'sf_monin_obukhov'
+    if (trim(config_sfclayer_scheme)   == 'suite') config_sfclayer_scheme   = 'sf_monin_obukhov_rev'
     if (trim(config_lsm_scheme)        == 'suite') config_lsm_scheme        = 'sf_noah'
 
  else if (trim(config_physics_suite) == 'convection_permitting') then
@@ -168,6 +175,7 @@ else if (trim(config_physics_suite) == 'mesoscale_reference_monan') then
     if (trim(config_radt_cld_scheme)   == 'suite') config_radt_cld_scheme   = 'cld_fraction_monan'
     if (trim(config_sfclayer_scheme)   == 'suite') config_sfclayer_scheme   = 'sf_mynn'
     if (trim(config_lsm_scheme)        == 'suite') config_lsm_scheme        = 'sf_noah'
+
  else if (trim(config_physics_suite) == 'none') then
 
     if (trim(config_microp_scheme)     == 'suite') config_microp_scheme     = 'off'
@@ -189,12 +197,13 @@ else if (trim(config_physics_suite) == 'mesoscale_reference_monan') then
  end if
 
 !cloud microphysics scheme:
- if(.not. (config_microp_scheme .eq. 'off'         .or. &
-           config_microp_scheme .eq. 'mp_kessler'  .or. &
-           config_microp_scheme .eq. 'mp_thompson' .or. &
+ if(.not. (config_microp_scheme .eq. 'off'                  .or. &
+           config_microp_scheme .eq. 'mp_kessler'           .or. &
+           config_microp_scheme .eq. 'mp_thompson'          .or. &
+           config_microp_scheme .eq. 'mp_thompson_aerosols' .or. &
            config_microp_scheme .eq. 'mp_wsm6')) then
 
-    write(mpas_err_message,'(A,A10)') 'illegal value for config_microp_scheme:', &
+    write(mpas_err_message,'(A,A20)') 'illegal value for config_microp_scheme:', &
           trim(config_microp_scheme)
     call physics_error_fatal(mpas_err_message)
 
@@ -208,7 +217,7 @@ else if (trim(config_physics_suite) == 'mesoscale_reference_monan') then
            config_convection_scheme .eq. 'cu_tiedtke'       .or. &
            config_convection_scheme .eq. 'cu_ntiedtke')) then
 
-    write(mpas_err_message,'(A,A10)') 'illegal value for config_convection_scheme: ', &
+    write(mpas_err_message,'(A,A20)') 'illegal value for config_convection_scheme: ', &
           trim(config_convection_scheme)
     call physics_error_fatal(mpas_err_message)
 
@@ -219,7 +228,7 @@ else if (trim(config_physics_suite) == 'mesoscale_reference_monan') then
            config_pbl_scheme .eq. 'bl_mynn' .or. &
            config_pbl_scheme .eq. 'bl_ysu')) then
 
-    write(mpas_err_message,'(A,A10)') 'illegal value for pbl_scheme: ', &
+    write(mpas_err_message,'(A,A20)') 'illegal value for pbl_scheme: ', &
           trim(config_pbl_scheme)
     call physics_error_fatal(mpas_err_message)
 
@@ -227,9 +236,10 @@ else if (trim(config_physics_suite) == 'mesoscale_reference_monan') then
 
 !gravity wave drag over orography scheme:
  if(.not. (config_gwdo_scheme .eq. 'off' .or. &
-           config_gwdo_scheme .eq. 'bl_ysu_gwdo')) then
+           config_gwdo_scheme .eq. 'bl_ysu_gwdo' .or. &
+           config_gwdo_scheme .eq. 'bl_ugwp_gwdo')) then
 
-    write(mpas_err_message,'(A,A10)') 'illegal value for gwdo_scheme: ', &
+    write(mpas_err_message,'(A,A20)') 'illegal value for gwdo_scheme: ', &
           trim(config_gwdo_scheme)
     call physics_error_fatal(mpas_err_message)
 
@@ -240,7 +250,7 @@ else if (trim(config_physics_suite) == 'mesoscale_reference_monan') then
            config_radt_lw_scheme .eq. 'cam_lw' .or. &
            config_radt_lw_scheme .eq. 'rrtmg_lw')) then
  
-    write(mpas_err_message,'(A,A10)') 'illegal value for longwave radiation scheme: ', &
+    write(mpas_err_message,'(A,A20)') 'illegal value for longwave radiation scheme: ', &
           trim(config_radt_lw_scheme)
     call physics_error_fatal(mpas_err_message)
 
@@ -251,7 +261,7 @@ else if (trim(config_physics_suite) == 'mesoscale_reference_monan') then
            config_radt_sw_scheme .eq. 'cam_sw' .or. &
            config_radt_sw_scheme .eq. 'rrtmg_sw')) then
  
-    write(mpas_err_message,'(A,A10)') 'illegal value for shortwave radiation _scheme: ', &
+    write(mpas_err_message,'(A,A20)') 'illegal value for shortwave radiation _scheme: ', &
           trim(config_radt_sw_scheme)
     call physics_error_fatal(mpas_err_message)
 
@@ -261,10 +271,10 @@ else if (trim(config_physics_suite) == 'mesoscale_reference_monan') then
  if(.not. (config_radt_cld_scheme .eq. 'off'           .or. &
            config_radt_cld_scheme .eq. 'cld_incidence' .or. &
            config_radt_cld_scheme .eq. 'cld_fraction'  .or. &
-           config_radt_cld_scheme .eq. 'cld_fraction_thompson' .or. &
+           config_radt_cld_scheme .eq. 'cld_fraction_thompson'.or. &
            config_radt_cld_scheme .eq. 'cld_fraction_monan')) then
 
-    write(mpas_err_message,'(A,A10)') 'illegal value for calculation of cloud fraction: ', &
+    write(mpas_err_message,'(A,A20)') 'illegal value for calculation of cloud fraction: ', &
           trim(config_radt_cld_scheme)
     call physics_error_fatal(mpas_err_message)
 
@@ -273,10 +283,10 @@ else if (trim(config_physics_suite) == 'mesoscale_reference_monan') then
     (config_radt_sw_scheme.ne.'off' .and. config_radt_cld_scheme.eq.'off')) then
 
     call mpas_log_write('')
-    write(mpas_err_message,'(A,A10)') &
+    write(mpas_err_message,'(A,A20)') &
        '    config_radt_cld_scheme is not set for radiation calculation'
     call physics_message(mpas_err_message)
-    write(mpas_err_message,'(A,A10)') &
+    write(mpas_err_message,'(A,A20)') &
        '    switch calculation of cloud fraction to config_radt_cld_scheme = cld_incidence'
     call physics_message(mpas_err_message)
     config_radt_cld_scheme = "cld_incidence"
@@ -289,7 +299,7 @@ else if (trim(config_physics_suite) == 'mesoscale_reference_monan') then
            config_sfclayer_scheme .eq. 'sf_monin_obukhov' .or. &
            config_sfclayer_scheme .eq. 'sf_monin_obukhov_rev')) then
  
-    write(mpas_err_message,'(A,A10)') 'illegal value for surface layer scheme: ', &
+    write(mpas_err_message,'(A,A20)') 'illegal value for surface layer scheme: ', &
           trim(config_sfclayer_scheme)
     call physics_error_fatal(mpas_err_message)
  else
@@ -298,7 +308,7 @@ else if (trim(config_physics_suite) == 'mesoscale_reference_monan') then
     elseif(config_pbl_scheme == 'bl_ysu') then
        if(config_sfclayer_scheme /= 'sf_monin_obukhov' .and. &
           config_sfclayer_scheme /= 'sf_monin_obukhov_rev') then
-          write(mpas_err_message,'(A,A10)') 'wrong choice for surface layer scheme with YSU PBL: ', &
+          write(mpas_err_message,'(A,A20)') 'wrong choice for surface layer scheme with YSU PBL: ', &
                 trim(config_sfclayer_scheme)
           call physics_error_fatal(mpas_err_message)
        endif
@@ -312,10 +322,11 @@ else if (trim(config_physics_suite) == 'mesoscale_reference_monan') then
     call physics_error_fatal('land surface scheme: ' // &
                              'set config_sfclayer_scheme different than off')
     
- elseif(.not. (config_lsm_scheme .eq. 'off ' .or. &
-               config_lsm_scheme .eq. 'sf_noah')) then
+ elseif(.not. (config_lsm_scheme .eq. 'off '    .or. &
+               config_lsm_scheme .eq. 'sf_noah' .or. &
+               config_lsm_scheme .eq. 'sf_noahmp')) then
  
-    write(mpas_err_message,'(A,A10)') 'illegal value for land surface scheme: ', &
+    write(mpas_err_message,'(A,A20)') 'illegal value for land surface scheme: ', &
           trim(config_lsm_scheme)
     call physics_error_fatal(mpas_err_message)
 
@@ -384,7 +395,7 @@ else if (trim(config_physics_suite) == 'mesoscale_reference_monan') then
 
     lsm_select: select case(trim(config_lsm_scheme))
 
-       case("sf_noah")
+       case("sf_noah","sf_noahmp")
        !initialize the thickness of the soil layers for the Noah scheme:
           do iCell = 1, nCells
              dzs(1,iCell) = 0.10_RKIND
@@ -423,7 +434,8 @@ else if (trim(config_physics_suite) == 'mesoscale_reference_monan') then
  if(dminfo % my_proc_id == IO_NODE) then
 
     call mpas_pool_get_config(configs,'config_microp_scheme',config_microp_scheme)
-    if(config_microp_scheme /= "mp_thompson") return
+    if(config_microp_scheme /= "mp_thompson" .or. &
+       config_microp_scheme /= "mp_thompson_aerosols") return
 
     l_qr_acr_qg = .false.
     l_qr_acr_qs = .false.
@@ -495,7 +507,7 @@ else if (trim(config_physics_suite) == 'mesoscale_reference_monan') then
 
  call mpas_pool_get_config(blocklist % configs, 'config_gwdo_scheme', gwdo_scheme)
 
- if (trim(gwdo_scheme) /= 'off') then
+ if (trim(gwdo_scheme) == 'bl_ysu_gwdo') then
      maxvar2d_local = -huge(maxvar2d_local)
      block => blockList
      do while (associated(block))
@@ -529,7 +541,7 @@ else if (trim(config_physics_suite) == 'mesoscale_reference_monan') then
      if (maxvar2d_global <= 0.0_RKIND .and. iall_water /= 1) then
          call mpas_log_write('*******************************************************************************', &
                              messageType=MPAS_LOG_ERR)
-         call mpas_log_write('The GWDO scheme requires valid var2d, con, oa{1,2,3,4}, and ol{1,2,3,4} fields,', &
+         call mpas_log_write('The YSU GWDO scheme requires valid var2d, con, oa{1,2,3,4}, and ol{1,2,3,4} fields,', &
                              messageType=MPAS_LOG_ERR)
          call mpas_log_write('but these fields appear to be zero everywhere in the model input.', &
                              messageType=MPAS_LOG_ERR)

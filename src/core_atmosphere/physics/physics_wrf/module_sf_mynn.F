@@ -32,7 +32,7 @@
                    ids,ide,jds,jde,kds,kde,                      &
                    ims,ime,jms,jme,kms,kme,                      &
                    its,ite,jts,jte,kts,kte                       &
-                                                                 )
+                       )
 !-------------------------------------------------------------------
 !-- u3d         3d u-velocity interpolated to theta points (m/s)
 !-- v3d         3d v-velocity interpolated to theta points (m/s)
@@ -348,9 +348,10 @@ real(kind=RKIND),intent(out),dimension(ims:ime,jms:jme):: &
                  wstar    = wstar_hv  , qstar    = qstar_hv  , ustm    = ustm_hv  , ck        = ck_hv     , &
                  cka      = cka_hv    , cd       = cd_hv     , cda     = cda_hv   , spp_pbl   = f_spp     , &
                  rstoch1d = rstoch1d  , isftcflx = isftcflx  , iz0tlnd = iz0tlnd                          , &
-                 its      = its       , ite      = ite       , errmsg  = errmsg   , errflg    = errflg    , &
-                 sgsgustcu = sgsgustcu_hv, hfx_spr = hfx_spr_hv, lh_spr = lh_spr_hv                       , &
-                 config_gf_gustf = config_gf_gustf                                                          )
+                 its      = its       , ite      = ite       , errmsg  = errmsg   , errflg    = errflg      )
+!-srf review for physics_wrf
+!                 sgsgustcu = sgsgustcu_hv, hfx_spr = hfx_spr_hv, lh_spr = lh_spr_hv                       , &
+!                 config_gf_gustf = config_gf_gustf                                                          )
 
     !inout arguments:
     do i = its,ite
