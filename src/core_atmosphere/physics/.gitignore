@@ -1,5 +1,5 @@
 *.f90
 physics_wrf/*.f90
 physics_wrf/files/
-physics_mmm
+#physics_mmm - MONAN 2.0.0 change
 UGWP
