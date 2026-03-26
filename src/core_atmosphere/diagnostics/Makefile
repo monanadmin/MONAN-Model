@@ -11,18 +11,21 @@ DIAGNOSTIC_MODULES = \
 	mpas_pv_diagnostics.o \
 	mpas_soundings.o \
 	mpas_vertical_interpolation.o \
+	mpas_stability_indices.o
 
 mpas_isobaric_diagnostics.o: mpas_atm_diagnostics_utils.o mpas_vertical_interpolation.o
 
 mpas_cloud_diagnostics.o: mpas_atm_diagnostics_utils.o
 
-mpas_convective_diagnostics.o: mpas_atm_diagnostics_utils.o
+mpas_convective_diagnostics.o: mpas_atm_diagnostics_utils.o mpas_stability_indices.o
 
 mpas_pv_diagnostics.o: mpas_atm_diagnostics_utils.o
 
 mpas_soundings.o:
 
 mpas_vertical_interpolation.o:
+
+mpas_stability_indices.o:
 
 ################### Generally no need to modify below here ###################
 

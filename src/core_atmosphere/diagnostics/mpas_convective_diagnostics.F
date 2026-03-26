@@ -10,6 +10,7 @@ module mpas_convective_diagnostics
     use mpas_derived_types, only : MPAS_pool_type, MPAS_clock_type, MPAS_LOG_ERR, MPAS_LOG_CRIT
     use mpas_kind_types, only : RKIND, R8KIND
     use mpas_log, only : mpas_log_write
+    use stability_indices
 
     type (MPAS_pool_type), pointer :: mesh
     type (MPAS_pool_type), pointer :: state
@@ -238,6 +239,8 @@ module mpas_convective_diagnostics
         ! Fields that are computed in this routine
         real (kind=RKIND), dimension(:), pointer :: cape
         real (kind=RKIND), dimension(:), pointer :: cin
+        real (kind=RKIND), dimension(:), pointer :: mlcape
+        real (kind=RKIND), dimension(:), pointer :: mlcin
         real (kind=RKIND), dimension(:), pointer :: lcl
         real (kind=RKIND), dimension(:), pointer :: lfc
         real (kind=RKIND), dimension(:), pointer :: srh_0_1km
@@ -250,6 +253,10 @@ module mpas_convective_diagnostics
         real (kind=RKIND), dimension(:), pointer :: umeridional_6km
         real (kind=RKIND), dimension(:), pointer :: temperature_surface
         real (kind=RKIND), dimension(:), pointer :: dewpoint_surface
+
+        real (kind=RKIND), dimension(:), pointer :: rli
+        real (kind=RKIND), dimension(:), pointer :: rki
+        real (kind=RKIND), dimension(:), pointer :: rwi
 
         ! Other fields used in the computation of convective diagnostics 
         ! defined above
@@ -268,6 +275,9 @@ module mpas_convective_diagnostics
         real (kind=RKIND)            :: u_storm, v_storm, u_srh_bot, v_srh_bot, u_srh_top, v_srh_top
         real (kind=RKIND)            :: u_mean, v_mean, u_shear, v_shear, shear_magnitude
         real (kind=RKIND)            :: b_term, cape_out, cin_out
+
+        real (kind=RKIND)            :: rli_out, rki_out, rwi_out
+
         real (kind=RKIND), dimension(:), allocatable :: dudz, dvdz, zp
         real (kind=RKIND), dimension(:), allocatable :: zrel, srh
         real (kind=RKIND), dimension(:), allocatable :: p_in, t_in, td_in
@@ -276,16 +286,28 @@ module mpas_convective_diagnostics
 
         real (kind=RKIND) :: evp
 
-        logical :: need_cape, need_cin, need_lcl, need_lfc, need_srh_01km, need_srh_03km, need_uzonal_sfc, need_uzonal_1km, &
+        logical :: need_cape, need_cin, need_mlcape, need_mlcin, need_lcl, need_lfc, need_srh_01km, need_srh_03km, need_uzonal_sfc, need_uzonal_1km, &
                    need_uzonal_6km, need_umerid_sfc, need_umerid_1km, need_umerid_6km, need_tsfc, need_tdsfc
         logical :: need_any_diags
+        logical :: need_rli, need_rki, need_rwi
 
         need_any_diags = .false.
+
+        need_rli = MPAS_field_will_be_written('rli')
+        need_any_diags = need_any_diags .or. need_rli
+        need_rki = MPAS_field_will_be_written('rki')
+        need_any_diags = need_any_diags .or. need_rki
+        need_rwi = MPAS_field_will_be_written('rwi')
+        need_any_diags = need_any_diags .or. need_rwi
 
         need_cape = MPAS_field_will_be_written('cape')
         need_any_diags = need_any_diags .or. need_cape
         need_cin = MPAS_field_will_be_written('cin')
         need_any_diags = need_any_diags .or. need_cin
+        need_mlcape = MPAS_field_will_be_written('mlcape')
+        need_any_diags = need_any_diags .or. need_mlcape
+        need_mlcin = MPAS_field_will_be_written('mlcin')
+        need_any_diags = need_any_diags .or. need_mlcin
         need_lcl = MPAS_field_will_be_written('lcl')
         need_any_diags = need_any_diags .or. need_lcl
         need_lfc = MPAS_field_will_be_written('lfc')
@@ -320,6 +342,8 @@ module mpas_convective_diagnostics
 
             call mpas_pool_get_array(diag, 'cape', cape)
             call mpas_pool_get_array(diag, 'cin',  cin)
+            call mpas_pool_get_array(diag, 'mlcape', mlcape)
+            call mpas_pool_get_array(diag, 'mlcin',  mlcin)
             call mpas_pool_get_array(diag, 'lcl',  lcl)
             call mpas_pool_get_array(diag, 'lfc',  lfc)
             call mpas_pool_get_array(diag, 'srh_0_1km', srh_0_1km)
@@ -332,6 +356,10 @@ module mpas_convective_diagnostics
             call mpas_pool_get_array(diag, 'umeridional_6km', umeridional_6km)
             call mpas_pool_get_array(diag, 'temperature_surface', temperature_surface)
             call mpas_pool_get_array(diag, 'dewpoint_surface', dewpoint_surface)
+
+            call mpas_pool_get_array(diag, 'rli', rli)
+            call mpas_pool_get_array(diag, 'rki', rki)
+            call mpas_pool_get_array(diag, 'rwi', rwi)
 
             call mpas_pool_get_array(mesh, 'zgrid', height)
             call mpas_pool_get_array(diag, 'uReconstructMeridional', umeridional)
@@ -463,10 +491,44 @@ module mpas_convective_diagnostics
                  !                      /(17.625-log(relhum(k,iCell))-((17.625*t_in(k))/(243.04+t_in(k)))) 
                  !   end do
 
-                    call getcape( nVertLevels, p_in, t_in, td_in, cape_out, cin_out )
+                    call getcape( 2, nVertLevels, p_in, t_in, td_in, cape_out, cin_out )
 
                     cape(iCell) = cape_out
                     cin(iCell) = cin_out
+
+                end do
+            end if
+
+            if (need_mlcape .or. need_mlcin) then
+                do iCell=1, nCellsSolve
+                    p_in(1:nVertLevels) = (pressure_p(1:nVertLevels,iCell) + pressure_base(1:nVertLevels,iCell)) / 100.0_RKIND
+                    t_in(1:nVertLevels) = temperature(1:nVertLevels,iCell) - 273.15_RKIND
+                    td_in(1:nVertLevels) = dewpoint(1:nVertLevels,iCell) - 273.15_RKIND
+
+                    call getcape( 3, nVertLevels, p_in, t_in, td_in, cape_out, cin_out )
+
+                    mlcape(iCell) = cape_out
+                    mlcin(iCell) = cin_out
+
+                end do
+            end if
+
+! Stability indices
+
+            if (need_rli .or. need_rki .or. need_rwi ) then
+                do iCell=1, nCellsSolve
+                    p_in(1:nVertLevels) = (pressure_p(1:nVertLevels,iCell) + pressure_base(1:nVertLevels,iCell)) / 100.0_RKIND
+                    t_in(1:nVertLevels) = temperature(1:nVertLevels,iCell) - 273.15_RKIND
+                    td_in(1:nVertLevels) = dewpoint(1:nVertLevels,iCell) - 273.15_RKIND
+
+!                   print*,'Pressure (1:nVertLevels) ',p_in(1),p_in(nVertLevels)
+!                   Enter variables from surface to top
+
+                    call INDX1 (nVertLevels, p_in, t_in, td_in, rli_out, rki_out, rwi_out )
+
+                    rli(iCell) = rli_out
+                    rki(iCell) = rki_out
+                    rwi(iCell) = rwi_out
 
                 end do
             end if
@@ -592,10 +654,10 @@ module mpas_convective_diagnostics
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !-----------------------------------------------------------------------
 
-    subroutine getcape( nk , p_in , t_in , td_in, cape , cin )
+    subroutine getcape( source, nk , p_in , t_in , td_in, cape , cin )
     implicit none
 
-    integer, intent(in) :: nk
+    integer, intent(in) :: source, nk
     real (kind=RKIND), dimension(nk), intent(in) :: p_in,t_in,td_in
     real (kind=RKIND), intent(out) :: cape,cin
 
@@ -639,7 +701,7 @@ module mpas_convective_diagnostics
                                       !  results,larger number makes code 
                                       !  go faster)
 
-    integer, parameter :: source = 2    ! Source parcel:
+!    integer, parameter :: source = 2    ! Source parcel:
                                         ! 1 = surface
                                         ! 2 = most unstable (max theta-e)
                                         ! 3 = mixed-layer (specify ml_depth)

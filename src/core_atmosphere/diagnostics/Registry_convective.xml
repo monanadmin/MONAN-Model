@@ -4,11 +4,28 @@
 
 <var_struct name="diag" time_levs="1">
 
+	<var name="rli"                    type="real"     dimensions="nCells Time" units="K"
+             description="Lifted index"/>
+
+        <var name="rki"                    type="real"     dimensions="nCells Time" units="K"
+	     description="K index"/>
+
+	<var name="rwi"                    type="real"     dimensions="nCells Time" units="K"
+             description="Showalter index"/>
+
         <var name="cape"                   type="real"     dimensions="nCells Time" units="J kg^{-1}"
-             description="Convective available potential energy"/>
+             description="Most Unstable Convective available potential energy"/>
 
         <var name="cin"                    type="real"     dimensions="nCells Time" units="J kg^{-1}"
-             description="Convective inhibition"/>
+             description="Most Unstable Convective inhibition"/>
+
+        <var name="mlcape"                 type="real"     dimensions="nCells Time" units="J k
+g^{-1}"
+             description="Mixed Layer Convective available potential energy"/>
+
+        <var name="mlcin"                  type="real"     dimensions="nCells Time" units="J k
+g^{-1}"
+             description="Mixed Layer Convective inhibition"/>     
 
         <var name="lcl"                    type="real"     dimensions="nCells Time" units="m"
              description="Lifted condensation level"/>
