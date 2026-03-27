@@ -1029,6 +1029,8 @@
 			<var name="rli"/>
 			<var name="rki"/>
 			<var name="rwi"/>
+			<var name="sfccape"/>
+			<var name="sfccin"/>
                         <var name="cape"/>
                         <var name="cin"/>
 			<var name="mlcape"/>

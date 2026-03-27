@@ -237,6 +237,8 @@ module mpas_convective_diagnostics
         integer, pointer :: nCells, nCellsSolve, nVertLevels, nVertLevelsP1
 
         ! Fields that are computed in this routine
+        real (kind=RKIND), dimension(:), pointer :: sfccape
+        real (kind=RKIND), dimension(:), pointer :: sfccin
         real (kind=RKIND), dimension(:), pointer :: cape
         real (kind=RKIND), dimension(:), pointer :: cin
         real (kind=RKIND), dimension(:), pointer :: mlcape
@@ -286,6 +288,7 @@ module mpas_convective_diagnostics
 
         real (kind=RKIND) :: evp
 
+        logical :: need_sfccape, need_sfccin
         logical :: need_cape, need_cin, need_mlcape, need_mlcin, need_lcl, need_lfc, need_srh_01km, need_srh_03km, need_uzonal_sfc, need_uzonal_1km, &
                    need_uzonal_6km, need_umerid_sfc, need_umerid_1km, need_umerid_6km, need_tsfc, need_tdsfc
         logical :: need_any_diags
@@ -299,6 +302,11 @@ module mpas_convective_diagnostics
         need_any_diags = need_any_diags .or. need_rki
         need_rwi = MPAS_field_will_be_written('rwi')
         need_any_diags = need_any_diags .or. need_rwi
+
+        need_sfccape = MPAS_field_will_be_written('sfccape')
+        need_any_diags = need_any_diags .or. need_sfccape
+        need_sfccin = MPAS_field_will_be_written('sfccin')
+        need_any_diags = need_any_diags .or. need_sfccin
 
         need_cape = MPAS_field_will_be_written('cape')
         need_any_diags = need_any_diags .or. need_cape
@@ -339,6 +347,9 @@ module mpas_convective_diagnostics
             call mpas_pool_get_dimension(mesh, 'nCellsSolve', nCellsSolve)
             call mpas_pool_get_dimension(mesh, 'nVertLevels', nVertLevels)
             call mpas_pool_get_dimension(mesh, 'nVertLevelsP1', nVertLevelsP1)
+
+            call mpas_pool_get_array(diag, 'sfccape', sfccape)
+            call mpas_pool_get_array(diag, 'sfccin',  sfccin)
 
             call mpas_pool_get_array(diag, 'cape', cape)
             call mpas_pool_get_array(diag, 'cin',  cin)
@@ -479,6 +490,21 @@ module mpas_convective_diagnostics
             end do
 
             !  calculate cape and cin
+
+            if (need_sfccape .or. need_sfccin) then
+                do iCell=1, nCellsSolve
+                    p_in(1:nVertLevels) = (pressure_p(1:nVertLevels,iCell) + pressure_base(1:nVertLevels,iCell)) / 100.0_RKIND
+                    t_in(1:nVertLevels) = temperature(1:nVertLevels,iCell) - 273.15_RKIND
+                    td_in(1:nVertLevels) = dewpoint(1:nVertLevels,iCell) - 273.15_RKIND
+
+                    call getcape( 1, nVertLevels, p_in, t_in, td_in, cape_out, cin_out )
+
+                    sfccape(iCell) = cape_out
+                    sfccin(iCell) = cin_out
+
+                end do
+            end if
+
             if (need_cape .or. need_cin) then
                 do iCell=1, nCellsSolve
                     p_in(1:nVertLevels) = (pressure_p(1:nVertLevels,iCell) + pressure_base(1:nVertLevels,iCell)) / 100.0_RKIND

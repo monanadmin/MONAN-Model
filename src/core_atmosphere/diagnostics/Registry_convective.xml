@@ -13,6 +13,12 @@
 	<var name="rwi"                    type="real"     dimensions="nCells Time" units="K"
              description="Showalter index"/>
 
+        <var name="sfccape"                   type="real"     dimensions="nCells Time" units="J kg^{-1}"
+             description="Surface Convective available potential energy"/>
+
+        <var name="sfccin"                    type="real"     dimensions="nCells Time" units="J kg^{-1}"
+	     description="Surface Convective inhibition"/>
+
         <var name="cape"                   type="real"     dimensions="nCells Time" units="J kg^{-1}"
              description="Most Unstable Convective available potential energy"/>
 
