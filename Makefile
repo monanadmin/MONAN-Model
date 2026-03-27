@@ -740,11 +740,21 @@ gfortran-xd2000:   # BUILDTARGET GNU Fortran, C, and C++ compilers
 	"CC_SERIAL = cc" \
 	"CXX_SERIAL = CC" \
 	"FFLAGS_PROMOTION = -fdefault-real-8 -fdefault-double-8" \
-	"FFLAGS_OPT = -O3 -ffree-line-length-none -fconvert=big-endian -ffree-form -fallow-argument-mismatch" \
-	"CFLAGS_OPT = -O3" \
-	"CXXFLAGS_OPT = -O3" \
-	"LDFLAGS_OPT = -O3" \
-	"FFLAGS_DEBUG = -g -ffree-line-length-none -fconvert=big-endian -ffree-form -fallow-argument-mismatch -fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow" \
+	"FFLAGS_OPT = -O3 -fopenmp \
+            -march=native -mtune=native \
+            -fno-fast-math \
+            -ffp-contract=off \
+            -ffree-line-length-none -fconvert=big-endian -ffree-form \
+            -fallow-argument-mismatch" \
+	"CFLAGS_OPT = -O3 -march=native -mtune=native" \
+        "CXXFLAGS_OPT = -O3 -march=native -mtune=native" \
+        "LDFLAGS_OPT = -O3" \
+	"FFLAGS_DEBUG = -O0 -g \
+ 			-fcheck=all -fbacktrace \
+ 			-finit-real=nan -finit-integer=-999 \
+ 			-ffpe-trap=invalid,zero,overflow \
+ 			-ffree-line-length-none -fconvert=big-endian -ffree-form \
+ 			-fallow-argument-mismatch" \
 	"CFLAGS_DEBUG = -g" \
 	"CXXFLAGS_DEBUG = -g" \
 	"LDFLAGS_DEBUG = -g" \
@@ -760,6 +770,35 @@ gfortran-xd2000:   # BUILDTARGET GNU Fortran, C, and C++ compilers
 	"OPENMP = $(OPENMP)" \
 	"OPENACC = $(OPENACC)" \
 	"CPPFLAGS = $(MODEL_FORMULATION) -D_MPI" )
+
+cray-xd2000:
+	( $(MAKE) all \
+        "FC_PARALLEL = ftn" \
+        "CC_PARALLEL = cc" \
+        "CXX_PARALLEL = CC" \
+        "FC_SERIAL = ftn" \
+        "CC_SERIAL = cc" \
+        "CXX_SERIAL = CC" \
+        "FFLAGS_PROMOTION = -sreal64 " \
+        "FFLAGS_OPT = -Ofast -hcpu=x86-turin -hipa1 -ffree" \
+        "CFLAGS_OPT = -Ofast" \
+        "CXXFLAGS_OPT = -Ofast" \
+        "LDFLAGS_OPT = -hbyteswapio" \
+        "FFLAGS_DEBUG = -eD -O0 -ffree" \
+        "CFLAGS_DEBUG = -O0 -g -Weverything" \
+        "CXXFLAGS_DEBUG = -O0 -g -Weverything" \
+        "LDFLAGS_DEBUG = -eD -O0 -hbyteswapio" \
+        "FFLAGS_OMP = -homp" \
+        "CFLAGS_OMP = -fopenmp" \
+        "FFLAGS_ACC =" \
+        "CFLAGS_ACC =" \
+        "BUILD_TARGET = $(@)" \
+        "CORE = $(CORE)" \
+        "DEBUG = $(DEBUG)" \
+        "USE_PAPI = $(USE_PAPI)" \
+        "OPENMP = $(OPENMP)" \
+        "OPENACC = $(OPENACC)" \
+        "CPPFLAGS = $(MODEL_FORMULATION) -D_MPI" )
 
 CPPINCLUDES =
 FCINCLUDES =
@@ -1007,11 +1046,11 @@ else # else ifdef $(TIMER_LIB)
 endif # endif ifdef $(TIMER_LIB)
 
 ifeq "$(TAU)" "true"
-	LINKER=tau_f90.sh
+	LNK=tau_f90.sh
 	CPPINCLUDES += -DMPAS_TAU -DMPAS_TAU_TIMERS
 	TAU_MESSAGE="TAU Hooks are on."
 else
-	LINKER=$(FC)
+	LNK=$(FC)
 	TAU_MESSAGE="TAU Hooks are off."
 endif
 
@@ -1390,7 +1429,7 @@ endif
                  CXX="$(CXX)" \
                  SFC="$(SFC)" \
                  SCC="$(SCC)" \
-                 LINKER="$(LINKER)" \
+                 LNK="$(LNK)" \
                  CFLAGS="$(CFLAGS)" \
                  CXXFLAGS="$(CXXFLAGS)" \
                  FFLAGS="$(FFLAGS)" \

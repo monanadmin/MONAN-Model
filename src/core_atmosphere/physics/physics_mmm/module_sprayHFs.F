@@ -748,7 +748,7 @@ ELSE IF (zeta > 0.) THEN    ! Stable (Grachev 2007, Eq. 13)
     b = 5.
     c = 3.
     BB = SQRT(c**2 - 4.)
-    psiH = -(b/2.)*LOG(1.+c*zeta+zeta**2) + \
+    psiH = -(b/2.)*LOG(1.+c*zeta+zeta**2) + &
         (((b*c)/(2.*BB))-(a/BB))*(LOG((2.*zeta+c-BB)/(2.*zeta+c+BB))-LOG((c-BB)/(c+BB)))
 END IF
 
