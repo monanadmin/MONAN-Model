@@ -62,7 +62,8 @@
     config_radtsw_interval = '00:30:00'
     config_conv_interval = '#CONFIG_CONV_INTERVAL#'
     config_bucket_update = 'none'
-    config_physics_suite = 'convection_permitting_monan'     
+    config_physics_suite = 'mesoscale_reference_monan'
+    config_radt_cld_scheme = 'cld_fraction_monan'
     config_mynn_edmf = 0
 /
 &gf_monan

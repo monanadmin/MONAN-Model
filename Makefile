@@ -681,6 +681,86 @@ intel:   # BUILDTARGET Intel oneAPI Fortran, C, and C++ compiler suite
 	"OPENMP = $(OPENMP)" \
 	"CPPFLAGS = $(MODEL_FORMULATION) -D_MPI" )
 
+intel-xd2000:
+	( $(MAKE) all \
+        "FC_PARALLEL = ftn" \
+        "CC_PARALLEL = cc" \
+        "CXX_PARALLEL = CC" \
+        "FC_SERIAL = ftn" \
+        "CC_SERIAL = cc" \
+        "CXX_SERIAL = CC" \
+        "FFLAGS_PROMOTION = -real-size 64" \
+        "FFLAGS_OPT = -O3 -convert big_endian -FR -march=core-avx2 -mtune=core-avx2" \
+        "CFLAGS_OPT = -O3 -std=gnu90" \
+        "CXXFLAGS_OPT = -O3" \
+        "LDFLAGS_OPT = -O3" \
+        "FFLAGS_DEBUG = -g -convert big_endian -FR -CU -CB -check all -fpe0 -traceback" \
+        "CFLAGS_DEBUG = -g -traceback" \
+        "CXXFLAGS_DEBUG = -g -traceback" \
+        "LDFLAGS_DEBUG = -g -fpe0 -traceback" \
+        "FFLAGS_OMP = -qopenmp" \
+        "CFLAGS_OMP = -qopenmp" \
+        "CORE = $(CORE)" \
+        "DEBUG = $(DEBUG)" \
+        "USE_PAPI = $(USE_PAPI)" \
+        "OPENMP = $(OPENMP)" \
+        "CPPFLAGS = $(MODEL_FORMULATION) -D_MPI -DUNDERSCORE" )
+
+intel2-xd2000:
+	( $(MAKE) all \
+        "FC_PARALLEL = ftn" \
+        "CC_PARALLEL = cc" \
+        "CXX_PARALLEL = CC" \
+        "FC_SERIAL = ftn" \
+        "CC_SERIAL = cc" \
+        "CXX_SERIAL = CC" \
+        "FFLAGS_PROMOTION = -real-size 64" \
+        "FFLAGS_OPT = -O2 -convert big_endian -FR -march=core-avx2 -mtune=core-avx2" \
+        "CFLAGS_OPT = -O2 -std=gnu90" \
+        "CXXFLAGS_OPT = -O2" \
+        "LDFLAGS_OPT = -O2" \
+        "FFLAGS_DEBUG = -g -convert big_endian -FR -CU -CB -check all -fpe0 -traceback" \
+        "CFLAGS_DEBUG = -g -traceback" \
+        "CXXFLAGS_DEBUG = -g -traceback" \
+        "LDFLAGS_DEBUG = -g -fpe0 -traceback" \
+        "FFLAGS_OMP = -qopenmp" \
+        "CFLAGS_OMP = -qopenmp" \
+        "CORE = $(CORE)" \
+        "DEBUG = $(DEBUG)" \
+        "USE_PAPI = $(USE_PAPI)" \
+        "OPENMP = $(OPENMP)" \
+        "CPPFLAGS = $(MODEL_FORMULATION) -D_MPI -DUNDERSCORE" )
+
+gfortran-xd2000:   # BUILDTARGET GNU Fortran, C, and C++ compilers
+	( $(MAKE) all \
+	"FC_PARALLEL = ftn" \
+	"CC_PARALLEL = cc" \
+	"CXX_PARALLEL = CC" \
+	"FC_SERIAL = ftn" \
+	"CC_SERIAL = cc" \
+	"CXX_SERIAL = CC" \
+	"FFLAGS_PROMOTION = -fdefault-real-8 -fdefault-double-8" \
+	"FFLAGS_OPT = -O3 -ffree-line-length-none -fconvert=big-endian -ffree-form -fallow-argument-mismatch" \
+	"CFLAGS_OPT = -O3" \
+	"CXXFLAGS_OPT = -O3" \
+	"LDFLAGS_OPT = -O3" \
+	"FFLAGS_DEBUG = -g -ffree-line-length-none -fconvert=big-endian -ffree-form -fallow-argument-mismatch -fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow" \
+	"CFLAGS_DEBUG = -g" \
+	"CXXFLAGS_DEBUG = -g" \
+	"LDFLAGS_DEBUG = -g" \
+	"FFLAGS_OMP = -fopenmp" \
+	"CFLAGS_OMP = -fopenmp" \
+	"FFLAGS_ACC =" \
+	"CFLAGS_ACC =" \
+	"PICFLAG = -fPIC" \
+	"BUILD_TARGET = $(@)" \
+	"CORE = $(CORE)" \
+	"DEBUG = $(DEBUG)" \
+	"USE_PAPI = $(USE_PAPI)" \
+	"OPENMP = $(OPENMP)" \
+	"OPENACC = $(OPENACC)" \
+	"CPPFLAGS = $(MODEL_FORMULATION) -D_MPI" )
+
 CPPINCLUDES =
 FCINCLUDES =
 LIBS =
@@ -690,6 +770,9 @@ ifneq "$(PIO)" ""
 # Regardless of PIO library version, look for a lib subdirectory of PIO path
 # NB: PIO_LIB is used later, so we don't just set LIBS directly
 #
+#ifneq ($(wildcard $(PIO)/lib64), )
+#	PIO_LIB = $(PIO)/lib64
+#else
 ifneq ($(wildcard $(PIO)/lib), )
 	PIO_LIB = $(PIO)/lib
 else
@@ -1425,4 +1508,3 @@ errmsg:
 ifdef CORE
 	exit 1
 endif
-
