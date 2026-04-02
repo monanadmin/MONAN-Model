@@ -672,6 +672,12 @@
                <var name="qc_bl"/>
                <var name="qi_bl"/>
                <var name="ch"/>
+			<var name="i_achfx"/>
+			<var name="i_acqfx"/>
+			<var name="i_aclh"/>
+			<var name="achfx"/>
+			<var name="acqfx"/>
+			<var name="aclh"/>
 			<var name="kpbl"/>
 			<var name="hpbl"/>
 			<var name="hfx"/>
@@ -751,6 +757,10 @@
 			<var name="glw"/>
 			<var name="o3clim"/>
 			<var name="o3vmr"/>
+			<var name="i_acgrdflx"/>
+			<var name="i_acnoahres"/>
+			<var name="acgrdflx"/>
+			<var name="acnoahres"/>
 			<var name="acsnom"/>
 			<var name="acsnow"/>
 			<var name="canwat"/>
@@ -2170,6 +2180,11 @@
                      description="threshold above which the accumulated grid-scale precipitation is reset"
                      possible_values="Positive real values"/>
 
+                <nml_option name="config_bucket_sflx" type="real" default_value="1.0e9" in_defaults="false"
+                     units="-"
+                     description="threshold above which the absolute accumulated surface flux diagnostics are reset"
+                     possible_values="Positive real values"/>
+
                 <nml_option name="config_oml1d" type="logical" default_value="false" in_defaults="false"
                      units="-"
                      description="Whether to activate the 1-d ocean mixed-layer model"
@@ -2668,6 +2683,18 @@
                 <!-- ... PARAMETERIZATION OF SURFACE LAYER PROCESSES:                                                   -->
                 <!-- ================================================================================================== -->
 
+                <var name="i_achfx" type="integer" dimensions="nCells Time" units="unitless"
+                     description="incidence of absolute heat flux at the surface greater than config_bucket_sflx"
+                     packages="bl_mynn_in;bl_ysu_in"/>
+
+                <var name="i_acqfx" type="integer" dimensions="nCells Time" units="unitless"
+                     description="incidence of absolute moisture flux at the surface greater than config_bucket_sflx"
+                     packages="bl_mynn_in;bl_ysu_in"/>
+
+                <var name="i_aclh" type="integer" dimensions="nCells Time" units="unitless"
+                     description="incidence of absolute latent heat flux at the surface greater than config_bucket_sflx"
+                     packages="bl_mynn_in;bl_ysu_in"/>
+
                 <var name="hfx" type="real" dimensions="nCells Time" units="W m^{-2}"
                      description="upward heat flux at the surface"
                      packages="bl_mynn_in;bl_ysu_in"/>
@@ -2782,6 +2809,18 @@
 
                 <var name="lh_spr" type="real" dimensions="nCells Time" units="W m^{-2}"
                      description="latent heat flux at the surface from ocean spray"
+                     packages="bl_mynn_in;bl_ysu_in"/>
+
+                <var name="achfx" type="real" dimensions="nCells Time" units="J m^{-2}"
+                     description="accumulated upward heat flux at the surface"
+                     packages="bl_mynn_in;bl_ysu_in"/>
+
+                <var name="acqfx" type="real" dimensions="nCells Time" units="kg m^{-2}"
+                     description="accumulated upward moisture flux at the surface"
+                     packages="bl_mynn_in;bl_ysu_in"/>
+
+                <var name="aclh" type="real" dimensions="nCells Time" units="J m^{-2}"
+                     description="accumulated latent heat flux at the surface"
                      packages="bl_mynn_in;bl_ysu_in"/>
 
 
@@ -2909,28 +2948,28 @@
                 <var name="swuptc" type="real" dimensions="nCells Time" units="W m^{-2}"
                      description="clear-sky upward top-of-atmosphere shortwave radiation flux"/>
 
-                <var name="acswdnb" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="acswdnb" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated all-sky downward surface shortwave radiation flux"/>
 
-                <var name="acswdnbc" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="acswdnbc" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated clear-sky downward surface shortwave radiation flux"/>
 
-                <var name="acswdnt" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="acswdnt" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated all-sky downward top-of-atmosphere shortwave radiation flux"/>
 
-                <var name="acswdntc" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="acswdntc" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated clear-sky downward top-of-atmosphere shortwave radiation flux"/>
 
-                <var name="acswupb" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="acswupb" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated all-sky upward surface shortwave radiation flux"/>
 
                 <var name="acswupbc" type="real" dimensions="nCells Time" units="W m^{-2}"
                      description="accumulated clear-sky upward surface shortwave radiation flux"/>
 
-                <var name="acswupt" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="acswupt" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated all-sky upward top-of-atmosphere shortwave radiation flux"/>
 
-                <var name="acswuptc" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="acswuptc" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated clear-sky upward top-of-atmosphere shortwave radiation flux"/>
 
                 <var name="swddir" type="real" dimensions="nCells Time" units="W m^{-2}"
@@ -3020,28 +3059,28 @@
                 <var name="lwuptc" type="real" dimensions="nCells Time" units="W m^{-2}"
                      description="clear-sky upward top-of-the-atmosphere longwave radiation flux"/>
 
-                <var name="aclwdnb" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="aclwdnb" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated all-sky downward surface longwave radiation flux"/>
 
-                <var name="aclwdnbc" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="aclwdnbc" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated clear-sky downward surface longwave radiation flux"/>
 
-                <var name="aclwdnt" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="aclwdnt" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated all-sky downward top-of-the-atmosphere longwave radiation flux"/>
 
-                <var name="aclwdntc" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="aclwdntc" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated clear-sky downward top-of-the-atmosphere longwave radiation flux"/>
 
-                <var name="aclwupb" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="aclwupb" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated all-sky upward surface longwave radiation flux"/>
 
-                <var name="aclwupbc" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="aclwupbc" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated clear-sky upward surface longwave radiation flux"/>
 
-                <var name="aclwupt" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="aclwupt" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated all-sky upward top-of-the-atmosphere longwave radiation flux"/>
 
-                <var name="aclwuptc" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="aclwuptc" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated clear-sky upward top-of-the-atmosphere longwave radiation flux"/>
 
                 <var name="olrtoa" type="real" dimensions="nCells Time" units="W m^{-2}"
@@ -3103,6 +3142,12 @@
                 <!-- ================================================================================================== -->
                 <!-- ... PARAMETERIZATION OF LAND-SURFACE SCHEME:                                                       -->
                 <!-- ================================================================================================== -->
+
+                <var name="i_acgrdflx" type="integer" dimensions="nCells Time" units="unitless"
+                     description="incidence of accumulated absolute ground heat flux greater than config_bucket_sflx"/>
+
+                <var name="i_acnoahres" type="real" dimensions="nCells Time" units="unitless"
+                     description="incidence of accumulated residual of the Noah surface energy budget greater than config_bucket_sflx"/>
 
                 <var name="acsnom" type="real" dimensions="nCells Time" units="kg m^{-2}"
                      description="accumulated melted snow"/>
@@ -3178,6 +3223,12 @@
 
                 <var name="zs" type="real" dimensions="nCells Time" units="m"
                      description="depth of centers of soil layers"/>
+
+                <var name="acgrdflx" type="real" dimensions="nCells Time" units="J m^{-2}"
+                     description="accumulated ground heat flux"/>
+
+                <var name="acnoahres" type="real" dimensions="nCells Time" units="J m^{-2}"
+                     description="accumulated residual of the Noah surface energy budget"/>
 
                 <!-- ================================================================================================== -->
                 <!-- ... PARAMETERIZATION OF THE 1D OCEAN MIXED LAYER                                                   -->

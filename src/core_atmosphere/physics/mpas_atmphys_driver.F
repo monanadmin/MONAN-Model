@@ -88,7 +88,8 @@
 ! driver_sfclayer             : driver for surface layer scheme.
 ! update_convection_step1     : updates lifetime of deep convective clouds in Kain-Fritsch scheme.
 ! update_convection_step2     : updates accumulated precipitation output from convection schemes.
-! update_radiation_diagnostics: updates accumualted radiation diagnostics from radiation schemes.
+! update_radiation_diagnostics: updates accumulated radiation diagnostics from radiation schemes.
+! update_lsm_diagnostics      : updates accumualted surface flux diagnostics from LSM schemes.
 !
 ! add-ons and modifications to sourcecode:
 ! ----------------------------------------
@@ -309,6 +310,18 @@
 !$OMP END PARALLEL DO
        call deallocate_seaice
     endif
+
+
+    !call to accumulate surface flux diagnostics if needed:
+     if(config_bucket_update /= 'none' .or. config_bucket_sflx .gt. 0._RKIND) then
+!$OMP PARALLEL DO
+       do thread=1,nThreads
+          call update_sflx_diagnostics(block%configs,mesh,diag_physics, &
+                                       cellSolveThreadStart(thread), cellSolveThreadEnd(thread))
+       end do
+!$OMP END PARALLEL DO
+     endif
+
 
     !call to pbl schemes:
     if(config_pbl_scheme .ne. 'off' .and. config_sfclayer_scheme .ne. 'off') then

@@ -113,11 +113,13 @@
                                   i_acswupb,i_acswupbc,i_acswupt,i_acswuptc, &
                                   i_aclwdnb,i_aclwdnbc,i_aclwdnt,i_aclwdntc, &
                                   i_aclwupb,i_aclwupbc,i_aclwupt,i_aclwuptc
+ integer,dimension(:),pointer  :: i_achfx,i_acqfx,i_aclh,i_acgrdflx,i_acnoahres
 
  real(kind=RKIND),dimension(:),pointer  :: acswdnb,acswdnbc,acswdnt,acswdntc,  &
                                            acswupb,acswupbc,acswupt,acswuptc,  &
                                            aclwdnb,aclwdnbc,aclwdnt,aclwdntc,  &
                                            aclwupb,aclwupbc,aclwupt,aclwuptc
+ real(kind=RKIND),dimension(:),pointer  :: achfx,acqfx,aclh,acgrdflx,ac_noahres
  real(kind=RKIND),dimension(:),pointer  :: nsteps_accum,ndays_accum,tday_accum, &
                                            tyear_accum,tyear_mean
  real(kind=RKIND),dimension(:),pointer  :: sst,sstsk,tmn,xice,xicem
@@ -172,6 +174,12 @@
  call mpas_pool_get_array(diag_physics,'i_aclwupt'   ,i_aclwupt   )
  call mpas_pool_get_array(diag_physics,'i_aclwuptc'  ,i_aclwuptc  )
 
+ call mpas_pool_get_array(diag_physics,'i_achfx'     ,i_achfx     )
+ call mpas_pool_get_array(diag_physics,'i_acqfx'     ,i_acqfx     )
+ call mpas_pool_get_array(diag_physics,'i_aclh'      ,i_aclh      )
+ call mpas_pool_get_array(diag_physics,'i_acgrdflx'  ,i_acgrdflx  )
+ call mpas_pool_get_array(diag_physics,'i_acnoahres' ,i_acnoahres )
+
  call mpas_pool_get_array(diag_physics,'acswdnb'     ,acswdnb     )
  call mpas_pool_get_array(diag_physics,'acswdnbc'    ,acswdnbc    )
  call mpas_pool_get_array(diag_physics,'acswdnt'     ,acswdnt     )
@@ -188,6 +196,12 @@
  call mpas_pool_get_array(diag_physics,'aclwupbc'    ,aclwupbc    )
  call mpas_pool_get_array(diag_physics,'aclwupt'     ,aclwupt     )
  call mpas_pool_get_array(diag_physics,'aclwuptc'    ,aclwuptc    )
+
+ call mpas_pool_get_array(diag_physics,'achfx'       ,achfx       )
+ call mpas_pool_get_array(diag_physics,'acqfx'       ,acqfx       )
+ call mpas_pool_get_array(diag_physics,'aclh'        ,aclh        )
+ call mpas_pool_get_array(diag_physics,'acgrdflx'    ,acgrdflx    )
+ call mpas_pool_get_array(diag_physics,'acnoahres'   ,acnoahres   )
 
  call mpas_pool_get_array(diag_physics,'nsteps_accum',nsteps_accum)
  call mpas_pool_get_array(diag_physics,'ndays_accum' ,ndays_accum )
@@ -279,6 +293,25 @@
        aclwupbc(iCell) = 0._RKIND
        aclwupt(iCell)  = 0._RKIND
        aclwuptc(iCell) = 0._RKIND
+    enddo
+ endif
+
+! Initialisation of accumlated surface fluxes and corresponding counters (i_ac*). Counters i_ac* track
+! the number of times the absolute value of the accumulated surface fluxes exceed their prescribed 
+! threshold values.
+ if(.not. config_do_restart .and. config_lsm_scheme.ne.'off') then
+    do iCell = 1, nCellsSolve
+       i_achfx    (iCell) = 0
+       i_acqfx    (iCell) = 0
+       i_aclh     (iCell) = 0
+       i_acgrdflx (iCell) = 0
+       i_acnoahres(iCell) = 0
+
+       achfx      (iCell) = 0._RKIND
+       acqfx      (iCell) = 0._RKIND
+       aclh       (iCell) = 0._RKIND
+       acgrdflx   (iCell) = 0._RKIND
+       acnoahres  (iCell) = 0._RKIND
     enddo
  endif
 
