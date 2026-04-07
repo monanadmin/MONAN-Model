@@ -271,7 +271,7 @@
  integer,pointer:: nCellsSolve
  integer,dimension(:),pointer  :: i_achfx, i_acqfx, i_aclh, i_acgrdflx, i_acnoahres
 
- real(kind=RKIND),pointer:: bucket_lsm
+ real(kind=RKIND),pointer:: bucket_sflx
  real(kind=RKIND),dimension(:),pointer:: hfx  , qfx  , lh  , grdflx  , noahres
  real(kind=RKIND),dimension(:),pointer:: achfx, acqfx, aclh, acgrdflx, acnoahres
 
@@ -280,7 +280,7 @@
 
 !-----------------------------------------------------------------------------------------------------------------
 
- call mpas_pool_get_config(configs,'config_bucket_lsm',bucket_lsm)
+ call mpas_pool_get_config(configs,'config_bucket_sflx',bucket_sflx)
 
  call mpas_pool_get_dimension(mesh,'nCellsSolve',nCellsSolve)
 
