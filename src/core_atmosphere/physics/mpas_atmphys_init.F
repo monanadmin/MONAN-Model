@@ -119,7 +119,7 @@
                                            acswupb,acswupbc,acswupt,acswuptc,  &
                                            aclwdnb,aclwdnbc,aclwdnt,aclwdntc,  &
                                            aclwupb,aclwupbc,aclwupt,aclwuptc
- real(kind=RKIND),dimension(:),pointer  :: achfx,acqfx,aclh,acgrdflx,ac_noahres
+ real(kind=RKIND),dimension(:),pointer  :: achfx,acqfx,aclh,acgrdflx,acnoahres
  real(kind=RKIND),dimension(:),pointer  :: nsteps_accum,ndays_accum,tday_accum, &
                                            tyear_accum,tyear_mean
  real(kind=RKIND),dimension(:),pointer  :: sst,sstsk,tmn,xice,xicem
