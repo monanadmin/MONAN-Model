@@ -89,7 +89,7 @@
 ! update_convection_step1     : updates lifetime of deep convective clouds in Kain-Fritsch scheme.
 ! update_convection_step2     : updates accumulated precipitation output from convection schemes.
 ! update_radiation_diagnostics: updates accumulated radiation diagnostics from radiation schemes.
-! update_lsm_diagnostics      : updates accumualted surface flux diagnostics from LSM schemes.
+! update_sfcflux_diagnostics  : updates accumulated surface flux diagnostics from LSM/Sfc layer schemes.
 !
 ! add-ons and modifications to sourcecode:
 ! ----------------------------------------
