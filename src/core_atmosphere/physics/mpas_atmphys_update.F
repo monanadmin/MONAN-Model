@@ -256,7 +256,7 @@
  end subroutine update_radiation_diagnostics
 
 !=================================================================================================================
- subroutine update_lsm_diagnostics(configs,mesh,diag_physics,its,ite)
+ subroutine update_sfcflux_diagnostics(configs,mesh,diag_physics,its,ite)
 !=================================================================================================================
 
 !input arguments:
@@ -269,7 +269,7 @@
 
 !local pointers:
  integer,pointer:: nCellsSolve
- integer,dimension(:),pointer  :: i_achfx, i_acqfx, i_aclh, i_grdflx, i_acnoahres
+ integer,dimension(:),pointer  :: i_achfx, i_acqfx, i_aclh, i_acgrdflx, i_acnoahres
 
  real(kind=RKIND),pointer:: bucket_lsm
  real(kind=RKIND),dimension(:),pointer:: hfx  , qfx  , lh  , grdflx  , noahres
@@ -346,7 +346,7 @@
 
  end if
 
- end subroutine update_lsm_diagnostics
+ end subroutine update_sfcflux_diagnostics
 
 !=================================================================================================================
  end module mpas_atmphys_update
