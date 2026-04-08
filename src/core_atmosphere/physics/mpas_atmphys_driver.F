@@ -318,8 +318,8 @@
      if(config_bucket_update /= 'none' .or. config_bucket_sflx > 0._RKIND) then
 !$OMP PARALLEL DO
        do thread=1,nThreads
-          call update_sflx_diagnostics(block%configs,mesh,diag_physics, &
-                                       cellSolveThreadStart(thread), cellSolveThreadEnd(thread))
+          call update_sfcflux_diagnostics(block%configs,mesh,diag_physics, &
+                                          cellSolveThreadStart(thread), cellSolveThreadEnd(thread))
        end do
 !$OMP END PARALLEL DO
      endif
