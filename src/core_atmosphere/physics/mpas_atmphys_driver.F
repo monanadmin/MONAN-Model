@@ -157,6 +157,7 @@
 
  logical, pointer:: config_oml1d
  real(kind=RKIND),pointer:: config_bucket_radt
+ real(kind=RKIND),pointer:: config_bucket_sflx
 
 !local variables:
  type(block_type),pointer:: block
@@ -181,6 +182,7 @@
  call mpas_pool_get_config(domain%configs,'config_radt_sw_scheme'   ,config_radt_sw_scheme   )
  call mpas_pool_get_config(domain%configs,'config_sfclayer_scheme'  ,config_sfclayer_scheme  )
  call mpas_pool_get_config(domain%configs,'config_bucket_radt'      ,config_bucket_radt      )
+ call mpas_pool_get_config(domain%configs,'config_bucket_sflx'      ,config_bucket_sflx      )
  call mpas_pool_get_config(domain%configs,'config_bucket_update'    ,config_bucket_update    )
  call mpas_pool_get_config(domain%configs,'config_frac_seaice'      ,config_frac_seaice      ) 
  call mpas_pool_get_config(domain%configs,'config_oml1d'            ,config_oml1d            )
@@ -313,7 +315,7 @@
 
 
     !call to accumulate surface flux diagnostics if needed:
-     if(config_bucket_update /= 'none' .or. config_bucket_sflx .gt. 0._RKIND) then
+     if(config_bucket_update /= 'none' .or. config_bucket_sflx > 0._RKIND) then
 !$OMP PARALLEL DO
        do thread=1,nThreads
           call update_sflx_diagnostics(block%configs,mesh,diag_physics, &
