@@ -3146,7 +3146,7 @@
                 <var name="i_acgrdflx" type="integer" dimensions="nCells Time" units="unitless"
                      description="incidence of accumulated absolute ground heat flux greater than config_bucket_sflx"/>
 
-                <var name="i_acnoahres" type="real" dimensions="nCells Time" units="unitless"
+                <var name="i_acnoahres" type="integer" dimensions="nCells Time" units="unitless"
                      description="incidence of accumulated residual of the Noah surface energy budget greater than config_bucket_sflx"/>
 
                 <var name="acsnom" type="real" dimensions="nCells Time" units="kg m^{-2}"
