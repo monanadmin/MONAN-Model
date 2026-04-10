@@ -2018,7 +2018,7 @@
 
                 <nml_option name="config_bucket_update" type="character" default_value="none"
                      units="-"
-                     description="time interval between updates of accumulated rain and radiation diagnostics"
+                     description="time interval between updates of accumulated rain, radiation and surface flux diagnostics"
                      possible_values="`DD_HH:MM:SS' or `none'"/>
 
                 <nml_option name="config_physics_suite" type="character" default_value="mesoscale_reference" in_defaults="true"
