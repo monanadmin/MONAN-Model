@@ -61,6 +61,11 @@
  character(len=*), parameter:: acradtAlarmID   = 'acradt'
  type(MPAS_TimeInterval_Type):: acradtTimeStep
 
+!defines alarm to check if the accumulated surface flux diagnostics are greater than
+!their maximum allowed value:
+ character(len=*), parameter:: acsflxAlarmID   = 'acsflx'
+ type(MPAS_TimeInterval_Type):: acsflxTimeStep
+
 !defines alarm to compute some physics diagnostics, such as radar reflectivity:
  character(len=*), parameter:: diagAlarmID     = 'diag'
 
@@ -154,7 +159,8 @@
 
  character(len=StrKIND),pointer:: config_convection_scheme, &
                                   config_radt_lw_scheme,    &
-                                  config_radt_sw_scheme
+                                  config_radt_sw_scheme,    &
+                                  config_lsm_scheme
 
  character(len=StrKIND),pointer:: config_conv_interval,    &
                                   config_radtlw_interval,  &
@@ -183,8 +189,9 @@
 !call mpas_log_write('--- enter subroutine physics_timetracker: itimestep = $i', intArgs=(/itimestep/))
 
  call mpas_pool_get_config(domain%blocklist%configs,'config_convection_scheme',config_convection_scheme)
- call mpas_pool_get_config(domain%blocklist%configs,'config_radt_lw_scheme'   ,config_radt_lw_scheme  )
- call mpas_pool_get_config(domain%blocklist%configs,'config_radt_sw_scheme'   ,config_radt_sw_scheme  )
+ call mpas_pool_get_config(domain%blocklist%configs,'config_radt_lw_scheme'   ,config_radt_lw_scheme   )
+ call mpas_pool_get_config(domain%blocklist%configs,'config_radt_sw_scheme'   ,config_radt_sw_scheme   )
+ call mpas_pool_get_config(domain%blocklist%configs,'config_lsm_scheme'       ,config_lsm_scheme       )
 
  call mpas_pool_get_config(domain%blocklist%configs,'config_conv_interval'   ,config_conv_interval   )
  call mpas_pool_get_config(domain%blocklist%configs,'config_radtlw_interval' ,config_radtlw_interval )
@@ -357,6 +364,16 @@
        l_acradt = .true.
     endif
     call mpas_log_write('--- time to apply limit to accumulated radiation diags. L_ACRADT   =$l',logicArgs=(/l_acradt/))
+ endif
+
+!check to see if it is time to apply limit to the surface flux diagnostics:
+ if(trim(config_lsm_scheme) /= "off") then
+    l_acsflx = .false.
+    if(mpas_is_alarm_ringing(clock,acsflxAlarmID,acsflxTimeStep,ierr=ierr)) then
+       call mpas_reset_clock_alarm(clock,acsflxAlarmID,acsflxTimeStep,ierr=ierr)
+       l_acsflx = .true.
+    endif
+    call mpas_log_write('--- time to apply limit to accumulated surface flux diags. L_ACSFLX   =$l',logicArgs=(/l_acsflx/))
  endif
 
 !check to see if it is time to calculate additional physics diagnostics:
@@ -611,6 +628,17 @@
           call physics_error_fatal('subroutine physics_init: error creating alarm radiation limit')
  endif
 
+!set alarm to check if the accumulated surface flux diagnostics is greater than its maximum
+!allowed value:
+ if(config_bucket_update /= "none") then
+    call mpas_set_timeInterval(acsflxTimeStep,dt=config_dt,ierr=ierr)
+    call mpas_set_timeInterval(alarmTimeStep,timeString=config_bucket_update,ierr=ierr)
+    alarmStartTime = startTime + alarmTimeStep
+    call mpas_add_clock_alarm(clock,acsflxAlarmID,alarmStartTime,alarmTimeStep,ierr=ierr)
+       if(ierr /= 0) &
+          call physics_error_fatal('subroutine physics_init: error creating alarm surface-flux limit')
+ endif
+
 !set alarm to calculate physics diagnostics on IO outpt only:
  call MPAS_stream_mgr_get_property(stream_manager, 'output', MPAS_STREAM_PROPERTY_RECORD_INTV, stream_interval, &
                                    direction=MPAS_STREAM_OUTPUT, ierr=ierr)
@@ -703,6 +731,7 @@
  l_camlw  = .false.
  l_acrain = .false.
  l_acradt = .false.
+ l_acsflx = .false.
 
 !initialization for CAM radiation schemes only:
  if(trim(config_radt_lw_scheme) .eq. "cam_lw" .or. &

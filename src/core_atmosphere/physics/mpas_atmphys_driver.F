@@ -88,7 +88,8 @@
 ! driver_sfclayer             : driver for surface layer scheme.
 ! update_convection_step1     : updates lifetime of deep convective clouds in Kain-Fritsch scheme.
 ! update_convection_step2     : updates accumulated precipitation output from convection schemes.
-! update_radiation_diagnostics: updates accumualted radiation diagnostics from radiation schemes.
+! update_radiation_diagnostics: updates accumulated radiation diagnostics from radiation schemes.
+! update_sfcflux_diagnostics  : updates accumulated surface flux diagnostics from LSM/Sfc layer schemes.
 !
 ! add-ons and modifications to sourcecode:
 ! ----------------------------------------
@@ -156,6 +157,7 @@
 
  logical, pointer:: config_oml1d
  real(kind=RKIND),pointer:: config_bucket_radt
+ real(kind=RKIND),pointer:: config_bucket_sflx
 
 !local variables:
  type(block_type),pointer:: block
@@ -180,6 +182,7 @@
  call mpas_pool_get_config(domain%configs,'config_radt_sw_scheme'   ,config_radt_sw_scheme   )
  call mpas_pool_get_config(domain%configs,'config_sfclayer_scheme'  ,config_sfclayer_scheme  )
  call mpas_pool_get_config(domain%configs,'config_bucket_radt'      ,config_bucket_radt      )
+ call mpas_pool_get_config(domain%configs,'config_bucket_sflx'      ,config_bucket_sflx      )
  call mpas_pool_get_config(domain%configs,'config_bucket_update'    ,config_bucket_update    )
  call mpas_pool_get_config(domain%configs,'config_frac_seaice'      ,config_frac_seaice      ) 
  call mpas_pool_get_config(domain%configs,'config_oml1d'            ,config_oml1d            )
@@ -309,6 +312,18 @@
 !$OMP END PARALLEL DO
        call deallocate_seaice
     endif
+
+
+    !call to accumulate surface flux diagnostics if needed:
+     if(config_bucket_update /= 'none' .or. config_bucket_sflx > 0._RKIND) then
+!$OMP PARALLEL DO
+       do thread=1,nThreads
+          call update_sfcflux_diagnostics(block%configs,mesh,diag_physics, &
+                                          cellSolveThreadStart(thread), cellSolveThreadEnd(thread))
+       end do
+!$OMP END PARALLEL DO
+     endif
+
 
     !call to pbl schemes:
     if(config_pbl_scheme .ne. 'off' .and. config_sfclayer_scheme .ne. 'off') then

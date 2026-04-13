@@ -16,7 +16,8 @@
  implicit none
  private
  public:: physics_update, &
-          update_radiation_diagnostics
+          update_radiation_diagnostics, &
+          update_sfcflux_diagnostics
 
 
 !Update diagnostics.
@@ -27,6 +28,7 @@
 ! -----------------------------------
 ! physics_update              : not used.
 ! update_radiation_diagnostics: update accumulated radiation diagnostics.
+! update_sfcflux_diagnostics: update accumulated surface flux diagnostics.
 !
 ! add-ons and modifications to sourcecode:
 ! ----------------------------------------
@@ -252,6 +254,99 @@
  endif
 
  end subroutine update_radiation_diagnostics
+
+!=================================================================================================================
+ subroutine update_sfcflux_diagnostics(configs,mesh,diag_physics,its,ite)
+!=================================================================================================================
+
+!input arguments:
+ type(mpas_pool_type),intent(in):: configs
+ type(mpas_pool_type),intent(in):: mesh
+ integer,intent(in):: its,ite
+
+!inout arguments:
+ type(mpas_pool_type),intent(inout):: diag_physics
+
+!local pointers:
+ integer,pointer:: nCellsSolve
+ integer,dimension(:),pointer  :: i_achfx, i_acqfx, i_aclh, i_acgrdflx, i_acnoahres
+
+ real(kind=RKIND),pointer:: bucket_sflx
+ real(kind=RKIND),dimension(:),pointer:: hfx  , qfx  , lh  , grdflx  , noahres
+ real(kind=RKIND),dimension(:),pointer:: achfx, acqfx, aclh, acgrdflx, acnoahres
+
+!local variables and arrays:
+ integer:: iCell
+
+!-----------------------------------------------------------------------------------------------------------------
+
+ call mpas_pool_get_config(configs,'config_bucket_sflx',bucket_sflx)
+
+ call mpas_pool_get_dimension(mesh,'nCellsSolve',nCellsSolve)
+
+ call mpas_pool_get_array(diag_physics,'i_achfx'     , i_achfx     )
+ call mpas_pool_get_array(diag_physics,'i_acqfx'     , i_acqfx     )
+ call mpas_pool_get_array(diag_physics,'i_aclh'      , i_aclh      )
+ call mpas_pool_get_array(diag_physics,'i_acgrdflx'  , i_acgrdflx  )
+ call mpas_pool_get_array(diag_physics,'i_acnoahres' , i_acnoahres )
+
+ call mpas_pool_get_array(diag_physics,'achfx'       , achfx       )
+ call mpas_pool_get_array(diag_physics,'acqfx'       , acqfx       )
+ call mpas_pool_get_array(diag_physics,'aclh'        , aclh        )
+ call mpas_pool_get_array(diag_physics,'acgrdflx'    , acgrdflx    )
+ call mpas_pool_get_array(diag_physics,'acnoahres'   , acnoahres   )
+
+ call mpas_pool_get_array(diag_physics,'hfx'         , hfx         )
+ call mpas_pool_get_array(diag_physics,'qfx'         , qfx         )
+ call mpas_pool_get_array(diag_physics,'lh'          , lh          )
+ call mpas_pool_get_array(diag_physics,'grdflx'      , grdflx      )
+ call mpas_pool_get_array(diag_physics,'noahres'     , noahres     )
+
+ do iCell = its, ite
+    achfx    (iCell) = achfx    (iCell) + hfx    (ICell) * dt_dyn
+    acqfx    (iCell) = acqfx    (iCell) + qfx    (ICell) * dt_dyn
+    aclh     (iCell) = aclh     (iCell) + lh     (ICell) * dt_dyn
+    acgrdflx (iCell) = acgrdflx (iCell) + grdflx (ICell) * dt_dyn
+    acnoahres(iCell) = acnoahres(iCell) + noahres(ICell) * dt_dyn
+ end do
+
+ if (l_acsflx .and. bucket_sflx > 0._RKIND) then
+    do iCell = its, ite
+
+       !    For the time being we apply the bucket logic to the surface fluxes. However,
+       ! these fluxes can be either positive or negative, so we must apply a two-sided
+       ! bucket to avoid positive and negative overflow.
+       if(abs(achfx(iCell)) > bucket_sflx) then
+          i_achfx(iCell) = i_achfx(iCell) + 1
+          achfx  (iCell) = sign(achfx(iCell),1.) * (abs(achfx(iCell) - bucket_sflx))
+       end if
+
+       if(abs(acqfx(iCell)) > bucket_sflx) then
+          i_acqfx(iCell) = i_acqfx(iCell) + 1
+          acqfx  (iCell) = sign(acqfx(iCell),1.) * (abs(acqfx(iCell) - bucket_sflx))
+       end if
+
+       if(abs(aclh (iCell)) > bucket_sflx) then
+          i_aclh(iCell) = i_aclh(iCell) + 1
+          aclh  (iCell) = sign(aclh(iCell),1.) * (abs(aclh(iCell) - bucket_sflx))
+       end if
+
+       if(abs(acgrdflx(iCell)) > bucket_sflx) then
+          i_acgrdflx(iCell) = i_acgrdflx(iCell) + 1
+          acgrdflx  (iCell) = &
+             sign(acgrdflx(iCell),1.) * (abs(acgrdflx(iCell) - bucket_sflx))
+       end if
+
+       if(abs(acnoahres(iCell)) > bucket_sflx) then
+          i_acnoahres(iCell) = i_acnoahres(iCell) + 1
+          acnoahres  (iCell) = &
+             sign(acnoahres(iCell),1.) * (abs(acnoahres(iCell) - bucket_sflx))
+       end if
+    end do
+
+ end if
+
+ end subroutine update_sfcflux_diagnostics
 
 !=================================================================================================================
  end module mpas_atmphys_update
