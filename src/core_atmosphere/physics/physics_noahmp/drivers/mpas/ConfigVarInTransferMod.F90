@@ -115,10 +115,10 @@ contains
     if ( noahmp%config%nmlist%OptSoilProperty == 1 ) then
        noahmp%config%domain%SoilType(1:NumSoilLayer) = NoahmpIO%ISLTYP(I)  ! soil type same in all layers
     elseif ( noahmp%config%nmlist%OptSoilProperty == 2 ) then
-       noahmp%config%domain%SoilType(1) = nint(NoahmpIO%SOILCL1(I))        ! soil type in layer1
-       noahmp%config%domain%SoilType(2) = nint(NoahmpIO%SOILCL2(I))        ! soil type in layer2
-       noahmp%config%domain%SoilType(3) = nint(NoahmpIO%SOILCL3(I))        ! soil type in layer3
-       noahmp%config%domain%SoilType(4) = nint(NoahmpIO%SOILCL4(I))        ! soil type in layer4
+       noahmp%config%domain%SoilType(1) = nint(NoahmpIO%SOILCL1(I))              ! soil type in layer1
+       noahmp%config%domain%SoilType(2) = nint(NoahmpIO%SOILCL2(I))              ! soil type in layer2
+       noahmp%config%domain%SoilType(3) = nint(NoahmpIO%SOILCL3(I))              ! soil type in layer3
+       noahmp%config%domain%SoilType(4:NumSoilLayer) = nint(NoahmpIO%SOILCL4(I)) ! soil type in layers 4 and below
     elseif ( noahmp%config%nmlist%OptSoilProperty == 3 ) then
        noahmp%config%domain%SoilType(1:NumSoilLayer) = NoahmpIO%ISLTYP(I)  ! to initialize with default
     endif 

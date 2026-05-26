@@ -5,6 +5,8 @@ module BalanceErrorCheckMod
   use Machine
   use NoahmpVarType
   use ConstantDefineMod
+  use NoahmpFatalErrorMod,only: Noahmp_error_fatal
+  use mpas_log
 
   implicit none
 
@@ -68,6 +70,7 @@ contains
 
 ! local variable
     integer                          :: LoopInd      ! loop index
+    real(kind=kind_noahmp)           :: SoilWaterStorage
 
 ! --------------------------------------------------------------------
     associate(                                                                        &
@@ -116,10 +119,12 @@ contains
     ! only water balance check for every soil timestep
     ! Error in water balance should be < 0.1 mm
     if ( SurfaceType == 1 ) then   ! soil
-       WaterStorageTotEnd = CanopyLiqWater + CanopyIce + SnowWaterEquiv + WaterStorageAquifer
+       SoilWaterStorage = 0.0
        do LoopInd = 1, NumSoilLayer
-          WaterStorageTotEnd = WaterStorageTotEnd + SoilMoisture(LoopInd) * ThicknessSnowSoilLayer(LoopInd) * 1000.0
+          SoilWaterStorage = SoilWaterStorage + SoilMoisture(LoopInd) * ThicknessSnowSoilLayer(LoopInd) * 1000.0
        enddo
+       WaterStorageTotEnd = SoilWaterStorage + CanopyLiqWater + CanopyIce + SnowWaterEquiv + WaterStorageAquifer
+
        ! accumualted water change (only for canopy and snow during non-soil timestep)
        SfcWaterTotChgAcc = SfcWaterTotChgAcc + (WaterStorageTotEnd - WaterStorageTotBeg)  ! snow, canopy, and soil water change
        PrecipTotAcc      = PrecipTotAcc      + PrecipTotRefHeight * MainTimeStep          ! accumulated precip 
@@ -134,21 +139,44 @@ contains
                               TileDrain)
 #ifndef WRF_HYDRO
           if ( abs(WaterBalanceError) > 0.1 ) then
-             if ( WaterBalanceError > 0 ) then
-                write(*,*) "The model is gaining water (WaterBalanceError is positive)"
-             else
-                write(*,*) "The model is losing water (WaterBalanceError is negative)"
-             endif
-             write(*,*) 'WaterBalanceError = ',WaterBalanceError, "kg m{-2} timestep{-1}"
-             write(*, &
-                  '("  GridIndexI  GridIndexJ  SfcWaterTotChgAcc  PrecipTotRefHeightAcc  IrrigationRateMicro       &
-                       IrrigationRateFlood  EvapCanopyNetAcc  EvapGroundNetAcc  TranspirationAcc  RunoffSurface    &
-                       RunoffSubsurface  WaterTableDepth  TileDrain")')
-             write(*,'(i6,i6,f10.3,10f10.5)') GridIndexI, GridIndexJ, SfcWaterTotChgAcc, PrecipTotAcc,             &
-                                              IrrigationRateMicro*1000.0, IrrigationRateFlood*1000.0,              &
-                                              EvapCanopyNetAcc, EvapGroundNetAcc, TranspirationAcc, RunoffSurface, &
-                                              RunoffSubsurface, WaterTableDepth, TileDrain
-             stop "Error: Water budget problem in NoahMP LSM"
+             call mpas_log_write(' ')
+             call mpas_log_write('---~---')
+             call mpas_log_write('   Noah-MP water budget conservation error (land):')
+             call mpas_log_write('---~---')
+             call mpas_log_write('   GridIndexI                  = $i ', intArgs  = (/ GridIndexI                 /) )
+             call mpas_log_write('   GridIndexJ                  = $i ', intArgs  = (/ GridIndexJ                 /) )
+             call mpas_log_write('   WaterStorageTotBeg          = $r ', realArgs = (/ WaterStorageTotBeg         /) )
+             call mpas_log_write('   WaterStorageTotEnd          = $r ', realArgs = (/ WaterStorageTotEnd         /) )
+             call mpas_log_write('   WaterBalanceError           = $r ', realArgs = (/ WaterBalanceError          /) )
+             call mpas_log_write('                                 (positive value above means water gain).'         )
+             call mpas_log_write('--- State:')
+             call mpas_log_write('   SoilWaterStorage            = $r ', realArgs = (/ SoilWaterStorage           /) )
+             call mpas_log_write('   CanopyLiqWater              = $r ', realArgs = (/ CanopyLiqWater             /) )
+             call mpas_log_write('   CanopyIce                   = $r ', realArgs = (/ CanopyIce                  /) )
+             call mpas_log_write('   SnowWaterEquiv              = $r ', realArgs = (/ SnowWaterEquiv             /) )
+             call mpas_log_write('   WaterStorageAquifer         = $r ', realArgs = (/ WaterStorageAquifer        /) )
+             call mpas_log_write('--- Fluxes:')
+             call mpas_log_write('   SfcWaterTotChgAcc           = $r ', realArgs = (/ SfcWaterTotChgAcc          /) )
+             call mpas_log_write('   PrecipTotAcc                = $r ', realArgs = (/ PrecipTotAcc               /) )
+             call mpas_log_write('   IrrigationRateMicro*1000.0  = $r ', realArgs = (/ IrrigationRateMicro*1000.0 /) )
+             call mpas_log_write('   IrrigationRateFlood*1000.0  = $r ', realArgs = (/ IrrigationRateFlood*1000.0 /) )
+             call mpas_log_write('   EvapCanopyNetAcc            = $r ', realArgs = (/ EvapCanopyNetAcc           /) )
+             call mpas_log_write('   EvapGroundNetAcc            = $r ', realArgs = (/ EvapGroundNetAcc           /) )
+             call mpas_log_write('   TranspirationAcc            = $r ', realArgs = (/ TranspirationAcc           /) )
+             call mpas_log_write('   RunoffSurface               = $r ', realArgs = (/ RunoffSurface              /) )
+             call mpas_log_write('   RunoffSubsurface            = $r ', realArgs = (/ RunoffSubsurface           /) )
+             call mpas_log_write('   WaterTableDepth             = $r ', realArgs = (/ WaterTableDepth            /) )
+             call mpas_log_write('   TileDrain                   = $r ', realArgs = (/ TileDrain                  /) )
+             call mpas_log_write('--- Soil state:')
+             call mpas_log_write('   NumSoilLayer = $i ',intArgs=(/ NumSoilLayer /)) 
+             do LoopInd=1,NumSoilLayer
+                call mpas_log_write('   Layer $i - Thickness = $r ; SoilMoisture = $r'                       &
+                                   , intArgs  = (/ LoopInd /)                                                &
+                                   , realArgs = (/ ThicknessSnowSoilLayer(LoopInd), SoilMoisture(LoopInd) /) )
+             end do
+             call mpas_log_write('---~---')
+             call mpas_log_write(' ')
+             call Noahmp_error_fatal("Error: Water budget problem in NoahMP LSM (land)")
           endif
 #endif
        endif ! FlagSoilProcess
@@ -208,23 +236,31 @@ contains
     RadSwBalanceError = RadSwDownRefHeight - (RadSwAbsSfc + RadSwReflSfc)
     ! print out diagnostics when error is large
     if ( abs(RadSwBalanceError) > 0.01 ) then
-       write(*,*) "GridIndexI, GridIndexJ              = ", GridIndexI, GridIndexJ
-       write(*,*) "RadSwBalanceError                   = ", RadSwBalanceError
-       write(*,*) "VEGETATION ---------"
-       write(*,*) "RadSwDownRefHeight * VegFrac        = ", RadSwDownRefHeight*VegFrac
-       write(*,*) "VegFrac*RadSwAbsVeg + RadSwAbsGrd   = ", VegFrac*RadSwAbsVeg+RadSwAbsGrd
-       write(*,*) "VegFrac*RadSwReflVeg + RadSwReflGrd = ", VegFrac*RadSwReflVeg+RadSwReflGrd
-       write(*,*) "GROUND -------"
-       write(*,*) "(1 - VegFrac) * RadSwDownRefHeight  = ", (1.0-VegFrac)*RadSwDownRefHeight
-       write(*,*) "(1 - VegFrac) * RadSwAbsGrd         = ", (1.0-VegFrac)*RadSwAbsGrd
-       write(*,*) "(1 - VegFrac) * RadSwReflGrd        = ", (1.0-VegFrac)*RadSwReflGrd
-       write(*,*) "RadSwReflVeg                        = ", RadSwReflVeg
-       write(*,*) "RadSwReflGrd                        = ", RadSwReflGrd
-       write(*,*) "RadSwReflSfc                        = ", RadSwReflSfc
-       write(*,*) "RadSwAbsVeg                         = ", RadSwAbsVeg
-       write(*,*) "RadSwAbsGrd                         = ", RadSwAbsGrd
-       write(*,*) "RadSwAbsSfc                         = ", RadSwAbsSfc
-       stop "Error: Solar radiation budget problem in NoahMP LSM"
+       call mpas_log_write(' ')
+       call mpas_log_write('---~---')
+       call mpas_log_write('   Noah-MP solar radiation budget conservation error (land):')
+       call mpas_log_write('---~---')
+       call mpas_log_write('   GridIndexI                          = $i ', intArgs  = (/ GridIndexI           /) )
+       call mpas_log_write('   GridIndexJ                          = $i ', intArgs  = (/ GridIndexJ           /) )
+       call mpas_log_write('   RadSwBalanceError                   = $r ', realArgs = (/ RadSwBalanceError    /) )
+       call mpas_log_write('                                         (positive value above means energy gain).'  )
+       call mpas_log_write('--- Vegetation ')
+       call mpas_log_write('   RadSwDownRefHeight * VegFrac        = $r ', realArgs = (/ RadSwDownRefHeight*VegFrac        /) )
+       call mpas_log_write('   VegFrac*RadSwAbsVeg + RadSwAbsGrd   = $r ', realArgs = (/ VegFrac*RadSwAbsVeg+RadSwAbsGrd   /) )
+       call mpas_log_write('   VegFrac*RadSwReflVeg + RadSwReflGrd = $r ', realArgs = (/ VegFrac*RadSwReflVeg+RadSwReflGrd /) )
+       call mpas_log_write('--- Ground ')
+       call mpas_log_write('   (1 - VegFrac) * RadSwDownRefHeight  = $r ', realArgs = (/ (1.0-VegFrac)*RadSwDownRefHeight  /) )
+       call mpas_log_write('   (1 - VegFrac) * RadSwAbsGrd         = $r ', realArgs = (/ (1.0-VegFrac)*RadSwAbsGrd         /) )
+       call mpas_log_write('   (1 - VegFrac) * RadSwReflGrd        = $r ', realArgs = (/ (1.0-VegFrac)*RadSwReflGrd        /) )
+       call mpas_log_write('   RadSwReflVeg                        = $r ', realArgs = (/ RadSwReflVeg                      /) )
+       call mpas_log_write('   RadSwReflGrd                        = $r ', realArgs = (/ RadSwReflGrd                      /) )
+       call mpas_log_write('   RadSwReflSfc                        = $r ', realArgs = (/ RadSwReflSfc                      /) )
+       call mpas_log_write('   RadSwAbsVeg                         = $r ', realArgs = (/ RadSwAbsVeg                       /) )
+       call mpas_log_write('   RadSwAbsGrd                         = $r ', realArgs = (/ RadSwAbsGrd                       /) )
+       call mpas_log_write('   RadSwAbsSfc                         = $r ', realArgs = (/ RadSwAbsSfc                       /) )
+       call mpas_log_write('---~---')
+       call mpas_log_write(' ')
+       call Noahmp_error_fatal("Error: Solar radiation budget problem in NoahMP LSM (land)")
     endif
 
     ! error in surface energy balance should be <0.01 W/m2
@@ -233,19 +269,32 @@ contains
                          HeatLatentTransp + HeatGroundTot + HeatLatentIrriEvap + HeatCanStorageChg)
     ! print out diagnostics when error is large
     if ( abs(EnergyBalanceError) > 0.01 ) then
-       write(*,*) 'EnergyBalanceError = ', EnergyBalanceError, ' at GridIndexI,GridIndexJ: ', GridIndexI, GridIndexJ
-       write(*,'(a17,F10.4)' ) "Net solar:        ", RadSwAbsSfc
-       write(*,'(a17,F10.4)' ) "Net longwave:     ", RadLwNetSfc
-       write(*,'(a17,F10.4)' ) "Total sensible:   ", HeatSensibleSfc
-       write(*,'(a17,F10.4)' ) "Canopy evap:      ", HeatLatentCanopy
-       write(*,'(a17,F10.4)' ) "Ground evap:      ", HeatLatentGrd
-       write(*,'(a17,F10.4)' ) "Transpiration:    ", HeatLatentTransp
-       write(*,'(a17,F10.4)' ) "Total ground:     ", HeatGroundTot
-       write(*,'(a17,F10.4)' ) "Sprinkler:        ", HeatLatentIrriEvap
-       write(*,'(a17,F10.4)' ) "Canopy heat storage change: ", HeatCanStorageChg
-       write(*,'(a17,4F10.4)') "Precip advected:  ", HeatPrecipAdvSfc,HeatPrecipAdvCanopy,HeatPrecipAdvVegGrd,HeatPrecipAdvBareGrd
-       write(*,'(a17,F10.4)' ) "Veg fraction:     ", VegFrac
-       stop "Error: Energy budget problem in NoahMP LSM"
+       call mpas_log_write(' ')
+       call mpas_log_write('---~---')
+       call mpas_log_write('   Noah-MP energy budget conservation error (land):')
+       call mpas_log_write('---~---')
+       call mpas_log_write('   GridIndexI                  = $i ', intArgs  = (/ GridIndexI           /) )
+       call mpas_log_write('   GridIndexJ                  = $i ', intArgs  = (/ GridIndexJ           /) )
+       call mpas_log_write('   EnergyBalanceError          = $r ', realArgs = (/ EnergyBalanceError   /) )
+       call mpas_log_write('                                 (positive value above energy gain).'        )
+       call mpas_log_write('   Net solar                   = $r ', realArgs = (/ RadSwAbsSfc          /) )
+       call mpas_log_write('   Net longwave                = $r ', realArgs = (/ RadLwNetSfc          /) )
+       call mpas_log_write('   Total sensible              = $r ', realArgs = (/ HeatSensibleSfc      /) )
+       call mpas_log_write('   Canopy evap                 = $r ', realArgs = (/ HeatLatentCanopy     /) )
+       call mpas_log_write('   Ground evap                 = $r ', realArgs = (/ HeatLatentGrd        /) )
+       call mpas_log_write('   Transpiration               = $r ', realArgs = (/ HeatLatentTransp     /) )
+       call mpas_log_write('   Total ground                = $r ', realArgs = (/ HeatGroundTot        /) )
+       call mpas_log_write('   Sprinkler                   = $r ', realArgs = (/ HeatLatentIrriEvap   /) )
+       call mpas_log_write('   Canopy heat storage change  = $r ', realArgs = (/ HeatCanStorageChg    /) )
+
+       call mpas_log_write('   Precip advected (surface)   = $r ', realArgs = (/ HeatPrecipAdvSfc     /) )
+       call mpas_log_write('   Precip advected (canopy)    = $r ', realArgs = (/ HeatPrecipAdvCanopy  /) )
+       call mpas_log_write('   Precip advected (veg. grnd) = $r ', realArgs = (/ HeatPrecipAdvVegGrd  /) )
+       call mpas_log_write('   Precip advected (bare grnd) = $r ', realArgs = (/ HeatPrecipAdvBareGrd /) )
+       call mpas_log_write('   Veg fraction                = $r ', realArgs = (/ VegFrac              /) )
+       call mpas_log_write('---~---')
+       call mpas_log_write(' ')
+       call Noahmp_error_fatal("Error: Energy budget problem in NoahMP LSM (land)")
     endif
 
     end associate

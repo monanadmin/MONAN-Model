@@ -603,6 +603,8 @@
 			<var name="precipw"/>
                         <var name="precipci"/>
                         <var name="ctt"/>
+			<var name="dzstop"/>
+			<var name="kzs"/>
 			<var name="dzs"/>
 			<var name="sh2o"/>
 			<var name="smois"/>
@@ -905,6 +907,8 @@
 			<var name="seaice"/>
 			<var name="xice"/>
 			<var name="xland"/>
+			<var name="dzstop"/>
+			<var name="kzs"/>
 			<var name="dzs"/>
 			<var name="smcrel"/>
 			<var name="sh2o"/>
@@ -1263,6 +1267,8 @@
 			<var name="q2"/>
 			<var name="t2m"/>
 			<var name="precipw"/>
+			<var name="dzstop"/>
+			<var name="kzs"/>
 			<var name="dzs"/>
 			<var name="zs"/>
 			<var name="ter"/>
@@ -3967,6 +3973,12 @@
 
                 <var name="greenfrac" type="real" dimensions="nMonths nCells" units="percent"
                      description="monthly-mean climatological greenness fraction"/>
+
+                <var name="dzstop" type="real" dimensions="nCells Time" units="m"
+                     description="soil layer thickness of the top most soil layer "/>
+
+                <var name="kzs" type="real" dimensions="nCells Time" units=""
+                     description="exponential factor for thickening deeper soil layers"/>
 
                 <var name="dzs" type="real" dimensions="nSoilLevels nCells Time" units="m"
                      description="soil layer thickness"/>

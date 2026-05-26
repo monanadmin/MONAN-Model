@@ -583,7 +583,7 @@ module atm_core
          call mpas_pool_get_subpool(block % structs, 'atm_input', atm_input)
          call mpas_pool_get_subpool(block % structs, 'output_noahmp', output_noahmp)
          call physics_tables_init(dminfo, block % configs)
-         call physics_registry_init(mesh, block % configs, sfc_input)
+         call physics_registry_init(mesh, block % dimensions, block % configs, sfc_input)
          call physics_run_init(block % configs, mesh, state, clock, stream_manager)
 
          !initialization of all physics:

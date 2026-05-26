@@ -267,6 +267,19 @@
 
         </nml_record>
 
+        <nml_record name="soil_grid" in_defaults="true">
+                <nml_option name="config_dzstop"                  type="real"          default_value="0.1"
+                     units="m"
+                     description="Thickness of the top most soil layer"
+                     possible_values="Positive real values"/>
+
+                <nml_option name="config_kzs"                     type="real"          default_value="0.82"
+                     units="m"
+                     description="Exponential factor for increasing thickness of the soil layers"
+                     possible_values="Non-negative real values"/>
+        </nml_record>
+
+
         <nml_record name="interpolation_control" in_defaults="true">
 
                 <nml_option name="config_extrap_airtemp"        type="character"     default_value="lapse-rate"
@@ -607,6 +620,8 @@
                         <var name="dz" packages="met_stage_out"/>
                         <var name="dzs" packages="met_stage_out"/>
                         <var name="zs" packages="met_stage_out"/>
+                        <var name="dzstop" packages="met_stage_out"/>
+                        <var name="kzs" packages="met_stage_out"/>
                         <var name="sh2o" packages="met_stage_out"/>
                         <var name="smois" packages="met_stage_out"/>
                         <var name="tslb" packages="met_stage_out"/>
@@ -1233,6 +1248,14 @@
         </var_struct>
 
         <var_struct name="fg" time_levs="1">
+                <!-- Variables needed for producing vertical soil levels. -->
+                <var name="dzstop" type="real" dimensions="nCells Time" units="m"
+                     description="soil layer thickness of the top most soil layer"
+                     packages="met_stage_out"/>
+
+                <var name="kzs" type="real" dimensions="nCells Time" units=""
+                     description="exponential factor for thickening deeper soil layers"
+                     packages="met_stage_out"/>
 
                 <!-- horizontally interpolated from first-guess data -->
                 <var name="u_fg" name_in_code="u" type="real" dimensions="nFGLevels nEdges Time" units="m s^{-1}"
