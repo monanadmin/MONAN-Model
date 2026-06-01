@@ -762,6 +762,35 @@ gfortran-xd2000:   # BUILDTARGET GNU Fortran, C, and C++ compilers
 	"OPENACC = $(OPENACC)" \
 	"CPPFLAGS = $(MODEL_FORMULATION) -D_MPI" )
 
+gfortran-coupler-xd2000:   # BUILDTARGET GNU Fortran, C, and C++ compilers
+	( $(MAKE) all \
+	"FC_PARALLEL = ftn" \
+	"CC_PARALLEL = cc" \
+	"CXX_PARALLEL = CC" \
+	"FC_SERIAL = ftn" \
+	"CC_SERIAL = cc" \
+	"CXX_SERIAL = CC" \
+	"FFLAGS_PROMOTION = -fdefault-real-8 -fdefault-double-8" \
+	"FFLAGS_OPT = -O3 -ffree-line-length-none -fconvert=big-endian -ffree-form -fallow-argument-mismatch -DCOUPLER -DMPAS_NO_ESMF_INIT -DMPAS_EXTERNAL_ESMF_LIB" \
+	"CFLAGS_OPT = -O3" \
+	"CXXFLAGS_OPT = -O3" \
+	"LDFLAGS_OPT = -O3" \
+	"FFLAGS_DEBUG = -g -ffree-line-length-none -fconvert=big-endian -free -ffree-form -fallow-argument-mismatch -fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow" \
+	"CFLAGS_DEBUG = -g" \
+	"CXXFLAGS_DEBUG = -g" \
+	"LDFLAGS_DEBUG = -g" \
+	"FFLAGS_OMP = -fopenmp" \
+	"CFLAGS_OMP = -fopenmp" \
+	"FFLAGS_ACC =" \
+	"CFLAGS_ACC =" \
+	"PICFLAG = -fPIC" \
+	"BUILD_TARGET = $(@)" \
+	"CORE = $(CORE)" \
+	"DEBUG = $(DEBUG)" \
+	"USE_PAPI = $(USE_PAPI)" \
+	"OPENMP = $(OPENMP)" \
+	"OPENACC = $(OPENACC)" \
+	"CPPFLAGS = $(MODEL_FORMULATION) -D_MPI" )
 CPPINCLUDES =
 FCINCLUDES =
 LIBS =
@@ -855,7 +884,19 @@ endif
 	FCINCLUDES += -I$(PNETCDF)/include
 	LIBS += -L$(PNETCDF)/$(PNETCDFLIBLOC) -lpnetcdf
 endif
+ifneq "$(ESMF_MOD)" ""
+    FCINCLUDES  += -I$(ESMF_MOD)
+    CPPINCLUDES += -I$(ESMF_MOD)
+else
+$(warning: ESMF_MOD not defined. Coupler compilation may fail.)
+endif
+ifneq "$(ESMF_LIBDIR)" ""
+    LIBS += -L$(ESMF_LIBDIR) -lesmf \
+            -L$(PIO_LIB) -lpioc \
+	    -L$(NETCDF)/$(NETCDFLIBLOC) -lnetcdf -lnetcdff \
+            -lrt -lstdc++ -ldl
 
+endif
 ifneq "$(LAPACK)" ""
         LIBS += -L$(LAPACK)
         LIBS += -llapack
