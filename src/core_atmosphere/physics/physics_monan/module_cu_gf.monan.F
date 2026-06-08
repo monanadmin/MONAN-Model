@@ -97,17 +97,14 @@ module module_cu_gf_monan
       ,cum_hei_down_ocean,cum_hei_updf_land, cum_hei_updf_ocean          &
       ,use_momentum_transp,cum_entr_rate                                 &
       ,nmp, lsmp, cnmp,moist_trigger,frac_modis,max_tq_tend              &
-      ,cum_use_excess, cum_ave_layer                                     &
-      ,use_smooth_prof, output_sound,use_cloud_dissipation               &
-      ,cum_use_smooth_tend,beta_sh,c0_shal                               &
-      ,use_linear_subcl_mf,cap_maxs,liq_ice_number_conc                  &
-      ,sig_factor,lcl_trigger, add_coldpool_prop                         &
+      ,cum_use_excess, cum_ave_layer,use_smooth_prof, output_sound       &
+      ,use_cloud_dissipation,cum_use_smooth_tend,beta_sh,c0_shal         &
+      ,use_linear_subcl_mf,cap_maxs,liq_ice_number_conc,sig_factor       &
       ,add_coldpool_clos,add_coldpool_trig,mx_buoy1, mx_buoy2, cum_t_star&
-      ,add_coldpool_diff,n_cldrop,use_gustiness, use_random_num          &
-      ,modConvParGF_initialized,use_pass_cloudvol                        &
+      ,n_cldrop,use_random_num,modConvParGF_initialized,use_pass_cloudvol&
       ,use_lcl_ctrl_entr,use_rhu_ctrl_entr,cum_min_cloud_depth,use_sub3d &
       ,cum_fr_min_entr,use_shear_ctrl_entr,use_cwv_ctrl_entr,adv_trigger &
-      ,dcape_threshold,use_cold_start
+      ,dcape_threshold,use_cold_start,tu_buoyx
 
    public makeDropletNumber,makeIceNumber,FractLiqF                      &
       ,coldPoolStart,readGFConvParNML,initModConvParGF,cu_gf_monan_driver&
@@ -146,8 +143,8 @@ module module_cu_gf_monan
    !-- gross entrainment rate: deep, shallow, congestus
    real,    dimension(maxiens) :: cum_entr_rate != (/&
                                                 ! 6.3e-4  & !deep
-                                                !,1.0e-3  & !shallow
-                                                !,5.0e-4  & !mid
+                                                !,1.3e-3  & !shallow
+                                                !,2.0e-3  & !mid
                                                 !/)
    integer, parameter :: opt  = 1                                              
 
@@ -177,13 +174,9 @@ module module_cu_gf_monan
 
    integer :: use_memory        != -1/0/1/2 .../10    !-
 
-   integer :: add_coldpool_prop != -1,0,1,2,3 add coldpool propagation
-
    integer :: add_coldpool_clos ! add the the mass flux associated to the W @ leading of the gust front
    
    integer :: add_coldpool_trig ! add triggering criteria based on cold pool presence
-
-   integer :: add_coldpool_diff ! add vert/horizontal diffusion to the cold pool propaga
 
    integer :: use_scale_dep     != 0/1:  scale dependence flag, default = 1
 
@@ -254,8 +247,6 @@ module module_cu_gf_monan
 
    integer :: moist_trigger  != relative humidity effects on the cap_max trigger function
    integer :: frac_modis     != use fraction liq/ice content derived from modis/calipo sensors
-   integer :: lcl_trigger    != greater than zero, activates the lcl trigger which requires the lcl height
-                             != be lower than the pbl height, only for shallow convection
    integer :: output_sound   != outputs a vertical profile for the gf stand alone model
    integer :: use_sub3d      !=0,1,2 : > 0 activates the 3d subsidence lateral spreading
 
@@ -263,8 +254,8 @@ module module_cu_gf_monan
    real    :: tau_land_cp    != cold pool lifetime over land
    real    :: mx_buoy1       !=   250.5 J/kg
    real    :: mx_buoy2       != 20004.0 J/kg: temp exc=10 K, q deficit=4 g/kg (=> mx_buoy ~ 20 kJ/kg)
+   real    :: tu_buoyx
    real    :: use_cloud_dissipation != to acccount for the cloud dissipation at the decayment phase
-   integer :: use_gustiness         != not in use
    real    :: use_random_num        != stochastic pertubation for the height of maximum Zu
    real    :: beta_sh               != only for shallow plume
    integer :: use_linear_subcl_mf   != only for shallow plume
@@ -291,9 +282,11 @@ module module_cu_gf_monan
    integer ::  use_excess        != default= 1   - use for t,q excess sub-grid scale variability
    integer ::  use_smooth_tend   != default  1,1,1,
 
+   !--- make less restrictive the activation of deep convection on the first 24h time integration
    integer :: use_cold_start     != 0/1 default 0
-   real    :: fac_cold_start  = 1
-   !-- General internal controls for the diverse options in GF
+   real    :: fac_cold_start  = 1.0
+   
+   !--- General internal controls for the diverse options in GF
 
    logical, parameter :: melt_glac      = .true.  != turn on/off ice phase/melting
 
@@ -305,13 +298,16 @@ module module_cu_gf_monan
    
    logical :: use_inv_layers=.false. 
    !
-   !- proportionality constant to estimate pressure
-   !- gradient of updraft (Zhang and Wu, 2003, JAS) => REAL, PARAMETER ::    pgcon=-0.55
+   !--- proportionality constant to estimate pressure
+   !--- gradient of updraft (Zhang and Wu, 2003, JAS) => REAL, PARAMETER ::    pgcon=-0.55
    real, parameter :: pgcon= 0.0
 
+   !--- new entrainment formulation which uses the lateral entrainment rate as a trigger function
    real, parameter ::  delta_ref= 30.e+3  & ! meters
-                      ,entr_ref = 8.e-4     ! ref entrainment for dx = 30000 m
-
+                      ,entr_ref = 1.2e-3     ! ref entrainment for dx = 30000 m
+   real, parameter, dimension(2) :: entr_red  = (/1.,0.333/)
+   !
+   !--- for tracer transport
    integer, parameter :: MAX_NSPEC=200
    integer           ,dimension(MAX_NSPEC)    :: ind_chem
    character(len=100),dimension(MAX_NSPEC)    ::  CHEM_NAME
@@ -328,6 +324,7 @@ module module_cu_gf_monan
    logical :: wrtgrads = .false.
    integer :: nrec = 0, ntimes = 0
    real    :: int_time = 0.
+
 
    integer :: vec_max_size
    !! max size control loop vector can assume
@@ -733,7 +730,7 @@ module module_cu_gf_monan
                !- cloud fraction 
                cnvcf2d (k,i)  = cnvcf(i,k,j) 
                !-buoyancy excess
-               buoyx2d(k,i)  = buoyx(i,k,j)
+               buoyx2d(k,i)   = buoyx(i,k,j) * tu_buoyx
                !-- turb length scale
                turb_len_scale2d (k,i) = turb_len_scale (i,k,j)
             end do
@@ -1002,12 +999,13 @@ module module_cu_gf_monan
             !-- set the temp and water vapor anomalies from the sub-grid scale variability 
             call set_Tq_pertub (use_excess,its,ite,itf,xlandi,ztexec,zqexec,cum_ztexec,cum_zqexec)
             !
-            call CUP_GF(its,ite,kts,kte, itf,ktf, mtp, nmp, FSCAV  &
+            call CUP_GF(its,ite,kts,kte, itf,ktf, mtp, FSCAV  &
                         ,cumulus_type  (plume)            &
                         ,closure_choice(plume)            &
                         ,cum_entr_rate (plume)            &
-                        ,cum_use_excess(plume)            &
                         !- input data
+                        ,mpas_cape     (:,j)              &
+                        ,mpas_cin      (:,j)              &
                         ,dx2d          (:,j)              &
                         ,stochastic_sig(:,j)              &
                         ,col_sat       (:,j)              &
@@ -1270,8 +1268,8 @@ module module_cu_gf_monan
                do k = kts,kte
                   rbuoyxcuten (i,k,j) = - min(0.,( outbuoy(k,i,shal)                 + &
                                                    outbuoy(k,i, mid)                 + &
-                                                   outbuoy(k,i,deep) ) *fixout_qv(i))
-                  var3d1   (i,k,j) = rbuoyxcuten (i,k,j) 
+                                                   outbuoy(k,i,deep) ) * fixout_qv(i)) * tu_buoyx
+                  var3d1      (i,k,j) = rbuoyxcuten (i,k,j) 
                enddo
             enddo
          endif
@@ -1311,6 +1309,12 @@ module module_cu_gf_monan
                                           up_massdetr5d(k,i,j,mid )                + &
                                           up_massdetr5d(k,i,j,deep) ) *fixout_qv(i)  &
                                         /(dz8w(i,k,j) * rho(i,k,j))
+                  !--- adding in-updraft cloud fraction
+                  rcnvcfcuten (i,k,j) = rcnvcfcuten (i,k,j)                          + &
+                                        ( conv_cld_fr5d(k,i,j,shal)                  + &
+                                          conv_cld_fr5d(k,i,j,mid )                  + &
+                                          conv_cld_fr5d(k,i,j,deep) ) *fixout_qv(i) / dt
+
               enddo
             enddo
          endif
@@ -1463,13 +1467,14 @@ module module_cu_gf_monan
    end subroutine cu_gf_monan_driver
    !---------------------------------------------------------------------------------------------------
 
-   subroutine CUP_GF (its,ite,kts,kte ,itf,ktf, mtp, nmp &
+   subroutine CUP_GF (its,ite,kts,kte ,itf,ktf, mtp &
                      ,fscav             &
                      ,cumulus           &
                      ,ichoice           &
                      ,entr_rate_input   &
-                     ,use_excess        &
                      !input data
+                     ,mpas_cape         &
+                     ,mpas_cin          &
                      ,dx                &
                      ,stochastic_sig    &
                      ,col_sat           &
@@ -1567,7 +1572,7 @@ module module_cu_gf_monan
       implicit none
 
       character*(*),intent(in) :: cumulus
-      integer      ,intent(in) :: itf,ktf,its,ite,kts,kte,ichoice,use_excess,mtp, nmp
+      integer      ,intent(in) :: itf,ktf,its,ite,kts,kte,ichoice,mtp
       integer      ,intent(inout),  dimension (:) ::   kpbl
       !
       ! outtem = output temp tendency (per s)
@@ -1591,7 +1596,9 @@ module module_cu_gf_monan
                                                    ,h_sfc_flux,le_sfc_flux,tsur,dx &
                                                    ,zlcl_sfc
 
-      real,    dimension (:)    ,intent (in   )  :: col_sat,stochastic_sig,tke_pbl
+      real,    dimension (:)    ,intent (in   )  :: col_sat,stochastic_sig,tke_pbl &
+                                                   ,mpas_cape,mpas_cin
+
       real,    dimension (:)    ,intent (inout)  :: zws,ztexec,zqexec,wlpool
       real                      ,intent (in   )  :: dtime,entr_rate_input
       real,    dimension (:,:,:),intent (inout)  :: mpqi,mpql,mpcf
@@ -1712,8 +1719,7 @@ module module_cu_gf_monan
         ,massfld,dh,trash,frh,xlamdd,radiusd,frhd,effec_entrain,detdo1,detdo2,entdo     &
         ,dp,subin,detdo,entup,detup,subdown,entdoj,entupk,detupk,totmas,min_entr_rate   &
         ,tot_time_hr,beta,env_mf,env_mf_p,env_mf_m,dts,denom,denomU
-
-      integer :: ipr=0,jpr=0
+      integer :: ipr=0,jpr=0,step_ent,ii
       integer :: k,i,iedt,nens,nens3,kii,kff
       integer :: vtp_index
       
@@ -1730,7 +1736,7 @@ module module_cu_gf_monan
         ,vvel1d, x_add_buoy,lambau_dn,lambau_dp,q_wetbulb,t_wetbulb,col_sat_adv            &
         ,Q_adv,alpha_adv,aa1_radpbl,p_cwv_ave,cape, depth_neg_buoy,frh_bcon                &
         ,check_sig,random,rh_entr_factor,rntot,delqev,delq2,qevap,rn,qcond,rainevap,vshear2&
-        ,entr_rescaled,overshoot_rescaled,precip_rescaled
+        ,entr_rescaled,precip_rescaled
 
       real, dimension (kts:kte) ::xh_env_eff
 
@@ -1778,11 +1784,11 @@ module module_cu_gf_monan
       endif
       !----------------------------------------------------------------------
       !
-      !-- init the vector vec_ok with the all indexes to process
+      !--- init the vector vec_ok with the all indexes to process
       vec_max_size = ite - its + 1
       call init(vec_ok, vec_max_size)
       call insert_range(vec_ok, its, ite)
-      !-- vec removed will be inserted when removing
+      !--- vec removed will be inserted when removing
       call init(vec_removed, vec_max_size)
 
       !
@@ -1794,7 +1800,7 @@ module module_cu_gf_monan
       call get_lambdaU(cumulus,itf,ktf,its,ite,kts,kte,lambau_dp,lambau_dn        &
                       ,lambau_deep,lambau_shdn,pgcon)
       !
-      !-- init/reset 1-d and 2-d local vars
+      !--- init/reset 1-d and 2-d local vars
       call reset_1d(its,ite,ierrc,xland,xland1,aa0,aa1,aa2,aa3                    &
                    ,aa1_bl,aa1_fa,aa0_bl,q_adv,aa1_radpbl,alpha_adv,cin1          &
                    ,xk_x,edt,edto,tau_bl,q_wetbulb,t_wetbulb,tau_ecmwf,xf_dicycle &
@@ -1808,7 +1814,7 @@ module module_cu_gf_monan
       if( cumulus == 'deep' .and. use_random_num > 1.e-6) &
          call gen_random(its,ite,use_random_num,random)
       !
-      !-- define limits of evaporation by the downdrafts
+      !--- define limits of evaporation by the downdrafts
       call get_edt(cumulus,itf,ktf,its,ite,kts,kte,xland,edtmin,edtmax,max_edt_ocean,max_edt_land &
                   ,c0_mid)  
       !
@@ -1838,101 +1844,93 @@ module module_cu_gf_monan
                        ,heso_cup,zo_cup,po_cup,gammao_cup ,tn_cup,psur,tsur,ierr,z1            &
                        ,itf,ktf,its,ite, kts,kte)
       !
-      !-- partition between liq/ice cloud contents
+      !--- partition between liq/ice cloud contents
       !
       call get_partition_liq_ice(ierr,tn,z1,zo_cup,po_cup,p_liq_ice,melting_layer &
                                 ,itf,ktf,its,ite,kts,kte,cumulus)
       !
-      !-- get several indexes
+      !--- get several indexes
       !
       call get_kbmax_kdet_k22(cumulus,itf,ktf,its,ite,kts,kte,ierr,ierrc,z1,zo_cup,heo_cup&
                              ,depth_min,z_detr,zkbmax,kbmax,kdet,k22,kstabm)
       !
-      !-- define entrainment/detrainment profiles for updrafts
+      !--- define entrainment/detrainment profiles for updrafts
       !
-      !- reescale entrainment rate in terms of the grid spacing (Zhao et al 2024, GRL https://doi.org/10.1029/2024GL110735)
-      if(entr_rate_input < 0.0 .and. trim(cumulus) == 'deep') then 
-         entr_rescaled(:) = (delta_ref/dx(:))**0.2 * fac_cold_start
-         entr_rate    (:) = entr_ref * entr_rescaled(:)
-         min_entr_rate    = entr_ref * fr_min_entr * minval(entr_rescaled)
-         overshoot_rescaled(:) = min(0.7, overshoot * entr_rescaled(:))
-      else
-      !-- initial entrainment rate and the mininum acceptable entrainment rate
-         entr_rate(:)  = entr_rate_input * fac_cold_start
-         min_entr_rate = entr_rate_input * fr_min_entr
-         overshoot_rescaled(:) = overshoot * fac_cold_start
-      endif
-      ! 
-      !-- controls of LCL and PBL turbulence on the entrainment rate
-      if(use_lcl_ctrl_entr > 0 ) then 
-         call get_lcl2(cumulus,ave_layer,its,ite,itf,kts,kte,ktf,ierr,zqexec,ztexec,xland &
-                      ,po,t_cup,p_cup,z_cup,q_cup,k22,klcl,kpbl,psur,zlcl_sfc)
-         call LCL_and_PBL_ctrl_on_entrainment(cumulus,its,ite,itf,kts,kte,ktf,min_entr_rate &
-                                             ,entr_rate,zlcl_sfc,turb_len_scale)
-      endif
-      !
-      !-- cold pool parameterization and convective memory
-      !
-      if (convection_tracer == 1 .and. trim(cumulus) /= 'shallow') then
-         call coldPoolConvMem(cumulus,its, itf, kts, kte, ktf, ztexec, zqexec        &
-                            , xland, po, buoy_exc, ierr, cap_max, wlpool, x_add_buoy &
-                            , min_entr_rate, entr_rate)
-      end if
-      !
-      if( use_shear_ctrl_entr >= 0 .and. trim(cumulus) == 'deep') &
-         call get_entr_vshear(cumulus,ierr,us,vs,zo,ktop,kbcon,klcl,po,po_cup,itf,ktf,its,ite, kts,kte &
-                             ,min_entr_rate,entr_rate, vshear2,var2d2,qo,x_add_buoy,zqexec,precip_rescaled )
-      !
-      !-- get the pickup of ensemble ave prec, following Neelin et al 2009.
-      if( use_cwv_ctrl_entr == 1 .and. trim(cumulus) == 'deep') &
-         call precip_cwv_factor(itf,ktf,its,ite,kts,kte,ierr,tn,po,qo,po_cup,cumulus,p_cwv_ave &
-                               ,min_entr_rate,entr_rate,var2d1)
-      !
-      !
-      !-- determine LCL for the air parcels around K22
-      !
-      call get_lcl(cumulus,convection_tracer,use_memory,ave_layer,its,ite,itf,kts,kte,ktf,ierr &
-                  ,x_add_buoy,zqexec,ztexec,xland,po,t_cup,p_cup,z_cup,q_cup,k22,klcl)
+      step_ent = 1;   if(entr_rate_input < 0.0) step_ent = 2 
 
-      !--- start_level
-      !
-      start_level(:)=  KLCL(:) !start_level(:)=  KTS
-      !
-      !-- check if LCL height is below PBL height to allow shallow convection
-      !
-      if(lcl_trigger > 0 .and. cumulus == 'shallow')then
-         do vtp_index = get_num_elements(vec_ok),1,-1
-            i = get_data_value(vec_ok,vtp_index)
-            if(klcl(i) > max(1,kpbl(i)-lcl_trigger)) then
-                  ierr(i)=21 ; is_removed  = remove(vec_ok, i)
-                  ierrc(i)='for shallow convection:  LCL height < PBL height'
-            endif
-         enddo
-      endif
-      !
-      !--- determine the vertical entrainment/detrainment rates, the level of convective cloud base -kbcon-
-      !--- and the scale dependence factor (sig).
-      !
-      call set_entr_detr_rates(cumulus,its,ite,itf,kts,kte,ktf,ierr,klcl,min_entr_rate,entr_rate &
-                              ,entr_rate_2d,cd,mentrd_rate,cdd,qo_cup, qeso_cup,cnvcf,zo_cup)
-      !
-      if( trim(cumulus) == 'deep')  entr_rate_2d_initial(:,:) = entr_rate_2d(:,:)      !<<<<<<<< tmp
-      !
-      !--- determine the moist static energy of air parcels at source level
-      !
-      do vtp_index = get_num_elements(vec_ok),1,-1; i = get_data_value(vec_ok,vtp_index)
-         x_add = (c_alvl*zqexec(i)+c_cp*ztexec(i)) +  x_add_buoy(i)
-         call get_cloud_bc(cumulus,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i),he_cup (kts:kte,i),hkb (i),k22(i),x_add)
-         call get_cloud_bc(cumulus,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i),heo_cup(kts:kte,i),hkbo(i),k22(i),x_add)
-      enddo
-      !
-      !--- determine the level of convective cloud base  - kbcon
-      !
-      call cup_cloud_limits(cumulus,ierrc,ierr,cap_max_increment,cap_max,heo_cup,heso_cup,qo_cup    &
-                           ,qeso_cup,po,po_cup,zo_cup,heo,hkbo,qo,qeso,entr_rate_2d,hcot,k22,kbmax  &
-                           ,klcl,kbcon,ktop,depth_neg_buoy,frh_bcon,start_level,use_excess,max_ktop &
-                           ,zqexec,ztexec,x_add_buoy,xland,cnvcf,heso,wlpool,overshoot_rescaled     &
-                           ,itf,ktf,its,ite, kts,kte)
+      loop_entr_trigger: do ii = 1,step_ent    
+           !
+           !--- define the initial entrainment rate and the mininum acceptable entrainment rate
+           !--- formulation 1: reescale entrainment rate in terms of the grid spacing (Zhao et al 2024, GRL https://doi.org/10.1029/2024GL110735)
+           !--- and also use larger initial entrainment rate as trigger function
+           if(  entr_rate_input < 0.0 ) then 
+              entr_rescaled(:) = (delta_ref/dx(:))**0.2 * fac_cold_start 
+              entr_rate    (:) = entr_ref * entr_rescaled(:) * entr_red(ii)
+              min_entr_rate    = entr_ref * fr_min_entr * minval(entr_rescaled)
+           else
+           !--- formulation 2: using the namelist definition      
+              entr_rate(:)  = entr_rate_input * fac_cold_start
+              min_entr_rate = entr_rate_input * fr_min_entr
+           endif
+           ! 
+           !--- controls of LCL and PBL turbulence on the entrainment rate
+           if(use_lcl_ctrl_entr > 0 ) then 
+              call get_lcl2(cumulus,ave_layer,its,ite,itf,kts,kte,ktf,ierr,zqexec,ztexec,xland &
+                           ,po,t_cup,p_cup,z_cup,q_cup,k22,klcl,kpbl,psur,zlcl_sfc)
+              call LCL_and_PBL_ctrl_on_entrainment(cumulus,its,ite,itf,kts,kte,ktf,min_entr_rate &
+                                                  ,entr_rate,zlcl_sfc,turb_len_scale)
+           endif
+           !
+           !--- cold pool parameterization and convective memory
+           !
+           if (convection_tracer == 1 .and. trim(cumulus) /= 'shallow') then
+              call coldPoolConvMem(cumulus,its,itf,kts,kte,ktf,ztexec,zqexec,xland,po,buoy_exc &
+                                  ,ierr,cap_max,wlpool,x_add_buoy,min_entr_rate,entr_rate)
+           end if
+           !
+           if( use_shear_ctrl_entr >= 0 .and. trim(cumulus) == 'deep') &
+              call get_entr_vshear(cumulus,ierr,us,vs,zo,ktop,kbcon,klcl,po,po_cup,itf,ktf,its,ite, kts,kte     &
+                                  ,min_entr_rate,entr_rate, vshear2,var2d2,qo,x_add_buoy,zqexec,precip_rescaled &
+                                  ,overshoot,mpas_cape,mpas_cin)
+           !
+           !--- get the pickup of ensemble ave prec, following Neelin et al 2009.
+           if( use_cwv_ctrl_entr == 1 .and. trim(cumulus) == 'deep') &
+              call precip_cwv_factor(itf,ktf,its,ite,kts,kte,ierr,tn,po,qo,po_cup,cumulus,p_cwv_ave &
+                                    ,min_entr_rate,entr_rate,var2d1)
+           !
+           !--- determine LCL for the air parcels around K22
+           !
+           call get_lcl(cumulus,convection_tracer,use_memory,ave_layer,its,ite,itf,kts,kte,ktf,ierr &
+                       ,x_add_buoy,zqexec,ztexec,xland,po,t_cup,p_cup,z_cup,q_cup,k22,klcl)
+           !
+           !--- start_level
+           !
+           start_level(:)=  KLCL(:) !start_level(:)=  KTS
+           !
+           !--- determine the vertical entrainment/detrainment profiles
+           !
+           call set_entr_detr_rates(cumulus,its,ite,itf,kts,kte,ktf,ierr,klcl,min_entr_rate,entr_rate &
+                                   ,entr_rate_2d,cd,mentrd_rate,cdd,qo_cup, qeso_cup,cnvcf,zo_cup)
+           !
+           if( trim(cumulus) == 'deep')  entr_rate_2d_initial(:,:) = entr_rate_2d(:,:)      ! output only
+           !
+           !--- determine the moist static energy of air parcels at source level
+           !
+           do vtp_index = get_num_elements(vec_ok),1,-1; i = get_data_value(vec_ok,vtp_index)
+              x_add = (c_alvl*zqexec(i)+c_cp*ztexec(i)) +  x_add_buoy(i)
+              call get_cloud_bc(cumulus,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i),he_cup (kts:kte,i),hkb (i),k22(i),x_add)
+              call get_cloud_bc(cumulus,ave_layer,kts,kte,ktf,xland(i),po(kts:kte,i),heo_cup(kts:kte,i),hkbo(i),k22(i),x_add)
+           enddo
+           !
+           !--- determine the level of convective cloud base  - kbcon, cloud top - ktop
+           !
+           call cup_cloud_limits(cumulus,ierrc,ierr,cap_max_increment,cap_max,heo_cup,heso_cup,qo_cup    &
+                                ,qeso_cup,po,po_cup,zo_cup,heo,hkbo,qo,qeso,entr_rate_2d,hcot,k22,kbmax  &
+                                ,klcl,kbcon,ktop,depth_neg_buoy,frh_bcon,start_level,use_excess,max_ktop &
+                                ,zqexec,ztexec,x_add_buoy,xland,cnvcf,heso,wlpool,overshoot              &
+                                ,itf,ktf,its,ite, kts,kte)
+      
+      enddo loop_entr_trigger
       !
       !--- scale dependence factor (sig)
       !
@@ -2124,7 +2122,7 @@ module module_cu_gf_monan
       !
       !---  get wet bulb temperature and moisture at jmin
       !
-      if(USE_WETBULB == 1 .and. cumulus /= 'shallow' ) then
+      if(use_wetbulb == 1 .and. cumulus /= 'shallow' ) then
          do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
             k = jmin(i)
@@ -2242,7 +2240,7 @@ module module_cu_gf_monan
                     i = get_data_value(vec_ok,vtp_index)
                  
                     kii=start_level(i) ; kff=ktop(i)
-                    if(use_pass_cloudvol == 2) then 
+                    if(use_pass_cloudvol == 1) then 
                         xh_env_eff(kii:kff) = (1.-cnvcf(kii:kff,i))*xhe(kii:kff,i) + cnvcf(kii:kff,i)*xhes(kii:kff,i)
                     else
                         xh_env_eff(kii:kff) = xhe(kii:kff,i)
@@ -2439,6 +2437,7 @@ module module_cu_gf_monan
          do k=kts,ktf
             tup   (k,i) = tempco(k,i) !in-updraft temp
             cupclw(k,i) = qrco  (k,i) !in-updraft condensed water
+            clfrac(k,i) = (xmb(i)/sig(i)) * zuo(k,i) / (rho(k,i)*vvel2d(k,i)) !in-updradt cloud fraction
          end do
          tup (kte,i) = t_cup(kte,i)
       end do
@@ -2449,29 +2448,27 @@ module module_cu_gf_monan
         !var2d1(:) = aa1(:)
         !var2d2(:) = aa1_bl(:)
          var2d1(:) = vshear2(:)
-        !var2d1(:) = x_add_buoy(:)
-         if( adv_trigger == 0 .and. convection_tracer == 1) then 
-            do i=its,itf
+         var2d2(:) = x_add_buoy(:)
+         !if( adv_trigger == 0 .and. convection_tracer == 1) then 
+         !   do i=its,itf
                ! var2d2(i) = maxval( buoy_exc(kts:ktop(i),i) )
                !var2d1(i) = p_cwv_ave(i)
-            enddo
-         endif 
-         !var2d2(:) = 0.0
+         !   enddo
+         !endif
+         var2d2(:) = 0.0
          do vtp_index = get_num_elements(vec_ok),1,-1
             i = get_data_value(vec_ok,vtp_index)
             trash = 1.e-12
             do k=kts,ktop(i)          
                   dp=100.*(po_cup(k,i)-po_cup(k+1,i))
                   trash=trash+dp
-                  !if(use_pass_cloudvol > 0 ) &
-                  !var2d2(i) = var2d2(i) + cnvcf(k,i)*dp/c_grav
+                  if(use_pass_cloudvol > 0 ) var2d2(i) = var2d2(i) + cnvcf(k,i)*dp/c_grav
                   
                   !var2d2(i) = var2d2(i) + entr_rate_2d(k,i)*dp
-                  
                   !if(use_pass_cloudvol == 0 ) &
                   !var2d1(i) = var2d1(i) + entr_rate_2d_initial(k,i)*dp
             enddo
-            !var2d2(i) = var2d2(i)/trash 
+            var2d2(i) = var2d2(i)/trash 
             !var2d1(i) = var2d1(i)/trash 
          enddo
       endif
@@ -3332,7 +3329,7 @@ module module_cu_gf_monan
       do vtp_index = get_num_elements(vec_ok),1,-1
          i = get_data_value(vec_ok,vtp_index)
          kii=start_level(i) ; kff=ktop(i)
-         if(use_pass_cloudvol == 2) then 
+         if(use_pass_cloudvol == 1) then 
               q_env_eff(kii:kff) = (1.-cnvcf(kii:kff,i))*q(kii:kff,i) + cnvcf(kii:kff,i)*qes(kii:kff,i)
          else
               q_env_eff(kii:kff) = q(kii:kff,i)
@@ -4243,15 +4240,16 @@ module module_cu_gf_monan
                
                aa0(i)=aa0(i)+0.5*(daa1+daa2)
             enddo
-            ! print*,trim(integ_interval),AA0(I),kbcon(i)
+
       enddo
+      !print*,trim(integ_interval),maxval(AA0),minval(AA0)
    end subroutine cup_up_cape_cin
    !------------------------------------------------------------------------------------
    subroutine cup_cloud_limits(cumulus,ierrc,ierr,cap_inc,cap_max_in,heo_cup,heso_cup,qo_cup &
                               ,qeso_cup,po,po_cup,z_cup,heo,hkbo,qo,qeso,entr_rate_2d,hcot   &
                               ,k22,kbmax,klcl,kbcon,ktop,depth_neg_buoy,frh                  &
                               ,start_level_,use_excess,max_ktop,zqexec,ztexec,x_add_buoy     &
-                              ,xland,cnvcf,heso,wlpool,overshoot_rescaled,itf,ktf,its,ite, kts,kte)
+                              ,xland,cnvcf,heso,wlpool,overshoot,itf,ktf,its,ite, kts,kte)
 
       implicit none
       character *(*)            ,intent (in   ) :: cumulus
@@ -4259,10 +4257,11 @@ module module_cu_gf_monan
       integer                   ,intent (in   ) :: itf,ktf,its,ite, kts,kte,use_excess
       integer, dimension (:)    ,intent (in   ) :: kbmax,start_level_,max_ktop
       integer, dimension (:)    ,intent (inout) :: kbcon,ierr,ktop,klcl,k22
+      real                                      :: overshoot
       real,    dimension (:,:)  ,intent (in   ) :: heo_cup,heso_cup,po_cup,z_cup,heo &
                                                   ,qo_cup,qeso_cup,po,qo,qeso,heso
       real,    dimension (:)    ,intent (in   ) :: cap_max_in,cap_inc,xland,wlpool
-      real,    dimension (:)    ,intent (in   ) :: zqexec,ztexec,x_add_buoy,overshoot_rescaled
+      real,    dimension (:)    ,intent (in   ) :: zqexec,ztexec,x_add_buoy
       real,    dimension (:)    ,intent (inout) :: hkbo,depth_neg_buoy,frh
       real,    dimension (:,:)  ,intent (in)    :: entr_rate_2d,cnvcf
       real,    dimension (:,:)  ,intent (inout) :: hcot
@@ -4284,7 +4283,7 @@ module module_cu_gf_monan
       x_add      (:) = c_alvl*zqexec(:) + c_cp*ztexec(:) + x_add_buoy(:)
       start_level(:) = start_level_(:)
 
-      if(use_pass_cloudvol == 2) then
+      if(use_pass_cloudvol == 1) then
            h_env_eff(:,:) = (1.-cnvcf(:,:))*heo(:,:) + cnvcf(:,:)*heso(:,:)
       else
            h_env_eff(:,:) = heo(:,:)
@@ -4373,8 +4372,8 @@ module module_cu_gf_monan
       
       !--- check cloud top for deep convection
       if(cumulus == 'deep') then
-            min_deep_top=500.
-            if(icumulus_gf(mid) == OFF) min_deep_top=600.
+            min_deep_top=500. ! mbar 
+            if(icumulus_gf(mid) == OFF) min_deep_top=600. ! mbar
             do vtp_index = get_num_elements(vec_ok),1,-1
                i = get_data_value(vec_ok,vtp_index)
                cloud_depth =  po_cup(kbcon(i),i)-po_cup(ktop(i),i)
@@ -4388,7 +4387,7 @@ module module_cu_gf_monan
             if(overshoot > 1.e-6) then
                do vtp_index = get_num_elements(vec_ok),1,-1
                   i = get_data_value(vec_ok,vtp_index)
-                  Z_overshoot = (1. + overshoot_rescaled(i)) * z_cup(ktop(i),i)
+                  Z_overshoot = (1. + overshoot) * z_cup(ktop(i),i)
                   do k=ktop(i)+1,ktf-1
                        if(Z_overshoot <= z_cup(k,i)) then
                              ktop(i) = min(k, max_ktop(i))
@@ -4431,13 +4430,13 @@ module module_cu_gf_monan
                          ,wlpool,wlpool_bcon)
 
       implicit none
-      integer                  ,intent (in   )  ::  itf,ktf,its,ite, kts,kte
-      real,    dimension (:,:) ,intent (in   )  ::  z,z_cup,zu,gamma_cup,t_cup,dby &
+      integer                  ,intent (in   ) ::  itf,ktf,its,ite, kts,kte
+      real,    dimension (:,:) ,intent (in   ) ::  z,z_cup,zu,gamma_cup,t_cup,dby &
                                                    ,entr_rate_2d,cd,tempco,qco,qrco,qo
 
-      integer, dimension (:)   ,intent (in   )  ::  klcl,kbcon,ktop,start_level
-      real,    dimension (:)   ,intent (in   )  ::  zws
-      real,    dimension (:)   ,intent (inout)  ::  wlpool
+      integer, dimension (:)   ,intent (in   ) ::  klcl,kbcon,ktop,start_level
+      real,    dimension (:)   ,intent (in   ) ::  zws
+      real,    dimension (:)   ,intent (inout) ::  wlpool
 
       ! input and output
       integer, dimension (:)   ,intent (inout) ::  ierr
@@ -6149,18 +6148,16 @@ module module_cu_gf_monan
          ,c0_deep, qrc_crit,lambau_deep,lambau_shdn,c0_mid                        &
          ,cum_max_edt_land  ,cum_max_edt_ocean, cum_hei_down_land                 &
          ,cum_hei_down_ocean,cum_hei_updf_land, cum_hei_updf_ocean                &
-         ,cum_entr_rate ,tau_deep,tau_mid                                         &
-         ,use_momentum_transp ,moist_trigger,frac_modis                           &
-         ,cum_use_excess,cum_ave_layer,use_smooth_prof                            &
-         ,use_cloud_dissipation,cum_use_smooth_tend,use_gustiness, use_random_num &
-         ,beta_sh,c0_shal,use_linear_subcl_mf,liq_ice_number_conc                 &
-         ,cap_maxs,sig_factor,lcl_trigger                                         &
-         ,cum_t_star, convection_tracer, tau_ocea_cp, tau_land_cp                 &
-         ,use_memory, add_coldpool_prop ,mx_buoy1, mx_buoy2,max_tq_tend           &
-         ,add_coldpool_clos,add_coldpool_trig,add_coldpool_diff,n_cldrop          &
+         ,cum_entr_rate ,tau_deep,tau_mid,use_momentum_transp ,moist_trigger      &
+         ,frac_modis,cum_use_excess,cum_ave_layer,use_smooth_prof                 &
+         ,use_cloud_dissipation,cum_use_smooth_tend, use_random_num               &
+         ,beta_sh,c0_shal,use_linear_subcl_mf,liq_ice_number_conc,cap_maxs        &
+         ,sig_factor,cum_t_star, convection_tracer, tau_ocea_cp, tau_land_cp      &
+         ,use_memory ,mx_buoy1, mx_buoy2,max_tq_tend                              &
+         ,add_coldpool_clos,add_coldpool_trig,n_cldrop                            &
          ,output_sound,use_pass_cloudvol,use_lcl_ctrl_entr,use_rhu_ctrl_entr      &
          ,cum_min_cloud_depth,use_sub3d,cum_fr_min_entr,use_shear_ctrl_entr       &
-         ,use_cwv_ctrl_entr,adv_trigger,dcape_threshold,use_cold_start
+         ,use_cwv_ctrl_entr,adv_trigger,dcape_threshold,use_cold_start,tu_buoyx
 
       if(present(IO_NODE)) then 
          local_io_node = IO_NODE
@@ -6235,7 +6232,6 @@ module module_cu_gf_monan
          print*, 't_star             ' , real(cum_t_star         ,4)
          print*, 'cap_maxs           ' , real(cap_maxs           ,4)
          print*, 'moist_trigger      ' , moist_trigger
-         print*, 'lcl_trigger        ' , lcl_trigger
          print*, 'tau_deep,tau_mid   ' , real(tau_deep,4),real(tau_mid,4)
          print*, 'sgs_w_timescale    ' , sgs_w_timescale
          print*, 'convection_tracer  ' , convection_tracer
@@ -6246,6 +6242,8 @@ module module_cu_gf_monan
          print*, 'tau_land_cp        ' , tau_land_cp
          print*, 'mx_buoy1 - kJ/kg   ' , mx_buoy1*1.e-3
          print*, 'mx_buoy2 - kJ/kg   ' , mx_buoy2*1.e-3
+         print*, 'tu_buoyx - #       ' , tu_buoyx
+
          print*, 'use_pass_cloudvol  ' , use_pass_cloudvol
          print*, 'use_lcl_ctrl_entr  ' , use_lcl_ctrl_entr
          print*, 'use_rhu_ctrl_entr  ' , use_rhu_ctrl_entr
@@ -6301,7 +6299,6 @@ module module_cu_gf_monan
          print*, 'lightning_diag     ' , lightning_diag
          print*, 'overshoot          ' , real(overshoot          ,4)
          print*, 'liq_ice_number_conc' , liq_ice_number_conc
-         print*, 'use_gustiness      ' , use_gustiness
 
          print*, '!----misc controls'
          print*, 'output_sound       ' , output_sound
@@ -6311,8 +6308,6 @@ module module_cu_gf_monan
          print*, 'clev_grid          ' , clev_grid
          print*, 'vert_discr         ' , vert_discr
          print*, 'max_tq_tend        ' , real(max_tq_tend,4)
-         print*, 'add_coldpool_prop  ' , add_coldpool_prop
-         print*, 'add_coldpool_diff  ' , add_coldpool_diff
          print*, 'use_inv_layers     ' , use_inv_layers
          print*,"========================================================================"
          !call flush(6)
@@ -6676,7 +6671,7 @@ module module_cu_gf_monan
             !-- reduce entr rate, where cold pools exist
             do vtp_index = get_num_elements(vec_ok),1,-1
                i = get_data_value(vec_ok,vtp_index)
-                entr_rate(i) =             coldPoolStart     (x_add_buoy(i))  * entr_rate(i) 
+               entr_rate(i) = coldPoolStart(x_add_buoy(i))  * entr_rate(i) 
             enddo
       endif
 
@@ -7070,8 +7065,9 @@ module module_cu_gf_monan
       !-- local vars
       integer :: i,k,vtp_index
       real    :: crh1 = 1.3, crh2 = 1.6 , fq = 1.0
+      real, parameter :: width = 0.1, turncf = 0.4
       real, dimension(kts:kte,its:ite) :: rh2d,entr_frh2d,detr_frh2d
-
+      
       do i=its,itf
         entr_rate_2d(:,i) = entr_rate  (i)
         cd          (:,i) = entr_rate  (i)
@@ -7084,15 +7080,19 @@ module module_cu_gf_monan
            i = get_data_value(vec_ok,vtp_index)
            rh2d(:,i) = min(qo_cup(:,i)/qeso_cup(:,i),1.)
          enddo
-      
+
          if(use_pass_cloudvol == 1) then
-            crh1 = 1.3 ; crh2 = 1.6
+            crh1 = 1.0 ; crh2 = 1.3
             !-- The Role of Passive Cloud Volumes in the Transition 
             !-- From Shallow to Deep Atmospheric Convection - GRL 2023
             do vtp_index = get_num_elements(vec_ok),1,-1
                i = get_data_value(vec_ok,vtp_index)
-               !--effective RH =   environmental         + saturated 
-               rh2d(:,i) = (1. - cnvcf(:,i)) * rh2d(:,i) + cnvcf(:,i)*1.0 
+
+               !rh2d(:,i) = min(0.6666,cnvcf(:,i)*1.0)
+               do k=kts,ktf  
+                  rh2d(k,i) = (1.5 + atan((cnvcf(k,i) - turncf)/width))/3.
+                  rh2d(k,i) = min(0.666,rh2d(k,i))
+               enddo
             enddo
          endif
 
@@ -7102,7 +7102,7 @@ module module_cu_gf_monan
                entr_frh2d(:,i) = crh1 - rh2d(:,i)
                detr_frh2d(:,i) = crh2 - rh2d(:,i)
          enddo
-         
+
          do vtp_index = get_num_elements(vec_ok),1,-1
               i = get_data_value(vec_ok,vtp_index)
               do k=kts,ktf    
@@ -7113,7 +7113,8 @@ module module_cu_gf_monan
                  cd(k,i)           = 0.75e-4*detr_frh2d(k,i)
               enddo
          enddo
-
+        ! print*,'entr2',i,maxval( entr_rate_2d(:,:)),minval(entr_rate_2d(:,:)),maxval(entr_frh2d(:,:)),minval(entr_frh2d(:,:))
+        ! print*,'entr3',i,maxval( cnvcf(:,:)),minval(cnvcf(:,:))
       else ! no RH control on entr/detr rates
          
          do vtp_index = get_num_elements(vec_ok),1,-1
@@ -7546,7 +7547,7 @@ module module_cu_gf_monan
                hco(k,i) = hkbo(i)
          enddo
          kii=start_level(i) ; kff=ktop(i)
-         if(use_pass_cloudvol == 2) then
+         if(use_pass_cloudvol == 1) then
               h_env_eff(kii:kff) = (1.-cnvcf(kii:kff,i))*heo(kii:kff,i) + cnvcf(kii:kff,i)*heso(kii:kff,i)
          else
               h_env_eff(kii:kff) = heo(kii:kff,i)
@@ -7625,7 +7626,7 @@ module module_cu_gf_monan
       do vtp_index = get_num_elements(vec_ok),1,-1
          i = get_data_value(vec_ok,vtp_index)
          kii=start_level(i) ; kff=ktop(i)
-         if(use_pass_cloudvol == 2) then
+         if(use_pass_cloudvol == 1) then
             h_env_eff (kii:kff) = (1.-cnvcf(kii:kff,i))*he (kii:kff,i) + cnvcf(kii:kff,i)*hes (kii:kff,i)
             h_env_effo(kii:kff) = (1.-cnvcf(kii:kff,i))*heo(kii:kff,i) + cnvcf(kii:kff,i)*heso(kii:kff,i)
          else
@@ -8620,13 +8621,11 @@ module module_cu_gf_monan
       use_memory        = 0 
       add_coldpool_clos = 4
       add_coldpool_trig = 0
-      add_coldpool_prop = 3 
-      add_coldpool_diff = 3 
       tau_ocea_cp       = 3600. 
       tau_land_cp       = 3600. 
       mx_buoy1          = 250.5   ! J/kg (real(c_cp)*5.0 + real(c_alvl)*2.e-3)*0.025  
-      mx_buoy2          = 20004.0 ! J/kg (real(c_cp)*10.+real(c_alvl)*4.e-3) 
-      use_gustiness     = 0    
+      mx_buoy2          = 20004.0 ! J/kg (real(c_cp)*10.+real(c_alvl)*4.e-3)
+      tu_buoyx          = 1.0
      
       use_sub3d         = 0
       use_scale_dep     = 1 
@@ -8651,7 +8650,7 @@ module module_cu_gf_monan
       liq_ice_number_conc=0
       apply_sub_mp      = 0 
       use_wetbulb       = 0 
-      overshoot         = 0.6
+      overshoot         = 0.2
 
       autoconv          = 4     
       c0_deep           = 1.0e-3
@@ -8675,7 +8674,6 @@ module module_cu_gf_monan
 
       moist_trigger     = 0   
       frac_modis        = 1   
-      lcl_trigger       = 0   
       use_random_num    = 0.0   
       cap_maxs          = 50.  
       beta_sh           = 2.2  
@@ -10868,15 +10866,16 @@ module module_cu_gf_monan
 
       end subroutine reset_2d
 !---------------------------------------------------------------------------------------------!
-      subroutine get_entr_vshear(cumulus,ierr,us,vs,zo,ktop,kbcon,klcl,po,po_cup,itf,ktf,its,ite, kts,kte &
-                                ,min_entr_rate,entr_rate, vshear,var2d2,qo,x_add_buoy,zqexec,precip_rescaled)
+      subroutine get_entr_vshear(cumulus,ierr,us,vs,zo,ktop,kbcon,klcl,po,po_cup,itf,ktf,its,ite, kts,kte    &
+                                ,min_entr_rate,entr_rate, vshear,var2d2,qo,x_add_buoy,zqexec,precip_rescaled &
+                                ,overshoot,mpas_cape,mpas_cin)
       implicit none
       character *(*)  ,intent (in) :: cumulus
       integer         ,intent (in) :: itf,ktf,its,ite, kts,kte
       !
       integer, dimension (:)  ,intent (in   ) :: ktop,kbcon,klcl
-      real,                    intent(in    ) :: min_entr_rate
-      real,    dimension (:)  ,intent (in   ) :: x_add_buoy,zqexec
+      real,                    intent(in    ) :: min_entr_rate,overshoot
+      real,    dimension (:)  ,intent (in   ) :: x_add_buoy,zqexec,mpas_cape,mpas_cin
       real,    dimension (:,:),intent (in   ) :: us,vs,zo,po,qo,po_cup
 
       integer, dimension (:)  ,intent (inout) :: ierr
@@ -10897,30 +10896,49 @@ module module_cu_gf_monan
       real,    parameter :: Pmax = 27.0
       real,    parameter :: rmin=12.0,rmax=33.0,xc=15.0,yc=50.0,alpha2=0.2,beta2=0.2
       real,    parameter :: p850  = 850.  ! lower level of shear calculation
+      real,    parameter :: p490  = 490.  ! upper level of shear calculation
+      real,    parameter :: p550  = 550.  ! upper level of shear calculation
 
       ! for use_shear_ctrl_entr == 1 or 2
-     !real,    parameter :: center = 12.0, width2 = 20.0, sharpness = 1.0
-      real,    parameter :: center = 14.0, width2 = 20.0, sharpness = 5.0
+     !real,    parameter :: center = 12.0, width2 = 20.0, sharpness = 5.0 ! ver 1.6.3
+      real,    parameter :: center = 20.0, width2 = 20.0, sharpness = 5.0 ! 
+      
+      ! for use_shear_ctrl_entr == 5
+      real,    parameter :: disc_crit = 19691164.
 
-      integer :: i,k,k650,k850
-      real    :: u650, u975, v650, v975, H, u850,sigx,sigy,x,y,dp
+      integer :: i,k,k650,k850,k490,k2,k1
+      real    :: u650, u975, v650, v975, H, u850,sigx,sigy,x,y,dp,u490,v490, u2,v2,u1,v1,p2,disc
       real,    dimension (its:itf) :: scale_factor,w_col
       
       !scale_factor = 1.0
       if( use_shear_ctrl_entr <= 2 ) then
          do i=its,itf 
-           k650 = minloc( abs(po(kts:ktf,i)-p650),1 )
-           !-- v1 
+           !-- v1
+           !k650 = minloc( abs(po(kts:ktf,i)-p650),1 )
            !u650 = sqrt(us(k650,i)*us(k650,i) + vs(k650,i)*vs(k650,i))
            !u975 = sqrt(us(k975,i)*us(k975,i) + vs(k975,i)*vs(k975,i))
            !vshear(i) = abs(u650-u975)
-           !print*,'A',po(k650,i),po(k975,i),vshear(i)
 
-           !-- v2
-           u650 = us(k650,i) ; v650 = vs(k650,i)
-           u975 = us(k975,i) ; v975 = vs(k975,i)
-           vshear(i) = sqrt( (u650-u975)**2 + (v650-v975)**2 )
-           !print*,'B',po(k650,i),po(k975,i),vshear(i)
+           !-- v2 ver 1.6.3
+           !k650 = minloc( abs(po(kts:ktf,i)-p650),1 )
+           !u650 = us(k650,i) ; v650 = vs(k650,i)
+           !u975 = us(k975,i) ; v975 = vs(k975,i)
+           !vshear(i) = sqrt( (u650-u975)**2 + (v650-v975)**2 )
+
+           !-- v3
+           !k490 = minloc( abs(po(kts:ktf,i)-p490),1 )
+           !u490 = us(k490,i) ; v490 = vs(k490,i)
+           !u975 = us(k975,i) ; v975 = vs(k975,i)
+           !vshear(i) = sqrt( (u490-u975)**2 + (v490-v975)**2 )
+           
+           !-- v4
+           k1 = k975
+           u1 = us(k1,i) ; v1 = vs(k1,i)
+           p2 = p550
+           k2 = minloc( abs(po(kts:ktf,i)-p2),1 )
+           u2 = us(k2,i) ; v2 = vs(k2,i)
+           vshear(i) = sqrt( (u2-u1)**2 + (v2-v1)**2 )
+                      
          enddo
       endif   
       if( use_shear_ctrl_entr == 1 ) then
@@ -10934,9 +10952,11 @@ module module_cu_gf_monan
       if( use_shear_ctrl_entr == 2 ) then
          do i=its,itf
            scale_factor(i) = 1.0 + tanh(sharpness * (vshear(i) - center) / width2)
-           scale_factor(i) = max(0.5, min(0.85/scale_factor(i),1.))
-           var2d2(i)       = scale_factor(i)
-           entr_rate(i)    = max(scale_factor(i)*entr_rate(i), min_entr_rate)
+          !scale_factor(i) = max(0.20, min(0.50/scale_factor(i),1.)) !ver 1.6.3
+           scale_factor(i) = max(0.10, min(0.20/scale_factor(i),1.))
+
+           var2d2(i)             = scale_factor(i)
+           entr_rate(i)          = max(scale_factor(i)*entr_rate(i), min_entr_rate)
          enddo
       endif
       if( use_shear_ctrl_entr == 20 ) then
@@ -10992,6 +11012,24 @@ module module_cu_gf_monan
                var2d2(:)       = scale_factor(:)  !--- for output only
         endif
       endif
+
+      if( use_shear_ctrl_entr == 5 ) then
+            do i=its,itf 
+              k1 = k975
+              u1 = us(k1,i) ; v1 = vs(k1,i)
+              p2 = p490
+              k2 = minloc( abs(po(kts:ktf,i)-p2),1 )
+              u2 = us(k2,i) ; v2 = vs(k2,i)
+              vshear(i) = sqrt( (u2-u1)**2 + (v2-v1)**2 )
+            enddo
+            do i=its,itf
+                 disc                  = max(1.0, mpas_cape(i)*vshear(i)**4.10)
+                 scale_factor(i)       = max(min(1., 1.0/(disc/disc_crit)),0.1)
+                 entr_rate(i)          = max(scale_factor(i)*entr_rate(i), min_entr_rate)
+                 var2d2(i)             = scale_factor(i) !--- for output only
+            enddo
+            !print*,'DISC',maxval(scale_factor),minval(scale_factor)          
+      endif 
 
       end subroutine get_entr_vshear
 !---------------------------------------------------------------------------------------------!

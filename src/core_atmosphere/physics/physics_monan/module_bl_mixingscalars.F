@@ -10,7 +10,7 @@ module module_pbl_scalars
    !
    !================================================================================================================= 
    ! A routine to calculate the dry mixing in PBL for scalars not included in the MYNN routine.
-   ! This is strongly based on "mynn_mix_chem" routine in the file 'bl_mynn_subroutines.F'
+   ! This is mostly based on "mynn_mix_chem" routine in the file 'bl_mynn_subroutines.F'
    ! Saulo R. Freitas - 19 Sep 2024 (send comments to saulo.freitas@inpe.br)
    !================================================================================================================= 
    subroutine driver_pbl_scalars (itimestep,diag_physics,configs,state,mesh,time_lev,its,ite,kts,kte,dt_pbl)
@@ -70,11 +70,13 @@ module module_pbl_scalars
          nscalars = nscalars + 1
          index_scalar(nscalars) = index_buoyx
       endif
-      call mpas_pool_get_dimension(state,'index_cnvcf',index_cnvcf)
-      if(index_cnvcf > 0) then 
-         nscalars = nscalars + 1
-         index_scalar(nscalars) = index_cnvcf
-      endif
+      !
+      !--- srf 15/02/2026 not mixing convective cloud fraction
+      !call mpas_pool_get_dimension(state,'index_cnvcf',index_cnvcf)
+      !if(index_cnvcf > 0) then 
+      !   nscalars = nscalars + 1
+      !   index_scalar(nscalars) = index_cnvcf
+      !endif
       
       !--- if no scalar to be mixed, make a "U-turn" 
       if(nscalars == 0) return 

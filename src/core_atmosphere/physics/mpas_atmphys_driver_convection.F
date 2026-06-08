@@ -114,7 +114,7 @@
 !   Laura D. Fowler (laura@ucar.edu) / 2016-10-18.
 ! * since we removed the local variable convection_scheme from mpas_atmphys_vars.F, now defines convection_scheme
 !   as a pointer to config_convection_scheme.
-!   Laura D. Fowler (laura@ucar.edu) / 2917-02-16.
+!   Laura D. Fowler (laura@ucar.edu) / 2017-02-16.
 ! * removed f_qv,f_qr,and f_qs in the calls to cu_tiedtke and cu_ntiedtke. removed f_qv and f_qc in the call to
 !   kf_eta_cps.
 !   Laura D. Fowler (laura@ucar.edu) / 2024-02-13.
@@ -219,8 +219,8 @@
        if(.not.allocated(rucuten_p)      ) allocate(rucuten_p(ims:ime,kms:kme,jms:jme)  )
        if(.not.allocated(rvcuten_p)      ) allocate(rvcuten_p(ims:ime,kms:kme,jms:jme)  )
        if(.not.allocated(rcnvcfcuten_p)  ) allocate(rcnvcfcuten_p(ims:ime,kms:kme,jms:jme))
-       if(.not.allocated(rbuoyxcuten_p)  ) allocate(rbuoyxcuten_p(ims:ime,kms:kme,jms:jme))
-
+       if(.not.allocated(rbuoyxcuten_p)  ) allocate(rbuoyxcuten_p(ims:ime,kms:kme,jms:jme)) 
+       
        if(.not.allocated(tkepbl_p)       ) allocate(tkepbl_p  (ims:ime,kms:kme,jms:jme) )
        if(.not.allocated(elpbl_p)        ) allocate(elpbl_p   (ims:ime,kms:kme,jms:jme) )
        if(.not.allocated(rupmfxcu_p)     ) allocate(rupmfxcu_p(ims:ime,kms:kme,jms:jme) )
@@ -336,7 +336,7 @@
        if(.not.allocated(area_p)     ) allocate(area_p(ims:ime,jms:jme)            )
        if(.not.allocated(nca_p)      ) allocate(nca_p(ims:ime,jms:jme)             )
        if(.not.allocated(cubot_p)    ) allocate(cubot_p(ims:ime,jms:jme)           )
-       if(.not.allocated(cutop_p)    ) allocate(cutop_p(ims:ime,jms:jme)           )
+       if(.not.allocated(cutop_p)    ) allocate(cutop_p(ims:ime,jms:jme)           ) 
        if(.not.allocated(w0avg_p)    ) allocate(w0avg_p(ims:ime,kms:kme,jms:jme)   )
        if(.not.allocated(rqrcuten_p) ) allocate(rqrcuten_p(ims:ime,kms:kme,jms:jme))
        if(.not.allocated(rqscuten_p) ) allocate(rqscuten_p(ims:ime,kms:kme,jms:jme))
@@ -534,7 +534,7 @@
        if(allocated(area_p)       ) deallocate(area_p       )
        if(allocated(nca_p)        ) deallocate(nca_p        )
        if(allocated(cubot_p)      ) deallocate(cubot_p      )
-       if(allocated(cutop_p)      ) deallocate(cutop_p      )
+       if(allocated(cutop_p)      ) deallocate(cutop_p      ) 
        if(allocated(w0avg_p)      ) deallocate(w0avg_p      )
        if(allocated(rqrcuten_p)   ) deallocate(rqrcuten_p   )
        if(allocated(rqscuten_p)   ) deallocate(rqscuten_p   )
@@ -727,28 +727,28 @@
              kpbl            = kpbl_p                 , tke_pbl       = tkepbl_p        , &
              turb_len_scale  = elpbl_p                ,                                   &
              buoyx           = buoyx_p                , cnvcf         = cnvcf_p         , &
-             rthblten        = rthblten_p             , rqvblten      = rqvblten_p      , &
+             rthblten        = rthblten_p             , rqvblten      = rqvblten_p      , &       
              rthratenlw      = rthratenlw_p           , rthratensw    = rthratensw_p    , &
-             rthdyten        = rthdynten_p            , rqvdyten      = rqvdynten_p     , &
+             rthdyten        = rthdynten_p            , rqvdyten      = rqvdynten_p     , &    
              
              raincv          = raincv_p               , conprr        = pratec_p        , &
              lightn_dens     = lightn_dens_p          , sigma_deep    = sigma_deep_p    , &
-             rthcuten        = rthcuten_p             , rqvcuten      = rqvcuten_p      , &
+             rthcuten        = rthcuten_p             , rqvcuten      = rqvcuten_p      , & 
              rqccuten        = rqccuten_p             , rqicuten      = rqicuten_p      , &
              rucuten         = rucuten_p              , rvcuten       = rvcuten_p       , &
              rbuoyxcuten     = rbuoyxcuten_p          , rcnvcfcuten   = rcnvcfcuten_p   , &
 
-             sub3d_rthcuten  = sub3d_rthcuten_p       , sub3d_rqvcuten= sub3d_rqvcuten_p, &
+             sub3d_rthcuten  = sub3d_rthcuten_p       , sub3d_rqvcuten= sub3d_rqvcuten_p, & 
              sub3d_rucuten   = sub3d_rucuten_p        , sub3d_rvcuten = sub3d_rvcuten_p , &
 
              rupmfxcu        = rupmfxcu_p             , rdnmfxcu      = rdnmfxcu_p      , &
              
-             rmfxdpcu        = rmfxdpcu_p             , rmfxdncu      = rmfxdncu_p      , &
+             rmfxdpcu        = rmfxdpcu_p             , rmfxdncu      = rmfxdncu_p      , &        
              rmfxmdcu        = rmfxmdcu_p                                               , &
              rmfxshcu        = rmfxshcu_p             , rtopdpcu      = rtopdpcu_p      , &
              rtopmdcu        = rtopmdcu_p             , rtopshcu      = rtopshcu_p      , &
              rbotdpcu        = rbotdpcu_p                                               , &
-             var2d1          = v2d1_p                 , var2d2        = v2d2_p          , &
+             var2d1          = v2d1_p                 , var2d2        = v2d2_p          , &               
              var3d1          = v3d1_p                                                   , &
              ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde      , &
              ims = ims , ime = ime , jms = jms , jme = jme , kms = kds , kme = kme      , &
@@ -966,6 +966,7 @@
  enddo
  enddo
  end if
+
  convection_select: select case(convection_scheme)
 
      case ("cu_gf_monan")
@@ -1245,7 +1246,8 @@
  end subroutine convection_from_MPAS
 
 !=================================================================================================================
- subroutine convection_to_MPAS(configs,mesh,diag_physics,tend_physics,its,ite,exchange_halo_group,block)
+ subroutine convection_to_MPAS(configs,mesh,diag_physics,tend_physics,its,ite,&
+                               exchange_halo_group,block)
 !=================================================================================================================
 
 !input arguments:
@@ -1314,6 +1316,7 @@
  enddo
 
  convection_select: select case(convection_scheme)
+
     case ("cu_gf_monan")
        call mpas_pool_get_array(diag_physics,'rmfxdpcu'    ,rmfxdpcu   )
        call mpas_pool_get_array(diag_physics,'rmfxdncu'    ,rmfxdncu   )
@@ -1425,6 +1428,7 @@
 
             !-- part 2: broadcast the subsidence tendencies
             call exchange_halo_group(block % domain, 'physics:sub3d_cuten')
+            call exchange_halo_group(block % domain, 'physics:sigdiagten')
 
             !-- part 3: spread the subsidence tendencies to the 1st neighboors
             call mpas_pool_get_array(mesh, 'cellsOnCell', cellsOnCell)
@@ -1679,7 +1683,9 @@
  real(kind=RKIND),dimension(:),pointer:: wlpool,vcpool,u_gustfront,v_gustfront
  real(kind=RKIND),dimension(:),pointer:: dp_dens,sh_dens,cg_dens
  real(kind=RKIND),dimension(:),pointer:: acc_dp_dens,acc_sh_dens,acc_cg_dens
+ real(kind=RKIND),dimension(:),pointer:: hpbl
 
+!local variables and arrays:
  real(kind=RKIND),dimension(:,:),pointer:: umcl,vmcl
  real(kind=RKIND),dimension(:,:),pointer:: rumcl
  real(kind=RKIND),dimension(:,:),pointer:: zgrid,rh
@@ -1693,17 +1699,17 @@
 !local variables and arrays for the 'cu_gf_monan':
  integer:: i,k,j,k_amb_wind
  real(kind=RKIND),parameter:: alp = 0.5                      ! semi-implicit, 1=explicit
- real(kind=RKIND),parameter:: tau_cloud_diss0 = 7.*60.      ! seconds
- real(kind=RKIND),parameter:: width  = 1000.                 ! meters
- real(kind=RKIND),parameter:: turncf = 2000.                 ! meters above local terrain
+ real(kind=RKIND),parameter:: tau_cloud_diss0 = 20.*60.      ! seconds
+ real(kind=RKIND),parameter:: width  = 400.                  ! meters
  real(kind=RKIND),parameter:: Kfr = 0.9                      ! internal Froude number 
  real(kind=RKIND),parameter:: epsx = 100.                    ! threshold 
  real(kind=RKIND),parameter:: slope_pool = 45.*(3.1416/180.) ! using mean value of Reif et al 2020
  real(kind=RKIND),parameter:: startlev = 1000.               ! meters above local surface
  real(kind=RKIND),parameter:: endlev   = 4000.               ! meters above local surface
 
- real(kind=RKIND):: vert_scale_diss,tau_cloud_diss,htopx,snk,src,tau_cp,denom 
+ real(kind=RKIND):: vert_scale_diss,tau_cloud_diss,htopx,snk,src,tau_cp,denom,OneMinusRH,turncf
  real(kind=RKIND):: total_dz,H_env,gama,temp, rvap, press, qes, zlevel, dzrho, aux, MCL_speed
+
 !-----------------------------------------------------------------------------------------------------------------
 
  call mpas_pool_get_config(configs,'config_bucket_rainc',bucket_rainc)
@@ -1763,24 +1769,29 @@
           call mpas_pool_get_array(sfc_input,'xland' ,xland )
           call mpas_pool_get_array(mesh,     'zgrid' ,zgrid )
           call mpas_pool_get_array(diag,     'relhum',rh    )! pct 
+          call mpas_pool_get_array(diag_physics,'hpbl'  ,hpbl )
 
           do i = its,ite
               htopx = zgrid(1,i) !- local terrain
+              turncf = hpbl(i) + htopx
               do k = kts,kte
-                !-- this goes from 1 to 0.1 as the height goes from the local surface height to the upper levels
-                vert_scale_diss = 1._RKIND/(1.5_RKIND+atan(2._RKIND*(zgrid(k,i) - htopx - turncf)/width))/3.      
-                vert_scale_diss = max(min (vert_scale_diss,1.) , 0.15_RKIND) ! = 1. to turn off vertical variation
+                OneMinusRH = (1.0_RKIND - min(1.0_RKIND , 0.01_RKIND*rh(k,i))) ! must be in [0,1]
+
+                !---- this goes from 1 to 0.1 as the height goes from the local surface height to the upper levels
+                vert_scale_diss = 1._RKIND/(1.5_RKIND+atan(2._RKIND*(zgrid(k,i) - turncf)/width))
+                vert_scale_diss = max(min (vert_scale_diss,1._RKIND), 0.40_RKIND) ! = 1. to turn off vertical variation
                 tau_cloud_diss = tau_cloud_diss0/vert_scale_diss
                 
                 !---- sink term for cloud fraction
-                snk = dt_dyn * (1._RKIND/tau_cloud_diss) * (1.0_RKIND - 0.01_RKIND*rh(k,i)) * abs(cnvcf(k,i))
+                snk = dt_dyn * (1._RKIND/tau_cloud_diss) * OneMinusRH * abs(cnvcf(k,i))
  
                 !---- source term for cloud fraction
                 src = dt_dyn * rcnvcfcuten(k,i)
  
-                !- using semi-impl formulation;
-                !- f(t+dt)  = ( f(t) - (dt/tau)* (alp* f(t)) ] / (1+(dt/tau)* (1-alp))
-                denom = 1._RKIND + (1._RKIND-alp)*src + (1.-alp)*(1._RKIND-0.01_RKIND*rh(k,i))*dt_dyn/tau_cloud_diss
+                !---- using semi-impl formulation;
+                !---- f(t+dt)  = [ f(t) - (dt/tau)* (alp* f(t)) ] / (1+(dt/tau)* (1-alp))
+                denom = 1._RKIND + (1._RKIND-alp)*src + (1._RKIND-alp)*OneMinusRH*dt_dyn/tau_cloud_diss
+                !---- source term for cloud fraction
 
                 !---- update cnvcf
                 cnvcf(k,i) = ( cnvcf(k,i) - alp*snk + (1._RKIND-alp*cnvcf(k,i))*src )/denom
@@ -1964,6 +1975,7 @@
     case default
 
  end select convection_select
+
  end subroutine update_convection_step2
 !=================================================================================================================
  !-- alternative routine for "tend_toEdges" --!
