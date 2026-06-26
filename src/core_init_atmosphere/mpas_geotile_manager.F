@@ -250,7 +250,7 @@ module mpas_geotile_manager
             endif
 
             if (.not. associated(islcolwater)) then
-               call mpas_pool_add_config(mgr % pool, 'islcolwater', 9)
+               call mpas_pool_add_config(mgr % pool, 'islcolwater', 1)
             end if
         endif
 

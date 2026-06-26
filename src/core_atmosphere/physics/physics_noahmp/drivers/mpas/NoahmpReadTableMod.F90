@@ -870,13 +870,21 @@ contains
 
     select case (trim(DATASET_IDENTIFIER))
     case ("DEFAULT_RAD_NOAH")
-       read(15,noahmp_rad_categories)
+       read(15,noahmp_rad_categories,iostat=ierr)
+       if ( ierr /= 0 ) then
+          write(*,'("WARNING: Namelist ''noahmp_rad_categories'' not found; using the default values.")')
+          write(*,'("WARNING:    Update your NoahmpTable.TBL. This will eventually become an error.")')
+          
+          RAD_DATASET_DESCRIPTION = "DEFAULT_RAD_NOAH" ! radiation (soil colour) type dataset
+          NSC = 8                                      ! total number of soil colour categories in Noah
+          
+       end if
        read(15,noahmp_rad_parameters)
     case ("MODIFIED_RAD_CLM_NOAH")
        read(15,noahmp_clm_rad_categories)
        read(15,noahmp_clm_rad_parameters)
     case default
-       write(*,'("WARNING: Unrecognized DATASET_IDENTIFIER in subroutine ReadNoahmpTable")')
+       write(*,'("WARNING: Unrecognised DATASET_IDENTIFIER in subroutine ReadNoahmpTable")')
        write(*,'("WARNING: DATASET_IDENTIFIER = ''", A, "''")') trim(DATASET_IDENTIFIER)
     end select
     close(15)
