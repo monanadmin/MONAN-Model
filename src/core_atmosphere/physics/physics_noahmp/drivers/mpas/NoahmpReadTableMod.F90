@@ -98,11 +98,17 @@ contains
                                                     CZIL_DATA
 
     ! radiation parameters
+    character(len=256)                       :: RAD_DATASET_DESCRIPTION
+    integer                                  :: NSC
     real(kind=kind_noahmp)                   :: BETADS, BETAIS, EICE
     real(kind=kind_noahmp), dimension(MBAND) :: ALBICE, ALBLAK, OMEGAS 
     real(kind=kind_noahmp), dimension(2)     :: EG
     real(kind=kind_noahmp), dimension(MSC)   :: ALBSAT_VIS, ALBSAT_NIR, ALBDRY_VIS, ALBDRY_NIR
+    namelist / noahmp_rad_categories /          RAD_DATASET_DESCRIPTION, NSC
     namelist / noahmp_rad_parameters /          ALBSAT_VIS, ALBSAT_NIR, ALBDRY_VIS, ALBDRY_NIR, ALBICE, ALBLAK, OMEGAS,      &
+                                                BETADS, BETAIS, EG, EICE
+    namelist / noahmp_clm_rad_categories /      RAD_DATASET_DESCRIPTION, NSC
+    namelist / noahmp_clm_rad_parameters /      ALBSAT_VIS, ALBSAT_NIR, ALBDRY_VIS, ALBDRY_NIR, ALBICE, ALBLAK, OMEGAS,      &
                                                 BETADS, BETAIS, EG, EICE
 
     ! global parameters
@@ -847,21 +853,46 @@ contains
     if (ierr /= 0) then
        write(*,'("WARNING: Cannot find file NoahmpTable.TBL")')
     endif
-    read(15,noahmp_rad_parameters)
+
+
+
+    DATASET_IDENTIFIER = NoahmpIO%LSOILCOL
+
+    inquire( file='NoahmpTable.TBL', exist=file_named )
+    if ( file_named ) then
+       open(15, file="NoahmpTable.TBL", status='old', form='formatted', action='read', iostat=ierr)
+    else
+       open(15, status='old', form='formatted', action='read', iostat=ierr)
+    end if
+    if ( ierr /= 0 ) then
+       write(*,'("WARNING: Cannot find file NoahmpTable.TBL")')
+    endif
+
+    select case (trim(DATASET_IDENTIFIER))
+    case ("DEFAULT_RAD_NOAH")
+       read(15,noahmp_rad_categories)
+       read(15,noahmp_rad_parameters)
+    case ("MODIFIED_RAD_CLM_NOAH")
+       read(15,noahmp_clm_rad_categories)
+       read(15,noahmp_clm_rad_parameters)
+    case default
+       write(*,'("WARNING: Unrecognized DATASET_IDENTIFIER in subroutine ReadNoahmpTable")')
+       write(*,'("WARNING: DATASET_IDENTIFIER = ''", A, "''")') trim(DATASET_IDENTIFIER)
+    end select
     close(15)
 
     ! assign values
-    NoahmpIO%ALBSAT_TABLE(:,1) = ALBSAT_VIS ! saturated soil albedos: 1=vis, 2=nir
-    NoahmpIO%ALBSAT_TABLE(:,2) = ALBSAT_NIR ! saturated soil albedos: 1=vis, 2=nir
-    NoahmpIO%ALBDRY_TABLE(:,1) = ALBDRY_VIS ! dry soil albedos: 1=vis, 2=nir
-    NoahmpIO%ALBDRY_TABLE(:,2) = ALBDRY_NIR ! dry soil albedos: 1=vis, 2=nir
-    NoahmpIO%ALBICE_TABLE      = ALBICE
-    NoahmpIO%ALBLAK_TABLE      = ALBLAK
-    NoahmpIO%OMEGAS_TABLE      = OMEGAS
-    NoahmpIO%BETADS_TABLE      = BETADS
-    NoahmpIO%BETAIS_TABLE      = BETAIS
-    NoahmpIO%EG_TABLE          = EG
-    NoahmpIO%EICE_TABLE        = EICE
+    NoahmpIO%ALBSAT_TABLE(1:NSC,1) = ALBSAT_VIS ! saturated soil albedos: 1=vis, 2=nir
+    NoahmpIO%ALBSAT_TABLE(1:NSC,2) = ALBSAT_NIR ! saturated soil albedos: 1=vis, 2=nir
+    NoahmpIO%ALBDRY_TABLE(1:NSC,1) = ALBDRY_VIS ! dry soil albedos: 1=vis, 2=nir
+    NoahmpIO%ALBDRY_TABLE(1:NSC,2) = ALBDRY_NIR ! dry soil albedos: 1=vis, 2=nir
+    NoahmpIO%ALBICE_TABLE          = ALBICE
+    NoahmpIO%ALBLAK_TABLE          = ALBLAK
+    NoahmpIO%OMEGAS_TABLE          = OMEGAS
+    NoahmpIO%BETADS_TABLE          = BETADS
+    NoahmpIO%BETAIS_TABLE          = BETAIS
+    NoahmpIO%EG_TABLE              = EG
+    NoahmpIO%EICE_TABLE            = EICE
 
     !---------------- NoahmpTable.TBL global parameters
     inquire( file='NoahmpTable.TBL', exist=file_named )

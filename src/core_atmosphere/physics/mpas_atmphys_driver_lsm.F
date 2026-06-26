@@ -687,6 +687,7 @@
  logical,pointer:: config_sfc_albedo
  character(len=StrKIND),pointer:: lsm_scheme
  character(len=StrKIND),pointer:: mminlu
+ character(len=StrKIND),pointer:: mminsc
  integer,pointer:: isice
 
 !-----------------------------------------------------------------------------------------------------------------
@@ -696,6 +697,7 @@
  call mpas_pool_get_config(configs,'config_sfc_albedo' ,config_sfc_albedo )
  call mpas_pool_get_config(configs,'config_lsm_scheme',lsm_scheme)
  call mpas_pool_get_array(sfc_input,'mminlu',mminlu)
+ call mpas_pool_get_array(sfc_input,'mminsc',mminsc)
  call mpas_pool_get_array(sfc_input,'isice' ,isice )
 
 !copy MPAS arrays to local arrays:
@@ -739,6 +741,7 @@
                 xice_threshold   = xice_threshold    ,                                              &
                 usemonalb        = config_sfc_albedo ,                                              &
                 mminlu           = mminlu            ,                                              &
+                mminsc           = mminsc            ,                                              &
                 sf_urban_physics = sf_urban_physics  ,                                              &
                 num_roof_layers  = nurb , num_wall_layers = nurb  ,                                 &
                 num_road_layers  = nurb , num_urban_hi    = nurb  ,                                 &

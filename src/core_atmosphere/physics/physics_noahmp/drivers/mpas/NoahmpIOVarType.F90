@@ -517,6 +517,7 @@ module NoahmpIOVarType
 
     CHARACTER(LEN=256)                                     ::  mminsl  = 'STAS'    ! soil classification
     CHARACTER(LEN=256)                                     ::  llanduse            ! (=USGS, using USGS landuse classification)
+    CHARACTER(LEN=256)                                     ::  lsoilcol            ! (=Noah, using Noah's native soil colour classification)
 
 !------------------------------------------------------------------------
 ! Timing:

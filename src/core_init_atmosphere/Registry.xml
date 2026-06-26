@@ -171,6 +171,11 @@
                      description="The soil category classification to use"
                      possible_values="`STATSGO' or `BNU'"/>
 
+                <nml_option name="config_soilcol_data"          type="character"     default_value="DEFAULT_NOAH"
+                     units="-"
+                     description="The soil colour classification to use (Noah-MP only)"
+                     possible_values="`DEFAULT_RAD_NOAH', or `MODIFIED_CLM_NOAHM'"/>
+
                 <nml_option name="config_topo_data"             type="character"     default_value="GMTED2010"
                      units="-"
                      description="The topography dataset to use for the model terrain and for GWDO static fields (case 7 only)"

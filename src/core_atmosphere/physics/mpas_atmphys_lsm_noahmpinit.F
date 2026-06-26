@@ -73,6 +73,10 @@
  call mpas_pool_get_array(sfc_input,'mminlu',mminlu)
  mpas_noahmp%llanduse = mminlu
 
+!--- read NoahmpTable.TBL:
+ call mpas_pool_get_array(sfc_input,'mminsc',mminsc)
+ mpas_noahmp%lsoilcol = mminsc
+
 !call mpas_log_write(' ')
 !call mpas_log_write('--- enter subroutine NoahmpReadTable:')
  call NoahmpReadTable(mpas_noahmp)

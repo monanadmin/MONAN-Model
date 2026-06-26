@@ -75,6 +75,7 @@ contains
     noahmp%config%domain%SoilTimeStep                = NoahmpIO%DTBL * NoahmpIO%soil_update_steps
     noahmp%config%domain%GridSize                    = NoahmpIO%DX
     noahmp%config%domain%LandUseDataName             = NoahmpIO%LLANDUSE
+    noahmp%config%domain%SoilColDataName             = NoahmpIO%LSOILCOL
     noahmp%config%domain%VegType                     = NoahmpIO%IVGTYP(I)
     noahmp%config%domain%CropType                    = NoahmpIO%CROPCAT(I)
     noahmp%config%domain%IndicatorIceSfc             = NoahmpIO%ICE

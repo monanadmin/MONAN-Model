@@ -131,7 +131,8 @@ module mpas_parse_geoindex
                 .or. trim(lhs) == 'description' &
                 .or. trim(lhs) == 'row_order' &
                 .or. trim(lhs) == 'endian' &
-                .or. trim(lhs) == 'mminlu'   ) then
+                .or. trim(lhs) == 'mminlu' &
+                .or. trim(lhs) == 'mminsc'   ) then
 
             char_t = rhs
             call mpas_pool_add_config(geo_pool, trim(lhs), char_t)
@@ -171,6 +172,7 @@ module mpas_parse_geoindex
                   .or. trim(lhs) == 'isice' &
                   .or. trim(lhs) == 'isurban' &
                   .or. trim(lhs) == 'isoilwater' &
+                  .or. trim(lhs) == 'islcolwater' &
                   .or. trim(lhs) == 'filename_digits' ) then
 
             ! Because each compiler handles reporting type errors when transferring
