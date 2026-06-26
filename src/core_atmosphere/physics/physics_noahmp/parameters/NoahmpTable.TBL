@@ -406,24 +406,24 @@
 
 &noahmp_rad_categories
  RAD_DATASET_DESCRIPTION = "DEFAULT_RAD_NOAH"     ! radiation (soil colour) type dataset
- NSC = 9                              ! total number of soil colour categories in Noah
+ NSC = 8                              ! total number of soil colour categories in Noah
 /
 
 &noahmp_rad_parameters
- !--------------------------------------------------------------------------------------
- ! soil color:    1       2       3       4       5       6       7       8       9     soil color index for soil albedo
- !--------------------------------------------------------------------------------------
- ALBSAT_VIS =   0.15,   0.11,   0.10,   0.09,   0.08,   0.07,   0.06,   0.05,   0.00    ! saturated soil albedo at visible band
- ALBSAT_NIR =   0.30,   0.22,   0.20,   0.18,   0.16,   0.14,   0.12,   0.10,   0.00    ! saturated soil albedo at NIR band
- ALBDRY_VIS =   0.27,   0.22,   0.20,   0.18,   0.16,   0.14,   0.12,   0.10,   0.00    ! dry soil albedo at visible band
- ALBDRY_NIR =   0.54,   0.44,   0.40,   0.36,   0.32,   0.28,   0.24,   0.20,   0.00    ! dry soil albedo at NIR band
- ALBICE     =   0.80,   0.55                                                            ! albedo land ice: 1=vis, 2=nir
- ALBLAK     =   0.60,   0.40                                                            ! albedo frozen lakes: 1=vis, 2=nir
- OMEGAS     =   0.8 ,   0.4                                                             ! two-stream parameter omega for snow
- BETADS     =   0.5                                                                     ! two-stream parameter betad for snow
- BETAIS     =   0.5                                                                     ! two-stream parameter betaI for snow
- EG         =   0.97,   0.98                                                            ! emissivity soil surface 1-soil;2-lake
- EICE       =   0.98                                                                    ! emissivity ice surface
+ !------------------------------------------------------------------------------
+ ! soil color:    1       2       3       4       5       6       7       8     soil color index for soil albedo
+ !------------------------------------------------------------------------------
+ ALBSAT_VIS =   0.15,   0.11,   0.10,   0.09,   0.08,   0.07,   0.06,   0.05    ! saturated soil albedo at visible band
+ ALBSAT_NIR =   0.30,   0.22,   0.20,   0.18,   0.16,   0.14,   0.12,   0.10    ! saturated soil albedo at NIR band
+ ALBDRY_VIS =   0.27,   0.22,   0.20,   0.18,   0.16,   0.14,   0.12,   0.10    ! dry soil albedo at visible band
+ ALBDRY_NIR =   0.54,   0.44,   0.40,   0.36,   0.32,   0.28,   0.24,   0.20    ! dry soil albedo at NIR band
+ ALBICE     =   0.80,   0.55                                                    ! albedo land ice: 1=vis, 2=nir
+ ALBLAK     =   0.60,   0.40                                                    ! albedo frozen lakes: 1=vis, 2=nir
+ OMEGAS     =   0.8 ,   0.4                                                     ! two-stream parameter omega for snow
+ BETADS     =   0.5                                                             ! two-stream parameter betad for snow
+ BETAIS     =   0.5                                                             ! two-stream parameter betaI for snow
+ EG         =   0.97,   0.98                                                    ! emissivity soil surface 1-soil;2-lake
+ EICE       =   0.98                                                            ! emissivity ice surface
 /
 
 &noahmp_clm_rad_categories

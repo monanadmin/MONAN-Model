@@ -479,7 +479,7 @@
        ! Set default category and default water category for NOAH soil colour.
        ! These will be overwritten if soil colour data sets exist.
        isdefault_slcol = 4
-       iswater_slcol   = 9
+       iswater_slcol   = 1
 
     case('MODIFIED_CLM_NOAHM')
        call mpas_log_write('Using 21-class MODIS 30-arc-second land cover dataset')
