@@ -381,8 +381,8 @@
  slcol_input_select0: select case(trim(config_soilcol_data))
     case('DEFAULT_RAD_NOAH')
        write(mminsc,'(a)') 'DEFAULT_RAD_NOAH'
-    case('MODIFIED_CLM_NOAHM')
-       write(mminsc,'(a)') 'MODIFIED_CLM_NOAHM'
+    case('MODIFIED_CLM_NOAH')
+       write(mminsc,'(a)') 'MODIFIED_CLM_NOAH'
     case default
          call mpas_log_write('*****************************************************************', messageType=MPAS_LOG_ERR)
          call mpas_log_write('Invalid soil colour dataset '''//trim(config_soilcol_data) &
