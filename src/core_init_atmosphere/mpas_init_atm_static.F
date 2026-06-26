@@ -500,7 +500,7 @@
 
  ! Initialise soil colour with default index. Gridded data sets may or may not be 
  ! available.
- soilcol_idx(1:iCell) = idefault_slcol
+ soilcol_idx(1:iCell) = isdefault_slcol
  call mpas_log_write('--- start interpolate SOILCOL_IDX')
  call interp_soilcol(mesh, tree, trim(geog_data_path)//trim(geog_sub_path), iswater_slcol, &
                      supersample_fac=supersample_fac_30s)
