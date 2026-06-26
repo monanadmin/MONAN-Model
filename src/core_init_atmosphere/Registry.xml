@@ -171,7 +171,7 @@
                      description="The soil category classification to use"
                      possible_values="`STATSGO' or `BNU'"/>
 
-                <nml_option name="config_soilcol_data"          type="character"     default_value="DEFAULT_NOAH"
+                <nml_option name="config_soilcol_data"          type="character"     default_value="DEFAULT_RAD_NOAH"
                      units="-"
                      description="The soil colour classification to use (Noah-MP only)"
                      possible_values="`DEFAULT_RAD_NOAH', or `MODIFIED_CLM_NOAHM'"/>
