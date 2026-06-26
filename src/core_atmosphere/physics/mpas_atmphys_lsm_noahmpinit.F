@@ -46,6 +46,7 @@
 
 !--- local variables and arrays:
  character(len=StrKIND),pointer:: mminlu
+ character(len=StrKIND),pointer:: mminsc
 
  integer:: ns
 
