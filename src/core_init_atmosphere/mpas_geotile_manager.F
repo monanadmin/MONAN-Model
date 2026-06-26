@@ -98,7 +98,7 @@ module mpas_geotile_manager
     !>     * isice = 24
     !>     * isurban = 1
     !>     * isoilwater = 14
-    !>     * islcolwater = 21
+    !>     * islcolwater = 9
     !
     !-----------------------------------------------------------------------
     function mpas_geotile_mgr_init(mgr, path) result(ierr)
@@ -249,8 +249,8 @@ module mpas_geotile_manager
                 call mpas_pool_add_config(mgr % pool, 'isoilwater', 14)
             endif
 
-            if (.not. associated(isoilwater)) then
-                call mpas_pool_add_config(mgr % pool, 'islcolwater', 21)
+            if (.not. associated(islcolwater)) then
+               call mpas_pool_add_config(mgr % pool, 'islcolwater', 9)
             end if
         endif
 
