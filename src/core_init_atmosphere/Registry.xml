@@ -443,6 +443,7 @@
                         <var name="ter" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="landmask" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="mminlu" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
+                        <var name="mminsc" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="isice_lu" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="iswater_lu" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="ivgtyp" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
@@ -549,6 +550,7 @@
                         <var name="ter"/>
                         <var name="landmask"/>
                         <var name="mminlu"/>
+                        <var name="mminsc"/>
                         <var name="isice_lu"/>
                         <var name="iswater_lu"/>
                         <var name="ivgtyp"/>
@@ -850,6 +852,9 @@
 
                 <var name="mminlu" type="text" dimensions="" units="unitless"
                      description="land use classification"/>
+
+                <var name="mminsc" type="text" dimensions="" units="unitless"
+                     description="soil colour classification"/>
 
                 <var name="isltyp" name_in_code="soilcat_top"  type="integer"  dimensions="nCells" units="unitless"
                      description="dominate soil category"/>
