@@ -23,7 +23,7 @@ CONTAINS
 !             K index
 !             Showalter index
 !
-! If sfc pres less than 850hPa, K and Showalter set = 999.
+! If sfc pres less than 850hPa, K and Showalter set = 9.96921e+36 ! was -999.
 !
 ! Stone, H.M., 1983: Stability Analysis Program, NOAA Eastern Region
 ! Computer Programs and Problems NWS ERCP-No. 9, National Weather
@@ -132,16 +132,16 @@ CONTAINS
 ! GET TEMP AND DEWPT AT 850,700,500 MBS
 
      DO 5 J=1,3
-     DO 4 I=2,JNO
+     DO 4 I=1,JNO
      IF (PL(J)-P(I)) 4,6,7
 4    CONTINUE
-     PRINT*,"RAOB TERMINATES TOO SOON, P(JNO) = ",P(JNO)
+     !PRINT*,"RAOB TERMINATES TOO SOON, P(JNO) = ",P(JNO)
      RETURN
 6    TL(J)=TS(I)
      TDL(J)=TSD(I)
      GO TO 5
 7    IF (J.NE.1) GO TO 8 
-     IF (I.GE.2) GO TO 8
+     IF (I.NE.1) GO TO 8
      IHI=1
      GO TO 5  ! SFC PRESSURE LESS THAN 850 hPa
 8    FACTOR=ALOG(PL(J)/P(I))/ALOG(P(I-1)/P(I))
@@ -157,8 +157,8 @@ CONTAINS
 !     WRITE(*,80) TL(3),TP500
 
      IF (IHI.EQ.0) GO TO 9   ! COMPUTE K AND SHOWALTER INDICES
-     RKI=999.   ! K INDEX MISG
-     RWI=999.   ! SHOWALTER INDEX MISG
+      RKI=9.96921e+36   ! K INDEX MISG
+      RWI=9.96921e+36   ! SHOWALTER INDEX MISG
      RETURN
 
 ! COMPUTE K INDEX
