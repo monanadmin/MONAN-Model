@@ -2048,7 +2048,8 @@
 
      ierr = mgr % init(trim(geog_data_path))
      if (ierr /= 0) then
-         call mpas_log_write("Error occured initalising interpolation for "//trim(geog_data_path), messageType=MPAS_LOG_CRIT)
+         call mpas_log_write("--> Warning: error occured initalising interpolation for "//trim(geog_data_path)//".")
+         call mpas_log_write("    Assuming constant soil colour for the entire domain.")
          return
      end if
 
