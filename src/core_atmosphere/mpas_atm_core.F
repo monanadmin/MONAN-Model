@@ -1012,7 +1012,7 @@ module atm_core
       endif
 #endif
 
-      ! --- Cold-start substepping logic (Skamarock/JCSDA, ported for MONAN 1.4.5-rc) ---
+      ! --- Cold-start substepping logic (Skamarock/JCSDA, ported for MONAN) ---
       ! Determine whether this full timestep falls within the substepping window
       call mpas_pool_get_config(domain % blocklist % configs, 'config_coldstart_substeps',         config_coldstart_substeps)
       call mpas_pool_get_config(domain % blocklist % configs, 'config_coldstart_steps_to_substep', config_coldstart_steps_to_substep)
