@@ -498,12 +498,10 @@
        call mpas_log_write('Please correct the namelist.', messageType=MPAS_LOG_CRIT)
  end select slcol_input_select1
 
- ! Initialise soil colour with default index. Gridded data sets may or may not be 
- ! available.
- soilcol_idx(1:iCell) = isdefault_slcol
+ ! Call interpolation routine for soil colour.
  call mpas_log_write('--- start interpolate SOILCOL_IDX')
- call interp_soilcol(mesh, tree, trim(geog_data_path)//trim(geog_sub_path), iswater_slcol, &
-                     supersample_fac=supersample_fac_30s)
+ call interp_soilcol(mesh, tree, trim(geog_data_path)//trim(geog_sub_path), &
+                     isdefault_slcol, iswater_slcol, supersample_fac=supersample_fac_30s)
  call mpas_log_write('--- end interpolate SOILCOL_IDX')
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2024,8 +2022,14 @@
  !>    pixels with no data (e.g., pixels fully covered with water or ice).  Some
  !>    data sets may not have the no data flag, but we harmonise this data set
  !>    with the land use class mapping.
+ !>
+ !> In case the path is not found, instead of issuing an error, the routine will
+ !>   simply assume constant soil colour indices across the entire domain. This 
+ !>   is done because data sets may or may not be available, so we add the fall
+ !>   back is implemented for back compatibility.
  !-----------------------------------------------------------------------
- subroutine interp_soilcol(mesh, kdtree, geog_data_path, iswater_slcol, supersample_fac)
+ subroutine interp_soilcol(mesh, kdtree, geog_data_path, isdefault_slcol, iswater_slcol, &
+                           supersample_fac)
 
      implicit none
 
@@ -2033,6 +2037,7 @@
      type (mpas_pool_type), intent(inout) :: mesh
      type (mpas_kd_type), pointer, intent(in) :: kdtree
      character (len=*), intent(in) :: geog_data_path
+     integer, intent(in) :: isdefault_slcol
      integer, intent(inout) :: iswater_slcol
      integer, intent(in), optional :: supersample_fac
 
@@ -2050,6 +2055,13 @@
      if (ierr /= 0) then
          call mpas_log_write("--> Warning: error occured initalising interpolation for "//trim(geog_data_path)//".")
          call mpas_log_write("    Assuming constant soil colour for the entire domain.")
+
+         call mpas_pool_get_dimension(mesh, 'nCells', nCells)
+         call mpas_pool_get_array(mesh, 'soilcol_idx', soilcol_idx)
+
+         ! Define the entire domain with the default soil colour index
+         soilcol_idx(1:nCells) = isdefault_slcol
+
          return
      end if
 
