@@ -174,7 +174,7 @@
                 <nml_option name="config_soilcol_data"          type="character"     default_value="DEFAULT_RAD_NOAH"
                      units="-"
                      description="The soil colour classification to use (case 7 only)"
-                     possible_values="`DEFAULT_RAD_NOAH', or `MODIFIED_CLM_NOAH'"/>
+                     possible_values="`DEFAULT_RAD_NOAH', or `MODIFIED_RAD_CLM_NOAH'"/>
 
                 <nml_option name="config_topo_data"             type="character"     default_value="GMTED2010"
                      units="-"
