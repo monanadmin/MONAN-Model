@@ -6,6 +6,8 @@
     config_split_dynamics_transport = true
     config_number_of_sub_steps = 2
     config_dynamics_split_steps = 3
+    config_coldstart_substeps = 3
+    config_coldstart_steps_to_substep = 30
     config_h_mom_eddy_visc2 = 0.0
     config_h_mom_eddy_visc4 = 0.0
     config_v_mom_eddy_visc2 = 0.0

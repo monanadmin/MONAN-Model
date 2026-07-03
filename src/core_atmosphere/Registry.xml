@@ -107,6 +107,16 @@
                      description="When config_split_dynamics_transport = T, the number of RK steps per transport step"
                      possible_values="Positive integer values"/>
 
+                <nml_option name="config_coldstart_substeps" type="integer" default_value="1"
+                     units="-"
+                     description="Number of dynamics sub-steps per full timestep during cold-start stabilization window. Each full timestep dt is advanced as substeps of dt/config_coldstart_substeps. Physics timestep is unchanged. Set to 1 to disable (default). Recommended value: 3 for cold-starts from GFS analysis at 10 km resolution."
+                     possible_values="Positive integer values (1 = disabled, 3 recommended for cold-start)"/>
+
+                <nml_option name="config_coldstart_steps_to_substep" type="integer" default_value="0"
+                     units="-"
+                     description="Number of full model timesteps (counting from timestep 1) during which cold-start dynamics substepping is active. Set to 0 to disable (default). Recommended value: 30 for 10 km cold-starts from GFS (covers first 30 min at dt=60s). Must be combined with config_coldstart_substeps > 1 to have any effect."
+                     possible_values="Non-negative integer values (0 = disabled, 20-30 recommended for cold-start)"/>
+
                 <nml_option name="config_h_mom_eddy_visc2" type="real" default_value="0.0" in_defaults="false"
                      units="m^2 s^{-1}"
                      description="$\nabla^2$ eddy viscosity for horizontal diffusion of momentum"

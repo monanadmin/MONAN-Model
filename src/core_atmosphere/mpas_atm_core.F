@@ -982,6 +982,17 @@ module atm_core
       real (kind=RKIND) :: xtime_s
       integer :: ierr
 
+      ! Cold-start substepping — controlled via namelist (nhyd_model record):
+      !   config_coldstart_substeps          : number of dynamics sub-steps per full step (1 = disabled)
+      !   config_coldstart_steps_to_substep  : number of full steps in which substepping is active (0 = disabled)
+      ! Physics always uses the full dt; only dynamics is sub-stepped.
+      integer, pointer :: config_coldstart_substeps
+      integer, pointer :: config_coldstart_steps_to_substep
+      integer :: step, integration_steps, itimestep_local
+      real (kind=RKIND) :: integration_dt
+      type (mpas_pool_type), pointer :: state_substep
+      logical :: substep_active
+
       clock => domain % clock
       mpas_log_info => domain % logInfo
 
@@ -1001,7 +1012,40 @@ module atm_core
       endif
 #endif
 
-      call atm_timestep(domain, dt, currTime, itimestep, exchange_halo_group)
+      ! --- Cold-start substepping logic (Skamarock/JCSDA, ported for MONAN 1.4.5-rc) ---
+      ! Determine whether this full timestep falls within the substepping window
+      call mpas_pool_get_config(domain % blocklist % configs, 'config_coldstart_substeps',         config_coldstart_substeps)
+      call mpas_pool_get_config(domain % blocklist % configs, 'config_coldstart_steps_to_substep', config_coldstart_steps_to_substep)
+
+      substep_active    = .false.
+      integration_dt    = dt
+      integration_steps = 1
+      itimestep_local   = itimestep
+
+      if (itimestep .le. config_coldstart_steps_to_substep .and. config_coldstart_substeps .gt. 1) then
+         substep_active    = .true.
+         integration_dt    = dt / real(config_coldstart_substeps, kind=RKIND)
+         integration_steps = config_coldstart_substeps
+         itimestep_local   = (itimestep - 1) * config_coldstart_substeps + 1
+      end if
+
+      do step = 1, integration_steps
+
+         if (substep_active) &
+            call mpas_log_write('  [cold-start] substep $i of $i (effective dt = $r s)', &
+                                intArgs=(/step, integration_steps/), realArgs=(/integration_dt/))
+
+         call atm_timestep(domain, integration_dt, currTime, itimestep_local, exchange_halo_group)
+
+         ! Between sub-steps: promote time level 2 → time level 1 for state fields
+         if (step .lt. integration_steps) then
+            call mpas_pool_get_subpool(domain % blocklist % structs, 'state', state_substep)
+            call mpas_pool_shift_time_levels(state_substep)
+            itimestep_local = itimestep_local + 1
+         end if
+
+      end do
+      ! --- End cold-start substepping ---
 
    end subroutine atm_do_timestep
    
