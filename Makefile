@@ -814,10 +814,10 @@ nvhpc-xd2000:   # BUILDTARGET NVIDIA HPC SDK
 	"CFLAGS_OPT = -gopt -O3" \
 	"CXXFLAGS_OPT = -gopt -O3" \
 	"LDFLAGS_OPT = -gopt -O3" \
-	"FFLAGS_DEBUG = -O0 -g -Mbounds -Mchkptr -byteswapio -Mfree -Ktrap=divz,fp,inv,ovf -traceback" \
+	"FFLAGS_DEBUG = -O0 -g -Mbounds -Mchkptr -Mchkstk -byteswapio -Mfree -traceback" \
 	"CFLAGS_DEBUG = -O0 -g -traceback" \
 	"CXXFLAGS_DEBUG = -O0 -g -traceback" \
-	"LDFLAGS_DEBUG = -O0 -g -Mbounds -Ktrap=divz,fp,inv,ovf" \
+	"LDFLAGS_DEBUG = -O0 -g -traceback" \
 	"FFLAGS_OMP = -mp" \
 	"CFLAGS_OMP = -mp" \
 	"FFLAGS_ACC = -Mnofma -acc -gpu=cc70,cc80 -Minfo=accel" \
