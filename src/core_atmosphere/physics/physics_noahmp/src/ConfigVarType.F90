@@ -128,6 +128,7 @@ module ConfigVarType
   type :: domain_type
 
     character(len=256)     :: LandUseDataName             ! landuse dataset name (USGS or MODIFIED_IGBP_MODIS_NOAH)
+    character(len=256)     :: SoilColDataName             ! soil colour dataset name (DEFAULT_RAD_NOAH or MODIFIED_RAD_CLM_NOAH)
     logical                :: FlagUrban                   ! flag for urban grid
     logical                :: FlagCropland                ! flag to identify croplands
     logical                :: FlagDynamicCrop             ! flag to activate dynamic crop model

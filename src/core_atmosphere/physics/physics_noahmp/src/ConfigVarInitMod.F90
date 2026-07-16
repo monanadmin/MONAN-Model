@@ -49,6 +49,7 @@ contains
 
     ! config domain variable
     noahmp%config%domain%LandUseDataName             = "MODIFIED_IGBP_MODIS_NOAH"
+    noahmp%config%domain%SoilColDataName             = "DEFAULT_RAD_NOAH"
     noahmp%config%domain%FlagUrban                   = .false.
     noahmp%config%domain%FlagCropland                = .false.
     noahmp%config%domain%FlagDynamicCrop             = .false.

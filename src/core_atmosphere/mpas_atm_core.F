@@ -409,6 +409,7 @@ module atm_core
       integer :: nCells, nEdges, nVertices, nVertLevels
       integer :: thread
       character(len=StrKIND), pointer :: mminlu
+      character(len=StrKIND), pointer :: mminsc
 
       integer, pointer :: nThreads
       integer, dimension(:), pointer :: cellThreadStart, cellThreadEnd
@@ -560,6 +561,16 @@ module atm_core
             call mpas_log_write('Assume that we are using ''USGS''.')
             call mpas_log_write('****************************************************************')
             write(mminlu,'(a)') 'USGS'
+      end if
+
+      ! Before calling physics_init, ensure that mminsc contains the name of the soil colour dataset
+      call mpas_pool_get_array(sfc_input, 'mminsc', mminsc)
+      if (len_trim(mminsc) == 0) then
+            call mpas_log_write('****************************************************************')
+            call mpas_log_write('No information on soil colour dataset is available.')
+            call mpas_log_write('Assume that we are using ''DEFAULT_RAD_NOAH''.')
+            call mpas_log_write('****************************************************************')
+            write(mminsc,'(a)') 'DEFAULT_RAD_NOAH'
       end if
 
 

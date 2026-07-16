@@ -171,6 +171,11 @@
                      description="The soil category classification to use"
                      possible_values="`STATSGO' or `BNU'"/>
 
+                <nml_option name="config_soilcol_data"          type="character"     default_value="DEFAULT_RAD_NOAH"
+                     units="-"
+                     description="The soil colour classification to use (case 7 only)"
+                     possible_values="`DEFAULT_RAD_NOAH', or `MODIFIED_RAD_CLM_NOAH'"/>
+
                 <nml_option name="config_topo_data"             type="character"     default_value="GMTED2010"
                      units="-"
                      description="The topography dataset to use for the model terrain and for GWDO static fields (case 7 only)"
@@ -438,10 +443,12 @@
                         <var name="ter" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="landmask" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="mminlu" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
+                        <var name="mminsc" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="isice_lu" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="iswater_lu" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="ivgtyp" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="isltyp" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
+                        <var name="isctyp" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="snoalb" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="soiltemp" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="greenfrac" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
@@ -543,10 +550,12 @@
                         <var name="ter"/>
                         <var name="landmask"/>
                         <var name="mminlu"/>
+                        <var name="mminsc"/>
                         <var name="isice_lu"/>
                         <var name="iswater_lu"/>
                         <var name="ivgtyp"/>
                         <var name="isltyp"/>
+                        <var name="isctyp"/>
                         <var name="snoalb"/>
                         <var name="soiltemp"/>
                         <var name="greenfrac"/>
@@ -844,8 +853,14 @@
                 <var name="mminlu" type="text" dimensions="" units="unitless"
                      description="land use classification"/>
 
+                <var name="mminsc" type="text" dimensions="" units="unitless"
+                     description="soil colour classification"/>
+
                 <var name="isltyp" name_in_code="soilcat_top"  type="integer"  dimensions="nCells" units="unitless"
                      description="dominate soil category"/>
+
+                <var name="isctyp" name_in_code="soilcol_idx"  type="integer"  dimensions="nCells" units="unitless"
+                     description="dominant soil colour category"/>
 
                 <var name="snoalb" type="real" dimensions="nCells" units="unitless"
                      description="annual maximum snow albedo"/>

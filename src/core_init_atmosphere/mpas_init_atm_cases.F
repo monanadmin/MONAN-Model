@@ -74,6 +74,7 @@ module init_atm_cases
       character (len=StrKIND), pointer :: config_specified_zeta_levels
 
       character(len=StrKIND), pointer :: mminlu
+      character(len=StrKIND), pointer :: mminsc
       character(len=StrKIND), pointer :: xtime
       real (kind=RKIND) :: dt
       real (kind=RKIND), pointer :: Time
@@ -255,6 +256,20 @@ module init_atm_cases
                   call mpas_log_write('Assume that we are using ''USGS''.')
                   call mpas_log_write('****************************************************************')
                   write(mminlu,'(a)') 'USGS'
+            end if
+
+            !
+            ! If at this point the mminsc variable is blank, we assume that the static interp step was
+            !   not run, and that we are working with a static file created before there was a choice
+            !   of soil colour datasets; in this case, the dataset was almost necessarily DEFAULT_RAD_NOAH
+            !
+            call mpas_pool_get_array(mesh, 'mminsc', mminsc)
+            if (len_trim(mminsc) == 0) then
+                  call mpas_log_write('****************************************************************')
+                  call mpas_log_write('No information on soil colour dataset is available.')
+                  call mpas_log_write('Assume that we are using ''DEFAULT_RAD_NOAH''.')
+                  call mpas_log_write('****************************************************************')
+                  write(mminsc,'(a)') 'DEFAULT_RAD_NOAH'
             end if
 
             call init_atm_case_gfs(block_ptr, mesh, nCells, nEdges, nVertLevels, fg, state, &

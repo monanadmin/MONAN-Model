@@ -28,7 +28,7 @@ contains
     !-------------------------------------------------------
     integer, parameter :: MVT         = 27   ! number of vegetation types
     integer, parameter :: MBAND       = 2    ! number of radiation bands
-    integer, parameter :: MSC         = 8    ! number of soil texture
+    integer, parameter :: MSC         = 21   ! number of soil colour types
     integer, parameter :: MAX_SOILTYP = 30   ! max number of soil types
     integer, parameter :: NCROP       = 5    ! number of crop types
     integer, parameter :: NSTAGE      = 8    ! number of crop growth stages
@@ -98,11 +98,17 @@ contains
                                                     CZIL_DATA
 
     ! radiation parameters
+    character(len=256)                       :: RAD_DATASET_DESCRIPTION
+    integer                                  :: NSC
     real(kind=kind_noahmp)                   :: BETADS, BETAIS, EICE
     real(kind=kind_noahmp), dimension(MBAND) :: ALBICE, ALBLAK, OMEGAS 
     real(kind=kind_noahmp), dimension(2)     :: EG
     real(kind=kind_noahmp), dimension(MSC)   :: ALBSAT_VIS, ALBSAT_NIR, ALBDRY_VIS, ALBDRY_NIR
+    namelist / noahmp_rad_categories /          RAD_DATASET_DESCRIPTION, NSC
     namelist / noahmp_rad_parameters /          ALBSAT_VIS, ALBSAT_NIR, ALBDRY_VIS, ALBDRY_NIR, ALBICE, ALBLAK, OMEGAS,      &
+                                                BETADS, BETAIS, EG, EICE
+    namelist / noahmp_clm_rad_categories /      RAD_DATASET_DESCRIPTION, NSC
+    namelist / noahmp_clm_rad_parameters /      ALBSAT_VIS, ALBSAT_NIR, ALBDRY_VIS, ALBDRY_NIR, ALBICE, ALBLAK, OMEGAS,      &
                                                 BETADS, BETAIS, EG, EICE
 
     ! global parameters
@@ -847,21 +853,54 @@ contains
     if (ierr /= 0) then
        write(*,'("WARNING: Cannot find file NoahmpTable.TBL")')
     endif
-    read(15,noahmp_rad_parameters)
+
+
+
+    DATASET_IDENTIFIER = NoahmpIO%LSOILCOL
+
+    inquire( file='NoahmpTable.TBL', exist=file_named )
+    if ( file_named ) then
+       open(15, file="NoahmpTable.TBL", status='old', form='formatted', action='read', iostat=ierr)
+    else
+       open(15, status='old', form='formatted', action='read', iostat=ierr)
+    end if
+    if ( ierr /= 0 ) then
+       write(*,'("WARNING: Cannot find file NoahmpTable.TBL")')
+    endif
+
+    select case (trim(DATASET_IDENTIFIER))
+    case ("DEFAULT_RAD_NOAH")
+       read(15,noahmp_rad_categories,iostat=ierr)
+       if ( ierr /= 0 ) then
+          write(*,'("WARNING: Namelist ''noahmp_rad_categories'' not found; using the default values.")')
+          write(*,'("WARNING:    Update your NoahmpTable.TBL. This will eventually become an error.")')
+          
+          RAD_DATASET_DESCRIPTION = "DEFAULT_RAD_NOAH" ! radiation (soil colour) type dataset
+          NSC = 8                                      ! total number of soil colour categories in Noah
+          
+       end if
+       read(15,noahmp_rad_parameters)
+    case ("MODIFIED_RAD_CLM_NOAH")
+       read(15,noahmp_clm_rad_categories)
+       read(15,noahmp_clm_rad_parameters)
+    case default
+       write(*,'("WARNING: Unrecognised DATASET_IDENTIFIER in subroutine ReadNoahmpTable")')
+       write(*,'("WARNING: DATASET_IDENTIFIER = ''", A, "''")') trim(DATASET_IDENTIFIER)
+    end select
     close(15)
 
     ! assign values
-    NoahmpIO%ALBSAT_TABLE(:,1) = ALBSAT_VIS ! saturated soil albedos: 1=vis, 2=nir
-    NoahmpIO%ALBSAT_TABLE(:,2) = ALBSAT_NIR ! saturated soil albedos: 1=vis, 2=nir
-    NoahmpIO%ALBDRY_TABLE(:,1) = ALBDRY_VIS ! dry soil albedos: 1=vis, 2=nir
-    NoahmpIO%ALBDRY_TABLE(:,2) = ALBDRY_NIR ! dry soil albedos: 1=vis, 2=nir
-    NoahmpIO%ALBICE_TABLE      = ALBICE
-    NoahmpIO%ALBLAK_TABLE      = ALBLAK
-    NoahmpIO%OMEGAS_TABLE      = OMEGAS
-    NoahmpIO%BETADS_TABLE      = BETADS
-    NoahmpIO%BETAIS_TABLE      = BETAIS
-    NoahmpIO%EG_TABLE          = EG
-    NoahmpIO%EICE_TABLE        = EICE
+    NoahmpIO%ALBSAT_TABLE(1:NSC,1) = ALBSAT_VIS ! saturated soil albedos: 1=vis, 2=nir
+    NoahmpIO%ALBSAT_TABLE(1:NSC,2) = ALBSAT_NIR ! saturated soil albedos: 1=vis, 2=nir
+    NoahmpIO%ALBDRY_TABLE(1:NSC,1) = ALBDRY_VIS ! dry soil albedos: 1=vis, 2=nir
+    NoahmpIO%ALBDRY_TABLE(1:NSC,2) = ALBDRY_NIR ! dry soil albedos: 1=vis, 2=nir
+    NoahmpIO%ALBICE_TABLE          = ALBICE
+    NoahmpIO%ALBLAK_TABLE          = ALBLAK
+    NoahmpIO%OMEGAS_TABLE          = OMEGAS
+    NoahmpIO%BETADS_TABLE          = BETADS
+    NoahmpIO%BETAIS_TABLE          = BETAIS
+    NoahmpIO%EG_TABLE              = EG
+    NoahmpIO%EICE_TABLE            = EICE
 
     !---------------- NoahmpTable.TBL global parameters
     inquire( file='NoahmpTable.TBL', exist=file_named )
