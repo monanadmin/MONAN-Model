@@ -52,6 +52,9 @@
         <var name="temperature_isobaric" type="real" dimensions="t_iso_levels nCells Time" units="K"
              description="Temperature interpolated to isobaric surfaces defined in t_iso_levels"/>
 
+       <var name="theta_isobaric"     type="real" dimensions="t_iso_levels nCells Time" units="K"
+             description="Theta interpolated to isobaric surfaces defined in t_iso_levels"/>
+
         <var name="dewpoint_isobaric" type="real" dimensions="t_iso_levels nCells Time" units="K"
              description="Dewpoint temperature interpolated to isobaric surfaces defined in t_iso_levels"/>
 
