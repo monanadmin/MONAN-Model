@@ -140,9 +140,10 @@ CONTAINS
 6    TL(J)=TS(I)
      TDL(J)=TSD(I)
      GO TO 5
-7    IF (J.NE.1) GO TO 8 
-     IF (I.NE.1) GO TO 8
-     IHI=1
+7    IF (I.NE.1) GO TO 8
+     IF (J.EQ.1) IHI=1
+     TL(J)=9.96921e+36
+     TDL(J)=9.96921e+36
      GO TO 5  ! SFC PRESSURE LESS THAN 850 hPa
 8    FACTOR=ALOG(PL(J)/P(I))/ALOG(P(I-1)/P(I))
      TL(J)=TS(I)+FACTOR*(TS(I-1)-TS(I))
@@ -151,12 +152,16 @@ CONTAINS
 
 ! COMPUTE LIFTED INDEX
 
-     RLI=TL(3)-TP500                            ! LIFTED INDEX
+     IF (TL(3).GE.9.9e+36) THEN
+        RLI=9.96921e+36
+     ELSE
+        RLI=TL(3)-TP500                            ! LIFTED INDEX
+     ENDIF
 
 !     WRITE(*,*)
 !     WRITE(*,80) TL(3),TP500
 
-     IF (IHI.EQ.0) GO TO 9   ! COMPUTE K AND SHOWALTER INDICES
+     IF (IHI.EQ.0 .AND. TL(2).LT.9.9e+36 .AND. TL(3).LT.9.9e+36) GO TO 9   ! COMPUTE K AND SHOWALTER INDICES 
       RKI=9.96921e+36   ! K INDEX MISG
       RWI=9.96921e+36   ! SHOWALTER INDEX MISG
      RETURN
