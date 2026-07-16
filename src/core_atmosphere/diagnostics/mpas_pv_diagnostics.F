@@ -344,7 +344,7 @@ module mpas_pv_diagnostics
       integer :: i
       real (kind=RKIND) :: mag
 
-      mag = 0.0_RKIND !sqrt(sum(squares))
+      mag = 1.e-12 !0.0_RKIND !sqrt(sum(squares))
       do i=1,sz
          mag = mag+vals(i)*vals(i)
       end do

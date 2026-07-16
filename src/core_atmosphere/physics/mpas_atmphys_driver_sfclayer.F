@@ -89,6 +89,8 @@
 ! * updated the MYNN surface layer scheme to the sourcecode available from WRF version 4.6.
 !   Laura D. Fowler (laura@ucar.edu) / 2024-02-14.
 
+! * coupling gust front speed from downdrafts with surface winds 
+!   Saulo R. Freitas (saulo.freitas@inpe.br) / 2025-01-19
 
  contains
 
@@ -148,6 +150,8 @@
  if(.not.allocated(znt_p)   ) allocate(znt_p(ims:ime,jms:jme)   )
 
  if(.not.allocated(sgsgustcu_p)) allocate(sgsgustcu_p(ims:ime,jms:jme) )
+ if(.not.allocated(hfx_spr_p)  ) allocate(hfx_spr_p(ims:ime,jms:jme)   )
+ if(.not.allocated(lh_spr_p)   ) allocate(lh_spr_p(ims:ime,jms:jme)    )
 
  if(config_frac_seaice) then
     if(.not.allocated(sst_p)      ) allocate(sst_p(ims:ime,jms:jme)      )
@@ -282,7 +286,9 @@
  if(allocated(zol_p)   ) deallocate(zol_p   )
  if(allocated(znt_p)   ) deallocate(znt_p   )
 
- if(allocated(sgsgustcu_p)) deallocate(sgsgustcu_p   )
+ if(allocated(sgsgustcu_p)) deallocate(sgsgustcu_p)
+ if(allocated(hfx_spr_p)  ) deallocate(hfx_spr_p  )
+ if(allocated(lh_spr_p)   ) deallocate(lh_spr_p   )
 
 
  if(config_frac_seaice) then
@@ -404,7 +410,6 @@
  real(kind=RKIND),dimension(:,:),pointer:: buoyx
  real(kind=RKIND),dimension(:,:,:),pointer:: scalars
  real :: wspd_local, factor1, factor2, gspd_local
-!-srf: local variables and pointers specific to GF cumulus scheme: 
 !----------------------------------------------------------------------------------------------------------------- 
 
 !input variables:
@@ -442,6 +447,7 @@
  call mpas_pool_get_array(diag_physics,'wspd'    ,wspd    )
  call mpas_pool_get_array(diag_physics,'znt'     ,znt     )
  call mpas_pool_get_array(diag_physics,'zol'     ,zol     )
+
 
  do j = jts,jte
  do i = its,ite
@@ -482,6 +488,9 @@
     th2m_p(i,j)   = 0._RKIND
     u10_p(i,j)    = 0._RKIND
     v10_p(i,j)    = 0._RKIND
+    hfx_spr_p(i,j)= 0._RKIND
+    lh_spr_p(i,j) = 0._RKIND
+    sgsgustcu_p(i,j) = 0.0_RKIND
 
     !output variables (optional):
     cd_p(i,j)     = 0._RKIND
@@ -625,7 +634,7 @@
 
        call mpas_pool_get_array(diag_physics,'v2d2'       ,v2d2    )
 
-       if(config_gf_gustf == 1 .and. config_gf_cporg == 1) then 
+       if( (config_gf_gustf == 1 .or. config_gf_gustf == 2) .and. config_gf_cporg == 1) then 
          !--- coupled with the cold pool gustfront scheme
          call mpas_pool_get_dimension(state,'index_buoyx',index_buoyx)
          call mpas_pool_get_array(state,'scalars',scalars,time_lev)
@@ -637,7 +646,9 @@
          do i = its,ite
              factor1 = min (mx_buoy2,buoyx(kts,i))
              factor1 = min (factor1,mx_buoy2)/mx_buoy2
-             factor2 = atan((factor1-0.05*mx_buoy1/mx_buoy2)*5.)
+            !factor2 = atan((factor1-0.05*mx_buoy1/mx_buoy2)*5.)
+             factor2 = atan((factor1-2.00*mx_buoy1/mx_buoy2)*5.)
+
              factor2 = max (0.0,min(factor2,1.0))
    
              wspd_local = sqrt(u_p(i,kts,j)  *u_p(i,kts,j)   + v_p(i,kts,j)  *v_p(i,kts,j))
@@ -650,7 +661,7 @@
              !--- where there is     cold pool, sgsgustcu_p -> gspd_local
              sgsgustcu_p(i,j) = (1.-factor2)*wspd_local + factor2*gspd_local
              !--- temporary for output only
-             v2d2(i) =  sgsgustcu_p(i,j)
+             !v2d2(i) =  sgsgustcu_p(i,j)
              
              !--- subtract from the env wind speed, as the sgsgustcu_p will later be 
              !--- summed with "wspd" in routine 'sf_mynn_run'. See in this routine the line
@@ -660,7 +671,7 @@
          enddo
          enddo
 
-       else if(config_gf_gustf == 2) then  
+       else if(config_gf_gustf == 3) then  
          !- gustiness parameterization based on Redelsperger et al (2000).
          !- using the downdraft mass flux from GF cumulus scheme (rmfxdncu) 
          call mpas_pool_get_array(diag_physics,'rmfxdncu'   ,rmfxdncu)
@@ -673,7 +684,7 @@
              sgsgustcu_p(i,j) = 0.0_RKIND
            endif 
             !--- temporary for output only
-            v2d2(i) =  sgsgustcu_p(i,j)
+            !v2d2(i) =  sgsgustcu_p(i,j)
          enddo
          enddo
 
@@ -690,6 +701,7 @@
 
   end select convection_select
   !--------------------------------------------------------------------------
+
  end subroutine sfclayer_from_MPAS
 
 !=================================================================================================================
@@ -724,6 +736,8 @@
 !local pointers specific to mynn:
  real(kind=RKIND),dimension(:),pointer:: ch,qcg
 
+ real(kind=RKIND),dimension(:),pointer:: lh_spr,hfx_spr
+
 !-----------------------------------------------------------------------------------------------------------------
 
  call mpas_pool_get_config(configs,'config_frac_seaice'    ,config_frac_seaice)
@@ -753,12 +767,17 @@
  call mpas_pool_get_array(diag_physics,'znt'   ,znt   )
  call mpas_pool_get_array(diag_physics,'zol'   ,zol   )
 
+ call mpas_pool_get_array(diag_physics,'lh_spr' ,lh_spr )
+ call mpas_pool_get_array(diag_physics,'hfx_spr',hfx_spr)
 !output variables:
  call mpas_pool_get_array(diag_physics,'q2'    ,q2    )
  call mpas_pool_get_array(diag_physics,'t2m'   ,t2m   )
  call mpas_pool_get_array(diag_physics,'th2m'  ,th2m  )
  call mpas_pool_get_array(diag_physics,'u10'   ,u10   )
  call mpas_pool_get_array(diag_physics,'v10'   ,v10   )
+
+ call mpas_pool_get_array(diag_physics,'hfx_spr',hfx_spr)
+ call mpas_pool_get_array(diag_physics,'lh_spr' ,lh_spr )
 
 !output variables (optional):
  call mpas_pool_get_array(diag_physics,'cd'    ,cd    )
@@ -804,6 +823,10 @@
     th2m(i)   = th2m_p(i,j)
     u10(i)    = u10_p(i,j)
     v10(i)    = v10_p(i,j)
+    !- srf
+    hfx_spr(i)= hfx_spr_p(i,j)
+    lh_spr(i) = lh_spr_p(i,j)
+
     !output variables (optional):
     cd(i)     = cd_p(i,j)
     cda(i)    = cda_p(i,j)
@@ -959,6 +982,8 @@
  character(len=StrKIND),pointer:: sfclayer_scheme
  real(kind=RKIND),dimension(:),pointer:: areaCell
 
+ integer,pointer:: config_gf_gustf ! parameter to couple the gustfront speed with the 
+                                   ! surface layer fluxes
 !local variables:
  integer:: initflag
  real(kind=RKIND):: dx
@@ -978,6 +1003,7 @@
  call mpas_pool_get_config(configs,'config_do_restart'     ,config_do_restart )
  call mpas_pool_get_config(configs,'config_frac_seaice'    ,config_frac_seaice)
  call mpas_pool_get_config(configs,'config_sfclayer_scheme',sfclayer_scheme   )
+ call mpas_pool_get_config(configs,'config_gf_gustf'       ,config_gf_gustf   )
 
  call mpas_pool_get_array(mesh,'areaCell',areaCell)
 
@@ -1149,6 +1175,8 @@
                    qcg      = qcg_p      , spp_pbl   = spp_pbl  , isftcflx = isftcflx    , &
                    iz0tlnd  = iz0tlnd    , itimestep = initflag                          , &
                    errmsg   = errmsg     , errflg    = errflg                            , &
+                   sgsgustcu= sgsgustcu_p, hfx_spr   = hfx_spr_p, lh_spr   = lh_spr_p    , &                       
+                   config_gf_gustf = config_gf_gustf                                     , &
                    ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde , &
                    ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme , &
                    its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte   &
@@ -1181,6 +1209,8 @@
                       qcg      = qcg_p      , spp_pbl   = spp_pbl  , isftcflx = isftcflx    , &
                       iz0tlnd  = iz0tlnd    , itimestep = initflag                          , &
                       errmsg   = errmsg     , errflg    = errflg                            , &
+                      sgsgustcu= sgsgustcu_p, hfx_spr   = hfx_spr_p, lh_spr   = lh_spr_p    , &  
+                      config_gf_gustf = config_gf_gustf                                     , &
                       ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde , &
                       ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme , &
                       its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte   &

@@ -400,7 +400,14 @@
  real(kind=RKIND),dimension(:,:),allocatable:: &
     wlpool_p,     &!
     vcpool_p,     &!
-    lightn_dens_p 
+    lightn_dens_p,&
+    ctt_p        ,&
+    dp_dens_p    ,&
+    sh_dens_p    ,&
+    cg_dens_p    ,&
+    dp_ierr_p    ,&
+    sh_ierr_p    ,&
+    cg_ierr_p
 
  real(kind=RKIND),dimension(:,:,:),allocatable:: &
     sub3d_rthcuten_p,        &!
@@ -628,6 +635,11 @@
     wspd_p,           &!wind speed                                                                           [m/s]
     znt_p,            &!time-varying roughness length                                                          [m]
     zol_p              !
+!---srf 
+real(kind=RKIND),dimension(:,:),allocatable:: &
+    hfx_spr_p,            &!upward heat flux at the due sea sprays                                          [W/m2]
+    lh_spr_p               !latent heat flux at the due sea sprays                                          [W/m2]
+  
 
 !... arrays only in monin_obukohv (module_sf_sfclay.F):
  real(kind=RKIND),dimension(:,:),allocatable:: &

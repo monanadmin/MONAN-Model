@@ -198,9 +198,16 @@
        if(.not.allocated(rtopshcu_p)     ) allocate(rtopshcu_p(ims:ime,jms:jme)         )
        if(.not.allocated(rbotdpcu_p)     ) allocate(rbotdpcu_p(ims:ime,jms:jme)         )
        if(.not.allocated(v2d1_p)         ) allocate(v2d1_p(ims:ime,jms:jme)             )
-       if(.not.allocated(v2d2_p)         ) allocate(v2d2_p(ims:ime,jms:jme)             )    
-       if(.not.allocated(lightn_dens_p)  ) allocate(lightn_dens_p(ims:ime,jms:jme)      )    
-       if(.not.allocated(sigma_deep_p)   ) allocate(sigma_deep_p(ims:ime,jms:jme)       )    
+       if(.not.allocated(v2d2_p)         ) allocate(v2d2_p(ims:ime,jms:jme)             )
+       if(.not.allocated(lightn_dens_p)  ) allocate(lightn_dens_p(ims:ime,jms:jme)      )
+       if(.not.allocated(dp_dens_p)      ) allocate(dp_dens_p(ims:ime,jms:jme)          )
+       if(.not.allocated(sh_dens_p)      ) allocate(sh_dens_p(ims:ime,jms:jme)          )
+       if(.not.allocated(cg_dens_p)      ) allocate(cg_dens_p(ims:ime,jms:jme)          )
+       if(.not.allocated(dp_ierr_p)      ) allocate(dp_ierr_p(ims:ime,jms:jme)          )
+       if(.not.allocated(sh_ierr_p)      ) allocate(sh_ierr_p(ims:ime,jms:jme)          )
+       if(.not.allocated(cg_ierr_p)      ) allocate(cg_ierr_p(ims:ime,jms:jme)          )
+
+       if(.not.allocated(sigma_deep_p)   ) allocate(sigma_deep_p(ims:ime,jms:jme)       )
 
        if(.not.allocated(rthblten_p)     ) allocate(rthblten_p(ims:ime,kms:kme,jms:jme) )
        if(.not.allocated(rthdynten_p)    ) allocate(rthdynten_p(ims:ime,kms:kme,jms:jme))
@@ -490,9 +497,15 @@
        if(allocated(rtopshcu_p)     ) deallocate(rtopshcu_p     )
        if(allocated(rbotdpcu_p)     ) deallocate(rbotdpcu_p     )
        if(allocated(v2d1_p)         ) deallocate(v2d1_p         )
-       if(allocated(v2d2_p)         ) deallocate(v2d2_p         )    
-       if(allocated(lightn_dens_p)  ) deallocate(lightn_dens_p  )    
-       if(allocated(sigma_deep_p)   ) deallocate(sigma_deep_p   )    
+       if(allocated(v2d2_p)         ) deallocate(v2d2_p         )
+       if(allocated(lightn_dens_p)  ) deallocate(lightn_dens_p  )
+       if(allocated(dp_dens_p)      ) deallocate(dp_dens_p      )
+       if(allocated(sh_dens_p)      ) deallocate(sh_dens_p      )
+       if(allocated(cg_dens_p)      ) deallocate(cg_dens_p      )
+       if(allocated(dp_ierr_p)      ) deallocate(dp_ierr_p      )
+       if(allocated(sh_ierr_p)      ) deallocate(sh_ierr_p      )
+       if(allocated(cg_ierr_p)      ) deallocate(cg_ierr_p      )
+       if(allocated(sigma_deep_p)   ) deallocate(sigma_deep_p   )
 
        if(allocated(rthblten_p)     ) deallocate(rthblten_p     )
        if(allocated(rthdynten_p)    ) deallocate(rthdynten_p    )
@@ -740,7 +753,11 @@
              ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde      , &
              ims = ims , ime = ime , jms = jms , jme = jme , kms = kds , kme = kme      , &
              its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte      , &
-             itimestep       = itimestep              , mynum         = dminfo%my_proc_id )
+             itimestep       = itimestep              , mynum         = dminfo%my_proc_id,&
+             dp_dens         = dp_dens_p              , sh_dens       = sh_dens_p        ,&
+             cg_dens         = cg_dens_p                                                 ,&                  
+             dp_ierr         = dp_ierr_p              , sh_ierr       = sh_ierr_p        ,&
+             cg_ierr         = cg_ierr_p                                                 )                  
 
        call mpas_timer_stop('Grell-Freitas-MONAN')
 
@@ -905,6 +922,8 @@
  integer,dimension(:),pointer:: kpbl,k22_shallow,kbcon_shallow,ktop_shallow,ktop_deep
  real(kind=RKIND),dimension(:),pointer  :: areaCell,meshDensity
  real(kind=RKIND),dimension(:),pointer  :: nca,cubot,cutop,cuprec,raincv,wlpool,lightn_dens,sigma_deep
+ real(kind=RKIND),dimension(:),pointer  :: dp_dens,sh_dens,cg_dens
+ real(kind=RKIND),dimension(:),pointer  :: dp_ierr,sh_ierr,cg_ierr
  real(kind=RKIND),dimension(:),pointer  :: gsw,hfx,qfx,xland,t2m,cape,cin
  real(kind=RKIND),dimension(:),pointer  :: xmb_total,xmb_shallow
  real(kind=RKIND),dimension(:),pointer  :: latCell,lonCell
@@ -970,6 +989,14 @@
          call mpas_pool_get_array(diag_physics,'kpbl'       ,kpbl    )
          call mpas_pool_get_array(diag_physics,'wlpool'     ,wlpool  )
          call mpas_pool_get_array(diag_physics,'lightn_dens',lightn_dens)
+         call mpas_pool_get_array(diag_physics,'dp_dens'    ,dp_dens )
+         call mpas_pool_get_array(diag_physics,'sh_dens'    ,sh_dens )
+         call mpas_pool_get_array(diag_physics,'cg_dens'    ,cg_dens )
+         call mpas_pool_get_array(diag_physics,'dp_ierr'    ,dp_ierr )
+         call mpas_pool_get_array(diag_physics,'sh_ierr'    ,sh_ierr )
+         call mpas_pool_get_array(diag_physics,'cg_ierr'    ,cg_ierr )
+
+
          call mpas_pool_get_array(diag_physics,'sigma_deep' ,sigma_deep)
 
          call mpas_pool_get_array(tend_physics,'rqvblten'   ,rqvblten  )
@@ -995,6 +1022,13 @@
             cin_p(i,j)           = cin(i)
             wlpool_p(i,j)        = wlpool(i)
             lightn_dens_p(i,j)   = lightn_dens(i)
+            dp_dens_p(i,j)       = dp_dens(i)
+            sh_dens_p(i,j)       = sh_dens(i)
+            cg_dens_p(i,j)       = cg_dens(i)
+            dp_ierr_p(i,j)       = dp_ierr(i)
+            sh_ierr_p(i,j)       = sh_ierr(i)
+            cg_ierr_p(i,j)       = cg_ierr(i)
+
             xlat_p(i,j)          = latCell(i) / degrad
             xlon_p(i,j)          = lonCell(i) / degrad
             sigma_deep_p(i,j)    = sigma_deep(i)
@@ -1235,11 +1269,15 @@
  character(len=StrKIND),pointer:: convection_scheme
  integer,dimension(:),pointer:: k22_shallow,kbcon_shallow,ktop_shallow,ktop_deep
  real(kind=RKIND),dimension(:),pointer  :: nca,cubot,cutop,cuprec,raincv,lightn_dens,sigma_deep
+ real(kind=RKIND),dimension(:),pointer  :: dp_dens,sh_dens,cg_dens
+ real(kind=RKIND),dimension(:),pointer  :: dp_ierr,sh_ierr,cg_ierr
  real(kind=RKIND),dimension(:),pointer  :: xmb_total,xmb_shallow
  real(kind=RKIND),dimension(:,:),pointer:: qc_cu,qi_cu
  real(kind=RKIND),dimension(:,:),pointer:: w0avg
  real(kind=RKIND),dimension(:,:),pointer:: rthcuten,rqvcuten,rqccuten,rqicuten,rqrcuten,rqscuten
  real(kind=RKIND),dimension(:,:),pointer:: rucuten,rvcuten
+ logical, pointer :: config_apply_lbcs
+ integer,dimension(:),pointer:: bdyMaskCell
  !local pointers specific for gf_monan convection scheme
  integer,pointer:: config_gf_sub3d,nCellsSolve
  integer, dimension(:), pointer:: nEdgesOnCell
@@ -1251,8 +1289,7 @@
  real(kind=RKIND),dimension(:,:),pointer:: rcnvcfcuten, rbuoyxcuten
  real(kind=RKIND),dimension(:,:),pointer:: rupmfxcu, rdnmfxcu
  real(kind=RKIND),dimension(:,:),pointer:: sub3d_rucuten,sub3d_rvcuten,sub3d_rthcuten,sub3d_rqvcuten
-
-
+ real(kind=RKIND) :: factor_lbc
 !-----------------------------------------------------------------------------------------------------------------
 
  call mpas_pool_get_config(configs,'config_convection_scheme',convection_scheme)
@@ -1292,6 +1329,12 @@
        call mpas_pool_get_array(diag_physics,'v2d1'        ,v2d1       )
        call mpas_pool_get_array(diag_physics,'v2d2'        ,v2d2       )
        call mpas_pool_get_array(diag_physics,'lightn_dens' ,lightn_dens)
+       call mpas_pool_get_array(diag_physics,'dp_dens'     ,dp_dens    )
+       call mpas_pool_get_array(diag_physics,'sh_dens'     ,sh_dens    )
+       call mpas_pool_get_array(diag_physics,'cg_dens'     ,cg_dens    )
+       call mpas_pool_get_array(diag_physics,'dp_ierr'     ,dp_ierr    )
+       call mpas_pool_get_array(diag_physics,'sh_ierr'     ,sh_ierr    )
+       call mpas_pool_get_array(diag_physics,'cg_ierr'     ,cg_ierr    )
        call mpas_pool_get_array(diag_physics,'sigma_deep'  ,sigma_deep )
 
        call mpas_pool_get_array(diag_physics,'rupmfxcu'    ,rupmfxcu   )
@@ -1320,7 +1363,13 @@
        do j = jts,jte
        do i = its,ite
           lightn_dens(i) = lightn_dens_p(i,j)
-          sigma_deep(i) = sigma_deep_p(i,j)
+          sigma_deep(i)  = sigma_deep_p(i,j)
+          dp_dens(i)  = dp_dens_p(i,j)
+          sh_dens(i)  = sh_dens_p(i,j)
+          cg_dens(i)  = cg_dens_p(i,j)
+          dp_ierr(i)  = dp_ierr_p(i,j)
+          sh_ierr(i)  = sh_ierr_p(i,j)
+          cg_ierr(i)  = cg_ierr_p(i,j)
           rmfxdpcu(i) = rmfxdpcu_p(i,j)  
           rmfxdncu(i) = rmfxdncu_p(i,j)  
           rmfxmdcu(i) = rmfxmdcu_p(i,j)  
@@ -1336,8 +1385,8 @@
        do j = jts,jte
        do i = its,ite
           v2d1(i)  = v2d1_p(i,j)
-         !--- used in sfclayer
-         !v2d2(i)  = v2d2_p(i,j)
+         !--- used in sfclayer also
+         v2d2(i)  = v2d2_p(i,j)
           do k = kts,kte
              v3d1(k,i) = v3d1_p(i,k,j)
           enddo
@@ -1412,6 +1461,47 @@
             enddo
 
        endif
+       !
+       !-- fix convection outputs at the relaxation zone of limited-area model configurations
+       !nRelaxZone
+       call mpas_pool_get_config(configs, 'config_apply_lbcs', config_apply_lbcs)
+       if (config_apply_lbcs) then
+
+          call mpas_pool_get_array(mesh,'bdyMaskCell',bdyMaskCell)
+          do i = its,ite
+            !!!cycle
+            if(bdyMaskCell(i) > 0.) then
+                  !factor_lbc = (6. - float(bdyMaskCell(i)))/7. + 1./7.
+                  factor_lbc = float(maxval(bdyMaskCell)-bdyMaskCell(i))/maxval(bdyMaskCell)
+                  !factor_lbc = (real(nRelaxZone) -1 - bdyMaskCell(i))/real(nRelaxZone) + 1./real(nRelaxZone)
+                  if(factor_lbc>1. .or. factor_lbc <0.) stop 'factor LBC'
+                  !-- 1d var
+                  raincv(i)      = raincv(i)      * factor_lbc
+                  cuprec(i)      = cuprec(i)      * factor_lbc
+                  rmfxdpcu(i)    = rmfxdpcu(i)    * factor_lbc
+                  rmfxdncu(i)    = rmfxdncu(i)    * factor_lbc
+                  rmfxmdcu(i)    = rmfxmdcu(i)    * factor_lbc
+                  rmfxshcu(i)    = rmfxshcu(i)    * factor_lbc
+                  sigma_deep(i)  = sigma_deep(i)  * factor_lbc
+                  lightn_dens(i) = lightn_dens(i) * factor_lbc
+                  
+                  !-- 2d var
+                  rthcuten(:,i)    = rthcuten(:,i)    * factor_lbc
+                  rqvcuten(:,i)    = rqvcuten(:,i)    * factor_lbc
+                  rqccuten(:,i)    = rqccuten(:,i)    * factor_lbc
+                  rqicuten(:,i)    = rqicuten(:,i)    * factor_lbc
+                  rucuten(:,i)     = rucuten(:,i)     * factor_lbc   
+                  rvcuten(:,i)     = rvcuten(:,i)     * factor_lbc                  
+                  rbuoyxcuten(:,i) = rbuoyxcuten(:,i) * factor_lbc
+                  rcnvcfcuten(:,i) = rcnvcfcuten(:,i) * factor_lbc
+            endif 
+          enddo
+          !if(config_gf_sub3d > 0) then (think later if this is really needed)
+          !   do i = 1, nCellsSolve
+          !         factor_lbc = (6. - bdyMaskCell(i))/7. + 1./7.
+          !   (...)   
+          !endif
+       endif  ! of LBC 
 
     case ("cu_grell_freitas")
        call mpas_pool_get_array(diag_physics,'cubot'        ,cubot        )
@@ -1591,6 +1681,9 @@
  real(kind=RKIND),dimension(:),pointer:: cuprec,rainc,lightn_dens,acc_lightn_dens
  real(kind=RKIND),dimension(:),pointer:: xland
  real(kind=RKIND),dimension(:),pointer:: wlpool,vcpool,u_gustfront,v_gustfront
+ real(kind=RKIND),dimension(:),pointer:: dp_dens,sh_dens,cg_dens
+ real(kind=RKIND),dimension(:),pointer:: acc_dp_dens,acc_sh_dens,acc_cg_dens
+ real(kind=RKIND),dimension(:),pointer:: hpbl
 
 !local variables and arrays:
  real(kind=RKIND),dimension(:,:),pointer:: umcl,vmcl
@@ -1606,16 +1699,15 @@
 !local variables and arrays for the 'cu_gf_monan':
  integer:: i,k,j,k_amb_wind
  real(kind=RKIND),parameter:: alp = 0.5                      ! semi-implicit, 1=explicit
- real(kind=RKIND),parameter:: tau_cloud_diss0 = 1.0e-3       ! seconds^(-1)
- real(kind=RKIND),parameter:: width  = 1000.                 ! meters
- real(kind=RKIND),parameter:: turncf = 2000.                 ! meters above local terrain
+ real(kind=RKIND),parameter:: tau_cloud_diss0 = 20.*60.      ! seconds
+ real(kind=RKIND),parameter:: width  = 400.                  ! meters
  real(kind=RKIND),parameter:: Kfr = 0.9                      ! internal Froude number 
  real(kind=RKIND),parameter:: epsx = 100.                    ! threshold 
  real(kind=RKIND),parameter:: slope_pool = 45.*(3.1416/180.) ! using mean value of Reif et al 2020
  real(kind=RKIND),parameter:: startlev = 1000.               ! meters above local surface
  real(kind=RKIND),parameter:: endlev   = 4000.               ! meters above local surface
 
- real(kind=RKIND):: vert_scale_diss,tau_cloud_diss,htopx,snk,src,tau_cp,denom 
+ real(kind=RKIND):: vert_scale_diss,tau_cloud_diss,htopx,snk,src,tau_cp,denom,OneMinusRH,turncf
  real(kind=RKIND):: total_dz,H_env,gama,temp, rvap, press, qes, zlevel, dzrho, aux, MCL_speed
 
 !-----------------------------------------------------------------------------------------------------------------
@@ -1649,8 +1741,18 @@
       !--- if(lightning_diag == 1) then -- for future
       call mpas_pool_get_array(diag_physics,'lightn_dens'      ,lightn_dens)
       call mpas_pool_get_array(diag_physics,'acc_lightn_dens'  ,acc_lightn_dens)
+      call mpas_pool_get_array(diag_physics,'dp_dens'    ,dp_dens )
+      call mpas_pool_get_array(diag_physics,'sh_dens'    ,sh_dens )
+      call mpas_pool_get_array(diag_physics,'cg_dens'    ,cg_dens )
+      call mpas_pool_get_array(diag_physics,'acc_dp_dens',acc_dp_dens )
+      call mpas_pool_get_array(diag_physics,'acc_sh_dens',acc_sh_dens )
+      call mpas_pool_get_array(diag_physics,'acc_cg_dens',acc_cg_dens )
+
       do i = its, ite
         acc_lightn_dens(i) = acc_lightn_dens(i) + lightn_dens(i) * dt_dyn
+        acc_dp_dens(i) = acc_dp_dens(i) + dp_dens(i)
+        acc_sh_dens(i) = acc_sh_dens(i) + sh_dens(i)
+        acc_cg_dens(i) = acc_cg_dens(i) + cg_dens(i)
       enddo
 
       call mpas_pool_get_config(configs,'config_gf_pcvol',config_gf_pcvol)
@@ -1667,24 +1769,29 @@
           call mpas_pool_get_array(sfc_input,'xland' ,xland )
           call mpas_pool_get_array(mesh,     'zgrid' ,zgrid )
           call mpas_pool_get_array(diag,     'relhum',rh    )! pct 
+          call mpas_pool_get_array(diag_physics,'hpbl'  ,hpbl )
 
           do i = its,ite
               htopx = zgrid(1,i) !- local terrain
+              turncf = hpbl(i) + htopx
               do k = kts,kte
-                !-- this goes from 1 to 0.1 as the height goes from the local surface height to the upper levels
-                vert_scale_diss = 1._RKIND/(1.5_RKIND+atan(2._RKIND*(zgrid(k,i) - htopx - turncf)/width))/3.      
-                vert_scale_diss = max(min (vert_scale_diss,1.) , 0.1_RKIND) ! = 1. to turn off vertical variation
-                tau_cloud_diss = 1._RKIND/(vert_scale_diss*tau_cloud_diss0)
+                OneMinusRH = (1.0_RKIND - min(1.0_RKIND , 0.01_RKIND*rh(k,i))) ! must be in [0,1]
+
+                !---- this goes from 1 to 0.1 as the height goes from the local surface height to the upper levels
+                vert_scale_diss = 1._RKIND/(1.5_RKIND+atan(2._RKIND*(zgrid(k,i) - turncf)/width))
+                vert_scale_diss = max(min (vert_scale_diss,1._RKIND), 0.40_RKIND) ! = 1. to turn off vertical variation
+                tau_cloud_diss = tau_cloud_diss0/vert_scale_diss
                 
                 !---- sink term for cloud fraction
-                snk = dt_dyn * (1._RKIND/tau_cloud_diss) * (1.0_RKIND - 0.01_RKIND*rh(k,i)) * abs(cnvcf(k,i))
+                snk = dt_dyn * (1._RKIND/tau_cloud_diss) * OneMinusRH * abs(cnvcf(k,i))
  
                 !---- source term for cloud fraction
                 src = dt_dyn * rcnvcfcuten(k,i)
  
-                !- using semi-impl formulation;
-                !- f(t+dt)  = ( f(t) - (dt/tau)* (alp* f(t)) ] / (1+(dt/tau)* (1-alp))
-                denom = 1._RKIND + (1._RKIND-alp)*src + (1.-alp)*(1._RKIND-0.01_RKIND*rh(k,i))*dt_dyn/tau_cloud_diss
+                !---- using semi-impl formulation;
+                !---- f(t+dt)  = [ f(t) - (dt/tau)* (alp* f(t)) ] / (1+(dt/tau)* (1-alp))
+                denom = 1._RKIND + (1._RKIND-alp)*src + (1._RKIND-alp)*OneMinusRH*dt_dyn/tau_cloud_diss
+                !---- source term for cloud fraction
 
                 !---- update cnvcf
                 cnvcf(k,i) = ( cnvcf(k,i) - alp*snk + (1._RKIND-alp*cnvcf(k,i))*src )/denom
@@ -1696,7 +1803,7 @@
                 !snk = snk * (1.-cnvcf(k,i))
                 !cnvcf(k,i) = cnvcf(k,i) + (1.-cnvcf(k,i)*src - snk
 
-               !---- sanity check for the cloud fraction
+                !---- sanity check for the cloud fraction
                 cnvcf(k,i) = min(1.0_RKIND, max(0._RKIND, cnvcf(k,i)))
              enddo
           enddo

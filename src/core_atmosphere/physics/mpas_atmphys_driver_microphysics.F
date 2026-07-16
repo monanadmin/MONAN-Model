@@ -853,6 +853,128 @@
  if(allocated(qvs1d)) deallocate(qvs1d)
 
  end subroutine compute_relhum
+!=================================================================================================================
+ subroutine wrfcttcalc(pres_p,pi_p, th_p, qci, qcw, qvp, ght, ctt        &
+                      ,ids,ide, jds,jde, kds,kde                         & ! domain dims
+                      ,ims,ime, jms,jme, kms,kme                         & ! memory dims
+                      ,its,ite, jts,jte, kts,kte                         ) ! tile   dims
+!=================================================================================================================
+implicit none
+real(kind=rkind), parameter :: abscoefi = .272_rkind  ! cloud ice absorption coefficient in m^2/g
+real(kind=rkind), parameter :: abscoef = .145_rkind   ! cloud water absorption coefficient in m^2/g
+real(kind=rkind), parameter :: celkel = 273.15_rkind
+real(kind=rkind), parameter :: g = 9.81_rkind
+real(kind=rkind), parameter :: ussalr = 0.0065_rkind  ! deg c per m
+real(kind=rkind), parameter :: rd = 287._rkind
+real(kind=rkind), parameter :: eps = 0.622_rkind
+real(kind=rkind), parameter :: missing = -999._rkind
+real(kind=rkind), parameter :: opt_thresh = 1.0_rkind
+integer         , parameter :: fill_nocloud  = 0
+integer         , parameter :: haveqci = 1
+
+integer         , intent(in   )    :: ids,ide, jds,jde, kds,kde, &
+                   ims,ime, jms,jme, kms,kme, &
+                   its,ite, jts,jte, kts,kte
+
+real(kind=rkind), dimension(ims:ime , kms:kme , jms:jme ), intent(in) :: ght, pres_p, th_p, qci, qcw, qvp,pi_p
+real(kind=rkind), dimension(ims:ime , jms:jme ), intent(out) :: ctt
+real(kind=rkind), dimension(ims:ime , kms:kme , jms:jme) :: pf,tk,prs
+
+! local variables
+integer i,j,k,ripk
+real(kind=rkind) :: opdepthu, opdepthd, dp, arg1, fac, prsctt, ratmix
+real(kind=rkind) :: arg2, agl_hgt, vt
+real(kind=rkind) :: p1, p2
+
+prs(its:ite , kts:kte , jts:jte) = 0.01_rkind*pres_p(its:ite , kts:kte , jts:jte) ! convert to hpa
+tk(its:ite , kts:kte , jts:jte)  = th_p(its:ite , kts:kte , jts:jte) * pi_p(its:ite , kts:kte , jts:jte)       ! temp in k
+!ter(:,:) = ght(:,1,:)
+
+do j=jts, jte
+   do i=its,ite
+      ratmix = .001_rkind*qvp(i,1,j)
+      arg1 = eps + ratmix
+      arg2 = eps*(1. + ratmix)
+      vt = tk(i,1,j)*arg1/arg2 !virtual temperature
+      agl_hgt = ght(i,kte,j) -  ght(i,1,j)
+      arg1 = -g/(rd*ussalr)
+      pf(i,kte,j) = prs(i,1,j)*(vt/(vt + ussalr*(agl_hgt)))**(arg1)
+   end do
+end do
+
+do k=1,kte-1
+   do j=jts, jte
+     do i=its,ite
+        ripk = kte-k+1
+        pf(i,k,j) = .5_rkind*(prs(i,ripk,j) + prs(i,ripk-1,j))
+      end do
+   end do
+end do
+
+do j=jts, jte
+   do i=its,ite
+      opdepthd = 0._rkind
+      k = 0
+      prsctt = -1
+
+     ! integrate downward from model top, calculating path at full
+     ! model vertical levels.
+      do k=2,kte
+        opdepthu = opdepthd
+        ripk = kte - k + 1
+
+        if (k .ne. 1) then
+          dp = 100._rkind*(pf(i,k,j) - pf(i,k-1,j))  ! should be in pa
+        else
+          dp = 200._rkind*(pf(i,1,j) - prs(i,kte,j))  ! should be in pa
+        end if
+
+        if (haveqci .eq. 0) then
+             if (tk(i,ripk,j) .lt. celkel) then
+               ! note: abscoefi is m**2/g, qcw is g/kg, so no convrsion needed
+                opdepthd = opdepthu + abscoefi*1.e+3*qcw(i,ripk,j) * dp/g
+             else
+                opdepthd = opdepthu + abscoef*1.e+3*qcw(i,ripk,j) * dp/g
+             end if
+         else
+             opdepthd = opdepthd + (abscoef*1.e+3*qcw(i,ripk,j) + abscoefi*1.e+3*qci(i,ripk,j))*dp/g
+         end if
+
+         if (opdepthd .lt. opt_thresh .and. k .lt. kte) then
+             cycle
+
+         else if (opdepthd .lt. opt_thresh .and. k .eq. kte) then
+             if (fill_nocloud .eq. 0) then
+              prsctt = prs(i,1,j)
+             endif
+             exit
+         else
+             fac = (1. - opdepthu)/(opdepthd - opdepthu)
+             prsctt = pf(i,k-1,j) + fac*(pf(i,k,j) - pf(i,k-1,j))
+             prsctt = min(prs(i,1,j), max(prs(i,kte,j), prsctt))
+             exit
+         end if
+      end do
+
+      ! prsctt should only be 0 if fill values are used
+      if (prsctt .gt. -1) then
+         do k=2,kte
+            ripk = kte - k + 1
+            p1 = prs(i,ripk+1,j)
+            p2 = prs(i,ripk,j)
+            if (prsctt .ge. p1 .and. prsctt .le. p2) then
+               fac      = (prsctt - p1)/(p2 - p1)
+               arg1     = fac*(tk(i,ripk ,j) - tk(i,ripk+1,j)) - celkel
+               ctt(i,j) = tk(i,ripk+1,j) + arg1
+               exit
+            end if
+         end do
+      else
+         ctt(i,j) = missing
+      end if
+   end do
+end do
+end subroutine wrfcttcalc
 
 !=================================================================================================================
  end module mpas_atmphys_driver_microphysics

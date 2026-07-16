@@ -690,14 +690,14 @@ intel-xd2000:
         "CC_SERIAL = cc" \
         "CXX_SERIAL = CC" \
         "FFLAGS_PROMOTION = -real-size 64" \
-        "FFLAGS_OPT = -O3 -traceback -convert big_endian -FR -march=core-avx2 -mtune=core-avx2" \
-        "CFLAGS_OPT = -O3 -traceback -std=gnu90" \
-        "CXXFLAGS_OPT = -O3 -traceback" \
-        "LDFLAGS_OPT = -O3 -traceback" \
-        "FFLAGS_DEBUG = -g -convert big_endian -FR -CU -CB -check all -fpe0 -traceback" \
+        "FFLAGS_OPT = -O3 -convert big_endian -FR -march=core-avx2 -mtune=core-avx2" \
+        "CFLAGS_OPT = -O3 -std=gnu90" \
+        "CXXFLAGS_OPT = -O3" \
+        "LDFLAGS_OPT = -O3" \
+	"FFLAGS_DEBUG = -g -convert big_endian -free -check bounds,pointers,arg_temp_created,format,shape,contiguous -fpe0 -traceback -Qoption,fpp,-macro_expand=vc" \
         "CFLAGS_DEBUG = -g -traceback" \
         "CXXFLAGS_DEBUG = -g -traceback" \
-        "LDFLAGS_DEBUG = -g -fpe0 -traceback" \
+	"LDFLAGS_DEBUG = -g -traceback" \
         "FFLAGS_OMP = -qopenmp" \
         "CFLAGS_OMP = -qopenmp" \
         "CORE = $(CORE)" \
@@ -715,14 +715,15 @@ intel2-xd2000:
         "CC_SERIAL = cc" \
         "CXX_SERIAL = CC" \
         "FFLAGS_PROMOTION = -real-size 64" \
-        "FFLAGS_OPT = -O2 -traceback -convert big_endian -FR -march=core-avx2 -mtune=core-avx2" \
-        "CFLAGS_OPT = -O2 -traceback -std=gnu90" \
-        "CXXFLAGS_OPT = -O2 -traceback" \
-        "LDFLAGS_OPT = -O2 -traceback" \
-        "FFLAGS_DEBUG = -g -convert big_endian -FR -CU -CB -check all -fpe0 -traceback" \
+        "FFLAGS_OPT = -O2 -convert big_endian -FR -march=core-avx2 -mtune=core-avx2" \
+        "CFLAGS_OPT = -O2 -std=gnu90" \
+        "CXXFLAGS_OPT = -O2" \
+        "LDFLAGS_OPT = -O2" \
+	"FFLAGS_DEBUG = -g -convert big_endian -free -check bounds,pointers,arg_temp_created,format,shape,contiguous -fpe0 -traceback -Qoption,fpp,-macro_expand=vc" \
+	"CFLAGS_DEBUG = -g -traceback" \
         "CFLAGS_DEBUG = -g -traceback" \
         "CXXFLAGS_DEBUG = -g -traceback" \
-        "LDFLAGS_DEBUG = -g -fpe0 -traceback" \
+        "LDFLAGS_DEBUG = -g -traceback" \
         "FFLAGS_OMP = -qopenmp" \
         "CFLAGS_OMP = -qopenmp" \
         "CORE = $(CORE)" \
@@ -740,11 +741,21 @@ gfortran-xd2000:   # BUILDTARGET GNU Fortran, C, and C++ compilers
 	"CC_SERIAL = cc" \
 	"CXX_SERIAL = CC" \
 	"FFLAGS_PROMOTION = -fdefault-real-8 -fdefault-double-8" \
-	"FFLAGS_OPT = -O3 -ffree-line-length-none -fconvert=big-endian -ffree-form -fallow-argument-mismatch" \
-	"CFLAGS_OPT = -O3" \
-	"CXXFLAGS_OPT = -O3" \
-	"LDFLAGS_OPT = -O3" \
-	"FFLAGS_DEBUG = -g -ffree-line-length-none -fconvert=big-endian -ffree-form -fallow-argument-mismatch -fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow" \
+	"FFLAGS_OPT = -O3 -fopenmp \
+            -march=native -mtune=native \
+            -fno-fast-math \
+            -ffp-contract=off \
+            -ffree-line-length-none -fconvert=big-endian -ffree-form \
+            -fallow-argument-mismatch" \
+	"CFLAGS_OPT = -O3 -march=native -mtune=native" \
+        "CXXFLAGS_OPT = -O3 -march=native -mtune=native" \
+        "LDFLAGS_OPT = -O3" \
+	"FFLAGS_DEBUG = -O0 -g \
+ 			-fcheck=all -fbacktrace \
+ 			-finit-real=nan -finit-integer=-999 \
+ 			-ffpe-trap=invalid,zero,overflow \
+ 			-ffree-line-length-none -fconvert=big-endian -ffree-form \
+ 			-fallow-argument-mismatch" \
 	"CFLAGS_DEBUG = -g" \
 	"CXXFLAGS_DEBUG = -g" \
 	"LDFLAGS_DEBUG = -g" \
@@ -760,6 +771,65 @@ gfortran-xd2000:   # BUILDTARGET GNU Fortran, C, and C++ compilers
 	"OPENMP = $(OPENMP)" \
 	"OPENACC = $(OPENACC)" \
 	"CPPFLAGS = $(MODEL_FORMULATION) -D_MPI" )
+
+cray-xd2000:
+	( $(MAKE) all \
+        "FC_PARALLEL = ftn" \
+        "CC_PARALLEL = cc" \
+        "CXX_PARALLEL = CC" \
+        "FC_SERIAL = ftn" \
+        "CC_SERIAL = cc" \
+        "CXX_SERIAL = CC" \
+        "FFLAGS_PROMOTION = -sreal64 " \
+        "FFLAGS_OPT = -Ofast -hcpu=x86-turin -hipa1 -ffree" \
+        "CFLAGS_OPT = -Ofast" \
+        "CXXFLAGS_OPT = -Ofast" \
+        "LDFLAGS_OPT = -hbyteswapio" \
+        "FFLAGS_DEBUG = -eD -O0 -ffree" \
+        "CFLAGS_DEBUG = -O0 -g -Weverything" \
+        "CXXFLAGS_DEBUG = -O0 -g -Weverything" \
+        "LDFLAGS_DEBUG = -eD -O0 -hbyteswapio" \
+        "FFLAGS_OMP = -homp" \
+        "CFLAGS_OMP = -fopenmp" \
+        "FFLAGS_ACC =" \
+        "CFLAGS_ACC =" \
+        "BUILD_TARGET = $(@)" \
+        "CORE = $(CORE)" \
+        "DEBUG = $(DEBUG)" \
+        "USE_PAPI = $(USE_PAPI)" \
+        "OPENMP = $(OPENMP)" \
+        "OPENACC = $(OPENACC)" \
+        "CPPFLAGS = $(MODEL_FORMULATION) -D_MPI" )
+
+nvhpc-xd2000:   # BUILDTARGET NVIDIA HPC SDK                                    
+	( $(MAKE) all \
+	"FC_PARALLEL = ftn" \
+	"CC_PARALLEL = cc" \
+	"CXX_PARALLEL = CC" \
+	"FC_SERIAL = ftn" \
+	"CC_SERIAL = cc" \
+	"CXX_SERIAL = CC" \
+	"FFLAGS_PROMOTION = -r8" \
+	"FFLAGS_OPT = -gopt -O4 -byteswapio -Mfree" \
+	"CFLAGS_OPT = -gopt -O3" \
+	"CXXFLAGS_OPT = -gopt -O3" \
+	"LDFLAGS_OPT = -gopt -O3" \
+	"FFLAGS_DEBUG = -O0 -g -Mbounds -Mchkptr -Mchkstk -byteswapio -Mfree -traceback" \
+	"CFLAGS_DEBUG = -O0 -g -traceback" \
+	"CXXFLAGS_DEBUG = -O0 -g -traceback" \
+	"LDFLAGS_DEBUG = -O0 -g -traceback" \
+	"FFLAGS_OMP = -mp" \
+	"CFLAGS_OMP = -mp" \
+	"FFLAGS_ACC = -Mnofma -acc -gpu=cc70,cc80 -Minfo=accel" \
+	"CFLAGS_ACC =" \
+	"PICFLAG = -fpic" \
+	"BUILD_TARGET = $(@)" \
+	"CORE = $(CORE)" \
+	"DEBUG = $(DEBUG)" \
+	"USE_PAPI = $(USE_PAPI)" \
+	"OPENMP = $(OPENMP)" \
+	"OPENACC = $(OPENACC)" \
+	"CPPFLAGS = $(MODEL_FORMULATION) -D_MPI -DCPRPGI" )
 
 CPPINCLUDES =
 FCINCLUDES =
@@ -1007,11 +1077,11 @@ else # else ifdef $(TIMER_LIB)
 endif # endif ifdef $(TIMER_LIB)
 
 ifeq "$(TAU)" "true"
-	LINKER=tau_f90.sh
+	LNK=tau_f90.sh
 	CPPINCLUDES += -DMPAS_TAU -DMPAS_TAU_TIMERS
 	TAU_MESSAGE="TAU Hooks are on."
 else
-	LINKER=$(FC)
+	LNK=$(FC)
 	TAU_MESSAGE="TAU Hooks are off."
 endif
 
@@ -1390,7 +1460,7 @@ endif
                  CXX="$(CXX)" \
                  SFC="$(SFC)" \
                  SCC="$(SCC)" \
-                 LINKER="$(LINKER)" \
+                 LNK="$(LNK)" \
                  CFLAGS="$(CFLAGS)" \
                  CXXFLAGS="$(CXXFLAGS)" \
                  FFLAGS="$(FFLAGS)" \

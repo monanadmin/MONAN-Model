@@ -3556,7 +3556,7 @@ module atm_time_integration
 
 !--srf
 !-- this is only for GF_MONAN cumulus scheme and convection_tracer == 1 
-      if(config_gf_cporg == 1) then
+      if(config_gf_cporg == 1 .and. index_buoyx > 0) then
         call mpas_pool_get_array(diag, 'rumcl', rumcl) ! = umcl,vmcl
         
         if(.not. allocated(wwAvg_local)) allocate(wwAvg_local(nVertLevels+1,nCells+1)); wwAvg_local = 0.0_RKIND
@@ -4026,7 +4026,7 @@ module atm_time_integration
 
 !--srf
 !-- this is only for GF_MONAN cumulus scheme and convection_tracer == 1 
-      if(config_gf_cporg == 1) then
+      if(config_gf_cporg == 1 .and. index_buoyx > 0) then
         call mpas_pool_get_array(diag, 'rumcl', rumcl) ! = umcl,vmcl
         if(.not. allocated(wwAvg_local)) allocate(wwAvg_local(nVertLevels+1,nCells+1)); wwAvg_local = 0.0_RKIND
         

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<registry model="mpas" core="init_atmosphere" core_abbrev="init_atm" version="8.3.0">
+<registry model="mpas" core="init_atmosphere" core_abbrev="init_atm" version="8.3.1">
 
 <!-- **************************************************************************************** -->
 <!-- ************************************** Dimensions ************************************** -->
@@ -1498,6 +1498,12 @@
         <var_struct name="diag_physics" time_levs="1">
                 <var name="precipw" type="real" dimensions="nCells Time" units="kg m^{-2}"
                      description="precipitable water"
+                     packages="met_stage_out"/>
+        </var_struct>
+
+        <var_struct name="tend_physics" time_levs="1">
+                <var name="rqvcuten" type="real" dimensions="nVertLevels nCells Time" units="kg kg^{-1} s^{-1}"
+                     description="tendency of water vapor mixing ratio due to cumulus convection"
                      packages="met_stage_out"/>
         </var_struct>
 </registry>
