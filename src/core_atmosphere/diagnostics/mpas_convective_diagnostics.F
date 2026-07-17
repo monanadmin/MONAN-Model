@@ -262,6 +262,7 @@ module mpas_convective_diagnostics
         real (kind=RKIND), dimension(:,:), pointer :: pressure_p
         real (kind=RKIND), dimension(:,:), pointer :: pressure_base
         real (kind=RKIND), dimension(:,:,:), pointer :: scalars
+        real (kind=RKIND), dimension(:), pointer :: latCell
         integer, pointer :: index_qv
 
         real (kind=RKIND), parameter :: dev_motion = 7.5, z_bunker_bot = 0., z_bunker_top = 6000.
@@ -343,8 +344,9 @@ module mpas_convective_diagnostics
             call mpas_pool_get_array(diag, 'pressure_base', pressure_base)
             call mpas_pool_get_array(diag, 'pressure_p', pressure_p)
 
+            
             call mpas_pool_get_dimension(state, 'index_qv', index_qv)
-
+            call mpas_pool_get_array(mesh, 'latCell', latCell)
             allocate(temperature(nVertLevels,nCells))
             allocate(dewpoint(nVertLevels,nCells))
 
@@ -414,41 +416,61 @@ module mpas_convective_diagnostics
                    u_mean = integral_zstaggered(uzonal(1:nVertLevels,iCell),zrel,z_bunker_bot,z_bunker_top,nVertLevels,nVertLevelsP1)/(z_bunker_top-z_bunker_bot)
                    v_mean = integral_zstaggered(umeridional(1:nVertLevels,iCell),zrel,z_bunker_bot,z_bunker_top,nVertLevels,nVertLevelsP1)/(z_bunker_top-z_bunker_bot)
                    shear_magnitude = max(0.0001,sqrt(u_shear**2 + v_shear**2))
-                   u_storm = u_mean + dev_motion * v_shear/shear_magnitude
-                   v_storm = v_mean - dev_motion * u_shear/shear_magnitude
 
-                   !  calculate horizontal vorticity
+                   ! SELEÇÃO DO HEMISFÉRIO / MOVIMENTO DA TEMPESTADE
+                   if (latCell(iCell) < 0.0_RKIND) then
+                        
+                        u_storm = u_mean - dev_motion * v_shear / shear_magnitude
+                        v_storm = v_mean + dev_motion * u_shear / shear_magnitude
+                    else
+                        
+                        u_storm = u_mean + dev_motion * v_shear / shear_magnitude
+                        v_storm = v_mean - dev_motion * u_shear / shear_magnitude
+                    end if
+       
+                    !  calculate horizontal vorticity
+                    do k=2, nVertLevels-1
+                        dudz(k) = (uzonal(k,iCell)-uzonal(k-1,iCell))/(0.5*(height(k+1,iCell)-height(k-1,iCell)))
+                        dvdz(k) = (umeridional(k,iCell)-umeridional(k-1,iCell))/(0.5*(height(k+1,iCell)-height(k-1,iCell)))
+                    end do
+                    dudz(1) = dudz(2)
+                    dvdz(1) = dvdz(2)
+                    dudz(nVertLevels) = dudz(nVertLevels-1)
+                    dvdz(nVertLevels) = dvdz(nVertLevels-1)
+       
+                    
+                    do k=2, nVertLevels
+                        srh(k) = - (0.5*(uzonal(k,iCell) + uzonal(k-1,iCell)) - u_storm          ) * dvdz(k) &
+                                 + (0.5*(umeridional(k,iCell) + umeridional(k-1,iCell)) - v_storm) * dudz(k)
+                    end do      
+       
+                    srh(1) = - (uzonal(1,iCell) - u_storm) * dvdz(1) + (umeridional(1,iCell) - v_storm) * dudz(1)
+                    srh(nVertLevelsP1) = srh(nVertLevels)
+       
+                    
+                    !if (latCell(iCell) < 0.0_RKIND) then
+                        
+                    !    do k=1, nVertLevels+1
+                    !        srh(k) = min(0.0_RKIND, srh(k))   ! discounting positive SRH
+                    !    end do
+                    !else
+                        
+                    !    do k=1, nVertLevels+1
+                    !        srh(k) = max(0.0_RKIND, srh(k))    ! discounting negative SRH
+                    !    end do
+                    !end if
+       
+                    if (need_srh_01km) then
+                        srh_0_1km(iCell) = integral_zpoint(srh, zrel, 0.0_RKIND, 1000.0_RKIND, nVertLevelsP1)
+                    end if
+       
+                    if (need_srh_03km) then
+                        srh_0_3km(iCell) = integral_zpoint(srh, zrel, 0.0_RKIND, 3000.0_RKIND, nVertLevelsP1)
+                    end if
 
-                   do k=2, nVertLevels-1
-                       dudz(k) = (uzonal(k,iCell)     -uzonal(k-1,iCell)     )/(0.5*(height(k+1,iCell)-height(k-1,iCell)))      
-                       dvdz(k) = (umeridional(k,iCell)-umeridional(k-1,iCell))/(0.5*(height(k+1,iCell)-height(k-1,iCell)))
-                   end do
-                   dudz(1) = dudz(2)
-                   dvdz(1) = dvdz(2)
-                   dudz(nVertLevels) = dudz(nVertLevels-1)
-                   dvdz(nVertLevels) = dvdz(nVertLevels-1)
+                end if
 
-                   do k=2,nVertLevels
-                     srh(k) = - (0.5*(uzonal(k,iCell)      + uzonal(k-1,iCell)      )-u_storm)*dvdz(k) &
-                              + (0.5*(umeridional(k,iCell) + umeridional(k-1,iCell) )-v_storm)*dudz(k)
-                   end do
-                   srh(1) = - (uzonal(1,iCell)     - u_storm)*dvdz(1) &
-                            + (umeridional(1,iCell)- v_storm)*dudz(1)
-                   srh(nVertLevelsP1) = srh(nVertLevels)
-
-                   do k=1, nVertLevels+1
-                     srh(k) = max(0.,srh(k))  ! discounting negative SRH
-                   end do
-
-                   if (need_srh_01km) then
-                       srh_0_1km(iCell) = integral_zpoint(srh, zrel, 0.0_RKIND, 1000.0_RKIND, nVertLevelsP1)
-                   end if
-                   if (need_srh_03km) then
-                       srh_0_3km(iCell) = integral_zpoint(srh, zrel, 0.0_RKIND, 3000.0_RKIND, nVertLevelsP1)
-                   end if
-               end if
-
-            end do
+            end do  
 
             !  calculate cape and cin
             if (need_cape .or. need_cin) then
