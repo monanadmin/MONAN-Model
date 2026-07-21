@@ -321,7 +321,7 @@ use mpas_stream_manager
     enddo
  endif
 
-! Initialisation of accumlated surface fluxes and corresponding counters (i_ac*). Counters i_ac* track
+! Initialisation of accumulated surface fluxes and corresponding counters (i_ac*). Counters i_ac* track
 ! the number of times the absolute value of the accumulated surface fluxes exceed their prescribed 
 ! threshold values.
  if(.not. config_do_restart .and. config_lsm_scheme.ne.'off') then
