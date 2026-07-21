@@ -161,7 +161,8 @@
 
  character(len=StrKIND),pointer:: config_convection_scheme, &
                                   config_radt_lw_scheme,    &
-                                  config_radt_sw_scheme
+                                  config_radt_sw_scheme,    &
+                                  config_lsm_scheme
 
  character(len=StrKIND),pointer:: config_conv_interval,    &
                                   config_radtlw_interval,  &
@@ -192,6 +193,7 @@
  call mpas_pool_get_config(domain%blocklist%configs,'config_convection_scheme',config_convection_scheme)
  call mpas_pool_get_config(domain%blocklist%configs,'config_radt_lw_scheme'   ,config_radt_lw_scheme   )
  call mpas_pool_get_config(domain%blocklist%configs,'config_radt_sw_scheme'   ,config_radt_sw_scheme   )
+ call mpas_pool_get_config(domain%blocklist%configs,'config_lsm_scheme'       ,config_lsm_scheme       )
 
  call mpas_pool_get_config(domain%blocklist%configs,'config_conv_interval'  ,config_conv_interval  )
  call mpas_pool_get_config(domain%blocklist%configs,'config_radtlw_interval',config_radtlw_interval)
