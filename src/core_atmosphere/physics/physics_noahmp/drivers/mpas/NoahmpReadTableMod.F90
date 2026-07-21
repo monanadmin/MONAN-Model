@@ -890,10 +890,10 @@ contains
     close(15)
 
     ! assign values
-    NoahmpIO%ALBSAT_TABLE(1:NSC,1) = ALBSAT_VIS ! saturated soil albedos: 1=vis, 2=nir
-    NoahmpIO%ALBSAT_TABLE(1:NSC,2) = ALBSAT_NIR ! saturated soil albedos: 1=vis, 2=nir
-    NoahmpIO%ALBDRY_TABLE(1:NSC,1) = ALBDRY_VIS ! dry soil albedos: 1=vis, 2=nir
-    NoahmpIO%ALBDRY_TABLE(1:NSC,2) = ALBDRY_NIR ! dry soil albedos: 1=vis, 2=nir
+    NoahmpIO%ALBSAT_TABLE(1:NSC,1) = ALBSAT_VIS(1:NSC) ! saturated soil albedos: 1=vis, 2=nir
+    NoahmpIO%ALBSAT_TABLE(1:NSC,2) = ALBSAT_NIR(1:NSC) ! saturated soil albedos: 1=vis, 2=nir
+    NoahmpIO%ALBDRY_TABLE(1:NSC,1) = ALBDRY_VIS(1:NSC) ! dry soil albedos: 1=vis, 2=nir
+    NoahmpIO%ALBDRY_TABLE(1:NSC,2) = ALBDRY_NIR(1:NSC) ! dry soil albedos: 1=vis, 2=nir
     NoahmpIO%ALBICE_TABLE          = ALBICE
     NoahmpIO%ALBLAK_TABLE          = ALBLAK
     NoahmpIO%OMEGAS_TABLE          = OMEGAS
