@@ -877,7 +877,7 @@ contains
           
           RAD_DATASET_DESCRIPTION = "DEFAULT_RAD_NOAH" ! radiation (soil colour) type dataset
           NSC = 8                                      ! total number of soil colour categories in Noah
-          
+          rewind(15)
        end if
        read(15,noahmp_rad_parameters)
     case ("MODIFIED_RAD_CLM_NOAH")
