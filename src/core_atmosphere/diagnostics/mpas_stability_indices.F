@@ -23,7 +23,40 @@ CONTAINS
 !             K index
 !             Showalter index
 !
-! If sfc pres less than 850hPa, K and Showalter set = 9.96921e+36 ! was -999.
+! TERRAIN-ADAPTIVE VERSION (MONAN/MPAS):
+!
+! The original NOAA/RIP formulation requires temperature/dewpoint at
+! the fixed mandatory levels 850, 700 and 500 hPa. Over high terrain
+! (e.g. the Andes, Tibetan Plateau), the model surface pressure is
+! frequently BELOW 850 hPa and/or 700 hPa, meaning those pressure
+! levels do not physically exist above the ground at that grid point.
+!
+! Instead of flagging the whole sounding as MISSING whenever the
+! surface is above 850 hPa (as the original code did), this version
+! adapts the lower reference levels to the actual profile, following
+! the same principle as the "Modified K-Index" (George 1960; Miller
+! 1972), which replaces the 850-hPa values by the surface (or a
+! near-surface layer) when 850 hPa is not available:
+!
+!   - Level 1 (nominally 850 hPa): if the surface pressure P(1) is
+!     below 850 hPa, the surface itself (P(1), TS(1), TSD(1)) is used
+!     as level 1 -- no extrapolation, just the lowest real data
+!     available.
+!   - Level 2 (nominally 700 hPa): if P(1) is also below 700 hPa (e.g.
+!     Andean Altiplano, ~550-700 hPa), a substitute layer ~150 hPa
+!     above the surface is used instead of collapsing onto level 1,
+!     so the dryness term of the K-Index keeps physical meaning.
+!   - Level 3 (500 hPa) is NEVER adapted: it is the top reference used
+!     by the Lifted Index. If the surface itself is above 500 hPa
+!     (terrain above ~5500 m), there is no valid layer depth left to
+!     adapt to, and RLI/RKI/RWI remain MISSING (9.96921e+36) at that
+!     point, same as before.
+!
+! This keeps indices meaningful (and populated) across the vast
+! majority of inhabited high-terrain areas (La Paz, Cusco, Quito,
+! Andean valleys and plateaus), while still leaving MISSING only the
+! small fraction of extreme-elevation points where the index is
+! genuinely undefined.
 !
 ! Stone, H.M., 1983: Stability Analysis Program, NOAA Eastern Region
 ! Computer Programs and Problems NWS ERCP-No. 9, National Weather
@@ -33,6 +66,9 @@ CONTAINS
 ! Computer Programs and Problems NWS ERCP-No. 16, National Weather
 ! ·Service, Garden City, NY.
 !
+! George, J.J., 1960: Weather Forecasting for Aeronautics. Academic
+! Press, New York. (Modified K-Index)
+!
 !-----------------------------------------------------------------------
 
 ! COMPUTES LIFTED INDEX, K INDEX, AND SHOWALTER INDEX
@@ -40,7 +76,8 @@ CONTAINS
      IMPLICIT NONE
 
      INTEGER, INTENT(IN) :: JNO
-     INTEGER :: I,J,K,IHI
+     INTEGER :: I,J,K
+     INTEGER :: IADAPT(3)  ! 1 = nivel adaptado ao terreno, 0 = nivel padrao
 
      REAL (kind=RKIND), DIMENSION(JNO), INTENT(IN) :: P,TS,TSD
      REAL (kind=RKIND), DIMENSION(JNO) :: TW
@@ -52,11 +89,27 @@ CONTAINS
      REAL (kind=RKIND) :: DP1,E2,FACTOR,FACTORD,FACTORT,PPARCEL,TDE1,TDE2,TDPARCEL
      REAL (kind=RKIND) :: TE1,TE2,TH1,TH2,THAVG,THW,TP,TP500,TPARCEL,W,W1,W2,WAVEG
      REAL (kind=RKIND) :: WAVG,WFW,X
+     REAL (kind=RKIND), PARAMETER :: RMISG = 9.96921e+36_RKIND
 
-     IHI=0  ! INDICATOR FOR SFC PRESSURE GREATER THAN 850hPa
+     IADAPT = 0
      PL(1) = 850.0_RKIND
      PL(2) = 700.0_RKIND
      PL(3) = 500.0_RKIND
+
+! ADAPTA OS NIVEIS DE REFERENCIA AO TERRENO (SO QUANDO NECESSARIO)
+! PL(3)=500hPa NUNCA E ADAPTADO -- TOPO DE REFERENCIA DO LIFTED INDEX
+
+     IF (P(1) .LT. PL(1)) THEN
+        PL(1) = P(1)             ! usa a propria superficie
+        IADAPT(1) = 1
+     ENDIF
+
+     IF (P(1) .LT. PL(2)) THEN
+        ! camada substituta ~150 hPa acima da superficie, sem colapsar
+        ! sobre o nivel 1 e sem ultrapassar o nivel 3 (500 hPa)
+        PL(2) = MIN( MAX(P(1)-150.0_RKIND, PL(3)+50.0_RKIND), P(1)-10.0_RKIND )
+        IADAPT(2) = 1
+     ENDIF
 
 ! COMPUTE WET BULB POTENTIAL TEMP AT ALL SGFNT LEVELS ABV SFC
 
@@ -129,7 +182,7 @@ CONTAINS
      THW=TH-WTH+WTC         ! EQUIV WET BULB POT TEMP (DEG C)
      TP500=SATLFT(THW,500.0_RKIND)
 
-! GET TEMP AND DEWPT AT 850,700,500 MBS
+! GET TEMP AND DEWPT AT (POSSIVELMENTE ADAPTADOS) NIVEIS 1, 2 E 3
 
      DO 5 J=1,3
      DO 4 I=1,JNO
@@ -141,10 +194,13 @@ CONTAINS
      TDL(J)=TSD(I)
      GO TO 5
 7    IF (I.NE.1) GO TO 8
-     IF (J.EQ.1) IHI=1
-     TL(J)=9.96921e+36
-     TDL(J)=9.96921e+36
-     GO TO 5  ! SFC PRESSURE LESS THAN 850 hPa
+     ! Sem nivel abaixo de P(1) disponivel para interpolar PL(J).
+     ! So deve ocorrer para J=3 (500 hPa), ja que PL(1) e PL(2) foram
+     ! adaptados acima para nunca ficarem abaixo de P(1). Terreno
+     ! extremo (> ~500 hPa / ~5500 m): indice fica MISSING neste nivel.
+     TL(J)=RMISG
+     TDL(J)=RMISG
+     GO TO 5
 8    FACTOR=ALOG(PL(J)/P(I))/ALOG(P(I-1)/P(I))
      TL(J)=TS(I)+FACTOR*(TS(I-1)-TS(I))
      TDL(J)=TSD(I)+FACTOR*(TSD(I-1)-TSD(I))
@@ -152,28 +208,35 @@ CONTAINS
 
 ! COMPUTE LIFTED INDEX
 
-     IF (TL(3).GE.9.9e+36) THEN
-        RLI=9.96921e+36
+     IF (TL(3).GE.9.9e35_RKIND) THEN
+        RLI=RMISG                               ! terreno acima de 500 hPa
      ELSE
-        RLI=TL(3)-TP500                            ! LIFTED INDEX
+        RLI=TL(3)-TP500                         ! LIFTED INDEX
      ENDIF
 
 !     WRITE(*,*)
 !     WRITE(*,80) TL(3),TP500
 
-     IF (IHI.EQ.0 .AND. TL(2).LT.9.9e+36 .AND. TL(3).LT.9.9e+36) GO TO 9   ! COMPUTE K AND SHOWALTER INDICES 
-      RKI=9.96921e+36   ! K INDEX MISG
-      RWI=9.96921e+36   ! SHOWALTER INDEX MISG
-     RETURN
+     IF (TL(1).GE.9.9e35_RKIND .OR. TL(2).GE.9.9e35_RKIND .OR. &
+         TL(3).GE.9.9e35_RKIND) THEN
+        RKI=RMISG   ! K INDEX MISG (terreno extremo, sem nivel valido)
+        RWI=RMISG   ! SHOWALTER INDEX MISG
+        RETURN
+     ENDIF
 
 ! COMPUTE K INDEX
+! (se PL(1) e/ou PL(2) foram adaptados - IADAPT(1)/IADAPT(2)=1 - este
+! e o "K-Index Modificado": mesma formula, aplicada aos niveis reais
+! disponiveis em vez dos 850/700 hPa nominais)
 
-9    RKI=(TL(1)-TL(3))+TDL(1)-(TL(2)-TDL(2))    ! K INDEX
+     RKI=(TL(1)-TL(3))+TDL(1)-(TL(2)-TDL(2))    ! K INDEX
 
 ! COMPUTE SHOWALTER INDEX
+! (usa PL(1) em vez de 850.0 fixo na conversao de temperatura
+! potencial, para permanecer consistente quando PL(1) foi adaptado)
 
      TC=TCONOF(TL(1),TDL(1))
-     TH=THETA(TL(1)+273.16,1000.0_RKIND,850.0_RKIND)-273.16_RKIND   ! DEG C
+     TH=THETA(TL(1)+273.16,1000.0_RKIND,PL(1))-273.16_RKIND   ! DEG C
      WTH=WOBF(TH)
      WTC=WOBF(TC)
      THW=TH-WTH+WTC                             ! EQUIV WET BULB POT TEMP
