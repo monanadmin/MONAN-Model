@@ -632,7 +632,7 @@
 !set alarm to check if the accumulated surface flux diagnostics is greater than its maximum
 !allowed value:
  if(config_bucket_update /= "none") then
-    call mpas_set_timeInterval(acsflxTimeStep,dt=config_dt,ierr=ierr)
+    call mpas_set_timeInterval(acsflxTimeStep,dt=dt,ierr=ierr)
     call mpas_set_timeInterval(alarmTimeStep,timeString=config_bucket_update,ierr=ierr)
     alarmStartTime = startTime + alarmTimeStep
     call mpas_add_clock_alarm(clock,acsflxAlarmID,alarmStartTime,alarmTimeStep,ierr=ierr)
