@@ -91,7 +91,7 @@
  character(len=StrKIND),pointer:: mminlu,mminsl
 
  integer,pointer:: nCells,nSoilLevels
- integer,dimension(:),pointer:: ivgtyp,isltyp
+ integer,dimension(:),pointer:: ivgtyp,isltyp,isctyp
 
  real(kind=RKIND),dimension(:),pointer:: snoalb,snow,snowh
  real(kind=RKIND),dimension(:,:),pointer:: tslb,smois,sh2o
@@ -119,6 +119,7 @@
  call mpas_pool_get_dimension(mesh,'nSoilLevels',nSoilLevels)
 
  call mpas_pool_get_array(sfc_input,'isltyp', isltyp)
+ call mpas_pool_get_array(sfc_input,'isctyp', isctyp)
  call mpas_pool_get_array(sfc_input,'ivgtyp', ivgtyp)
  call mpas_pool_get_array(sfc_input,'sh2o'  , sh2o  )
  call mpas_pool_get_array(sfc_input,'smois' , smois )
@@ -150,18 +151,22 @@
        call physics_error_fatal("module_sf_noahlsm.F: lsminit: out of range value "// &
                             "of ISLTYP. Is this field in the input?" )
 
+    ! Make sure all cells have reasonable soil colour indices.
+    errflag = 0
+    do iCell = 1, nCells
+       if(isctyp(iCell) < 1) then
+          errflag = 1
+          write(err_message,*) "module_sf_noahlsm.F: lsminit: out of range ISCTYP ", &
+                               iCell,isctyp(iCell),isltyp(iCell),ivgtyp(iCell)
+          call physics_message(err_message)
+       endif
+    end do
+    if (errflag == 1) &
+       call physics_error_fatal("module_sf_noahlsm.F: lsminit: out of range value "// &
+                                "of ISCTYP. Is this field in the input?" )
+
 !initializes soil liquid water content SH2O:
     do iCell = 1, nCells
-
-      !---srf 
-      !do ns = 1, nSoilLevels
-      !   if (smois(ns,iCell) < 0.99) then 
-      !      smois(ns,iCell) = 0.7* smois(ns,iCell)
-      !      soil_moisture_adjustment = .true.
-      !   endif
-      !enddo
-      !---srf
-
        bx = bb(isltyp(iCell))
        smcmax = maxsmc(isltyp(iCell))
        psisat = satpsi(isltyp(iCell))

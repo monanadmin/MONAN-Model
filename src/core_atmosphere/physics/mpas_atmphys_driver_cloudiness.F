@@ -15,7 +15,7 @@
  use mpas_atmphys_vars
  use module_mp_thompson_cldfra3
  use module_mp_cldfra_cb, only: calc_cldfraction_monan
- 
+
  implicit none
  private
  public:: allocate_cloudiness,   &
@@ -89,6 +89,7 @@
  if(allocated(qcrad_p)  ) deallocate(qcrad_p  )
  if(allocated(qirad_p)  ) deallocate(qirad_p  )
  if(allocated(qsrad_p)  ) deallocate(qsrad_p  )
+
  if(allocated(zgrid_p)   ) deallocate(zgrid_p  )
  if(allocated(kpbl_p)    ) deallocate(kpbl_p   )
  if(allocated(rupmfxcu_p)) deallocate(rupmfxcu_p)

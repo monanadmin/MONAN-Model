@@ -1,4 +1,4 @@
-# MONAN-v1.4.3-rc
+# MONAN
 
 ## Model for Ocean-laNd-Atmosphere predictioN
 
@@ -6,9 +6,10 @@ MONAN is a community model of the Unified Earth System that has as its main obje
 
 The MONAN Model is managed by a scientific committee appointed by INPE's director and has its initial version structure (0.1.0) based on the dynamic core of the MPAS 8.0.1 Model. part of the physics used by MONAN is obtained from the MPAS model and another part obtained from other sources or developed by the community. The MPAS model can be found at the link [GitHub - MPAS-Dev/MPAS-Model: Repository for MPAS models and shared framework releases.](https://github.com/MPAS-Dev/MPAS-Model)
 
+## History
 
-History
-====
+- Version 2.0.0-rc (Release Candidate) - Includes: MPAS-Model 8.3.1 version, GF convection parametrization improvements, Check control numeric stability, Cumulative surfaces fluxes variables, Spatially heterogenious soil color maps for Noahmp, Soil layer bug fix, NVHPC compilation support. Now, it is default the new land surface (NOAH_MP) and Gravity Wave Drag (UGWP) for the suites 'mesoscale_reference_monan' and 'convection_permitting_monan'.
+- Version 1.4.4 - Cold-Start Dynamics Substepping for numerical stabilization and conditional dynamic substepping during the first N full integration steps; option for compilation using a Cray compiler; fixed debug error for compilation using the Intel compiler and compilation flag adjustments for the GNU compiler.
 - Version 1.4.3-rc (Release Candidate) - This development contains further configuration for the pre-operational MONAN global 10km uniform resolution, adapted to run on the new CRAY supercomputer. It contains new tuning for the GF scheme and sets WSM6 as the default cloud microphysics parameterization. For this configuration, the namelist.atmosphere should be set to config_physics_suite = 'mesoscale_reference_monan'.
 - Version 1.4.2-rc (Release Candidate) - Speed up by about 7%. Cleanup to become the initial version of the C3P Community Cloud-Convection Parameterization. Joint development between INPE and NOAA/GSL. Removed files not needed anymore. Adding effects of PCW (Neelin et al. 2009) and vertical shear of horizontal wind on the entrainment rate. This should improve model simulations of MCSs. Additional trigger function based on Xie et al 2019. Additional comments and references. 
 - Version 1.4.1-rc (Release Candidate) - Terrain height (ter, calculated previously in the pre processing with init_atmosphere_model) included in the Registry.xml's input section so that can be read from 'init' file and post processed. kubota relhum evalute modification on mpas_isobaric_diagnostics.F.
@@ -28,20 +29,31 @@ History
 - Version 0.2.0 - Included variables and new isobaric levels.
 - Version 0.1.0 - Initial version structure (0.1.0) based on the dynamic core of the MPAS 8.0.1 Model.
 
+## MPAS
 
-MPAS-v8.1.0
-====
+The Model for Prediction Across Scales (MPAS) is a collaborative project for
+developing atmosphere, ocean, and other earth-system simulation components for
+use in climate, regional climate, and weather studies. The primary development
+partners are the climate modeling group at Los Alamos National Laboratory
+(COSIM) and the National Center for Atmospheric Research. Both primary
+partners are responsible for the MPAS framework, operators, and tools common to
+the applications; LANL has primary responsibility for the ocean model, and NCAR
+has primary responsibility for the atmospheric model.
 
-The Model for Prediction Across Scales (MPAS) is a collaborative project for developing atmosphere, ocean, and other earth-system simulation components for use in climate, regional climate, and weather studies. The primary development partners are the climate modeling group at Los Alamos National Laboratory (COSIM) and the National Center for Atmospheric Research. Both primary partners are responsible for the MPAS framework, operators, and tools common to the applications; LANL has primary responsibility for the ocean model, and NCAR has primary responsibility for the atmospheric model.
+The MPAS framework facilitates the rapid development and prototyping of models
+by providing infrastructure typically required by model developers, including
+high-level data types, communication routines, and I/O routines. By using MPAS,
+developers can leverage pre-existing code and focus more on development of
+their model.
 
-The MPAS framework facilitates the rapid development and prototyping of models by providing infrastructure typically required by model developers, including high-level data types, communication routines, and I/O routines. By using MPAS, developers can leverage pre-existing code and focus more on development of their model.
+## BUILDING
 
-Building
-====
+This README is provided as a brief introduction to the MPAS framework. It does
+not provide details about each specific model, nor does it provide building
+instructions.
 
-This README is provided as a brief introduction to the MPAS framework. It does not provide details about each specific model, nor does it provide building instructions.
-
-For information about building and running each core, please refer to each core's user's guide, which can be found at the following web sites:
+For information about building and running each core, please refer to each
+core's user's guide, which can be found at the following web sites:
 
 [MPAS-Atmosphere](http://mpas-dev.github.io/atmosphere/atmosphere_download.html)
 
@@ -52,10 +64,10 @@ For information about building and running each core, please refer to each core'
 [MPAS-Seaice](http://mpas-dev.github.io/sea_ice/releases.html)
 
 
-Code Layout
------------
+## Code Layout
 
-Within the MPAS repository, code is laid out as follows. Sub-directories are only described below the src directory.
+Within the MPAS repository, code is laid out as follows. Sub-directories are
+only described below the src directory.
 
 	MPAS-Model
 	├── src
@@ -71,4 +83,6 @@ Within the MPAS repository, code is laid out as follows. Sub-directories are onl
 	├── testing_and_setup -- Tools for setting up configurations and test cases (Shared)
 	└── default_inputs -- Copies of default stream and namelists files (Shared)
 
-Model cores are typically developed independently. For information about building and running a particular core, please refer to that core's user's guide.
+Model cores are typically developed independently. For information about
+building and running a particular core, please refer to that core's user's
+guide.
