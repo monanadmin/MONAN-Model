@@ -711,19 +711,27 @@ real (kind=RKIND) :: lat
 integer :: j
 
 lat = lat_in
-   if ( abs(lat_in).gt.p5*Pi ) then
-      nearest_j_south = -999
-   elseif ( lat.le.lat1d_fine(1) ) then
-      nearest_j_south = 1
-   elseif ( lat.ge.lat1d_fine(topo_y) ) then
-      ! Usa os dois últimos pontos para extrapolar no polo Norte
-      nearest_j_south = topo_y - 1
-   else
-      do j = 2, topo_y
-         if (lat1d_fine(j).gt.lat) exit
-      end do
-      nearest_j_south = j - 1
-   end if
+
+if (abs(lat_in).gt.p5*Pi) then
+   nearest_j_south = -999
+
+elseif (lat.le.lat1d_fine(1)) then
+   nearest_j_south = 1
+
+else
+   j = 2
+
+   do while (j.le.topo_y)
+      if (lat1d_fine(j).gt.lat) then
+         nearest_j_south = j - 1
+         return
+      end if
+      j = j + 1
+   end do
+
+   ! Latitude ao norte do último ponto da grade fina
+   nearest_j_south = topo_y
+end if
 
 end function nearest_j_south
 
