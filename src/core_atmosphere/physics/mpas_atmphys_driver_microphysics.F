@@ -579,6 +579,7 @@
  integer,dimension(:),pointer:: i_rainnc
 
  real(kind=RKIND),pointer:: config_bucket_rainnc
+!  real(kind=RKIND),dimension(:),pointer:: precipw, precipci,precipcloud,precipice,precipgraupel,precipsnow
  real(kind=RKIND),dimension(:),pointer:: precipw
  real(kind=RKIND),dimension(:),pointer:: graupelnc,rainnc,snownc
  real(kind=RKIND),dimension(:),pointer:: graupelncv,rainncv,snowncv,sr
@@ -594,6 +595,12 @@
 
  call mpas_pool_get_array(diag_physics,'i_rainnc'  ,i_rainnc  )
  call mpas_pool_get_array(diag_physics,'precipw'   ,precipw   )
+ call mpas_pool_get_array(diag_physics,'precipci'   ,precipci   )
+ call mpas_pool_get_array(diag_physics,'precipcloud'   ,precipcloud   )
+ call mpas_pool_get_array(diag_physics,'precipice'   ,precipice   )
+ call mpas_pool_get_array(diag_physics,'precipgraupel'   ,precipgraupel   )
+ call mpas_pool_get_array(diag_physics,'precipsnow'   ,precipsnow   )
+
  call mpas_pool_get_array(diag_physics,'graupelnc' ,graupelnc )
  call mpas_pool_get_array(diag_physics,'graupelncv',graupelncv)
  call mpas_pool_get_array(diag_physics,'rainnc'    ,rainnc    )
@@ -649,6 +656,15 @@
           !accumulated precipitation:
           snownc(i)    = snownc(i) + snowncv(i)
           graupelnc(i) = graupelnc(i) + graupelncv(i)
+
+         !  do k = kts,kte
+         !      rho_a = rho_p(i,k,j) / (1._RKIND + qv_p(i,k,j))
+         !      precipci(i) = precipci(i) + (qc_p(i,k,j) + qi_p(i,k,j)) * rho_a * dz_p(i,k,j)
+         !      precipcloud(i) = precipcloud(i) + qc_p(i,k,j) * rho_a * dz_p(i,k,j)
+         !      precipice(i) = precipice(i) + qi_p(i,k,j) * rho_a * dz_p(i,k,j)
+         !      precipgraupel(i) = precipgraupel(i) + qg_p(i,k,j) * rho_a * dz_p(i,k,j)
+         !      precipsnow(i) = precipsnow(i) + qs_p(i,k,j) * rho_a * dz_p(i,k,j)
+         !  enddo
        enddo
        enddo
 
