@@ -474,7 +474,7 @@
 !
  slcol_input_select1: select case(trim(config_soilcol_data))
     case('DEFAULT_RAD_NOAH')
-       call mpas_log_write('Using 9-class default NOAH soil colour classes')
+       call mpas_log_write('Using 8-class default NOAH soil colour classes')
        geog_sub_path = 'soilcolour_30s/'
        ! Set default category and default water category for NOAH soil colour.
        ! These will be overwritten if soil colour data sets exist.
@@ -487,7 +487,7 @@
 
        ! Set default category and default water category for NOAH soil colour
        ! These will be overwritten if soil colour data sets exist.
-       isdefault_slcol = 14
+       isdefault_slcol =  4
        iswater_slcol   = 21
     case default
        call mpas_log_write('*****************************************************************', messageType=MPAS_LOG_ERR)
