@@ -599,7 +599,7 @@
  integer, pointer:: nCellsSolve,nSoilLevels
  integer:: iCell,iSoil
  integer:: num_seaice_changes
- integer,dimension(:),pointer:: landmask,isltyp,ivgtyp
+ integer,dimension(:),pointer:: landmask,isltyp,isctyp,ivgtyp
 
  real(kind=RKIND):: xice_threshold
  real(kind=RKIND):: mid_point_depth
