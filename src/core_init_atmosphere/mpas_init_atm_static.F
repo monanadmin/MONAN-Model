@@ -479,7 +479,7 @@
        ! Set default category and default water category for NOAH soil colour.
        ! These will be overwritten if soil colour data sets exist.
        isdefault_slcol = 4
-       iswater_slcol   = 1
+       iswater_slcol   = 4
 
     case('MODIFIED_RAD_CLM_NOAH')
        call mpas_log_write('Using 21-class MODIS 30-arc-second land cover dataset')
@@ -487,8 +487,8 @@
 
        ! Set default category and default water category for NOAH soil colour
        ! These will be overwritten if soil colour data sets exist.
-       isdefault_slcol =  4
-       iswater_slcol   = 21
+       isdefault_slcol =  14
+       iswater_slcol   =  21
     case default
        call mpas_log_write('*****************************************************************', messageType=MPAS_LOG_ERR)
        call mpas_log_write('Invalid soil colour dataset '''//trim(config_soilcol_data) &
@@ -510,12 +510,17 @@
  where (lu_index == isice_lu) soilcat_top = 16
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! KLUDGE TO REPLACE DUMMY OCEAN SOIL COLOUR WITH DEFAULT VALUES
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ where ( soilcol_idx == iswater_slcol ) soilcol_idx = isdefault_slcol
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! CORRECT INCONSISTENT SOIL TYPE, SOIL COLOUR AND LAND USE DATA
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  do iCell = 1,nCells
-    if (lu_index(iCell) == iswater_lu      .or. &
-        soilcat_top(iCell) == iswater_soil .or. &
-        soilcol_idx(iCell) == iswater_slcol ) then
+    if (lu_index(iCell)    == iswater_lu      .or. &
+        soilcat_top(iCell) == iswater_soil ) then
         if (lu_index(iCell) /= iswater_lu) then
             call mpas_log_write('Turning lu_index into water at $i', intArgs=(/iCell/))
             lu_index(iCell) = iswater_lu
@@ -524,10 +529,10 @@
             call mpas_log_write('Turning soilcat_top into water at $i', intArgs=(/iCell/))
             soilcat_top(iCell) = iswater_soil
         end if
-        if (soilcol_idx(iCell) /= iswater_slcol) then
-            call mpas_log_write('Turning soilcol_idx into water at $i', intArgs=(/iCell/))
-            soilcol_idx(iCell) = iswater_slcol
-        end if
+
+        ! Impose the default soil colour for the grid cell
+        call mpas_log_write('Turning soilcol_idx into default at $i', intArgs=(/iCell/))
+        soilcol_idx(iCell) = isdefault_slcol
     end if
  end do
 
@@ -2058,6 +2063,9 @@
 
          call mpas_pool_get_dimension(mesh, 'nCells', nCells)
          call mpas_pool_get_array(mesh, 'soilcol_idx', soilcol_idx)
+
+         ! Overwrite default soil colour to match the data base-specific default.
+         call mpas_pool_add_config(mgr % pool, 'islcolwater', iswater_slcol)
 
          ! Define the entire domain with the default soil colour index
          soilcol_idx(1:nCells) = isdefault_slcol
