@@ -690,10 +690,10 @@ intel-xd2000:
         "CC_SERIAL = cc" \
         "CXX_SERIAL = CC" \
         "FFLAGS_PROMOTION = -real-size 64" \
-        "FFLAGS_OPT = -O3 -convert big_endian -FR -traceback" \
-        "CFLAGS_OPT = -O3 -std=gnu90 -traceback" \
-        "CXXFLAGS_OPT = -O3 -traceback" \
-        "LDFLAGS_OPT = -O3 -traceback" \
+        "FFLAGS_OPT = -O3 -convert big_endian -FR" \
+        "CFLAGS_OPT = -O3 -std=gnu90" \
+        "CXXFLAGS_OPT = -O3" \
+        "LDFLAGS_OPT = -O3" \
         "FFLAGS_DEBUG = -g -convert big_endian -free -check bounds,pointers,arg_temp_created,format,shape,contiguous -ftrapuv -fpe0 -traceback -Qoption,fpp,-macro_expand=vc" \
         "CFLAGS_DEBUG = -g -traceback" \
         "CXXFLAGS_DEBUG = -g -traceback" \
@@ -715,10 +715,10 @@ intel2-xd2000:
         "CC_SERIAL = cc" \
         "CXX_SERIAL = CC" \
         "FFLAGS_PROMOTION = -real-size 64" \
-        "FFLAGS_OPT = -O2 -convert big_endian -FR -traceback" \
-        "CFLAGS_OPT = -O2 -std=gnu90 -traceback" \
-        "CXXFLAGS_OPT = -O2 -traceback" \
-        "LDFLAGS_OPT = -O2 -traceback" \
+        "FFLAGS_OPT = -O2 -convert big_endian -FR" \
+        "CFLAGS_OPT = -O2 -std=gnu90" \
+        "CXXFLAGS_OPT = -O2" \
+        "LDFLAGS_OPT = -O2" \
         "FFLAGS_DEBUG = -g -convert big_endian -free -check bounds,pointers,arg_temp_created,format,shape,contiguous -fpe0 -ftrapuv -traceback -Qoption,fpp,-macro_expand=vc" \
         "CFLAGS_DEBUG = -g -traceback" \
         "CFLAGS_DEBUG = -g -traceback" \
