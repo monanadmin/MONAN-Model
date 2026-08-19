@@ -2064,9 +2064,6 @@
          call mpas_pool_get_dimension(mesh, 'nCells', nCells)
          call mpas_pool_get_array(mesh, 'soilcol_idx', soilcol_idx)
 
-         ! Overwrite default soil colour to match the data base-specific default.
-         call mpas_pool_add_config(mgr % pool, 'islcolwater', iswater_slcol)
-
          ! Define the entire domain with the default soil colour index
          soilcol_idx(1:nCells) = isdefault_slcol
 
