@@ -138,7 +138,7 @@
  integer:: icheck
  integer:: iCell,iSoil
  integer:: nb_to_land,nb_to_ocean,nb_removed
- integer,dimension(:),pointer:: isltyp,ivgtyp,landmask
+ integer,dimension(:),pointer:: isltyp,isctyp,ivgtyp,landmask
 
  real(kind=RKIND):: local_min,local_max
  real(kind=RKIND):: global_sst_min,global_sst_max
@@ -152,6 +152,7 @@
  call mpas_pool_get_array(sfc_input,'isice'     ,isice     )
  call mpas_pool_get_array(sfc_input,'iswater'   ,iswater   )
  call mpas_pool_get_array(sfc_input,'isltyp'    ,isltyp    )
+ call mpas_pool_get_array(sfc_input,'isctyp'    ,isctyp    )
  call mpas_pool_get_array(sfc_input,'ivgtyp'    ,ivgtyp    )
  call mpas_pool_get_array(sfc_input,'landmask'  ,landmask  )
  call mpas_pool_get_array(sfc_input,'vegfra'    ,vegfra    )
@@ -218,6 +219,7 @@
     !... sea-ice points are converted to land points:
        ivgtyp(iCell) = isice
        isltyp(iCell) = 16
+       isctyp(iCell) = 4
        vegfra(iCell) = 0._RKIND
        xland(iCell)  = 1._RKIND
        tmn(iCell)    = 271.4_RKIND
@@ -243,6 +245,7 @@
        !land points turn to water points:
        ivgtyp(iCell) = iswater
        isltyp(iCell) = 14
+       isctyp(iCell) = 4
        vegfra(iCell) = 0._RKIND
        xland(iCell)  = 2._RKIND
        tmn(iCell)    = sst(iCell)

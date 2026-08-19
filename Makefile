@@ -694,10 +694,10 @@ intel-xd2000:
         "CFLAGS_OPT = -O3 -std=gnu90" \
         "CXXFLAGS_OPT = -O3" \
         "LDFLAGS_OPT = -O3" \
-	"FFLAGS_DEBUG = -g -convert big_endian -free -check bounds,pointers,arg_temp_created,format,shape,contiguous -fpe0 -traceback -Qoption,fpp,-macro_expand=vc" \
+        "FFLAGS_DEBUG = -g -convert big_endian -free -check bounds,pointers,arg_temp_created,format,shape,contiguous -ftrapuv -fpe0 -traceback -Qoption,fpp,-macro_expand=vc" \
         "CFLAGS_DEBUG = -g -traceback" \
         "CXXFLAGS_DEBUG = -g -traceback" \
-	"LDFLAGS_DEBUG = -g -traceback" \
+        "LDFLAGS_DEBUG = -g -traceback" \
         "FFLAGS_OMP = -qopenmp" \
         "CFLAGS_OMP = -qopenmp" \
         "CORE = $(CORE)" \
@@ -719,8 +719,8 @@ intel2-xd2000:
         "CFLAGS_OPT = -O2 -std=gnu90" \
         "CXXFLAGS_OPT = -O2" \
         "LDFLAGS_OPT = -O2" \
-	"FFLAGS_DEBUG = -g -convert big_endian -free -check bounds,pointers,arg_temp_created,format,shape,contiguous -fpe0 -traceback -Qoption,fpp,-macro_expand=vc" \
-	"CFLAGS_DEBUG = -g -traceback" \
+        "FFLAGS_DEBUG = -g -convert big_endian -free -check bounds,pointers,arg_temp_created,format,shape,contiguous -fpe0 -ftrapuv -traceback -Qoption,fpp,-macro_expand=vc" \
+        "CFLAGS_DEBUG = -g -traceback" \
         "CFLAGS_DEBUG = -g -traceback" \
         "CXXFLAGS_DEBUG = -g -traceback" \
         "LDFLAGS_DEBUG = -g -traceback" \
