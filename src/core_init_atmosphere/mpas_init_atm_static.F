@@ -93,6 +93,7 @@
  real (kind=RKIND) :: soilcomp_msgval = 255.0_RKIND   ! Modified later based on index file for soilcomp
  integer, dimension(:), pointer :: lu_index
  integer, dimension(:), pointer :: soilcat_top
+ integer, dimension(:), pointer :: soilcol_idx
  integer, dimension(:), pointer :: nhs
  integer, dimension(:,:), allocatable:: ncat
  ! Landmask is used by the accumulation function for maxsnoalb and soilcomp,
@@ -122,6 +123,7 @@
  character(kind=c_char), dimension(StrKIND+1) :: c_fname
  character(len=StrKIND), pointer :: config_geog_data_path
  character(len=StrKIND), pointer :: config_landuse_data
+ character(len=StrKIND), pointer :: config_soilcol_data
  character(len=StrKIND), pointer :: config_topo_data
  character(len=StrKIND), pointer :: config_vegfrac_data
  character(len=StrKIND), pointer :: config_albedo_data
@@ -155,6 +157,8 @@
 
  integer, pointer :: isice_lu, iswater_lu
  integer :: iswater_soil
+ integer :: iswater_slcol
+ integer :: isdefault_slcol
  integer, pointer :: nCells, nCellsSolve, nEdges, nVertices, maxEdges
  logical, pointer :: on_a_sphere
  real (kind=RKIND), pointer :: sphere_radius
@@ -185,9 +189,11 @@
  real (kind=RKIND), pointer :: missing_value
  integer, dimension(:), pointer :: lu_index
  integer, dimension(:), pointer :: soilcat_top
+ integer, dimension(:), pointer :: soilcol_idx
  integer, dimension(:), pointer :: landmask
  integer, dimension(:), pointer :: bdyMaskCell
  character(len=StrKIND), pointer :: mminlu
+ character(len=StrKIND), pointer :: mminsc
 
  real (kind=RKIND) :: xPixel, yPixel, zPixel
 
@@ -217,6 +223,7 @@
  call mpas_pool_get_config(configs, 'config_geog_data_path', config_geog_data_path)
  call mpas_pool_get_config(configs, 'config_landuse_data', config_landuse_data)
  call mpas_pool_get_config(configs, 'config_soilcat_data', config_soilcat_data)
+ call mpas_pool_get_config(configs, 'config_soilcol_data', config_soilcol_data)
  call mpas_pool_get_config(configs, 'config_topo_data', config_topo_data)
  call mpas_pool_get_config(configs, 'config_vegfrac_data', config_vegfrac_data)
  call mpas_pool_get_config(configs, 'config_albedo_data', config_albedo_data)
@@ -267,9 +274,11 @@
 
  call mpas_pool_get_array(mesh, 'lu_index', lu_index)
  call mpas_pool_get_array(mesh, 'mminlu', mminlu)
+ call mpas_pool_get_array(mesh, 'mminsc', mminsc)
  call mpas_pool_get_array(mesh, 'isice_lu', isice_lu)
  call mpas_pool_get_array(mesh, 'iswater_lu', iswater_lu)
  call mpas_pool_get_array(mesh, 'soilcat_top', soilcat_top)
+ call mpas_pool_get_array(mesh, 'soilcol_idx', soilcol_idx)
  call mpas_pool_get_array(mesh, 'landmask', landmask)
  call mpas_pool_get_array(mesh, 'snoalb', snoalb)
  call mpas_pool_get_array(mesh, 'greenfrac', greenfrac)
@@ -367,6 +376,23 @@
  end select surface_input_select0
 
 !
+! Set soil colour parameters for soil albedo
+!
+ slcol_input_select0: select case(trim(config_soilcol_data))
+    case('DEFAULT_RAD_NOAH')
+       write(mminsc,'(a)') 'DEFAULT_RAD_NOAH'
+    case('MODIFIED_RAD_CLM_NOAH')
+       write(mminsc,'(a)') 'MODIFIED_RAD_CLM_NOAH'
+    case default
+         call mpas_log_write('*****************************************************************', messageType=MPAS_LOG_ERR)
+         call mpas_log_write('Invalid soil colour dataset '''//trim(config_soilcol_data) &
+                                       //''' selected for config_soilcol_data',                   messageType=MPAS_LOG_ERR)
+         call mpas_log_write('   Possible options are: ''DEFAULT_RAD_NOAH'', ''MODIFIED_RAD_CLM_NOAH''',   messageType=MPAS_LOG_ERR)
+         call mpas_log_write('*****************************************************************', messageType=MPAS_LOG_ERR)
+         call mpas_log_write('Please correct the namelist.', messageType=MPAS_LOG_CRIT)
+ end select slcol_input_select0
+
+!
 ! Interpolate HGT
 !
  select case(trim(config_topo_data))
@@ -443,17 +469,53 @@
                      supersample_fac=supersample_fac_30s)
  call mpas_log_write('--- end interpolate SOILCAT_TOP')
 
+!
+! Interpolate SOILCOL_IDX
+!
+ slcol_input_select1: select case(trim(config_soilcol_data))
+    case('DEFAULT_RAD_NOAH')
+       call mpas_log_write('Using 9-class default NOAH soil colour classes')
+       geog_sub_path = 'soilcolour_30s/'
+       ! Set default category and default water category for NOAH soil colour.
+       ! These will be overwritten if soil colour data sets exist.
+       isdefault_slcol = 4
+       iswater_slcol   = 1
+
+    case('MODIFIED_RAD_CLM_NOAH')
+       call mpas_log_write('Using 21-class MODIS 30-arc-second land cover dataset')
+       geog_sub_path = 'clm_soilcolour_21class_30s/'
+
+       ! Set default category and default water category for NOAH soil colour
+       ! These will be overwritten if soil colour data sets exist.
+       isdefault_slcol = 14
+       iswater_slcol   = 21
+    case default
+       call mpas_log_write('*****************************************************************', messageType=MPAS_LOG_ERR)
+       call mpas_log_write('Invalid soil colour dataset '''//trim(config_soilcol_data) &
+                                     //''' selected for config_landuse_data',                   messageType=MPAS_LOG_ERR)
+       call mpas_log_write('   Possible options are: ''DEFAULT_RAD_NOAH'', ''MODIFIED_RAD_CLM_NOAH''',   messageType=MPAS_LOG_ERR)
+       call mpas_log_write('*****************************************************************', messageType=MPAS_LOG_ERR)
+       call mpas_log_write('Please correct the namelist.', messageType=MPAS_LOG_CRIT)
+ end select slcol_input_select1
+
+ ! Call interpolation routine for soil colour.
+ call mpas_log_write('--- start interpolate SOILCOL_IDX')
+ call interp_soilcol(mesh, tree, trim(geog_data_path)//trim(geog_sub_path), &
+                     isdefault_slcol, iswater_slcol, supersample_fac=supersample_fac_30s)
+ call mpas_log_write('--- end interpolate SOILCOL_IDX')
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! KLUDGE TO FIX SOIL TYPE OVER ANTARCTICA
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  where (lu_index == isice_lu) soilcat_top = 16
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! CORRECT INCONSISTENT SOIL AND LAND USE DATA
+! CORRECT INCONSISTENT SOIL TYPE, SOIL COLOUR AND LAND USE DATA
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  do iCell = 1,nCells
-    if (lu_index(iCell) == iswater_lu .or. &
-        soilcat_top(iCell) == iswater_soil) then
+    if (lu_index(iCell) == iswater_lu      .or. &
+        soilcat_top(iCell) == iswater_soil .or. &
+        soilcol_idx(iCell) == iswater_slcol ) then
         if (lu_index(iCell) /= iswater_lu) then
             call mpas_log_write('Turning lu_index into water at $i', intArgs=(/iCell/))
             lu_index(iCell) = iswater_lu
@@ -461,6 +523,10 @@
         if (soilcat_top(iCell) /= iswater_soil) then
             call mpas_log_write('Turning soilcat_top into water at $i', intArgs=(/iCell/))
             soilcat_top(iCell) = iswater_soil
+        end if
+        if (soilcol_idx(iCell) /= iswater_slcol) then
+            call mpas_log_write('Turning soilcol_idx into water at $i', intArgs=(/iCell/))
+            soilcol_idx(iCell) = iswater_slcol
         end if
     end if
  end do
@@ -1935,6 +2001,104 @@
      nullify(category_max)
 
  end subroutine interp_soilcat
+
+ !***********************************************************************
+ !
+ !  routine interp_soilcol
+ !
+ !> \brief   Interpolate soil colour indices
+ !> \author  Marcos Longo
+ !> \date    15 October 2025
+ !> \details
+ !> This sub-routine is based on interp_soilcat. The procedure interpolates soil 
+ !>    colour indices by using the init_atm_map_static_data routine and then by
+ !>    accumulating the pixel values into each cell using 
+ !>    category_interp_accumulation.
+ !>
+ !> Variable mesh should be an mpas_pool that contains nCells and soilcol_idx;
+ !>     kdtree should be an initialised mpas_kd_type tree with dimensions 
+ !>    (xCell, yCell, zCell); and geog_data_path should be the path to the 
+ !>    soil colour index data set.  The values used by this data set to flag
+ !>    pixels with no data (e.g., pixels fully covered with water or ice).  Some
+ !>    data sets may not have the no data flag, but we harmonise this data set
+ !>    with the land use class mapping.
+ !>
+ !> In case the path is not found, instead of issuing an error, the routine will
+ !>   simply assume constant soil colour indices across the entire domain. This 
+ !>   is done because data sets may or may not be available, so we add the fall
+ !>   back is implemented for back compatibility.
+ !-----------------------------------------------------------------------
+ subroutine interp_soilcol(mesh, kdtree, geog_data_path, isdefault_slcol, iswater_slcol, &
+                           supersample_fac)
+
+     implicit none
+
+     ! Input variables
+     type (mpas_pool_type), intent(inout) :: mesh
+     type (mpas_kd_type), pointer, intent(in) :: kdtree
+     character (len=*), intent(in) :: geog_data_path
+     integer, intent(in) :: isdefault_slcol
+     integer, intent(inout) :: iswater_slcol
+     integer, intent(in), optional :: supersample_fac
+
+     ! Local variables
+     type (mpas_geotile_mgr_type) :: mgr
+     integer, pointer :: nCells
+     integer, pointer :: iswater_slcol_ptr
+
+     real (kind=RKIND), pointer :: scalefactor
+
+     integer :: iCell
+     integer :: ierr
+
+     ierr = mgr % init(trim(geog_data_path))
+     if (ierr /= 0) then
+         call mpas_log_write("--> Warning: error occured initalising interpolation for "//trim(geog_data_path)//".")
+         call mpas_log_write("    Assuming constant soil colour for the entire domain.")
+
+         call mpas_pool_get_dimension(mesh, 'nCells', nCells)
+         call mpas_pool_get_array(mesh, 'soilcol_idx', soilcol_idx)
+
+         ! Define the entire domain with the default soil colour index
+         soilcol_idx(1:nCells) = isdefault_slcol
+
+         return
+     end if
+
+     call mpas_pool_get_dimension(mesh, 'nCells', nCells)
+     call mpas_pool_get_array(mesh, 'soilcol_idx', soilcol_idx)
+     call mpas_pool_get_config(mgr % pool, 'scale_factor', scalefactor      )
+     call mpas_pool_get_config(mgr % pool, 'category_min', category_min     )
+     call mpas_pool_get_config(mgr % pool, 'category_max', category_max     )
+     call mpas_pool_get_config(mgr % pool, 'islcolwater' , iswater_slcol_ptr)
+
+     iswater_slcol = iswater_slcol_ptr
+
+     allocate(ncat(category_min:category_max, nCells))
+     ncat(:,:) = 0
+
+     call init_atm_map_static_data(mesh, mgr, kdtree, categorical_interp_criteria, categorical_interp_accumulation, &
+                                   supersample_fac=supersample_fac)
+
+     do iCell = 1, nCells
+        !     Variable ncat will tally the classes occurring in the grid cell. We select the class that has the 
+        ! highest count as the value representing the grid cell. We use maxloc for this, however, maxloc returns
+        ! the index corresponding to the maximum value starting from 1. We shift the result to make sure the 
+        ! category value correctly maps between category_min and category_max. 
+        soilcol_idx(iCell) = maxloc(ncat(:,iCell), dim=1) - 1 + category_min
+     end do
+     deallocate(ncat)
+
+     ierr = mgr % finalize()
+     if (ierr /= 0) then
+         call mpas_log_write("Error occured finalising interpolation for "//trim(geog_data_path), messageType=MPAS_LOG_CRIT)
+         return
+     end if
+
+     nullify(category_min)
+     nullify(category_max)
+
+ end subroutine interp_soilcol
 
  !***********************************************************************
  !

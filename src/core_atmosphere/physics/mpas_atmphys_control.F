@@ -157,24 +157,24 @@ else if (trim(config_physics_suite) == 'mesoscale_reference_monan') then
     if (trim(config_microp_scheme)     == 'suite') config_microp_scheme     = 'mp_wsm6'
     if (trim(config_convection_scheme) == 'suite') config_convection_scheme = 'cu_gf_monan'
     if (trim(config_pbl_scheme)        == 'suite') config_pbl_scheme        = 'bl_mynn'
-    if (trim(config_gwdo_scheme)       == 'suite') config_gwdo_scheme       = 'bl_ysu_gwdo'
+    if (trim(config_gwdo_scheme)       == 'suite') config_gwdo_scheme       = 'bl_ugwp_gwdo'
     if (trim(config_radt_lw_scheme)    == 'suite') config_radt_lw_scheme    = 'rrtmg_lw'
     if (trim(config_radt_sw_scheme)    == 'suite') config_radt_sw_scheme    = 'rrtmg_sw'
     if (trim(config_radt_cld_scheme)   == 'suite') config_radt_cld_scheme   = 'cld_fraction_monan'
     if (trim(config_sfclayer_scheme)   == 'suite') config_sfclayer_scheme   = 'sf_mynn'
-    if (trim(config_lsm_scheme)        == 'suite') config_lsm_scheme        = 'sf_noah'
-
+    if (trim(config_lsm_scheme)        == 'suite') config_lsm_scheme        = 'sf_noahmp'
+    
  else if (trim(config_physics_suite) == 'convection_permitting_monan') then
 
     if (trim(config_microp_scheme)     == 'suite') config_microp_scheme     = 'mp_thompson'
     if (trim(config_convection_scheme) == 'suite') config_convection_scheme = 'cu_gf_monan'
     if (trim(config_pbl_scheme)        == 'suite') config_pbl_scheme        = 'bl_mynn'
-    if (trim(config_gwdo_scheme)       == 'suite') config_gwdo_scheme       = 'bl_ysu_gwdo'
+    if (trim(config_gwdo_scheme)       == 'suite') config_gwdo_scheme       = 'bl_ugwp_gwdo'
     if (trim(config_radt_lw_scheme)    == 'suite') config_radt_lw_scheme    = 'rrtmg_lw'
     if (trim(config_radt_sw_scheme)    == 'suite') config_radt_sw_scheme    = 'rrtmg_sw'
     if (trim(config_radt_cld_scheme)   == 'suite') config_radt_cld_scheme   = 'cld_fraction_monan'
     if (trim(config_sfclayer_scheme)   == 'suite') config_sfclayer_scheme   = 'sf_mynn'
-    if (trim(config_lsm_scheme)        == 'suite') config_lsm_scheme        = 'sf_noah'
+    if (trim(config_lsm_scheme)        == 'suite') config_lsm_scheme        = 'sf_noahmp'
 
  else if (trim(config_physics_suite) == 'none') then
 
@@ -358,11 +358,12 @@ else if (trim(config_physics_suite) == 'mesoscale_reference_monan') then
  end subroutine physics_namelist_check
 
 !=================================================================================================================
- subroutine physics_registry_init(mesh,configs,sfc_input)
+ subroutine physics_registry_init(mesh,dims,configs,sfc_input)
 !=================================================================================================================
 
 !input arguments:
  type(mpas_pool_type),intent(in):: mesh
+ type(mpas_pool_type),intent(in):: dims
  type(mpas_pool_type),intent(in):: configs
 
 !inout arguments:
@@ -372,40 +373,52 @@ else if (trim(config_physics_suite) == 'mesoscale_reference_monan') then
  logical,pointer:: config_do_restart
  character(len=StrKIND),pointer:: config_lsm_scheme
  integer,pointer:: nCells
+ integer, pointer :: nSoilLevels
  integer,dimension(:),pointer:: landmask
 
- real(kind=RKIND),dimension(:,:),pointer:: dzs
+ real(kind=RKIND),dimension(:,:), pointer :: dzs
+ real(kind=RKIND),dimension(:)  , pointer :: dzstop, kzs
 
 !local variables:
  integer:: iCell
+ integer:: iSoil
 
 !-----------------------------------------------------------------------------------------------------------------
 
  call mpas_pool_get_config(configs,'config_do_restart',config_do_restart)
  call mpas_pool_get_config(configs,'config_lsm_scheme',config_lsm_scheme)
+ call mpas_pool_get_dimension(dims, 'nSoilLevels', nSoilLevels)
 
  call mpas_pool_get_dimension(mesh,'nCells',nCells)
 
  call mpas_pool_get_array(sfc_input,'landmask',landmask)
  call mpas_pool_get_array(sfc_input,'dzs'     , dzs    )
+ call mpas_pool_get_array(sfc_input,'dzstop'  , dzstop )
+ call mpas_pool_get_array(sfc_input,'kzs'     , kzs    )
+
+
+ 
 
 !initialization of input variables, if needed:
-
  if(.not. config_do_restart) then
 
     lsm_select: select case(trim(config_lsm_scheme))
+    case("sf_noah","sf_noahmp")
+       ! Report soil layers as defined during the initialisation step.
+       call mpas_log_write(' ')
+       call mpas_log_write('---~---')
+       call mpas_log_write('   Soil depth layers (physics_registry_init)')
+       call mpas_log_write('---~---')
+       iCell = min(2,nCells)
+       do iSoil=1, nSoilLevels
+          call mpas_log_write(' Layer $i - Thickness = $r' &
+                             ,intArgs=(/iSoil/),realArgs=(/dzs(iSoil,iCell)/))
+       end do
+       call mpas_log_write('---~---')
+       call mpas_log_write(' ')
 
-       case("sf_noah","sf_noahmp")
-       !initialize the thickness of the soil layers for the Noah scheme:
-          do iCell = 1, nCells
-             dzs(1,iCell) = 0.10_RKIND
-             dzs(2,iCell) = 0.30_RKIND
-             dzs(3,iCell) = 0.60_RKIND
-             dzs(4,iCell) = 1.00_RKIND
-          enddo
+    case default
 
-       case default
-    
     end select lsm_select
     
  endif

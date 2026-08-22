@@ -31,6 +31,7 @@ OBJS =  ConstantDefineMod.o \
 	IrrigationInfilPhilipMod.o \
 	IrrigationMicroMod.o \
 	MatrixSolverTriDiagonalMod.o \
+	NoahmpFatalErrorMod.o \
 	RunoffSubSurfaceDrainageMod.o \
 	RunoffSubSurfaceEquiWaterTableMod.o \
 	RunoffSubSurfaceGroundWaterMod.o \
@@ -168,6 +169,7 @@ IrrigationInfilPhilipMod.o:           ../utility/Machine.o NoahmpVarType.o Const
 IrrigationMicroMod.o:                 ../utility/Machine.o NoahmpVarType.o ConstantDefineMod.o \
                                       IrrigationInfilPhilipMod.o
 MatrixSolverTriDiagonalMod.o:         ../utility/Machine.o NoahmpVarType.o ConstantDefineMod.o
+NoahmpFatalErrorMod.o:                ../utility/Machine.o
 RunoffSubSurfaceDrainageMod.o:        ../utility/Machine.o NoahmpVarType.o ConstantDefineMod.o
 RunoffSubSurfaceEquiWaterTableMod.o:  ../utility/Machine.o NoahmpVarType.o ConstantDefineMod.o \
                                       WaterTableEquilibriumMod.o
@@ -301,10 +303,10 @@ BiochemNatureVegMainMod.o:               ../utility/Machine.o NoahmpVarType.o Co
 BiochemCropMainMod.o:                    ../utility/Machine.o NoahmpVarType.o ConstantDefineMod.o CarbonFluxCropMod.o \
                                          CropGrowDegreeDayMod.o CropPhotosynthesisMod.o
 IrrigationPrepareMod.o:                  ../utility/Machine.o NoahmpVarType.o ConstantDefineMod.o IrrigationTriggerMod.o
-BalanceErrorCheckMod.o:                  ../utility/Machine.o NoahmpVarType.o ConstantDefineMod.o
+BalanceErrorCheckMod.o:                  ../utility/Machine.o NoahmpFatalErrorMod.o NoahmpVarType.o ConstantDefineMod.o
 GeneralInitMod.o:                        ../utility/Machine.o NoahmpVarType.o ConstantDefineMod.o
 GroundWaterMmfMod.o:                     ../utility/Machine.o NoahmpVarType.o ../drivers/hrldas/NoahmpIOVarType.o
-BalanceErrorCheckGlacierMod.o:           ../utility/Machine.o NoahmpVarType.o ConstantDefineMod.o
+BalanceErrorCheckGlacierMod.o:           ../utility/Machine.o NoahmpFatalErrorMod.o NoahmpVarType.o ConstantDefineMod.o
 EnergyMainGlacierMod.o:                  ../utility/Machine.o NoahmpVarType.o ConstantDefineMod.o SnowCoverGlacierMod.o \
                                          GroundRoughnessPropertyGlacierMod.o GroundThermalPropertyGlacierMod.o \
                                          SurfaceAlbedoGlacierMod.o SurfaceRadiationGlacierMod.o SurfaceEmissivityGlacierMod.o \
@@ -347,5 +349,5 @@ clean:
 	$(RM) *.i
 
 .F90.o:
-	$(FC) $(CPPFLAGS) $(COREDEF) $(FFLAGS_NONSTD) -c $*.F90 $(CPPINCLUDES) $(FCINCLUDES) -I../utility -I../../../../framework
+	$(FC) $(CPPFLAGS) $(COREDEF) $(FFLAGS_NONSTD) -c $*.F90 $(CPPINCLUDES) $(FCINCLUDES) -I../utility -I../../../../framework -I../../../../external/esmf_time_f90
 

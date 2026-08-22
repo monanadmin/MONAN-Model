@@ -58,7 +58,7 @@
 
  integer:: i,its,ite
  integer:: n,ns,nsoil,nsnow,nzsnow
- integer,dimension(:),pointer:: isltyp,ivgtyp
+ integer,dimension(:),pointer:: isltyp,isctyp,ivgtyp
 
  real(kind=RKIND),dimension(:),pointer:: latCell,lonCell
  real(kind=RKIND),dimension(:),pointer:: shdmax,shdmin,vegfra,tmn,xice,xland
@@ -842,12 +842,8 @@
        snicexy(ns,i) = mpas_noahmp%snicexy(i,n)
        snliqxy(ns,i) = mpas_noahmp%snliqxy(i,n)
     enddo
-    do ns = 1,nsnow
+    do ns = 1,nzsnow
        n = ns - nsnow
-       zsnsoxy(ns,i) = mpas_noahmp%zsnsoxy(i,n)
-    enddo
-    do ns = nsnow+1,nzsnow
-       n = ns - nsoil + 1
        zsnsoxy(ns,i) = mpas_noahmp%zsnsoxy(i,n)
     enddo
  enddo

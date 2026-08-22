@@ -5,6 +5,8 @@ module BalanceErrorCheckGlacierMod
   use Machine
   use NoahmpVarType
   use ConstantDefineMod
+  use NoahmpFatalErrorMod,only: Noahmp_error_fatal
+  use mpas_log
 
   implicit none
 
@@ -77,19 +79,22 @@ contains
 
 #ifndef WRF_HYDRO
     if ( abs(WaterBalanceError) > 0.1 ) then
-       if ( WaterBalanceError > 0) then
-          write(*,*) "The model is gaining water (WaterBalanceError is positive)"
-       else
-          write(*,*) "The model is losing water (WaterBalanceError is negative)"
-       endif
-       write(*,*) "WaterBalanceError = ",WaterBalanceError, "kg m{-2} timestep{-1}"
-       write(*, &
-           '("  GridIndexI   GridIndexJ     WaterStorageTotEnd  WaterStorageTotBeg  PrecipTotRefHeight  &
-                EvapGroundNet  RunoffSurface  RunoffSubsurface")')
-       write(*,'(i6,1x,i6,1x,2f15.3,9f11.5)') GridIndexI, GridIndexJ, WaterStorageTotEnd, WaterStorageTotBeg, &
-                                              PrecipTotRefHeight*MainTimeStep, EvapGroundNet*MainTimeStep,    &
-                                              RunoffSurface*MainTimeStep, RunoffSubsurface*MainTimeStep
-       stop "Error: Water budget problem in NoahMP LSM"
+       call mpas_log_write(' ')
+       call mpas_log_write('---~---')
+       call mpas_log_write('   Noah-MP water budget conservation error (glacier):')
+       call mpas_log_write('---~---')
+       call mpas_log_write('   GridIndexI                  = $i ', intArgs  = (/ GridIndexI                      /) )
+       call mpas_log_write('   GridIndexJ                  = $i ', intArgs  = (/ GridIndexJ                      /) )
+       call mpas_log_write('   WaterStorageTotBeg          = $r ', realArgs = (/ WaterStorageTotBeg              /) )
+       call mpas_log_write('   WaterStorageTotEnd          = $r ', realArgs = (/ WaterStorageTotEnd              /) )
+       call mpas_log_write('   WaterBalanceError           = $r ', realArgs = (/ WaterBalanceError               /) )
+       call mpas_log_write('                                 (positive value above means water gain).'              )
+       call mpas_log_write('   PrecipTotRefHeight          = $r ', realArgs = (/ PrecipTotRefHeight*MainTimeStep /) )
+       call mpas_log_write('   EvapGroundNet               = $r ', realArgs = (/ EvapGroundNet*MainTimeStep      /) )
+       call mpas_log_write('   RunoffSurface               = $r ', realArgs = (/ RunoffSurface*MainTimeStep      /) )
+       call mpas_log_write('   RunoffSubsurface            = $r ', realArgs = (/ RunoffSubsurface*MainTimeStep   /) )
+       call mpas_log_write(' ')
+       call Noahmp_error_fatal("Error: Water budget problem in NoahMP LSM (glacier)")
     endif
 #endif
 
@@ -133,27 +138,45 @@ contains
     RadSwBalanceError = RadSwDownRefHeight - (RadSwAbsSfc + RadSwReflSfc)
     ! print out diagnostics when error is large
     if ( abs(RadSwBalanceError) > 0.01 ) then
-       write(*,*) "GridIndexI, GridIndexJ = ", GridIndexI, GridIndexJ
-       write(*,*) "RadSwBalanceError      = ", RadSwBalanceError
-       write(*,*) "RadSwDownRefHeight     = ", RadSwDownRefHeight
-       write(*,*) "RadSwReflSfc           = ", RadSwReflSfc
-       write(*,*) "RadSwAbsGrd            = ", RadSwAbsGrd
-       write(*,*) "RadSwAbsSfc            = ", RadSwAbsSfc
-       stop "Error: Solar radiation budget problem in NoahMP LSM"
+       call mpas_log_write(' ')
+       call mpas_log_write('---~---')
+       call mpas_log_write('   Noah-MP solar radiation budget conservation error (glacier):')
+       call mpas_log_write('---~---')
+       call mpas_log_write('   GridIndexI                          = $i ', intArgs  = (/ GridIndexI           /) )
+       call mpas_log_write('   GridIndexJ                          = $i ', intArgs  = (/ GridIndexJ           /) )
+       call mpas_log_write('   RadSwBalanceError                   = $r ', realArgs = (/ RadSwBalanceError    /) )
+       call mpas_log_write('                                         (positive value above means energy gain).'  )
+       call mpas_log_write('   RadSwBalanceError                   = $r ', realArgs = (/ RadSwBalanceError    /) )
+       call mpas_log_write('   RadSwDownRefHeight                  = $r ', realArgs = (/ RadSwDownRefHeight   /) )
+       call mpas_log_write('   RadSwReflSfc                        = $r ', realArgs = (/ RadSwReflSfc         /) )
+       call mpas_log_write('   RadSwAbsGrd                         = $r ', realArgs = (/ RadSwAbsGrd          /) )
+       call mpas_log_write('   RadSwAbsSfc                         = $r ', realArgs = (/ RadSwAbsSfc          /) )
+       call mpas_log_write('---~---')
+       call mpas_log_write(' ')
+       call Noahmp_error_fatal("Error: Solar radiation budget problem in NoahMP LSM (glacier)")
     endif
 
     ! error in surface energy balance should be <0.01 W/m2
     EnergyBalanceError = RadSwAbsGrd + HeatPrecipAdvSfc - (RadLwNetSfc + HeatSensibleSfc + HeatLatentGrd + HeatGroundTot)
     ! print out diagnostics when error is large
     if ( abs(EnergyBalanceError) > 0.01 ) then
-       write(*,*) 'EnergyBalanceError = ', EnergyBalanceError, ' at GridIndexI,GridIndexJ: ', GridIndexI, GridIndexJ
-       write(*,'(a17,F10.4)' ) "Net longwave:       ", RadLwNetSfc
-       write(*,'(a17,F10.4)' ) "Total sensible:     ", HeatSensibleSfc
-       write(*,'(a17,F10.4)' ) "Ground evap:        ", HeatLatentGrd
-       write(*,'(a17,F10.4)' ) "Total ground:       ", HeatGroundTot
-       write(*,'(a17,4F10.4)') "Precip advected:    ", HeatPrecipAdvSfc
-       write(*,'(a17,F10.4)' ) "absorbed shortwave: ", RadSwAbsGrd
-       stop "Error: Surface energy budget problem in NoahMP LSM"
+       call mpas_log_write(' ')
+       call mpas_log_write('---~---')
+       call mpas_log_write('   Noah-MP energy budget conservation error (glacier):')
+       call mpas_log_write('---~---')
+       call mpas_log_write('   GridIndexI                  = $i ', intArgs  = (/ GridIndexI           /) )
+       call mpas_log_write('   GridIndexJ                  = $i ', intArgs  = (/ GridIndexJ           /) )
+       call mpas_log_write('   EnergyBalanceError          = $r ', realArgs = (/ EnergyBalanceError   /) )
+       call mpas_log_write('                                 (positive value above energy gain).'        )
+       call mpas_log_write('   Net longwave                = $r ', realArgs = (/ RadLwNetSfc          /) )
+       call mpas_log_write('   Total sensible              = $r ', realArgs = (/ HeatSensibleSfc      /) )
+       call mpas_log_write('   Ground evap                 = $r ', realArgs = (/ HeatLatentGrd        /) )
+       call mpas_log_write('   Total ground                = $r ', realArgs = (/ HeatGroundTot        /) )
+       call mpas_log_write('   Precip advected             = $r ', realArgs = (/ HeatPrecipAdvSfc     /) )
+       call mpas_log_write('   Absorbed shortwave          = $r ', realArgs = (/ RadSwAbsGrd          /) )
+       call mpas_log_write('---~---')
+       call mpas_log_write(' ')
+       call Noahmp_error_fatal("Error: Energy budget problem in NoahMP LSM (glacier)")
     endif
 
     end associate

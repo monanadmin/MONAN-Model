@@ -111,6 +111,16 @@
                      description="When config_split_dynamics_transport = T, the number of RK steps per transport step"
                      possible_values="Positive integer values"/>
 
+                <nml_option name="config_coldstart_substeps" type="integer" default_value="1"
+                     units="-"
+                     description="Number of dynamics sub-steps per full timestep during cold-start stabilization window. Each full timestep dt is advanced as substeps of dt/config_coldstart_substeps. Physics timestep is unchanged. Set to 1 to disable (default). Recommended value: 3 for cold-starts from GFS analysis at 10 km resolution."
+                     possible_values="Positive integer values (1 = disabled, 3 recommended for cold-start)"/>
+
+                <nml_option name="config_coldstart_steps_to_substep" type="integer" default_value="0"
+                     units="-"
+                     description="Number of full model timesteps (counting from timestep 1) during which cold-start dynamics substepping is active. Set to 0 to disable (default). Recommended value: 30 for 10 km cold-starts from GFS (covers first 30 min at dt=60s). Must be combined with config_coldstart_substeps > 1 to have any effect."
+                     possible_values="Non-negative integer values (0 = disabled, 20-30 recommended for cold-start)"/>
+
                 <nml_option name="config_h_mom_eddy_visc2" type="real" default_value="0.0" in_defaults="false"
                      units="m^2 s^{-1}"
                      description="$\nabla^2$ eddy viscosity for horizontal diffusion of momentum"
@@ -508,8 +518,10 @@
 #endif
 #ifdef DO_PHYSICS
 			<var name="isltyp"/>
+			<var name="isctyp"/>
 			<var name="ivgtyp"/>
 			<var name="mminlu"/>
+			<var name="mminsc"/>
 			<var name="isice_lu"/>
 			<var name="iswater_lu"/>
 			<var name="landmask"/>
@@ -591,6 +603,8 @@
 			<var name="precipw"/>
                         <var name="precipci"/>
                         <var name="ctt"/>
+			<var name="dzstop"/>
+			<var name="kzs"/>
 			<var name="dzs"/>
 			<var name="sh2o"/>
 			<var name="smois"/>
@@ -704,6 +718,12 @@
                         <var name="qc_bl"/>
                         <var name="qi_bl"/>
                         <var name="ch"/>
+			<var name="i_achfx"/>
+			<var name="i_acqfx"/>
+			<var name="i_aclh"/>
+			<var name="achfx"/>
+			<var name="acqfx"/>
+			<var name="aclh"/>
 			<var name="kpbl"/>
 			<var name="hpbl"/>
 			<var name="hfx"/>
@@ -783,6 +803,10 @@
 			<var name="glw"/>
 			<var name="o3clim"/>
 			<var name="o3vmr"/>
+			<var name="i_acgrdflx"/>
+			<var name="i_acnoahres"/>
+			<var name="acgrdflx"/>
+			<var name="acnoahres"/>
 			<var name="acsnom"/>
 			<var name="acsnow"/>
 			<var name="canwat"/>
@@ -883,6 +907,8 @@
 			<var name="seaice"/>
 			<var name="xice"/>
 			<var name="xland"/>
+			<var name="dzstop"/>
+			<var name="kzs"/>
 			<var name="dzs"/>
 			<var name="smcrel"/>
 			<var name="sh2o"/>
@@ -1011,6 +1037,7 @@
 			<var name="pin"/>
 			<var name="ozmixm"/>
 			<var name="mminlu"/>
+			<var name="mminsc"/>
 			<var name="isice_lu"/>
 			<var name="iswater_lu"/>
 			<var name="xland"/>
@@ -1240,6 +1267,8 @@
 			<var name="q2"/>
 			<var name="t2m"/>
 			<var name="precipw"/>
+			<var name="dzstop"/>
+			<var name="kzs"/>
 			<var name="dzs"/>
 			<var name="zs"/>
 			<var name="ter"/>
@@ -2253,7 +2282,7 @@
 
                 <nml_option name="config_bucket_update" type="character" default_value="none"
                      units="-"
-                     description="time interval between updates of accumulated rain and radiation diagnostics"
+                     description="time interval between updates of accumulated rain, radiation and surface flux diagnostics"
                      possible_values="`DD_HH:MM:SS' or `none'"/>
 
                 <nml_option name="config_physics_suite" type="character" default_value="mesoscale_reference" in_defaults="true"
@@ -2441,6 +2470,11 @@
                 <nml_option name="config_bucket_rainnc" type="real" default_value="100.0" in_defaults="false"
                      units="-"
                      description="threshold above which the accumulated grid-scale precipitation is reset"
+                     possible_values="Positive real values"/>
+
+                <nml_option name="config_bucket_sflx" type="real" default_value="1.0e9" in_defaults="false"
+                     units="-"
+                     description="threshold above which the absolute accumulated surface flux diagnostics are reset"
                      possible_values="Positive real values"/>
 
                 <nml_option name="config_oml1d" type="logical" default_value="false" in_defaults="false"
@@ -2957,6 +2991,18 @@
                 <!-- ... PARAMETERIZATION OF SURFACE LAYER PROCESSES:                                                   -->
                 <!-- ================================================================================================== -->
 
+                <var name="i_achfx" type="integer" dimensions="nCells Time" units="unitless"
+                     description="incidence of absolute heat flux at the surface greater than config_bucket_sflx"
+                     packages="bl_mynn_in;bl_ysu_in"/>
+
+                <var name="i_acqfx" type="integer" dimensions="nCells Time" units="unitless"
+                     description="incidence of absolute moisture flux at the surface greater than config_bucket_sflx"
+                     packages="bl_mynn_in;bl_ysu_in"/>
+
+                <var name="i_aclh" type="integer" dimensions="nCells Time" units="unitless"
+                     description="incidence of absolute latent heat flux at the surface greater than config_bucket_sflx"
+                     packages="bl_mynn_in;bl_ysu_in"/>
+
                 <var name="hfx" type="real" dimensions="nCells Time" units="W m^{-2}"
                      description="upward heat flux at the surface"
                      packages="bl_mynn_in;bl_ysu_in"/>
@@ -3071,6 +3117,18 @@
 
                 <var name="lh_spr" type="real" dimensions="nCells Time" units="W m^{-2}"
                      description="latent heat flux at the surface from ocean spray"
+                     packages="bl_mynn_in;bl_ysu_in"/>
+
+                <var name="achfx" type="real" dimensions="nCells Time" units="J m^{-2}"
+                     description="accumulated upward heat flux at the surface"
+                     packages="bl_mynn_in;bl_ysu_in"/>
+
+                <var name="acqfx" type="real" dimensions="nCells Time" units="kg m^{-2}"
+                     description="accumulated upward moisture flux at the surface"
+                     packages="bl_mynn_in;bl_ysu_in"/>
+
+                <var name="aclh" type="real" dimensions="nCells Time" units="J m^{-2}"
+                     description="accumulated latent heat flux at the surface"
                      packages="bl_mynn_in;bl_ysu_in"/>
 
 
@@ -3280,28 +3338,28 @@
                 <var name="swuptc" type="real" dimensions="nCells Time" units="W m^{-2}"
                      description="clear-sky upward top-of-atmosphere shortwave radiation flux"/>
 
-                <var name="acswdnb" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="acswdnb" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated all-sky downward surface shortwave radiation flux"/>
 
-                <var name="acswdnbc" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="acswdnbc" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated clear-sky downward surface shortwave radiation flux"/>
 
-                <var name="acswdnt" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="acswdnt" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated all-sky downward top-of-atmosphere shortwave radiation flux"/>
 
-                <var name="acswdntc" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="acswdntc" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated clear-sky downward top-of-atmosphere shortwave radiation flux"/>
 
-                <var name="acswupb" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="acswupb" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated all-sky upward surface shortwave radiation flux"/>
 
                 <var name="acswupbc" type="real" dimensions="nCells Time" units="W m^{-2}"
                      description="accumulated clear-sky upward surface shortwave radiation flux"/>
 
-                <var name="acswupt" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="acswupt" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated all-sky upward top-of-atmosphere shortwave radiation flux"/>
 
-                <var name="acswuptc" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="acswuptc" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated clear-sky upward top-of-atmosphere shortwave radiation flux"/>
 
                 <var name="swddir" type="real" dimensions="nCells Time" units="W m^{-2}"
@@ -3391,28 +3449,28 @@
                 <var name="lwuptc" type="real" dimensions="nCells Time" units="W m^{-2}"
                      description="clear-sky upward top-of-the-atmosphere longwave radiation flux"/>
 
-                <var name="aclwdnb" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="aclwdnb" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated all-sky downward surface longwave radiation flux"/>
 
-                <var name="aclwdnbc" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="aclwdnbc" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated clear-sky downward surface longwave radiation flux"/>
 
-                <var name="aclwdnt" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="aclwdnt" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated all-sky downward top-of-the-atmosphere longwave radiation flux"/>
 
-                <var name="aclwdntc" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="aclwdntc" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated clear-sky downward top-of-the-atmosphere longwave radiation flux"/>
 
-                <var name="aclwupb" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="aclwupb" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated all-sky upward surface longwave radiation flux"/>
 
-                <var name="aclwupbc" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="aclwupbc" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated clear-sky upward surface longwave radiation flux"/>
 
-                <var name="aclwupt" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="aclwupt" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated all-sky upward top-of-the-atmosphere longwave radiation flux"/>
 
-                <var name="aclwuptc" type="real" dimensions="nCells Time" units="W m^{-2}"
+                <var name="aclwuptc" type="real" dimensions="nCells Time" units="J m^{-2}"
                      description="accumulated clear-sky upward top-of-the-atmosphere longwave radiation flux"/>
 
                 <var name="olrtoa" type="real" dimensions="nCells Time" units="W m^{-2}"
@@ -3488,6 +3546,12 @@
                 <!-- ... PARAMETERIZATION OF LAND-SURFACE SCHEME:                                                       -->
                 <!-- ================================================================================================== -->
 
+                <var name="i_acgrdflx" type="integer" dimensions="nCells Time" units="unitless"
+                     description="incidence of accumulated absolute ground heat flux greater than config_bucket_sflx"/>
+
+                <var name="i_acnoahres" type="integer" dimensions="nCells Time" units="unitless"
+                     description="incidence of accumulated residual of the Noah surface energy budget greater than config_bucket_sflx"/>
+
                 <var name="acsnom" type="real" dimensions="nCells Time" units="kg m^{-2}"
                      description="accumulated melted snow"/>
 
@@ -3562,6 +3626,12 @@
 
                 <var name="zs" type="real" dimensions="nCells Time" units="m"
                      description="depth of centers of soil layers"/>
+
+                <var name="acgrdflx" type="real" dimensions="nCells Time" units="J m^{-2}"
+                     description="accumulated ground heat flux"/>
+
+                <var name="acnoahres" type="real" dimensions="nCells Time" units="J m^{-2}"
+                     description="accumulated residual of the Noah surface energy budget"/>
 
                 <!-- ================================================================================================== -->
                 <!-- ... PARAMETERIZATION OF THE 1D OCEAN MIXED LAYER                                                   -->
@@ -3863,13 +3933,19 @@
                 <!-- ================================================================================================== -->
 
                 <var name="isltyp" type="integer" dimensions="nCells" units="unitless"
-                     description="dominant soil category"/>
+                     description="dominant soil texture category"/>
+
+                <var name="isctyp" type="integer" dimensions="nCells" units="unitless"
+                     description="dominant soil colour category"/>
 
                 <var name="ivgtyp" type="integer" dimensions="nCells" units="unitless"
                      description="dominant vegetation category"/>
 
                 <var name="mminlu" type="text" dimensions="" units="unitless"
                      description="land use classification"/>
+
+                <var name="mminsc" type="text" dimensions="" units="unitless"
+                     description="soil colour classification"/>
 
                 <var name="isice_lu" name_in_code="isice" type="integer" dimensions="" units="unitless" default_value="24"
                      description="Index category for snow/ice"/>
@@ -3897,6 +3973,12 @@
 
                 <var name="greenfrac" type="real" dimensions="nMonths nCells" units="percent"
                      description="monthly-mean climatological greenness fraction"/>
+
+                <var name="dzstop" type="real" dimensions="nCells Time" units="m"
+                     description="soil layer thickness of the top most soil layer "/>
+
+                <var name="kzs" type="real" dimensions="nCells Time" units=""
+                     description="exponential factor for thickening deeper soil layers"/>
 
                 <var name="dzs" type="real" dimensions="nSoilLevels nCells Time" units="m"
                      description="soil layer thickness"/>

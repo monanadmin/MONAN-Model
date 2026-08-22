@@ -1,4 +1,4 @@
-# MONAN-v2.0.0-rc
+# MONAN
 
 ## Model for Ocean-laNd-Atmosphere predictioN
 
@@ -6,10 +6,10 @@ MONAN is a community model of the Unified Earth System that has as its main obje
 
 The MONAN Model is managed by a scientific committee appointed by INPE's director and has its initial version structure (0.1.0) based on the dynamic core of the MPAS 8.0.1 Model. part of the physics used by MONAN is obtained from the MPAS model and another part obtained from other sources or developed by the community. The MPAS model can be found at the link [GitHub - MPAS-Dev/MPAS-Model: Repository for MPAS models and shared framework releases.](https://github.com/MPAS-Dev/MPAS-Model)
 
+## History
 
-History
-====
-- Version 2.0.0-rc (Release Candidate) - This GF version includes a new formulation for the gross entrainment rate that depends on the model grid spacing (Zhao et al 2024, GRL https://doi.org/10.1029/2024GL110735). This may help a smoother transition from non-resolved to resolved scales (grey-zone for deep convection). Also, this formulation, together with the cold-pool parameterization, significantly improves the organization of convection over tropical regions (Freitas, 2024 JAMES and 2026 WCO5). So, this version is the starting point to retuning MPAS/MONAN 2.0 for the next candidate for regional and global operation on a medium-range time scale.
+- Version 2.0.0-rc (Release Candidate) - Includes: MPAS-Model 8.3.1 version, GF convection parametrization improvements, Check control numeric stability, Cumulative surfaces fluxes variables, Spatially heterogenious soil color maps for Noahmp, Soil layer bug fix, NVHPC compilation support. Now, it is default the new land surface (NOAH_MP) and Gravity Wave Drag (UGWP) for the suites 'mesoscale_reference_monan' and 'convection_permitting_monan'.
+- Version 1.4.4 - Cold-Start Dynamics Substepping for numerical stabilization and conditional dynamic substepping during the first N full integration steps; option for compilation using a Cray compiler; fixed debug error for compilation using the Intel compiler and compilation flag adjustments for the GNU compiler.
 - Version 1.4.3-rc (Release Candidate) - This development contains further configuration for the pre-operational MONAN global 10km uniform resolution, adapted to run on the new CRAY supercomputer. It contains new tuning for the GF scheme and sets WSM6 as the default cloud microphysics parameterization. For this configuration, the namelist.atmosphere should be set to config_physics_suite = 'mesoscale_reference_monan'.
 - Version 1.4.2-rc (Release Candidate) - Speed up by about 7%. Cleanup to become the initial version of the C3P Community Cloud-Convection Parameterization. Joint development between INPE and NOAA/GSL. Removed files not needed anymore. Adding effects of PCW (Neelin et al. 2009) and vertical shear of horizontal wind on the entrainment rate. This should improve model simulations of MCSs. Additional trigger function based on Xie et al 2019. Additional comments and references. 
 - Version 1.4.1-rc (Release Candidate) - Terrain height (ter, calculated previously in the pre processing with init_atmosphere_model) included in the Registry.xml's input section so that can be read from 'init' file and post processed. kubota relhum evalute modification on mpas_isobaric_diagnostics.F.
@@ -29,6 +29,8 @@ History
 - Version 0.2.0 - Included variables and new isobaric levels.
 - Version 0.1.0 - Initial version structure (0.1.0) based on the dynamic core of the MPAS 8.0.1 Model.
 
+## MPAS
+
 The Model for Prediction Across Scales (MPAS) is a collaborative project for
 developing atmosphere, ocean, and other earth-system simulation components for
 use in climate, regional climate, and weather studies. The primary development
@@ -44,8 +46,7 @@ high-level data types, communication routines, and I/O routines. By using MPAS,
 developers can leverage pre-existing code and focus more on development of
 their model.
 
-BUILDING
-========
+## BUILDING
 
 This README is provided as a brief introduction to the MPAS framework. It does
 not provide details about each specific model, nor does it provide building
@@ -63,8 +64,7 @@ core's user's guide, which can be found at the following web sites:
 [MPAS-Seaice](http://mpas-dev.github.io/sea_ice/releases.html)
 
 
-Code Layout
-----------
+## Code Layout
 
 Within the MPAS repository, code is laid out as follows. Sub-directories are
 only described below the src directory.

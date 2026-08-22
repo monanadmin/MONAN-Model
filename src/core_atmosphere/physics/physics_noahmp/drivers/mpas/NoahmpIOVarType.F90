@@ -68,6 +68,7 @@ module NoahmpIOVarType
     integer                                                ::  soil_update_steps   ! number of model time steps to update soil process
     integer,                allocatable, dimension(:)      ::  ivgtyp              ! vegetation type
     integer,                allocatable, dimension(:)      ::  isltyp              ! soil type
+    integer,                allocatable, dimension(:)      ::  isctyp              ! soil colour class
     real(kind=kind_noahmp), allocatable, dimension(:)      ::  coszen              ! cosine zenith angle
     real(kind=kind_noahmp), allocatable, dimension(:)      ::  xlat                ! latitude [rad]
     real(kind=kind_noahmp), allocatable, dimension(:,:)    ::  dz8w                ! thickness of atmo layers [m]
@@ -516,6 +517,7 @@ module NoahmpIOVarType
 
     CHARACTER(LEN=256)                                     ::  mminsl  = 'STAS'    ! soil classification
     CHARACTER(LEN=256)                                     ::  llanduse            ! (=USGS, using USGS landuse classification)
+    CHARACTER(LEN=256)                                     ::  lsoilcol            ! (=Noah, using Noah's native soil colour classification)
 
 !------------------------------------------------------------------------
 ! Timing:

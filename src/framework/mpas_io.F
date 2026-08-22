@@ -868,7 +868,7 @@ module mpas_io
             if (present(ierr)) ierr = MPAS_IO_ERR_BACKEND
             deallocate(new_fieldlist_node % fieldhandle)
             deallocate(new_fieldlist_node)
-            call mpas_log_write('Variable ' // trim(fieldname) // ' not in input file.', MPAS_LOG_WARN)
+            call mpas_log_write('PIO_SUPPORT: Variable ' // trim(fieldname) // ' not in input file.', MPAS_LOG_WARN)
             return
          end if
 !call mpas_log_write('Inquired about variable ID $i.', intArgs=(/new_fieldlist_node % fieldhandle % fieldid/) )
@@ -907,7 +907,7 @@ module mpas_io
             if (present(ierr)) ierr = MPAS_IO_ERR_BACKEND
             deallocate(new_fieldlist_node % fieldhandle)
             deallocate(new_fieldlist_node)
-            call mpas_log_write('Variable ' // trim(fieldname) // ' not in input file.', MPAS_LOG_WARN)
+            call mpas_log_write('SMIOL_SUPPORT_A: Variable ' // trim(fieldname) // ' not in input file.', MPAS_LOG_WARN)
             return
          end if
          new_fieldlist_node % fieldhandle % field_type = smiol_type
@@ -955,7 +955,7 @@ module mpas_io
 
             deallocate(new_fieldlist_node % fieldhandle)
             deallocate(new_fieldlist_node)
-            call mpas_log_write('Variable ' // trim(fieldname) // ' not in input file.', MPAS_LOG_WARN)
+            call mpas_log_write('SMIOL_SUPPORT_B: Variable ' // trim(fieldname) // ' not in input file.', MPAS_LOG_WARN)
             return
          end if
          new_fieldlist_node% fieldhandle % ndims = smiol_ndims
