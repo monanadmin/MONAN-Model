@@ -291,7 +291,8 @@
  real(kind=RKIND),dimension(:,:),pointer:: dzs_fg,zs_fg
  real(kind=RKIND),dimension(:,:),pointer:: dzs,zs
  real(kind=RKIND),dimension(:),pointer:: dzstop,kzs
- logical :: config_fine 
+ logical :: config_fine
+ logical :: default_layers
 
 !-----------------------------------------------------------------------------------------------------------------
 !call mpas_log_write('')
@@ -314,10 +315,17 @@
  call mpas_pool_get_config(configs, 'config_dzstop', config_dzstop)
  call mpas_pool_get_config(configs, 'config_kzs'   , config_kzs)
 
- config_fine = ( config_nsoillevels >= 4 ) .and. ( config_dzstop >= 0.001 ) &
-               .and. ( config_kzs > 0.0 )
+ !    This will check that there are enough soil layers, the thickness of the top soil
+ ! layer is reasonable and that the exponential factor is positively defined. The only
+ ! exception to the latter rule is when the number of soil layers is fixed at four. In
+ ! this case, setting both config_dzstop and config_kzs to zero will enable the default
+ ! soil layers by Noah and Noah-MP.
+ config_fine    = ( ( config_nsoillevels >= 4 ) .and. ( config_dzstop >= 0.001_RKIND ) &
+                  .and. ( config_kzs > 0.0_RKIND ) )
+ default_layers = ( ( config_nsoillevels == 4 ) .and. ( config_dzstop == 0.0_RKIND ) &
+                  .and. ( config_kzs == 0.0_RKIND ) )
 
- if (.not. config_fine) then
+ if (.not. ( config_fine .or. default_layers ) ) then
     call mpas_log_write( ' ' )
     call mpas_log_write( '---~---' )
     call mpas_log_write( '   Invalid soil depth settings.' )
@@ -345,9 +353,19 @@
  do iCell = 1, nCellsSolve
     dzstop(iCell) = config_dzstop
     kzs(iCell)    = config_kzs
-    do iSoil = 1, nSoilLevels
-       dzs(iSoil,iCell) = dzstop(iCell) * exp( kzs(iCell) * real(iSoil-1,kind=RKIND) )
-    end do
+
+    if (default_layers) then
+       ! This is the original set up for layers, which will be used by default.
+       dzs(1,iCell) = 0.10_RKIND
+       dzs(2,iCell) = 0.30_RKIND
+       dzs(3,iCell) = 0.60_RKIND
+       dzs(4,iCell) = 1.00_RKIND
+    else
+       ! User-defined soil layers.
+       do iSoil = 1, nSoilLevels
+          dzs(iSoil,iCell) = dzstop(iCell) * exp( kzs(iCell) * real(iSoil-1,kind=RKIND) )
+       end do
+    end if
 
     iSoil = 1
     zs(iSoil,iCell)  = 0.5_RKIND * dzs(iSoil,iCell)

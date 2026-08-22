@@ -268,14 +268,14 @@
         </nml_record>
 
         <nml_record name="soil_grid" in_defaults="true">
-                <nml_option name="config_dzstop"                  type="real"          default_value="0.1"
+                <nml_option name="config_dzstop"                  type="real"          default_value="0.0"
                      units="m"
-                     description="Thickness of the top most soil layer"
-                     possible_values="Positive real values"/>
+                     description="Thickness of the top most soil layer. If zero (and config_kzs is zero too), the code will assign default (back-compatible) layers."
+                     possible_values="Non-negative real values"/>
 
-                <nml_option name="config_kzs"                     type="real"          default_value="0.82"
+                <nml_option name="config_kzs"                     type="real"          default_value="0.0"
                      units="m"
-                     description="Exponential factor for increasing thickness of the soil layers"
+                     description="Exponential factor for increasing thickness of the soil layers. If zero (and config_dzstop is zero too), the code will assign default (back-compatible) layers."
                      possible_values="Non-negative real values"/>
         </nml_record>
 
