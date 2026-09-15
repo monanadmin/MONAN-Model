@@ -87,6 +87,9 @@
 !   pointer to config_microp_scheme.
 !   Laura D. Fowler (laura@ucar.edu) / 2917-02-16.
 
+! * implemented fro WRF a cloud top temperature estimation
+!   Saulo R. Freitas (saulo.freitas@inpe.br) / 2025-01-20
+!
 !--- initialization option for WSM6 from WRF version 3.8.1. this option could also be set as a namelist parameter.
  integer,parameter:: hail_opt = 0
 
@@ -125,6 +128,8 @@
  !surface precipitation:
  if(.not.allocated(rainnc_p) ) allocate(rainnc_p(ims:ime,jms:jme) )
  if(.not.allocated(rainncv_p)) allocate(rainncv_p(ims:ime,jms:jme))
+ if(.not.allocated(ctt_p)    ) allocate(ctt_p(ims:ime,jms:jme)    )
+
 
  microp_select: select case(trim(microp_scheme))
     case ("mp_thompson","mp_thompson_aerosols","mp_wsm6")
@@ -204,8 +209,9 @@
  if(allocated(qr_p)) deallocate(qr_p)
 
  !surface precipitation:
- if(allocated(rainnc_p) ) deallocate(rainnc_p )
- if(allocated(rainncv_p)) deallocate(rainncv_p)
+ if(allocated(rainnc_p)  ) deallocate(rainnc_p  )
+ if(allocated(rainncv_p) ) deallocate(rainncv_p )
+ if(allocated(ctt_p)     ) deallocate(ctt_p     )
 
  microp_select: select case(trim(microp_scheme))
     case ("mp_thompson","mp_thompson_aerosols","mp_wsm6")
@@ -481,6 +487,13 @@
     call compute_relhum(diag,its,ite)
  end if
 
+!... diagnostic the clout top temperature
+ call wrfcttcalc(pres_p = pres_p, pi_p = pi_p, th_p = th_p, qci = qi_p , qcw = qc_p          , &
+                 qvp = qv_p, ght = z_p, ctt = ctt_p                                          , &
+                 ids = ids , ide = ide , jds = jds , jde = jde , kds = kds , kde = kde       , &
+                 ims = ims , ime = ime , jms = jms , jme = jme , kms = kms , kme = kme       , &
+                 its = its , ite = ite , jts = jts , jte = jte , kts = kts , kte = kte         )
+
 !... copy updated precipitation from the wrf-physics grid back to the geodesic-dynamics grid:
  call precip_to_MPAS(configs,diag_physics,its,ite)
 
@@ -549,6 +562,7 @@
           snownc_p(i,j)     = 0._RKIND
           graupelnc_p(i,j)  = 0._RKIND
           sr_p(i,j)         = 0._RKIND
+          ctt_p(i,j)        = 0._RKIND
        enddo
        enddo
 
@@ -579,7 +593,7 @@
  integer,dimension(:),pointer:: i_rainnc
 
  real(kind=RKIND),pointer:: config_bucket_rainnc
- real(kind=RKIND),dimension(:),pointer:: precipw,precipc,precipr,precipi,precipg,precips
+ real(kind=RKIND),dimension(:),pointer:: precipw,precipc,precipr,precipi,precipg,precips,ctt
  real(kind=RKIND),dimension(:),pointer:: graupelnc,rainnc,snownc
  real(kind=RKIND),dimension(:),pointer:: graupelncv,rainncv,snowncv,sr
 
@@ -607,7 +621,8 @@
  call mpas_pool_get_array(diag_physics,'snownc'    ,snownc    )
  call mpas_pool_get_array(diag_physics,'snowncv'   ,snowncv   )
  call mpas_pool_get_array(diag_physics,'sr'        ,sr        )
-
+ call mpas_pool_get_array(diag_physics,'ctt'       ,ctt       )
+ 
  do i = its,ite
     precipw(i) = 0._RKIND
     precipc(i) = 0._RKIND
@@ -643,9 +658,11 @@
  enddo
 
  !CR: negative rainc values correction:
- where (rainnc < 0._RKIND)
-   rainnc = 0._RKIND
- endwhere
+ !where (rainnc < 0._RKIND)
+ !  rainnc = 0._RKIND
+ !endwhere
+ 
+ 
 
 !variables specific to different cloud microphysics schemes:
  microp_select: select case(trim(microp_scheme))
@@ -669,6 +686,8 @@
               precipg(i) = precipg(i) + qg_p(i,k,j) * rho_a * dz_p(i,k,j)
               precips(i) = precips(i) + qs_p(i,k,j) * rho_a * dz_p(i,k,j)
           enddo
+          !-srf adding cloud top temperature
+          ctt(i) =  ctt_p(i,j)
        enddo
        enddo
 
