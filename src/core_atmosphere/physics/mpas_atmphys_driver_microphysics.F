@@ -1003,7 +1003,8 @@ do j=jts, jte
             p2 = prs(i,ripk,j)
             if (prsctt .ge. p1 .and. prsctt .le. p2) then
                fac      = (prsctt - p1)/(p2 - p1)
-               arg1     = fac*(tk(i,ripk ,j) - tk(i,ripk+1,j)) - celkel
+               !egk: celkel removed from arg1 to keep cloud top temperature in kelvin
+               arg1     = fac*(tk(i,ripk ,j) - tk(i,ripk+1,j))
                ctt(i,j) = tk(i,ripk+1,j) + arg1
                exit
             end if
