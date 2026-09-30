@@ -23,40 +23,14 @@ CONTAINS
 !             K index
 !             Showalter index
 !
-! TERRAIN-ADAPTIVE VERSION (MONAN/MPAS):
-!
-! The original NOAA/RIP formulation requires temperature/dewpoint at
-! the fixed mandatory levels 850, 700 and 500 hPa. Over high terrain
-! (e.g. the Andes, Tibetan Plateau), the model surface pressure is
-! frequently BELOW 850 hPa and/or 700 hPa, meaning those pressure
-! levels do not physically exist above the ground at that grid point.
-!
-! Instead of flagging the whole sounding as MISSING whenever the
-! surface is above 850 hPa (as the original code did), this version
-! adapts the lower reference levels to the actual profile, following
-! the same principle as the "Modified K-Index" (George 1960; Miller
-! 1972), which replaces the 850-hPa values by the surface (or a
-! near-surface layer) when 850 hPa is not available:
-!
-!   - Level 1 (nominally 850 hPa): if the surface pressure P(1) is
-!     below 850 hPa, the surface itself (P(1), TS(1), TSD(1)) is used
-!     as level 1 -- no extrapolation, just the lowest real data
-!     available.
-!   - Level 2 (nominally 700 hPa): if P(1) is also below 700 hPa (e.g.
-!     Andean Altiplano, ~550-700 hPa), a substitute layer ~150 hPa
-!     above the surface is used instead of collapsing onto level 1,
-!     so the dryness term of the K-Index keeps physical meaning.
-!   - Level 3 (500 hPa) is NEVER adapted: it is the top reference used
-!     by the Lifted Index. If the surface itself is above 500 hPa
-!     (terrain above ~5500 m), there is no valid layer depth left to
-!     adapt to, and RLI/RKI/RWI remain MISSING (9.96921e+36) at that
-!     point, same as before.
-!
-! This keeps indices meaningful (and populated) across the vast
-! majority of inhabited high-terrain areas (La Paz, Cusco, Quito,
-! Andean valleys and plateaus), while still leaving MISSING only the
-! small fraction of extreme-elevation points where the index is
-! genuinely undefined.
+! TERRAIN NOTE: levels 1 (~850 hPa) and 2 (~700 hPa) are adapted to the
+! surface pressure when the standard level does not exist above ground
+! (e.g. Andes, Tibetan Plateau). Level 3 (500 hPa) is extrapolated
+! below the surface on the rare points where even it does not exist
+! (extreme terrain, > ~5500 m). This keeps the routine as close as
+! possible to the original fixed-level algorithm below, while still
+! avoiding the out-of-bounds access that the fixed-level version hits
+! on elevated terrain.
 !
 ! Stone, H.M., 1983: Stability Analysis Program, NOAA Eastern Region
 ! Computer Programs and Problems NWS ERCP-No. 9, National Weather
@@ -66,9 +40,6 @@ CONTAINS
 ! Computer Programs and Problems NWS ERCP-No. 16, National Weather
 ! ·Service, Garden City, NY.
 !
-! George, J.J., 1960: Weather Forecasting for Aeronautics. Academic
-! Press, New York. (Modified K-Index)
-!
 !-----------------------------------------------------------------------
 
 ! COMPUTES LIFTED INDEX, K INDEX, AND SHOWALTER INDEX
@@ -77,7 +48,6 @@ CONTAINS
 
      INTEGER, INTENT(IN) :: JNO
      INTEGER :: I,J,K
-     INTEGER :: IADAPT(3)  ! 1 = nivel adaptado ao terreno, 0 = nivel padrao
 
      REAL (kind=RKIND), DIMENSION(JNO), INTENT(IN) :: P,TS,TSD
      REAL (kind=RKIND), DIMENSION(JNO) :: TW
@@ -89,27 +59,21 @@ CONTAINS
      REAL (kind=RKIND) :: DP1,E2,FACTOR,FACTORD,FACTORT,PPARCEL,TDE1,TDE2,TDPARCEL
      REAL (kind=RKIND) :: TE1,TE2,TH1,TH2,THAVG,THW,TP,TP500,TPARCEL,W,W1,W2,WAVEG
      REAL (kind=RKIND) :: WAVG,WFW,X
-     REAL (kind=RKIND), PARAMETER :: RMISG = 9.96921e+36_RKIND
+     REAL (kind=RKIND) :: DELTAZ
+     REAL (kind=RKIND), PARAMETER :: RLAPSE = 0.0065_RKIND    ! K/m, atm padrao
+     REAL (kind=RKIND), PARAMETER :: RSTDEXP = 0.190297_RKIND ! 1/5.255
 
-     IADAPT = 0
      PL(1) = 850.0_RKIND
      PL(2) = 700.0_RKIND
      PL(3) = 500.0_RKIND
 
-! ADAPTA OS NIVEIS DE REFERENCIA AO TERRENO (SO QUANDO NECESSARIO)
-! PL(3)=500hPa NUNCA E ADAPTADO -- TOPO DE REFERENCIA DO LIFTED INDEX
+! ADAPTA OS NIVEIS 1 E 2 AO TERRENO QUANDO NECESSARIO (nunca deixam de
+! ter um valor real: nivel 1 nunca fica abaixo da superficie, nivel 2
+! sempre fica entre a superficie e o nivel 3)
 
-     IF (P(1) .LT. PL(1)) THEN
-        PL(1) = P(1)             ! usa a propria superficie
-        IADAPT(1) = 1
-     ENDIF
-
-     IF (P(1) .LT. PL(2)) THEN
-        ! camada substituta ~150 hPa acima da superficie, sem colapsar
-        ! sobre o nivel 1 e sem ultrapassar o nivel 3 (500 hPa)
+     IF (P(1) .LT. PL(1)) PL(1) = P(1)
+     IF (P(1) .LT. PL(2)) &
         PL(2) = MIN( MAX(P(1)-150.0_RKIND, PL(3)+50.0_RKIND), P(1)-10.0_RKIND )
-        IADAPT(2) = 1
-     ENDIF
 
 ! COMPUTE WET BULB POTENTIAL TEMP AT ALL SGFNT LEVELS ABV SFC
 
@@ -120,17 +84,6 @@ CONTAINS
       WTC=WOBF(TC)
       TW(K)=TH-WTH+WTC ! WET BULB POT TEMP - DEG C
      ENDDO
-
-!     WRITE (*,65)" SIGNIFICANT LEVELS"
-!65   FORMAT (20A)
-!     WRITE(*,70)"     P          T         TD        TW"
-!70   FORMAT(20A) 
-!     DO K = JNO,0,-1
-!      WRITE(*,75) P(K),TS(K),TSD(K),TW(K)
-!     ENDDO
-!75   FORMAT(2X,F6.1,4X,F6.1,4X,F6.1,4x,F6.1)
-
-!     STOP
 
      DP1=50. ! AVERAGES OVER FIRST -DPI- MBS.
      WSUM=0.
@@ -182,7 +135,7 @@ CONTAINS
      THW=TH-WTH+WTC         ! EQUIV WET BULB POT TEMP (DEG C)
      TP500=SATLFT(THW,500.0_RKIND)
 
-! GET TEMP AND DEWPT AT (POSSIVELMENTE ADAPTADOS) NIVEIS 1, 2 E 3
+! GET TEMP AND DEWPT AT LEVELS 1, 2 E 3 (POSSIVELMENTE ADAPTADOS)
 
      DO 5 J=1,3
      DO 4 I=1,JNO
@@ -194,12 +147,15 @@ CONTAINS
      TDL(J)=TSD(I)
      GO TO 5
 7    IF (I.NE.1) GO TO 8
-     ! Sem nivel abaixo de P(1) disponivel para interpolar PL(J).
-     ! So deve ocorrer para J=3 (500 hPa), ja que PL(1) e PL(2) foram
-     ! adaptados acima para nunca ficarem abaixo de P(1). Terreno
-     ! extremo (> ~500 hPa / ~5500 m): indice fica MISSING neste nivel.
-     TL(J)=RMISG
-     TDL(J)=RMISG
+     ! So chega aqui para J=3 em terreno extremo (>500 hPa de
+     ! altitude), ja que os niveis 1 e 2 foram adaptados acima e nunca
+     ! ficam abaixo de P(1). Extrapola-se hidrostaticamente em vez de
+     ! travar (mesmo principio do metodo de Shuell/NCEP para reducao
+     ! de pressao ao nivel do mar).
+     DELTAZ = 44330.0_RKIND*( (PL(J)/1013.25_RKIND)**RSTDEXP &
+                             - (P(1)  /1013.25_RKIND)**RSTDEXP )
+     TL(J)  = TS(I)  + RLAPSE*DELTAZ
+     TDL(J) = TSD(I) + RLAPSE*DELTAZ
      GO TO 5
 8    FACTOR=ALOG(PL(J)/P(I))/ALOG(P(I-1)/P(I))
      TL(J)=TS(I)+FACTOR*(TS(I-1)-TS(I))
@@ -208,32 +164,13 @@ CONTAINS
 
 ! COMPUTE LIFTED INDEX
 
-     IF (TL(3).GE.9.9e35_RKIND) THEN
-        RLI=RMISG                               ! terreno acima de 500 hPa
-     ELSE
-        RLI=TL(3)-TP500                         ! LIFTED INDEX
-     ENDIF
-
-!     WRITE(*,*)
-!     WRITE(*,80) TL(3),TP500
-
-     IF (TL(1).GE.9.9e35_RKIND .OR. TL(2).GE.9.9e35_RKIND .OR. &
-         TL(3).GE.9.9e35_RKIND) THEN
-        RKI=RMISG   ! K INDEX MISG (terreno extremo, sem nivel valido)
-        RWI=RMISG   ! SHOWALTER INDEX MISG
-        RETURN
-     ENDIF
+     RLI=TL(3)-TP500                            ! LIFTED INDEX
 
 ! COMPUTE K INDEX
-! (se PL(1) e/ou PL(2) foram adaptados - IADAPT(1)/IADAPT(2)=1 - este
-! e o "K-Index Modificado": mesma formula, aplicada aos niveis reais
-! disponiveis em vez dos 850/700 hPa nominais)
 
      RKI=(TL(1)-TL(3))+TDL(1)-(TL(2)-TDL(2))    ! K INDEX
 
 ! COMPUTE SHOWALTER INDEX
-! (usa PL(1) em vez de 850.0 fixo na conversao de temperatura
-! potencial, para permanecer consistente quando PL(1) foi adaptado)
 
      TC=TCONOF(TL(1),TDL(1))
      TH=THETA(TL(1)+273.16,1000.0_RKIND,PL(1))-273.16_RKIND   ! DEG C
@@ -242,13 +179,6 @@ CONTAINS
      THW=TH-WTH+WTC                             ! EQUIV WET BULB POT TEMP
      TP=SATLFT(THW,500.0_RKIND)
      RWI=TL(3)-TP                               ! SHOWALTER INDEX
-
-!     WRITE (*,*)
-!     WRITE (*,80) TL(3), TP
-!80   FORMAT (10X,"TL - ",F6.2,4X,"TP - ",F6.2)
-!     WRITE (*,*)"Stability Indices:"
-!     WRITE (*,81) RLI,RKI,RWI
-!81   FORMAT (10X,"LI - ",F4.0,4X,"KI - ",F4.0,4X,"SWI - ",F4.0)
 
      RETURN
      END
@@ -268,7 +198,7 @@ CONTAINS
      X=T-20.0
      IF(X) 10,10,20
 10   CONTINUE
-! CURVE FIT FOR COOL TEMPERATURE RANGE
+! CURVE FIG FOR COOL TEMPERATURE RANGE
      POL=1.000+X*(-8.8416605E-3+X*(1.4714143E-4+X*(-9.6719890E-7  &
        +X*(-3.2607217E-8+X*(-3.8598073E-10)))))
      POL=POL*POL
