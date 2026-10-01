@@ -1090,8 +1090,7 @@
                         <var name="precipi"/>
                         <var name="precipg"/>
                         <var name="precips"/>
-            <var name="ctt"/>
-            <var name="ctt"/>
+                        <var name="ctt"/>
 			<var name="u10"/>
 			<var name="v10"/>
 			<var name="q2"/>
@@ -2667,7 +2666,7 @@
                <var name="precips" type="real" dimensions="nCells Time" units="kg m^{-2}"
                      description="vertically-integrated snow content"/>
 
-                <var name="ctt" type="real" dimensions="nCells Time" units="C"
+                <var name="ctt" type="real" dimensions="nCells Time" units="K"
                      description="cloud top temperature"/>
 			
                 <!-- ================================================================================================== -->
