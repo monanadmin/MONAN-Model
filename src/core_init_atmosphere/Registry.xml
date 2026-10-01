@@ -255,6 +255,21 @@
                      description="Whether to use the vertical layer profile that was developed for use in real-time TC experiments"
                      possible_values="true or false"/>
 
+                <nml_option name="config_bonatti_vertical_grid" type="logical"       default_value="false"
+                     units="-"
+                     description="Whether to use the cubic zeta3 vertical layer profile proposed by J. P. Bonatti (2026, CPTEC/INPE) for MONAN 2.0, computed by the bonatti_zeta3_levels() subroutine (module mpas_init_atm_bonatti_zeta), which increases resolution in the low atmosphere via a single cubic polynomial in the fractional level index, fitted to the surface, model top, first-layer increment (config_bonatti_zeta0) and a mid-blend point (config_bonatti_fm)."
+                     possible_values="true or false"/>
+
+                <nml_option name="config_bonatti_zeta0"         type="real"          default_value="40.0"
+                     units="m"
+                     description="Target thickness (zeta0) of the first model layer above the surface for the Bonatti zeta3 vertical coordinate; only used when config_bonatti_vertical_grid = true."
+                     possible_values="Positive real values, typically >= 30 m"/>
+
+                <nml_option name="config_bonatti_fm"            type="real"          default_value="0.8"
+                     units="-"
+                     description="Fractional level index (F_M) at which the Bonatti zeta3 coordinate is constrained to reach half of the model top height (Ztopo/2); only used when config_bonatti_vertical_grid = true."
+                     possible_values="Real values in the interval [0.5, 0.8]"/>
+
                 <nml_option name="config_specified_zeta_levels" type="character"     default_value=""    in_defaults="false"
                      units="-"
                      description="The name of a text file containing a list of vertical coordinate (zeta) values in increasing order at layer interfaces."

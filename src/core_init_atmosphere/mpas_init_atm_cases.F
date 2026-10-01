@@ -20,6 +20,7 @@ module init_atm_cases
    use mpas_init_atm_static
    use mpas_init_atm_surface
    use mpas_init_atm_thompson_aerosols, only: init_atm_thompson_aerosols, init_atm_thompson_aerosols_lbc
+   use mpas_init_atm_bonatti_zeta, only: bonatti_zeta3_levels
    use mpas_atmphys_constants, only: svpt0,svp1,svp2,svp3
    use mpas_atmphys_functions
    use mpas_atmphys_initialize_real
@@ -2002,7 +2003,7 @@ module init_atm_cases
 
    subroutine init_atm_case_mtn_wave(dminfo, mesh, nCells, nVertLevels, state, diag, configs)
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   ! Setup mountain wave test case from Sch√§r et al. (2001): A New Terrain-Following Vertical
+   ! Setup mountain wave test case from Sch‰r et al. (2001): A New Terrain-Following Vertical
    ! Coordinate Formulation for Atmospheric Prediction Models
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -2729,6 +2730,8 @@ module init_atm_cases
 
       real(kind=RKIND), dimension(:), pointer :: hs, hs1, sm0
       real(kind=RKIND) :: hm, hm_global, zh, dzmin, dzmina, dzminf, dzminf_global, sm
+      real(kind=RKIND) :: zzmin, zzmin_global
+      integer :: kmin, iCellmin
       real(kind=RKIND) :: dcsum
       integer :: nsmterrain, kz, sfc_k
       logical :: hybrid, smooth
@@ -2777,6 +2780,9 @@ module init_atm_cases
       real (kind=RKIND), pointer :: config_dzmin
       real (kind=RKIND), pointer :: config_ztop
       logical, pointer :: config_tc_vertical_grid
+      logical, pointer :: config_bonatti_vertical_grid
+      real (kind=RKIND), pointer :: config_bonatti_zeta0
+      real (kind=RKIND), pointer :: config_bonatti_fm
       character (len=StrKIND), pointer :: config_specified_zeta_levels
       logical, pointer :: config_use_spechumd
       integer, pointer :: config_nfglevels
@@ -2853,6 +2859,9 @@ module init_atm_cases
       call mpas_pool_get_config(configs, 'config_dzmin', config_dzmin)
       call mpas_pool_get_config(configs, 'config_ztop', config_ztop)
       call mpas_pool_get_config(configs, 'config_tc_vertical_grid', config_tc_vertical_grid)
+      call mpas_pool_get_config(configs, 'config_bonatti_vertical_grid', config_bonatti_vertical_grid)
+      call mpas_pool_get_config(configs, 'config_bonatti_zeta0', config_bonatti_zeta0)
+      call mpas_pool_get_config(configs, 'config_bonatti_fm', config_bonatti_fm)
       call mpas_pool_get_config(configs, 'config_specified_zeta_levels', config_specified_zeta_levels)
       call mpas_pool_get_config(configs, 'config_use_spechumd', config_use_spechumd)
       call mpas_pool_get_config(configs, 'config_nfglevels', config_nfglevels)
@@ -3097,6 +3106,21 @@ module init_atm_cases
          zt = zw(nz)
 
          deallocate(specified_zw)
+
+      !
+      ! Otherwise, see if the user has requested the Bonatti (2026, CPTEC/INPE) cubic zeta3
+      ! vertical coordinate proposed for MONAN 2.0. The actual coordinate is computed by the
+      ! bonatti_zeta3_levels() subroutine in the mpas_init_atm_bonatti_zeta module, so that it
+      ! can be maintained and unit-tested independently of this case-setup routine.
+      !
+      else if (config_bonatti_vertical_grid) then
+
+         call mpas_log_write('Setting up vertical levels using the Bonatti (2026) zeta3 cubic coordinate')
+
+         zt = config_ztop
+         dz = zt/float(nz1)
+
+         call bonatti_zeta3_levels(config_ztop, config_bonatti_zeta0, config_bonatti_fm, nz1, zw, dzw)
 
       !
       ! Otherwise, see if the user has requested to set up the vertical grid as in the MPAS TC configuration
@@ -3346,6 +3370,48 @@ module init_atm_cases
             zz (k,iCell) = (zw(k+1)-zw(k))/(zgrid(k+1,iCell)-zgrid(k,iCell))
          end do
       end do
+
+      !
+      ! Sanity check: zgrid must increase strictly with k in every column, i.e. zz(k,iCell)
+      ! must be strictly positive everywhere. A zero or negative value means the
+      ! terrain-following coordinate surfaces have folded or crossed at that point -- almost
+      ! always because the local terrain is too steep for the vertical resolution and the
+      ! dzmin-limited smoothing above (config_dzmin/config_nsmterrain/config_nsm) was not
+      ! enough to prevent it. Only owned cells (1:nCellsSolve) are checked, so each offending
+      ! cell is reported by exactly one MPI task. Continuing with a non-monotonic zgrid would
+      ! silently corrupt the dynamical core (a vanishing or negative layer thickness), so this
+      ! is treated as fatal, exactly like the other configuration errors checked above.
+      !
+      zzmin = zz(1,1)
+      kmin = 1
+      iCellmin = 1
+      do iCell=1,nCellsSolve
+         do k=1,nz1
+            if (zz(k,iCell) < zzmin) then
+               zzmin = zz(k,iCell)
+               kmin = k
+               iCellmin = iCell
+            end if
+         end do
+      end do
+
+      call mpas_dmpar_min_real(dminfo, zzmin, zzmin_global)
+
+      if (zzmin <= 0.0) then
+         call mpas_log_write('*******************************************************************', messageType=MPAS_LOG_ERR)
+         call mpas_log_write('Non-monotonic zgrid detected: coordinate surfaces fold or cross',      messageType=MPAS_LOG_ERR)
+         call mpas_log_write('at local iCell = $i, level k = $i, with zz = $r',                      &
+                              intArgs=(/iCellmin, kmin/), realArgs=(/zzmin/), messageType=MPAS_LOG_ERR)
+         call mpas_log_write('zgrid(k) = $r     zgrid(k+1) = $r',                                    &
+                              realArgs=(/zgrid(kmin,iCellmin), zgrid(kmin+1,iCellmin)/), messageType=MPAS_LOG_ERR)
+         call mpas_log_write('The terrain is too steep here for the current vertical resolution;',   messageType=MPAS_LOG_ERR)
+         call mpas_log_write('try increasing config_nsmterrain, config_nsm, or config_dzmin in the', messageType=MPAS_LOG_ERR)
+         call mpas_log_write('&vertical_grid namelist.',                                             messageType=MPAS_LOG_ERR)
+         call mpas_log_write('*******************************************************************', messageType=MPAS_LOG_CRIT)
+      else
+         call mpas_log_write('zgrid check: global minimum zz = $r (this task''s minimum $r at iCell=$i, k=$i)', &
+                              realArgs=(/zzmin_global, zzmin/), intArgs=(/iCellmin, kmin/))
+      end if
 
       do i=1, nEdges
          iCell1 = cellsOnEdge(1,i)

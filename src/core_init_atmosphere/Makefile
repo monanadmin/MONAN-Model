@@ -4,6 +4,7 @@ OBJS =  \
 	mpas_init_atm_core.o \
 	mpas_init_atm_core_interface.o \
 	mpas_init_atm_cases.o \
+	mpas_init_atm_bonatti_zeta.o \
 	mpas_atm_advection.o \
 	mpas_init_atm_read_met.o \
 	mpas_init_atm_llxy.o \
@@ -64,9 +65,12 @@ mpas_init_atm_cases.o: \
 	mpas_init_atm_surface.o \
 	mpas_init_atm_thompson_aerosols.o \
 	mpas_init_atm_vinterp.o \
+	mpas_init_atm_bonatti_zeta.o \
 	mpas_atmphys_constants.o \
 	mpas_atmphys_functions.o \
 	mpas_atmphys_initialize_real.o
+
+mpas_init_atm_bonatti_zeta.o:
 
 mpas_init_atm_hinterp.o: mpas_init_atm_queue.o mpas_init_atm_bitarray.o
 

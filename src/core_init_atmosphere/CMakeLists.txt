@@ -26,6 +26,7 @@ set(init_atm_core_srcs
         mpas_gsl_oro_data_sm_scale.F
         mpas_gsl_oro_data_lg_scale.F
         mpas_init_atm_bitarray.F
+        mpas_init_atm_bonatti_zeta.F
         mpas_init_atm_cases.F
         mpas_init_atm_core.F
         mpas_init_atm_core_interface.F
