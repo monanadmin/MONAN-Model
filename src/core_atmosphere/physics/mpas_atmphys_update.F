@@ -318,29 +318,29 @@
        ! bucket to avoid positive and negative overflow.
        if(abs(achfx(iCell)) > bucket_sflx) then
           i_achfx(iCell) = i_achfx(iCell) + 1
-          achfx  (iCell) = sign(achfx(iCell),1.) * (abs(achfx(iCell) - bucket_sflx))
+          achfx  (iCell) = sign(1._RKIND,achfx(iCell)) * (abs(achfx(iCell)) - bucket_sflx)
        end if
 
        if(abs(acqfx(iCell)) > bucket_sflx) then
           i_acqfx(iCell) = i_acqfx(iCell) + 1
-          acqfx  (iCell) = sign(acqfx(iCell),1.) * (abs(acqfx(iCell) - bucket_sflx))
+          acqfx  (iCell) = sign(1._RKIND,acqfx(iCell)) * (abs(acqfx(iCell)) - bucket_sflx)
        end if
 
        if(abs(aclh (iCell)) > bucket_sflx) then
           i_aclh(iCell) = i_aclh(iCell) + 1
-          aclh  (iCell) = sign(aclh(iCell),1.) * (abs(aclh(iCell) - bucket_sflx))
+          aclh  (iCell) = sign(1._RKIND,aclh(iCell)) * (abs(aclh(iCell)) - bucket_sflx)
        end if
 
        if(abs(acgrdflx(iCell)) > bucket_sflx) then
           i_acgrdflx(iCell) = i_acgrdflx(iCell) + 1
           acgrdflx  (iCell) = &
-             sign(acgrdflx(iCell),1.) * (abs(acgrdflx(iCell) - bucket_sflx))
+             sign(1._RKIND,acgrdflx(iCell)) * (abs(acgrdflx(iCell)) - bucket_sflx)
        end if
 
        if(abs(acnoahres(iCell)) > bucket_sflx) then
           i_acnoahres(iCell) = i_acnoahres(iCell) + 1
           acnoahres  (iCell) = &
-             sign(acnoahres(iCell),1.) * (abs(acnoahres(iCell) - bucket_sflx))
+             sign(1._RKIND,acnoahres(iCell)) * (abs(acnoahres(iCell)) - bucket_sflx)
        end if
     end do
 
