@@ -44,7 +44,7 @@ module mpas_isobaric_diagnostics
                need_kzm_isobaric, need_ni_isobaric, need_nr_isobaric, &
                need_qr_isobaric, need_qs_isobaric, need_qv_isobaric, &
                need_qc_isobaric, need_qg_isobaric, need_qi_isobaric, &
-               need_zgeo_isobaric
+               need_zgeo_isobaric, need_theta_isobaric
 
 
     contains
@@ -152,6 +152,7 @@ module mpas_isobaric_diagnostics
         need_zgeo_isobaric = .false.
         need_cldfrac_isobaric = .false.
         need_temperature_isobaric = .false.
+        need_theta_isobaric = .false.
         need_dewpoint_isobaric = .false.
         need_relhum_isobaric = .false.
         need_w_isobaric = .false.
@@ -198,11 +199,12 @@ module mpas_isobaric_diagnostics
         need_zgeo_isobaric = MPAS_field_will_be_written('zgeo_isobaric')
         need_any_diags = need_any_diags .or. need_zgeo_isobaric
 
-
         need_cldfrac_isobaric = MPAS_field_will_be_written('cldfrac_isobaric')
         need_any_diags = need_any_diags .or. need_cldfrac_isobaric
         need_temperature_isobaric = MPAS_field_will_be_written('temperature_isobaric')
         need_any_diags = need_any_diags .or. need_temperature_isobaric
+        need_theta_isobaric = MPAS_field_will_be_written('theta_isobaric')
+        need_any_diags = need_any_diags .or. need_theta_isobaric
         need_dewpoint_isobaric = MPAS_field_will_be_written('dewpoint_isobaric')
         need_any_diags = need_any_diags .or. need_dewpoint_isobaric
         need_relhum_isobaric = MPAS_field_will_be_written('relhum_isobaric')
@@ -325,6 +327,7 @@ module mpas_isobaric_diagnostics
 
         real (kind=RKIND), dimension(:,:), pointer :: cldfrac_isobaric
         real (kind=RKIND), dimension(:,:), pointer :: temperature_isobaric
+        real (kind=RKIND), dimension(:,:), pointer :: theta_isobaric
         real (kind=RKIND), dimension(:,:), pointer :: dewpoint_isobaric
         real (kind=RKIND), dimension(:,:), pointer :: relhum_isobaric
         real (kind=RKIND), dimension(:,:), pointer :: w_isobaric
@@ -450,6 +453,7 @@ module mpas_isobaric_diagnostics
 
         call mpas_pool_get_array(diag, 'cldfrac_isobaric', cldfrac_isobaric)
         call mpas_pool_get_array(diag, 'temperature_isobaric', temperature_isobaric)
+        call mpas_pool_get_array(diag, 'theta_isobaric', theta_isobaric)
         call mpas_pool_get_array(diag, 'dewpoint_isobaric', dewpoint_isobaric)
         call mpas_pool_get_array(diag, 'relhum_isobaric', relhum_isobaric)
         call mpas_pool_get_array(diag, 'w_isobaric', w_isobaric)
@@ -672,6 +676,20 @@ module mpas_isobaric_diagnostics
             temperature_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
 
             ! call mpas_log_write('--- end interpolate temperature:')
+        end if
+
+        if ( need_theta_isobaric ) then
+
+          !     THETA =  T * (1000./P1)**Rd_Cp 
+
+          do k = 1, nIsoLevelsT
+            do icell = 1, nCells
+             theta_isobaric(k,icell) = &
+                 temperature_isobaric(k,icell)*(100000.0/t_iso_levels(k))**0.2857142
+            enddo
+          enddo
+
+            ! call mpas_log_write('--- end interpolate theta:')
         end if
 
 
