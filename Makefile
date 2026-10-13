@@ -720,7 +720,6 @@ intel2-xd2000:
         "CXXFLAGS_OPT = -O2" \
         "LDFLAGS_OPT = -O2" \
 	"FFLAGS_DEBUG = -g -convert big_endian -free -check bounds,pointers,arg_temp_created,format,shape,contiguous -fpe0 -traceback -Qoption,fpp,-macro_expand=vc" \
-	"CFLAGS_DEBUG = -g -traceback" \
         "CFLAGS_DEBUG = -g -traceback" \
         "CXXFLAGS_DEBUG = -g -traceback" \
         "LDFLAGS_DEBUG = -g -traceback" \
