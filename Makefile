@@ -694,7 +694,7 @@ intel-xd2000:
         "CFLAGS_OPT = -O3 -std=gnu90" \
         "CXXFLAGS_OPT = -O3" \
         "LDFLAGS_OPT = -O3" \
-        "FFLAGS_DEBUG = -g -convert big_endian -free -check bounds,pointers,arg_temp_created,format,shape,contiguous -ftrapuv -fpe0 -traceback -Qoption,fpp,-macro_expand=vc" \
+	"FFLAGS_DEBUG = -g -convert big_endian -free -check bounds,pointers,arg_temp_created,format,shape,contiguous -fpe0 -ftrapuv -traceback -Qoption,fpp,-macro_expand=vc" \
         "CFLAGS_DEBUG = -g -traceback" \
         "CXXFLAGS_DEBUG = -g -traceback" \
         "LDFLAGS_DEBUG = -g -traceback" \
@@ -719,8 +719,8 @@ intel2-xd2000:
         "CFLAGS_OPT = -O2 -std=gnu90" \
         "CXXFLAGS_OPT = -O2" \
         "LDFLAGS_OPT = -O2" \
-        "FFLAGS_DEBUG = -g -convert big_endian -free -check bounds,pointers,arg_temp_created,format,shape,contiguous -fpe0 -ftrapuv -traceback -Qoption,fpp,-macro_expand=vc" \
-        "CFLAGS_DEBUG = -g -traceback" \
+	"FFLAGS_DEBUG = -g -convert big_endian -free -check bounds,pointers,arg_temp_created,format,shape,contiguous -fpe0 -ftrapuv -traceback -Qoption,fpp,-macro_expand=vc" \
+	"CFLAGS_DEBUG = -g -traceback" \
         "CFLAGS_DEBUG = -g -traceback" \
         "CXXFLAGS_DEBUG = -g -traceback" \
         "LDFLAGS_DEBUG = -g -traceback" \
@@ -821,6 +821,36 @@ nvhpc-xd2000:   # BUILDTARGET NVIDIA HPC SDK
 	"FFLAGS_OMP = -mp" \
 	"CFLAGS_OMP = -mp" \
 	"FFLAGS_ACC = -Mnofma -acc -gpu=cc70,cc80 -Minfo=accel" \
+	"CFLAGS_ACC =" \
+	"PICFLAG = -fpic" \
+	"BUILD_TARGET = $(@)" \
+	"CORE = $(CORE)" \
+	"DEBUG = $(DEBUG)" \
+	"USE_PAPI = $(USE_PAPI)" \
+	"OPENMP = $(OPENMP)" \
+	"OPENACC = $(OPENACC)" \
+	"CPPFLAGS = $(MODEL_FORMULATION) -D_MPI -DCPRPGI" )
+
+nvhpc-cc80:   # BUILDTARGET NVIDIA HPC SDK
+	( $(MAKE) all \
+	"FC_PARALLEL = mpifort" \
+	"CC_PARALLEL = mpicc" \
+	"CXX_PARALLEL = mpic++" \
+	"FC_SERIAL = nvfortran" \
+	"CC_SERIAL = nvc" \
+	"CXX_SERIAL = nvc++" \
+	"FFLAGS_PROMOTION = -r8" \
+	"FFLAGS_OPT = -gopt -O4 -byteswapio -Mfree" \
+	"CFLAGS_OPT = -gopt -O3" \
+	"CXXFLAGS_OPT = -gopt -O3" \
+	"LDFLAGS_OPT = -gopt -O3" \
+	"FFLAGS_DEBUG = -O0 -g -Mbounds -Mchkptr -byteswapio -Mfree -Ktrap=divz,fp,inv,ovf -traceback" \
+	"CFLAGS_DEBUG = -O0 -g -traceback" \
+	"CXXFLAGS_DEBUG = -O0 -g -traceback" \
+	"LDFLAGS_DEBUG = -O0 -g -Mbounds -Mchkptr -Ktrap=divz,fp,inv,ovf -traceback" \
+	"FFLAGS_OMP = -mp" \
+	"CFLAGS_OMP = -mp" \
+	"FFLAGS_ACC = -Mnofma -acc -gpu=cc80 -Minfo=accel" \
 	"CFLAGS_ACC =" \
 	"PICFLAG = -fpic" \
 	"BUILD_TARGET = $(@)" \
