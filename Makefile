@@ -697,7 +697,7 @@ intel-xd2000:
 	"FFLAGS_DEBUG = -g -convert big_endian -free -check bounds,pointers,arg_temp_created,format,shape,contiguous -fpe0 -ftrapuv -traceback -Qoption,fpp,-macro_expand=vc" \
         "CFLAGS_DEBUG = -g -traceback" \
         "CXXFLAGS_DEBUG = -g -traceback" \
-	"LDFLAGS_DEBUG = -g -traceback" \
+        "LDFLAGS_DEBUG = -g -traceback" \
         "FFLAGS_OMP = -qopenmp" \
         "CFLAGS_OMP = -qopenmp" \
         "CORE = $(CORE)" \
