@@ -780,11 +780,11 @@ cray-xd2000:
         "CC_SERIAL = cc" \
         "CXX_SERIAL = CC" \
         "FFLAGS_PROMOTION = -sreal64 " \
-        "FFLAGS_OPT = -Ofast -hcpu=x86-turin -hipa1 -ffree" \
+        "FFLAGS_OPT = -Ofast -hcpu=x86-turin -hipa1 -ffree -hbyteswapio" \
         "CFLAGS_OPT = -Ofast" \
         "CXXFLAGS_OPT = -Ofast" \
         "LDFLAGS_OPT = -hbyteswapio" \
-        "FFLAGS_DEBUG = -eD -O0 -ffree" \
+        "FFLAGS_DEBUG = -g -O0 -ffree -hbyteswapio -R bc -K trap=fp -e0" \
         "CFLAGS_DEBUG = -O0 -g -Weverything" \
         "CXXFLAGS_DEBUG = -O0 -g -Weverything" \
         "LDFLAGS_DEBUG = -eD -O0 -hbyteswapio" \
