@@ -324,7 +324,7 @@ use mpas_stream_manager
 ! Initialisation of accumulated surface fluxes and corresponding counters (i_ac*). Counters i_ac* track
 ! the number of times the absolute value of the accumulated surface fluxes exceed their prescribed 
 ! threshold values.
- if(.not. config_do_restart .and. config_lsm_scheme.ne.'off') then
+ if(.not. config_do_restart) then
     do iCell = 1, nCellsSolve
        i_achfx    (iCell) = 0
        i_acqfx    (iCell) = 0
