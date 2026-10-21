@@ -784,7 +784,7 @@ cray-xd2000:
         "CFLAGS_OPT = -Ofast" \
         "CXXFLAGS_OPT = -Ofast" \
         "LDFLAGS_OPT = -hbyteswapio" \
-        "FFLAGS_DEBUG = -g -O0 -ffree -hbyteswapio -R bc -K trap=fp -e0" \
+        "FFLAGS_DEBUG = -g -O0 -ffree -hbyteswapio -R bc -K trap=fp" \
         "CFLAGS_DEBUG = -O0 -g -Weverything" \
         "CXXFLAGS_DEBUG = -O0 -g -Weverything" \
         "LDFLAGS_DEBUG = -eD -O0 -hbyteswapio" \
