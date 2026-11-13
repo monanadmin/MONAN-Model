@@ -19,6 +19,9 @@
 <!-- soundings -->
 #include "Registry_soundings.xml"
 
+<!-- 2-m relative humidity -->
+#include "Registry_rh2.xml"
+
 <!-- ******************************* -->
 <!-- End includes from diagnostics -->
 <!-- ******************************* -->

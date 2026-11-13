@@ -1,0 +1,11 @@
+<!-- 2-m relative humidity diagnostic -->
+
+#ifdef DO_PHYSICS
+<var_struct name="diag" time_levs="1">
+
+        <var name="rh2" type="real" dimensions="nCells Time" units="percent"
+             packages="bl_mynn_in;bl_ysu_in"
+             description="2-meter relative humidity"/>
+
+</var_struct>
+#endif

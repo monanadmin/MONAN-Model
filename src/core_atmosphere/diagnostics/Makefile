@@ -9,6 +9,7 @@ DIAGNOSTIC_MODULES = \
 	mpas_cloud_diagnostics.o \
 	mpas_convective_diagnostics.o \
 	mpas_pv_diagnostics.o \
+	mpas_rh2_diagnostics.o \
 	mpas_soundings.o \
 	mpas_vertical_interpolation.o \
 	mpas_stability_indices.o
@@ -20,6 +21,8 @@ mpas_cloud_diagnostics.o: mpas_atm_diagnostics_utils.o
 mpas_convective_diagnostics.o: mpas_atm_diagnostics_utils.o mpas_stability_indices.o
 
 mpas_pv_diagnostics.o: mpas_atm_diagnostics_utils.o
+
+mpas_rh2_diagnostics.o:
 
 mpas_soundings.o:
 
