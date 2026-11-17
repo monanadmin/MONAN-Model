@@ -126,6 +126,7 @@ set(ATMOSPHERE_CORE_PHYSICS_MMM_SOURCES
     mynn_shared.F90
     sf_mynn.F90
     sf_sfclayrev.F90
+    module_sprayHFs.F90
 )
 
 list(TRANSFORM ATMOSPHERE_CORE_PHYSICS_MMM_SOURCES PREPEND physics/physics_mmm/)
@@ -328,6 +329,7 @@ set(ATMOSPHERE_CORE_DIAGNOSTIC_SOURCES
     mpas_isobaric_diagnostics.F
     mpas_pv_diagnostics.F
     mpas_soundings.F
+    mpas_vertical_interpolation.F
 )
 
 list(TRANSFORM ATMOSPHERE_CORE_DIAGNOSTIC_SOURCES PREPEND diagnostics/)
@@ -344,6 +346,18 @@ set(ATMOSPHERE_CORE_UTILS_SOURCES
     atmphys_build_tables_thompson.F
     build_tables.F)
 list(TRANSFORM ATMOSPHERE_CORE_UTILS_SOURCES PREPEND utils/)
+
+# physics/physics_monan/
+set(ATMOSPHERE_CORE_PHYSICS_MONAN_SOURCES
+    modConstants.F
+    modGate.F
+    modHenrysLawCts.F
+    modVector.F
+    module_bl_mixingscalars.F
+    module_cu_gf.monan.F
+    module_mp_cldfra_cb.F
+)
+list(TRANSFORM ATMOSPHERE_CORE_PHYSICS_MONAN_SOURCES PREPEND physics/physics_monan/)
 
 # core_atosphere
 set(ATMOSPHERE_CORE_SOURCES
@@ -372,6 +386,7 @@ add_library(core_atmosphere ${ATMOSPHERE_CORE_SOURCES}
             ${ATMOSPHERE_CORE_PHYSICS_NOAMP_SRC_SOURCES}
             ${ATMOSPHERE_CORE_PHYSICS_SOURCES}
             ${ATMOSPHERE_CORE_PHYSICS_MMM_SOURCES}
+            ${ATMOSPHERE_CORE_PHYSICS_MONAN_SOURCES}
             ${ATMOSPHERE_CORE_PHYSICS_WRF_SOURCES}
             ${ATMOSPHERE_CORE_PHYSICS_NOAA_SOURCES}
             ${ATMOSPHERE_CORE_DIAGNOSTIC_SOURCES}
