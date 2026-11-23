@@ -888,15 +888,18 @@
     case ("cam_lw")
        xtime_m = xtime_s/60.
 
+
+!... convert the radiation time_step to minutes:
+       radt = dt_radtlw/60.
+
 ! This should be OMP MASTER with barrier afterwards or OMP SINGLE, since declin and solcon
 ! are global variables in mpas_atmphys_vars.F and race conditions may occur otherwise!
 !$OMP SINGLE
        !... calculates solar declination:
-       call radconst(declin,solcon,curr_julday,degrad,dpd)
+       
+       call radconst(declin,solcon,eot,curr_julday, radt)
 !$OMP END SINGLE
 
-!... convert the radiation time_step to minutes:
-       radt = dt_radtlw/60.
 
 !      call mpas_log_write('--- enter subroutine camrad_lw: doabsems=$l',logicArgs=(/doabsems/))
        call mpas_timer_start('CAMRAD_lw')
@@ -939,6 +942,7 @@
                 julday        = julday        , julian        = curr_julday   ,              &
                 dt            = dt_dyn        , xtime         = xtime_m       ,              &
                 declin        = declin        , solcon        = solcon        ,              &
+                eot           = eot           ,              &
                 radt          = radt          , degrad        = degrad        ,              &
                 n_cldadv      = 3             , abstot_3d     = abstot_p      ,              &
                 absnxt_3d     = absnxt_p      , emstot_3d     = emstot_p      ,              &
