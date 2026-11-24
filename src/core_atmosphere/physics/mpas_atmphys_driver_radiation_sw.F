@@ -893,7 +893,7 @@
 
  !... convert the radiation time_step to minutes:
  radt = dt_radtsw/60.
- 
+
 ! This should be OMP MASTER with barrier afterwards or OMP SINGLE, since declin and solcon
 ! are global variables in mpas_atmphys_vars.F and race conditions may occur otherwise!
 !$OMP SINGLE
@@ -1044,17 +1044,18 @@
  solcon = 0.0_RKIND
  eot = 0.0_RKIND
 
- ! Rotation angle of the Earth relative to the Sun (radians), gamma=0 at noon for day 1 (considering radt=0)
- !curr_julday is already 0-based, so no need to subtract 1 from julian day. I also includes the fractional part of the day.
- !example: noon on day 1 is 0.5
- gamma = 2.0_RKIND*acos(-1.0_RKIND)/365.0_RKIND * &
-      &  (curr_julday + 0.5_RKIND*radt/1440.0_RKIND- 0.5_RKIND)
+ ! Rotation angle of the Earth relative to the Sun (radians)
+ ! curr_julday is 0-based and includes fractional part of the day
+ 
+ gamma = 2.0_RKIND*acos(-1.0_RKIND)/365.0_RKIND * curr_julday 
 
  ! Equation of time (minutes) 
  eot = 229.1831_RKIND * (0.000075_RKIND + 0.001868_RKIND*cos(gamma) - 0.032077_RKIND*sin(gamma) &
       &  - 0.014615_RKIND*cos(2.0_RKIND*gamma) - 0.040849_RKIND*sin(2.0_RKIND*gamma))
 
- ! Solar declination (radians) (Following Rueda et al, 2024, 10.3390/atmos15081003)
+ ! Solar declination (radians) Spencer's 7-terms Fourier series
+ ! (Also in Rueda et al, 2024, 10.3390/atmos15081003)
+ ! 
  declin = 0.006918_RKIND - 0.399912_RKIND*cos(gamma) + 0.070257_RKIND*sin(gamma) &
       & - 0.006758_RKIND*cos(2.0_RKIND*gamma) + 0.000907_RKIND*sin(2.0_RKIND*gamma) &
       & - 0.002697_RKIND*cos(3.0_RKIND*gamma) + 0.001480_RKIND*sin(3.0_RKIND*gamma)
