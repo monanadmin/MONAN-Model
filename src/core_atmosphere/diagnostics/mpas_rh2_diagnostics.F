@@ -27,7 +27,6 @@ module mpas_rh2_diagnostics
 
     subroutine rh2_diagnostics_setup(all_pools, simulation_clock)
 
-        use mpas_derived_types, only : MPAS_pool_type, MPAS_clock_type
         use mpas_pool_routines, only : mpas_pool_get_subpool
 
         implicit none
@@ -85,6 +84,7 @@ module mpas_rh2_diagnostics
                 rh2(iCell) = fill_value
             else
                 tc = t2m(iCell) - 273.15_RKIND
+                ! q2 can be slightly negative; floor it at zero for this RH diagnostic.
                 q  = max(q2(iCell), 0.0_RKIND)
                 es = 611.2_RKIND * exp(17.67_RKIND * tc / (tc + 243.5_RKIND))
                 e  = q * psfc(iCell) / (eps + q)
