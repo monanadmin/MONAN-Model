@@ -1033,6 +1033,7 @@
 			<var name="q2"/>
 			<var name="t2m"/>
 			<var name="th2m"/>
+                        <var name="rh2"/>
 #endif
 
                         <!-- Begin convective diagnostics defined in diagnostics/Registry_convective.xml -->

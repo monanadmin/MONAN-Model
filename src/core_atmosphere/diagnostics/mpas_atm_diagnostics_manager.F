@@ -37,6 +37,7 @@ module mpas_atm_diagnostics_manager
         use mpas_cloud_diagnostics, only : cloud_diagnostics_setup
         use mpas_convective_diagnostics, only : convective_diagnostics_setup
         use mpas_pv_diagnostics, only : pv_diagnostics_setup
+        use mpas_rh2_diagnostics, only : rh2_diagnostics_setup
         use mpas_soundings, only : soundings_setup
 
         implicit none
@@ -58,6 +59,7 @@ module mpas_atm_diagnostics_manager
         call cloud_diagnostics_setup(structs, clock)
         call convective_diagnostics_setup(structs, clock)
         call pv_diagnostics_setup(structs, clock)
+        call rh2_diagnostics_setup(structs, clock)
         call soundings_setup(configs, structs, clock, dminfo)
 
     end subroutine mpas_atm_diag_setup
@@ -104,6 +106,7 @@ module mpas_atm_diagnostics_manager
         use mpas_cloud_diagnostics, only : cloud_diagnostics_compute
         use mpas_convective_diagnostics, only : convective_diagnostics_compute
         use mpas_pv_diagnostics, only : pv_diagnostics_compute
+        use mpas_rh2_diagnostics, only : rh2_diagnostics_compute
         use mpas_soundings, only : soundings_compute
 
         implicit none
@@ -114,6 +117,7 @@ module mpas_atm_diagnostics_manager
         call cloud_diagnostics_compute()
         call convective_diagnostics_compute()
         call pv_diagnostics_compute()
+        call rh2_diagnostics_compute()
         call soundings_compute()
 
     end subroutine mpas_atm_diag_compute
