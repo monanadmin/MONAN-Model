@@ -368,6 +368,7 @@ module mpas_isobaric_diagnostics
        
         real (kind=RKIND), dimension(:,:), allocatable :: pressure, pressureCp1, pressure2, pressure_v, temperature
         real (kind=RKIND), dimension(:,:), allocatable :: dewpoint, spechum
+        real (kind=RKIND), dimension(:,:), allocatable :: tvirt
        
        !local interpolated fields:
         integer :: nIntP
@@ -1236,9 +1237,17 @@ module mpas_isobaric_diagnostics
             !CR:if(.not.allocated(field_in)) allocate(field_in(nCells,nVertLevelsP1))
 
 
+            ! virtual temperature for the hypsometric integration
+            if(.not.allocated(tvirt)) allocate(tvirt(nVertLevels,nCells))
+            do iCell = 1,nCells
+            do k = 1,nVertLevels
+                tvirt(k,iCell) = theta_m(k,iCell)*exner(k,iCell)/(1._RKIND+scalars(index_qv,k,iCell))
+            enddo
+            enddo
+
             call VerticalInterpolation_ZGEO(nVertLevels                               , & !1
                                             nCells                                    , & !2
-                                            temperature (1:nVertLevels,1:nCells)      , & !3
+                                            tvirt       (1:nVertLevels,1:nCells)      , & !3
                                             pressure2    (1:nVertLevels,1:nCells)*100.0, & !4 
                                             height      (1:1,1:nCells)                , & !5 
                                             nIsoLevelsT                               , & !6
@@ -1246,6 +1255,7 @@ module mpas_isobaric_diagnostics
                                             t_iso_levels(1:nIsoLevelsT)               )   !8
             
             zgeo_isobaric(1:nIsoLevelsT,1:nCells) =  field_interp(1:nIsoLevelsT,1:nCells)
+            deallocate(tvirt)
 
 
            ! call mpas_log_write('--- end interpolate zgeo:')
