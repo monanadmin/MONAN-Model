@@ -98,7 +98,7 @@ module mpas_geotile_manager
     !>     * isice = 24
     !>     * isurban = 1
     !>     * isoilwater = 14
-    !>     * islcolwater = 9
+    !>     * islcolwater = 4
     !
     !-----------------------------------------------------------------------
     function mpas_geotile_mgr_init(mgr, path) result(ierr)
@@ -249,8 +249,10 @@ module mpas_geotile_manager
                 call mpas_pool_add_config(mgr % pool, 'isoilwater', 14)
             endif
 
+            !    Set this to 4 so it works with all tables. It will be overwritten with 
+            ! the table-specific default if the data bases are not found.
             if (.not. associated(islcolwater)) then
-               call mpas_pool_add_config(mgr % pool, 'islcolwater', 1)
+               call mpas_pool_add_config(mgr % pool, 'islcolwater', 4)
             end if
         endif
 

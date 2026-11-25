@@ -10027,7 +10027,7 @@ CONTAINS
                        p3d,p8w,pi3d,t3d,t8w,dz8w,qv3d,qc3d,qr3d,       &
                        qi3d,qs3d,qg3d,cldfra3d,o33d,tsk,albedo,        &
                        xland,xice,snow,coszr,xtime,gmt,julday,radt,    &
-                       degrad,declin,solcon,xlat,xlong,icloud,         &
+                       degrad,declin,solcon,eot,xlat,xlong,icloud,         &
                        cldovrlp,idcor,o3input, &
                        noznlevels,pin,o3clim,gsw,swcf,rthratensw,      &
                        has_reqc,has_reqi,has_reqs,re_cloud,            &
@@ -10055,7 +10055,7 @@ CONTAINS
  integer,intent(in):: has_reqc,has_reqi,has_reqs
  integer,intent(in),optional:: o3input
 
- real,intent(in):: radt,degrad,xtime,declin,solcon,gmt
+ real,intent(in):: radt,degrad,xtime,declin,solcon,eot,gmt
  real,intent(in),dimension(ims:ime,jms:jme):: xlat,xlong
  real,intent(in),dimension(ims:ime,jms:jme):: albedo,tsk,snow,xice,xland
  real,intent(in),dimension(ims:ime,kms:kme,jms:jme):: t3d,p3d,pi3d
@@ -10199,14 +10199,16 @@ CONTAINS
        !    above or below the horizon (xt24 is the fractional part of simulation days plus half of radt in 
        !    units of minutes, julian is in days, and radt is in minutes). do not call rrtmg_sw is night-time:
        dorrsw = .true.
+      !Calculate solar zenith angle considering the equation of time's correction in the hour angle
        xt24 = mod(xtime+radt*0.5,1440.)
-       tloctm = gmt + xt24/60. + xlong(i,j)/15.
+      ! Added the equation of time correction
+       tloctm = gmt + xt24/60. + xlong(i,j)/15. + eot/60.
        hrang = 15. * (tloctm-12.) * degrad
        xxlat = xlat(i,j) * degrad
        coszrs = sin(xxlat) * sin(declin) + cos(xxlat) * cos(declin) * cos(hrang)
        coszr(i,j) = coszrs
 
-       if (coszrs.le.0.0) dorrsw = .false.
+       if (coszr(i,j).le.0.0) dorrsw = .false.
        
        if(dorrsw) then
 

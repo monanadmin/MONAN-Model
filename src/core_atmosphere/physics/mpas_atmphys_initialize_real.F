@@ -599,7 +599,7 @@
  integer, pointer:: nCellsSolve,nSoilLevels
  integer:: iCell,iSoil
  integer:: num_seaice_changes
- integer,dimension(:),pointer:: landmask,isltyp,ivgtyp
+ integer,dimension(:),pointer:: landmask,isltyp,isctyp,ivgtyp
 
  real(kind=RKIND):: xice_threshold
  real(kind=RKIND):: mid_point_depth
@@ -633,6 +633,7 @@
  call mpas_pool_get_array(mesh, 'landmask', landmask)
  call mpas_pool_get_array(mesh, 'lu_index', ivgtyp)
  call mpas_pool_get_array(mesh, 'soilcat_top', isltyp)
+ call mpas_pool_get_array(mesh, 'soilcol_idx', isctyp)
  call mpas_pool_get_array(mesh, 'snoalb', snoalb)
 
  call mpas_pool_get_array(input, 'seaice', seaice)
@@ -679,6 +680,7 @@
        if(landmask(iCell) .eq. 0) tmn(iCell) = 271.4_RKIND
        ivgtyp(iCell) = isice_lu
        isltyp(iCell) = 16
+       isctyp(iCell) = 4
        snoalb(iCell) = 0.75
        vegfra(iCell) = 0._RKIND
        xland(iCell)  = 1._RKIND

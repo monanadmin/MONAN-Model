@@ -1,13 +1,11 @@
 &nhyd_model
-    config_time_integration_order = 2
-    config_dt = 1200.0
+z    config_time_integration_order = 2
+    config_dt = 60.0
     config_start_time = '2010-10-23_00:00:00'
     config_run_duration = '01:00:00'
     config_split_dynamics_transport = true
     config_number_of_sub_steps = 2
     config_dynamics_split_steps = 3
-    config_coldstart_substeps = 3
-    config_coldstart_steps_to_substep = 30
     config_h_mom_eddy_visc2 = 0.0
     config_h_mom_eddy_visc4 = 0.0
     config_v_mom_eddy_visc2 = 0.0
@@ -57,9 +55,11 @@
     config_IAU_window_length_s = 21600.
 /
 &physics
+    config_microp_re = true
     config_sst_update = false
     config_sstdiurn_update = false
     config_deepsoiltemp_update = false
+    config_oml1d = false
     config_radtlw_interval = '00:30:00'
     config_radtsw_interval = '00:30:00'
     config_conv_interval = '00:15:00'
@@ -67,6 +67,14 @@
     config_physics_suite = 'mesoscale_reference_monan'
     config_radt_cld_scheme = 'cld_fraction_monan'
     config_mynn_edmf = 0
+    config_radt_lw_scheme = 'rrtmg_lw'
+    config_radt_sw_scheme = 'rrtmg_sw'
+    config_pbl_scheme = 'bl_mynn'
+    config_lsm_scheme='sf_noahmp'
+    config_ngw_scheme = true
+    config_knob_ugwp_tauamp = 0.13e-3
+    config_ugwp_diags = true
+
 /
 &gf_monan
     config_gf_pcvol = 0
@@ -74,7 +82,31 @@
     config_gf_gustf = 1
     config_gf_sub3d = 0
 /
-
 &soundings
     config_sounding_interval = 'none'
+/
+&physics_lsm_noahmp
+    config_noahmp_iopt_dveg = 4
+    config_noahmp_iopt_crs = 1
+    config_noahmp_iopt_btr = 1
+    config_noahmp_iopt_runsrf = 3
+    config_noahmp_iopt_runsub = 3
+    config_noahmp_iopt_sfc = 1
+    config_noahmp_iopt_frz = 1
+    config_noahmp_iopt_inf = 1
+    config_noahmp_iopt_rad = 3
+    config_noahmp_iopt_alb = 1
+    config_noahmp_iopt_snf = 1
+    config_noahmp_iopt_tksno = 1
+    config_noahmp_iopt_tbot = 2
+    config_noahmp_iopt_stc = 1
+    config_noahmp_iopt_gla = 1
+    config_noahmp_iopt_rsf = 4
+    config_noahmp_iopt_soil = 1
+    config_noahmp_iopt_pedo = 1
+    config_noahmp_iopt_crop = 0
+    config_noahmp_iopt_irr = 0
+    config_noahmp_iopt_irrm = 0
+    config_noahmp_iopt_infdv = 1
+    config_noahmp_iopt_tdrn = 0
 /

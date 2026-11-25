@@ -92,7 +92,7 @@ module modConstants
    !# Minimum TKE [J/kg]
    real(kind=r4), parameter :: c_grav      = 9.80665
    !# Gravity acceleration [m/s]
-   real(kind=r4), parameter :: c_alvl     = 2.50e6
+   real(kind=r4), parameter :: c_alvl     = 2.501e6
    real(kind=r4), parameter :: c_alvi     = 2.834e6
    real(kind=r4), parameter :: c_alli     = 0.334e6
    real(kind=r4), parameter :: c_alvl2    = 6.25e12

@@ -1052,7 +1052,7 @@
 		<stream name="diagnostics" 
                         type="output" 
                         filename_template="diag.$Y-$M-$D_$h.$m.$s.nc" 
-                        output_interval="3:00:00"
+                        output_interval="1:00:00"
                         runtime_format="separate_file">
 
 			<var name="initial_time"/>
@@ -2120,6 +2120,12 @@
                              units="m^{-3} s^{-1}"
                              description="Lateral boundary tendency of ice number concentration"/>
 
+                        <var name="lbc_cnvcf" name_in_code="cnvcf" array_group="convection" packages="gf_monan_pcvol" units="s^{-1}"
+                             description="Lateral boundary tendency of Convective cloud fraction"/>
+                        
+                        <var name="lbc_buoyx" name_in_code="buoyx" array_group="convection" packages="gf_monan_cporg" units="J kg^{-1} s^{-1}"
+                             description="Lateral boundary tendency of Buoyancy excess from the cold pool scheme"/>
+
                         <var name="lbc_nc" name_in_code="nc" array_group="number" packages="mp_thompson_aers_in"
                              units="m^{-3} s^{-1}"
                              description="Lateral boundary tendency of cloud water number concentration"/>
@@ -2407,7 +2413,7 @@
                      description="option to activate heating due to dissipation of TKE"
                      possible_values="0,1"/>
 
-                <nml_option name="config_mynn_edmf" type="integer" default_value="1" in_defaults="false"
+                <nml_option name="config_mynn_edmf" type="integer" default_value="0" in_defaults="false"
                      units="-"
                      description="=1:activate the EDMF option in the MYNN PBL scheme (=0 otherwise)"
                      possible_values="0,1"/>
@@ -2506,7 +2512,7 @@
                 <nml_option name="config_gf_gustf" type="integer" default_value="0" in_defaults="false"
                      units="-"
                      description="Option for coupling the Grell-Freitas MONAN cold pool gust front speed with the surface layer scheme, it needs config_gf_cporg greater than zero"
-                     possible_values="0,1,2"/>
+                     possible_values="0,1,2,3"/>
                 
                 <nml_option name="config_gf_sub3d" type="integer" default_value="0" in_defaults="false"
                      units="-"

@@ -226,6 +226,8 @@
        if(.not.allocated(rupmfxcu_p)     ) allocate(rupmfxcu_p(ims:ime,kms:kme,jms:jme) )
        if(.not.allocated(rdnmfxcu_p)     ) allocate(rdnmfxcu_p(ims:ime,kms:kme,jms:jme) )
        if(.not.allocated(v3d1_p)         ) allocate(v3d1_p    (ims:ime,kms:kme,jms:jme) )
+       if(.not.allocated(qccu_p)         ) allocate(qccu_p(ims:ime,kms:kme,jms:jme)     )
+       if(.not.allocated(qicu_p)         ) allocate(qicu_p(ims:ime,kms:kme,jms:jme)     )
  
 
        do i = its,ite
@@ -239,6 +241,9 @@
           elpbl_p(i,k,j)       = 0._RKIND
           rupmfxcu_p(i,k,j)    = 0._RKIND
           rdnmfxcu_p(i,k,j)    = 0._RKIND
+          qccu_p(i,k,j)        = 0._RKIND
+          qicu_p(i,k,j)        = 0._RKIND
+
        enddo
        enddo
        enddo
@@ -528,6 +533,8 @@
        if(allocated(sub3d_rqvcuten_p)) deallocate(sub3d_rqvcuten_p)
        if(allocated(sub3d_rucuten_p) ) deallocate(sub3d_rucuten_p )
        if(allocated(sub3d_rvcuten_p) ) deallocate(sub3d_rvcuten_p )
+       if(allocated(qccu_p)          ) deallocate(qccu_p          )
+       if(allocated(qicu_p)          ) deallocate(qicu_p          )
 
     case ("cu_kain_fritsch")
        if(allocated(dx_p)         ) deallocate(dx_p         )
@@ -628,7 +635,7 @@
 
 !=================================================================================================================
  subroutine driver_convection(itimestep,configs,mesh,sfc_input,diag_physics,tend_physics,diag,dminfo,its,ite &
-                             ,exchange_halo_group,block)
+                             ,exchange_halo_group,block,state,time_lev)
 !=================================================================================================================
 
 !input arguments:
@@ -636,12 +643,14 @@
  type(mpas_pool_type),intent(in):: mesh
  type(mpas_pool_type),intent(in):: sfc_input
  type(mpas_pool_type),intent(in):: diag
+ type(mpas_pool_type),intent(in):: state
  type(dm_info),intent(in):: dminfo
  type(block_type), intent(in) :: block
  procedure (halo_exchange_routine) :: exchange_halo_group
 
  integer,intent(in):: its,ite
  integer,intent(in):: itimestep
+ integer,intent(in):: time_lev
 
 !inout arguments:
  type(mpas_pool_type),intent(inout):: diag_physics
@@ -688,7 +697,7 @@
 
 !initialize instantaneous precipitation, and copy convective tendencies from the dynamics to
 !the physics grid:
- call convection_from_MPAS(dt_dyn,configs,mesh,sfc_input,diag_physics,tend_physics,diag,its,ite)
+ call convection_from_MPAS(dt_dyn,configs,mesh,sfc_input,diag_physics,tend_physics,diag,its,ite,state,time_lev)
 
 !... convert the convection time-step to minutes:
  cudt = dt_cu/60.
@@ -737,6 +746,7 @@
              rqccuten        = rqccuten_p             , rqicuten      = rqicuten_p      , &
              rucuten         = rucuten_p              , rvcuten       = rvcuten_p       , &
              rbuoyxcuten     = rbuoyxcuten_p          , rcnvcfcuten   = rcnvcfcuten_p   , &
+             qc_cu           = qccu_p                 , qi_cu         = qicu_p          , &
 
              sub3d_rthcuten  = sub3d_rthcuten_p       , sub3d_rqvcuten= sub3d_rqvcuten_p, & 
              sub3d_rucuten   = sub3d_rucuten_p        , sub3d_rvcuten = sub3d_rvcuten_p , &
@@ -903,7 +913,7 @@
  end subroutine driver_convection
 
 !=================================================================================================================
- subroutine convection_from_MPAS(dt_dyn,configs,mesh,sfc_input,diag_physics,tend_physics,diag,its,ite)
+ subroutine convection_from_MPAS(dt_dyn,configs,mesh,sfc_input,diag_physics,tend_physics,diag,its,ite,state,time_lev)
 !=================================================================================================================
 
 !input arguments:
@@ -913,9 +923,11 @@
  type(mpas_pool_type),intent(in):: diag_physics
  type(mpas_pool_type),intent(in):: tend_physics
  type(mpas_pool_type),intent(in):: diag
+ type(mpas_pool_type),intent(in):: state
 
  integer,intent(in):: its,ite
  real(kind=RKIND),intent(in):: dt_dyn
+ integer,intent(in):: time_lev
 
 !local pointers:
  character(len=StrKIND),pointer:: convection_scheme,config_pbl_scheme
@@ -995,6 +1007,8 @@
          call mpas_pool_get_array(diag_physics,'dp_ierr'    ,dp_ierr )
          call mpas_pool_get_array(diag_physics,'sh_ierr'    ,sh_ierr )
          call mpas_pool_get_array(diag_physics,'cg_ierr'    ,cg_ierr )
+         call mpas_pool_get_array(diag_physics,'qc_cu'        ,qc_cu )
+         call mpas_pool_get_array(diag_physics,'qi_cu'        ,qi_cu )
 
 
          call mpas_pool_get_array(diag_physics,'sigma_deep' ,sigma_deep)
@@ -1008,6 +1022,7 @@
          call mpas_pool_get_array(tend_physics,'rcnvcfcuten',rcnvcfcuten)
          call mpas_pool_get_array(tend_physics,'rbuoyxcuten',rbuoyxcuten)
 
+ 
          do j = jts,jte
          do i = its,ite
             dx_p(i,j) = len_disp / meshDensity(i)**0.25
@@ -1034,7 +1049,8 @@
             sigma_deep_p(i,j)    = sigma_deep(i)
 
             do k = kts,kte
- 
+               qccu_p(i,k,j)        = qc_cu(k,i)
+               qicu_p(i,k,j)        = qi_cu(k,i)
                rthblten_p(i,k,j)    = rthblten(k,i)
                rthdynten_p(i,k,j)   = rthdynten(k,i)
                rthratenlw_p(i,k,j)  = rthratenlw(k,i) 
@@ -1246,8 +1262,7 @@
  end subroutine convection_from_MPAS
 
 !=================================================================================================================
- subroutine convection_to_MPAS(configs,mesh,diag_physics,tend_physics,its,ite,&
-                               exchange_halo_group,block)
+ subroutine convection_to_MPAS(configs,mesh,diag_physics,tend_physics,its,ite,exchange_halo_group,block)
 !=================================================================================================================
 
 !input arguments:
@@ -1345,7 +1360,8 @@
        call mpas_pool_get_array(tend_physics,'rvcuten'     ,rvcuten    )
        call mpas_pool_get_array(tend_physics,'rbuoyxcuten' ,rbuoyxcuten)
        call mpas_pool_get_array(tend_physics,'rcnvcfcuten' ,rcnvcfcuten)
-
+       call mpas_pool_get_array(diag_physics,'qc_cu'   ,qc_cu          )
+       call mpas_pool_get_array(diag_physics,'qi_cu'   ,qi_cu          )
 
        do j = jts,jte
        do i = its,ite
@@ -1356,6 +1372,8 @@
              rcnvcfcuten(k,i)  = rcnvcfcuten_p(i,k,j)
              rupmfxcu(k,i)     = rupmfxcu_p(i,k,j)
              rdnmfxcu(k,i)     = rdnmfxcu_p(i,k,j)
+             qc_cu(k,i)        = qccu_p(i,k,j)
+             qi_cu(k,i)        = qicu_p(i,k,j)
          enddo
        enddo
        enddo
@@ -1428,7 +1446,7 @@
 
             !-- part 2: broadcast the subsidence tendencies
             call exchange_halo_group(block % domain, 'physics:sub3d_cuten')
-            call exchange_halo_group(block % domain, 'physics:sigdiagten')
+            !srf call exchange_halo_group(block % domain, 'physics:sigdiagten')
 
             !-- part 3: spread the subsidence tendencies to the 1st neighboors
             call mpas_pool_get_array(mesh, 'cellsOnCell', cellsOnCell)

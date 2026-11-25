@@ -56,7 +56,9 @@
 ! * this is a bug fix. dx_p is converted from meters to kilometers prior to calling the thompson parameterization
 !   of the cloud fraction.
 !   Laura D. Fowler (laura@ucar.edu) / 2024-03-23.
-
+!
+! * coupling with boundary layer (MYNN) and convective (Grell-Freitas) clouds.
+!   Saulo Freitas / 23-Jul-2026
 
  contains
 
@@ -119,9 +121,11 @@
  real(kind=RKIND),dimension(:),pointer:: areaCell,meshDensity
  real(kind=RKIND),dimension(:),pointer:: xland
  real(kind=RKIND),dimension(:,:),pointer:: zgrid
- real(kind=RKIND),dimension(:,:),pointer:: rupmfxcu
+ real(kind=RKIND),dimension(:,:),pointer:: rupmfxcu,qc_cu,qi_cu
  character(len=StrKIND),pointer:: radt_cld_scheme
  character(len=StrKIND),pointer:: config_convection_scheme
+ character(len=StrKIND),pointer:: pbl_scheme
+ real(kind=RKIND),dimension(:,:),pointer:: cldfrac_bl,qc_bl,qi_bl
 
 !-----------------------------------------------------------------------------------------------------------------
 
@@ -153,11 +157,30 @@
     enddo
  enddo
 
+ call mpas_pool_get_config(configs,'config_pbl_scheme',pbl_scheme)
+ pbl_select: select case (trim(pbl_scheme))
+   case("bl_mynn")
+     call mpas_pool_get_array(diag_physics,'cldfrac_bl',cldfrac_bl)
+     call mpas_pool_get_array(diag_physics,'qc_bl'     ,qc_bl     )
+     call mpas_pool_get_array(diag_physics,'qi_bl'     ,qi_bl     )
+     do j = jts,jte
+     do k = kts,kte
+     do i = its,ite
+       qcrad_p(i,k,j) = qcrad_p(i,k,j) +             qc_bl(k,i) * cldfrac_bl(k,i)
+       qirad_p(i,k,j) = qirad_p(i,k,j) + 0.5_RKIND * qi_bl(k,i) * cldfrac_bl(k,i)
+       qsrad_p(i,k,j) = qsrad_p(i,k,j) + 0.5_RKIND * qi_bl(k,i) * cldfrac_bl(k,i)
+     enddo
+     enddo
+     enddo
+   case default
+ end select pbl_select
+
  call mpas_pool_get_config(configs,'config_radt_cld_scheme',radt_cld_scheme)
  cld_fraction_select: select case (trim(radt_cld_scheme))
      case("cld_fraction_monan")
        call mpas_pool_get_array(diag_physics,'kpbl'    ,kpbl      )
        call mpas_pool_get_array(mesh,'zgrid'           ,zgrid     )
+
        do j = jts,jte
           do i = its,ite
              kpbl_p(i,j)  = kpbl(i)
@@ -171,10 +194,16 @@
        call mpas_pool_get_config(configs, 'config_convection_scheme', config_convection_scheme)
        if(trim(config_convection_scheme) == 'cu_gf_monan') then
               call mpas_pool_get_array(diag_physics,'rupmfxcu',rupmfxcu  )
+              call mpas_pool_get_array(diag_physics,'qc_cu'   ,qc_cu   )
+              call mpas_pool_get_array(diag_physics,'qi_cu'   ,qi_cu   )
               do j = jts,jte
               do k = kts,kte
               do i = its,ite
                  rupmfxcu_p(i,k,j)  = rupmfxcu(k,i)
+                 qcrad_p(i,k,j)    =    qc_cu(k,i) + qcrad_p(i,k,j)
+                 !split ice & snow 50-50%
+                 qirad_p(i,k,j)    =    qi_cu(k,i)*0.5_RKIND + qirad_p(i,k,j)
+                 qsrad_p(i,k,j)    =    qi_cu(k,i)*0.5_RKIND + qsrad_p(i,k,j)
               enddo
               enddo
               enddo
@@ -215,7 +244,6 @@
  do k = kts,kte
  do i = its,ite
     cldfrac(k,i) = cldfrac_p(i,k,j)
-    !write(77,*) "LFR-DBG: k,iCell,cldFrac ",k,i,cldfrac(k,i)
  enddo
  enddo
  enddo
