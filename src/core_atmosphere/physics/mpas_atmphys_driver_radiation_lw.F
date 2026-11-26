@@ -897,7 +897,7 @@
 !$OMP SINGLE
        !... calculates solar declination:
        
-       call radconst(declin,solcon,eot,curr_julday, radt)
+       call radconst(declin,solcon,eot,curr_julday, radt, year)
 !$OMP END SINGLE
 
 

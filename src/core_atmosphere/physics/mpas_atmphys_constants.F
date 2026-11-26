@@ -86,7 +86,7 @@
 !constants specific to long- and short-wave radiation codes:
 !real(kind=RKIND),parameter:: solcon_0 = 1365.          !solar constant                                     [W/m2]
 ! real(kind=RKIND),parameter:: solcon_0 = 1370.          !solar constant                                     [W/m2]
- real(kind=RKIND), parameter :: solcon_0 = 1366.1_RKIND  ! Updated solar constant  [W/m2] Gueymard, C. A. (2004) 10.1016/j.solener.2003.08.039
+ real(kind=RKIND), parameter :: solcon_0 = 1361.1_RKIND  ! Updated solar constant  [W/m2] Gueymard, C. A. (2018) https://doi.org/10.1016/j.solener.2018.04.001
  real(kind=RKIND),parameter:: degrad   = 3.1415926/180. !conversion from degree to radiant                     [-]
  real(kind=RKIND),parameter:: dpd      = 360./365.
 
