@@ -745,7 +745,9 @@ real(kind=RKIND),dimension(:,:),allocatable:: &
 
  real(kind=RKIND):: &
     declin,           &!solar declination                                                       [-]
-    solcon             !solar constant                                                      [W m-2]
+    solcon,            &!solar constant                                                      [W m-2]
+    eot                !equation of time                                                   [minutes]
+    
 
  real(kind=RKIND),dimension(:,:),allocatable:: &
     coszr_p,          &!cosine of the solar zenith angle                                        [-]

@@ -212,7 +212,7 @@ subroutine camrad(RTHRATENLW,RTHRATENSW,                           &
                      m_psp,m_psn,aerosolcp,aerosolcn,m_hybi0,       &
                      cam_abs_dim1, cam_abs_dim2,                    &
                      paerlev,naer_c,                                &
-                     GMT,JULDAY,JULIAN,YR,DT,XTIME,DECLIN,SOLCON,         &
+                     GMT,JULDAY,JULIAN,YR,DT,XTIME,DECLIN,SOLCON, EOT,        &
                      RADT,DEGRAD,n_cldadv,                                  &
                      abstot_3d, absnxt_3d, emstot_3d,              &
                      doabsems,                                     &
@@ -248,7 +248,7 @@ subroutine camrad(RTHRATENLW,RTHRATENSW,                           &
 
 
    REAL, INTENT(IN    )      ::        RADT,DEGRAD,             &
-                                       XTIME,DECLIN,SOLCON,GMT
+                                       XTIME,DECLIN,SOLCON,EOT, GMT
 !
 !
    REAL, DIMENSION( ims:ime, kms:kme, jms:jme ),                  &
@@ -500,7 +500,8 @@ subroutine camrad(RTHRATENLW,RTHRATENSW,                           &
       ! JULIAN is in days
       ! RADT is in minutes
       XT24=MOD(XTIME+RADT*0.5,1440.)
-      TLOCTM=GMT+XT24/60.+XLONG(I,J)/15.
+      ! Added the equation of time correction
+      TLOCTM=GMT+XT24/60.+XLONG(I,J)/15.+EOT/60.
       HRANG=15.*(TLOCTM-12.)*DEGRAD
       XXLAT=XLAT(I,J)*DEGRAD
       clat(ii)=xxlat

@@ -43,7 +43,7 @@
 ! driver_radiation_sw    : main driver (called from subroutine physics_driver).
 ! radiation_sw_from_MPAS : initialize local arrays.
 ! radiation_sw_to_MPAS   : copy local arrays to MPAS arrays.
-! radconst               : calculate solar declination,...
+! radconst               : calculate solar declination and equation of time
 !
 ! WRF physics called from driver_radiation_sw:
 ! --------------------------------------------
@@ -891,12 +891,14 @@
 !copy MPAS arrays to local arrays:
  call radiation_sw_from_MPAS(configs,mesh,state,time_lev,diag_physics,atm_input,sfc_input,xtime_s,its,ite)
 
+ !... convert the radiation time_step to minutes:
+ radt = dt_radtsw/60.
+
 ! This should be OMP MASTER with barrier afterwards or OMP SINGLE, since declin and solcon
 ! are global variables in mpas_atmphys_vars.F and race conditions may occur otherwise!
 !$OMP SINGLE
 !... calculates solar declination:
-!call radconst(declin,solcon,julday,degrad,dpd)
- call radconst(declin,solcon,curr_julday,degrad,dpd)
+ call radconst(declin,solcon,eot,curr_julday, radt, year)
 !call mpas_log_write('     ITIMESTEP   = $i', intArgs=(/itimestep/))
 !call mpas_log_write('     YEAR        = $i', intArgs=(/year/))
 !call mpas_log_write('     JULDAY      = $i', intArgs=(/julday/))
@@ -906,9 +908,6 @@
 !call mpas_log_write('     SOLCON      = $r', realArgs=(/solcon/))
 !call mpas_log_write('     DECLIN      = $r', realArgs=(/declin/))
 !$OMP END SINGLE
-
-!... convert the radiation time_step to minutes:
- radt = dt_radtsw/60.
     
 !call to shortwave radiation scheme:
  radiation_sw_select: select case (trim(radt_sw_scheme))
@@ -942,6 +941,7 @@
               snow       = snow_p        , coszr    = coszr_p     , xtime    = xtime_m        , &
               gmt        = gmt           , julday   = julday      , radt     = radt           , &
               degrad     = degrad        , declin   = declin      , solcon   = solcon         , &
+              eot      = eot  ,&
               xlat       = xlat_p        , xlong    = xlon_p      , icloud   = icloud         , &
               cldovrlp   = cldovrlp      , idcor    = idcor       , o3input  = o3input        , &
               noznlevels = num_oznlevels , pin      = pin_p       , o3clim   = o3clim_p       , &
@@ -1000,6 +1000,7 @@
                 julday        = julday        , julian        = curr_julday   ,              &
                 dt            = dt_dyn        , xtime         = xtime_m       ,              &
                 declin        = declin        , solcon        = solcon        ,              &
+                eot  = eot,                                                                  &
                 radt          = radt          , degrad        = degrad        ,              &
                 n_cldadv      = 3             , abstot_3d     = abstot_p      ,              &
                 absnxt_3d     = absnxt_p      , emstot_3d     = emstot_p      ,              &
@@ -1021,48 +1022,88 @@
  end subroutine driver_radiation_sw
 
 !=================================================================================================================
- subroutine radconst(declin,solcon,julian,degrad,dpd)
+ subroutine radconst(declin,solcon,eot,curr_julday, radt, year)
 !=================================================================================================================
+   ! NOAA/Meeus declination (radians), solar constant, and equation of time (minutes).
+   ! Following Chapters 25 and 28 of Meeus, J. H. (1991) Astronomical algorithms. 
+   ! Accuracy of 0.01 degree
+   ! Day zero is January 1 at 00:00 UTC of the given year.
+   !input arguments:
 
-!input arguments:
-!integer,intent(in):: julian
- real(kind=RKIND),intent(in):: julian
- real(kind=RKIND),intent(in):: degrad,dpd
+   real(kind=RKIND),intent(in):: curr_julday     ! 0-based day of year, 0.0-365.0 (fractional
+                                                ! within the day is fine, e.g.
+                                                ! 0.5 for noon on day 1)
+   real(kind=RKIND),intent(in):: radt           ! SW radiation time step in minutes
+   integer, intent(in) :: year                  ! year 
+   !Output arguments:
+   real(kind=RKIND), intent(out) :: declin       ! solar declination [radians]
+   real(kind=RKIND), intent(out) :: solcon       ! solar constant adjusted for time of year [W/m2]
+   real(kind=RKIND), intent(out) :: eot          ! equation of time [minutes]
 
-!output arguments:
- real(kind=RKIND),intent(out):: declin,solcon
+   !local variables:
+   integer :: previous_year, leap_days, year_offset
+   real(kind=RKIND) :: T, L0, M, eccentricity, suncenter, true_anomaly, omega
+   real(kind=RKIND) :: sunlongitude, mean_obliquity, obliquity, eq_y, L0_rad
+   real(kind=RKIND) :: radius_au, eccfac
 
-!local variables:
- real(kind=RKIND):: obecl,sinob,sxlong,arg,decdeg,djul,rjul,eccfac
+   !-----------------------------------------------------------------------------------------------------------------
+   declin = 0.0_RKIND
+   solcon = 0.0_RKIND
+   eot = 0.0_RKIND
 
-!-----------------------------------------------------------------------------------------------------------------
+   ! year_offset is the number of Gregorian calendar days from 2000-01-01 to January 1 of the target year.
+   previous_year = year - 1
+   leap_days = previous_year/4 - previous_year/100 + previous_year/400
+   year_offset = 365*(year - 2000) + leap_days - 484
 
-   declin=0.
-   solcon=0.
+   ! Julian century from J2000.0
+   T = (real(year_offset, RKIND) + curr_julday - 0.5_RKIND) / 36525.0_RKIND
+   ! Sun mean longitude (deg) 
+   L0 = modulo(280.46646_RKIND + T * (36000.76983_RKIND + T * 0.0003032_RKIND), &
+               360.0_RKIND)
+   ! Geometric mean anomaly of the Sun (radians)
+   M = degrad * (357.52911_RKIND + T * (35999.05029_RKIND - 0.0001537_RKIND * T))
+   ! Eccentricity of Earth's orbit
+   eccentricity = 0.016708634_RKIND - T * (0.000042037_RKIND + 0.0000001267_RKIND * T)
+   ! Sun's equation of the center (deg)
+   suncenter = sin(M) * (1.914602_RKIND - T * (0.004817_RKIND + 0.000014_RKIND * T)) &
+             + sin(2.0_RKIND * M) * (0.019993_RKIND - 0.000101_RKIND * T) &
+             + sin(3.0_RKIND * M) * 0.000289_RKIND
+   ! True anomaly of the Sun (radians)
+   true_anomaly = M + degrad * suncenter
 
-!obecl : obliquity = 23.5 degree.
-        
-   obecl=23.5*degrad
-   sinob=sin(obecl)
-        
-!calculate longitude of the sun from vernal equinox:        
+   omega = degrad * (125.04_RKIND - 1934.136_RKIND * T)
+   ! Sun's apparent longitude (radians)
+   sunlongitude = degrad * (L0 + suncenter - 0.00569_RKIND - 0.00478_RKIND * sin(omega))
 
-   if(julian.ge.80.)sxlong=dpd*(julian-80.)
-   if(julian.lt.80.)sxlong=dpd*(julian+285.)
-   sxlong=sxlong*degrad
-   arg=sinob*sin(sxlong)
-   declin=asin(arg)
-   decdeg=declin/degrad
+   !Obliquity of the ecliptic (radians)
+   mean_obliquity = 23.0_RKIND + (26.0_RKIND + &
+                    (21.448_RKIND - T * (46.815_RKIND + T * &
+                    (0.00059_RKIND - T * 0.001813_RKIND))) / 60.0_RKIND) / 60.0_RKIND
+   obliquity = degrad * (mean_obliquity + 0.00256_RKIND * cos(omega))
 
-!solar constant eccentricity factor (paltridge and platt 1976)
+   !Declination of the Sun (radians)
+   declin = asin(sin(obliquity) * sin(sunlongitude))
 
-   djul=julian*360./365.
-   rjul=djul*degrad
-   eccfac=1.000110+0.034221*cos(rjul)+0.001280*sin(rjul)+0.000719*  &
-          cos(2*rjul)+0.000077*sin(2*rjul)
+   ! Equation of time (minutes) calculation follows Chapter 28
+   eq_y = tan(obliquity / 2.0_RKIND) ** 2
+   L0_rad = L0 * degrad
+   eot = (4.0_RKIND / degrad) * ( &
+      eq_y * sin(2.0_RKIND * L0_rad) - 2.0_RKIND * eccentricity * sin(M) &
+      + 4.0_RKIND * eccentricity * eq_y * sin(M) * cos(2.0_RKIND * L0_rad) &
+      - 0.5_RKIND * eq_y**2 * sin(4.0_RKIND * L0_rad) &
+      - 1.25_RKIND * eccentricity**2 * sin(2.0_RKIND * M))
+
+   ! Chapter 25
+   radius_au = (1.000001018_RKIND * (1.0_RKIND - eccentricity**2)) / &
+               (1.0_RKIND + eccentricity * cos(true_anomaly))
+   eccfac = 1.0_RKIND / radius_au**2
+
+   ! Solar constant corrected for Earth's orbital eccentricity
    solcon=solcon_0*eccfac
 
- end subroutine radconst
+end subroutine radconst
+
 
 !=================================================================================================================
  end module mpas_atmphys_driver_radiation_sw
